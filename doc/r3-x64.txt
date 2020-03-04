@@ -1,0 +1,405 @@
+Lenguaje R3
+-----------
+
+Basic colorforth derived lang form 64 bits.
+Basic ASM x84 transformation
+
+LIT
+TOS=DATA
+
+WORD
+call word
+
+;	| --	R: a -- Fin de palabra
+ret
+
+>R 		| a --      R: -- a
+push TOS
+R> 		| -- a		R: a --
+pop TOS
+R@		| -- a      R: a -- a
+mov TOS,[esp]
+
+
+0? 	| --		Es 0 el tope de la pila ?
+or TOS,TOS
+jnz la
+
+1? 	| --		Es distinto a 0 el tope de la pila ?
+or TOS,TOS
+jz la
+
++? 	| --		Es positivo el tope de la pila ?
+or TOS,TOS
+js la
+
+-?	| --		Es negativo el tope de la pila ?
+or TOS,TOS
+jns la
+
+=?	| a b -- a	a = b ?
+cmp NOS,TOS
+jne la
+
+<?	| a b -- a	a < b ?
+cmp NOS,TOS
+jge la
+
+>?	| a b -- a	a > b ?
+cmp NOS,TOS
+jle la
+
+<=?	| a b -- a	a <= b ?
+cmp NOS,TOS
+jg la
+
+>=?	| a b -- a	a >= b ?
+cmp NOS,TOS
+jl la
+
+<>?	| a b -- a	a <> b ?
+cmp NOS,TOS
+je la
+
+AND?	| a b -- a	a and b ?
+test NOS,TOS
+je la
+
+NAND?	| a b -- a	a nand b ?
+test NOS,TOS
+jne la
+
+BTWN?	| a b c -- a<=b<=c?
+mov A,a
+cmp A,b
+jl la
+cmp A,c
+jg la
+
+------------------
+"?? ("
+
+")"
+label2:
+
+------------------
+"??"
+
+"("
+label1:
+
+")"
+jmp label1
+label2:
+
+------------------
+
+condicional
+
+?? ( bloque )
+
+repeticion
+
+( .. ?? .. ?? .. )
+
+------------------
+
+?? busca bloque mismo nivel y salta si negativo
+
+
+-------------------------------------
+-------------------------------------
+-------------------------------------
+
+?? ( A ) 		| IF
+jxx .n
+	A
+.n:
+
+?? (  A () B )	| IF-ELSE
+jxx .n
+	A
+jmp .s
+.n:
+	B
+.s:
+
+(  A ?? ()  B ) 	| WHILE
+.n:
+	A
+jxx .s
+	B
+jmp .n
+.s:
+
+jmp .n
+.s:
+	B
+.n:
+	A
+jxx .s
+
+(   ?? ) 		| UNTIL
+.n:
+	A
+jxx .n
+-------------------------------------
+conversion
+
+:drawms nrows ( +? )( ncols ( +? )( 2dup drawmspt 1- ) drop 1- ) drop ;
+
+pasa a ser:
+
+:drawms nrows ( +? ncols ( +? 2dup drawmspt 1 - ) drop 1 - ) drop ;
+
+-------------------------------------
+-------------------------------------
+-------------------------------------
+
+?? ( A ) 		| IF
+jxx .n || ?? (
+	A
+.n:    || )
+
+
+(  A ??   B ) 	| WHILE
+.n:		|| (
+	A
+jxx .s  || ??
+	B
+jmp .n  || )
+.s:
+
+///////////////// puede transformarse en
+jmp .n
+.s:     || )
+	B
+.n:		|| (
+	A
+jxx .s  || ??
+/////////////////
+
+(  A ?? B ??  C ) 	| WHILE MUL
+.n:         || (
+	A
+	jxx .s	|| ??
+	B
+	jxx .s	|| ??
+	C
+	jmp .n	|| )
+
+-------------------------------------
+-------------------------------------
+-------------------------------------
+
+[	; ]			| Inicio y Fin de definicion Anonima
+----- no existe
+
+EX  	| vector --  Llama al codigo del vector
+call TOS
+
+NT@		| nro listavector --	nro*4+listavector @
+mov eax,[eax*4+CTE]
+;lea eax,[eax*4+ebx+CTE]
+
+DUP 	| a -- a a
+DROP 	| a --
+OVER 	| a b -- a b a
+PICK2 	| a b c -- a b c a
+PICK3 	| a b c d -- a b c d a
+PICK4 	| a b c d e -- a b c d e a
+SWAP 	| a b -- b a
+NIP		| a b -- b
+ROT 	| a b c -- b c a
+2DUP 	| a b -- a b a b
+2DROP   | a b --
+3DROP   | a b c --
+4DROP   | a b c d --
+2OVER	| a b c d -- a b c d a b
+2SWAP	| a b c d -- c d a b
+
+
+AND 	| a b -- c     c = a AND b
+and TOS,NOS
+
+OR 		| a b -- c     c = a OR b
+or TOS,NOS
+
+XOR 	| a b -- c     c = a XOR b
+xor TOS,NOS
+
++ 		| a b -- c	c=a+b
+add TOS,NOS
+
+- 		| a b -- c	c=a-b
+sub TOS,NOS
+
+<< 		| a b -- c		c=a<<b
+sal NOS,TOS
+
+>> 		| a b -- c		b=a>>b (arrastra signo)
+sar NOS,TOS
+
+>>>		| a b -- c		b=a>>b (arrastra zero)
+shr NOS,TOS
+
+* 		| a b -- c	c=a*b
+imul TOS,NOS
+
+/ 		| a b -- c	c=a/b
+cdq
+idiv NOS,TOS
+
+MOD 	| a b -- c		c=a resto b
+cdq
+idiv NOS,TOS
+
+*/ 		| a b c -- d	d=a*b/c	resultado intermedio en 64 bits
+cdq
+imul PK2,NOS
+idiv NOS,TOS
+
+*>>		| a b c -- d	d=(a*b)>>c	 resultado intermedio en 64 bits
+;a=eax
+cdq
+imul NOS
+shrd eax,edx,TOSb
+
+<</		| a b c -- d	d(a<<c)/b  64 bits!
+cdq
+shld edx,eax,TOSb
+shl eax,TOSb
+idiv NOS
+
+/MOD 	| a b -- c d	c=a/b  d=a resto b
+cdq
+idiv TOS
+
+NOT  	| a -- c     a not a
+not TOS
+
+NEG 	| a -- b		b=-a
+neg TOS
+
+BSWAP	| a -- b		b=bswap a
+bswap TOS
+
+ABS		| a -- b		b=|a|
+mov edx,TOS
+sar edx,31
+add TOS,edx
+xor TOS,edx
+;TOS=eax?
+cdq
+add eax,edx
+xor eax,edx
+
+CLZ		| a -- b		count leanding zeros
+bsr TOS,TOS
+xor TOS,31
+
+SQRT	| a -- b		square root
+
+@ 		| a -- b		b=32(a)
+mov TOS,[TOS]
+
+C@ 		| a -- b		b=8 (a)
+movsx TOS,byte [TOS]
+
+D@		| a -- b		b=16(a)
+movsx TOS,word [TOS]
+
+!		| v d --		32(d) = v
+mov [TOS],NOS
+
+C!		| v d --		8(d) = v
+mov byte [TOS],NOSb
+
+D! 		| v d --		16(d) = v
+mov word [TOS],NOSw
+
++! 		| v d --		32(d)=32(d)+v
+add [TOS],NOS
+
+C+!		| v d --		8(d)=8(d)+v
+add byte [TOS],NOSb
+
+D+!  	| v d --		16(d)=16(d)+v
+add word [TOS],NOSw
+
+@+		| d -- d+4 v	dword (32bits)
+mov nTOS,[TOS];add TOS,4
+
+C@+		| d -- d+1 v	byte (8bits)
+movzs nTOS,byte [TOS];add TOS,1
+
+D@+		| d -- d+2 v	word (16bits)
+movzs nTOS,word [TOS];add TOS,2
+
+!+		| v d -- d+4
+mov [TOS],NOS;add TOS,4
+
+C!+		| v d -- d+1
+mov byte [TOS],NOSb;add TOS,1
+
+D!+		| v d -- d+2
+mov word [TOS],NOSw;add TOS,2
+
+>A		| a --      S=a
+mov edi,TOS
+
+A+		| a --
+add edi,TOS
+
+A@		| -- v
+mov TOS,[edi]
+
+A!	| v --
+mov [edi],TOS
+
+
+>B		| a --		d=a
+mov	esi,TOS
+
+B+		| c	--		d+c
+add esi,TOS
+
+B@		| -- v
+mov TOS,[esi]
+
+B!		| v --		v=(d);d+4
+mov [esi],TOS
+
+
+MOVE	| de sr cnt --	Copia CNT dword de SR a DE
+MOVE>   | de sr cnt --	Copia CNT dword de SR a DE (para atras)
+FILL	| sr v cnt --
+
+CMOVE   | de sr cnt --	Copia CNT bytes de SR a DE
+CMOVE>  | de sr cnt --	Copia CNT bytes de SR a DE (para atras)
+CFILL	|sr v cnt --
+
+QMOVE	| de sr cnt --	Copia CNT dword de SR a DE
+QMOVE>   | de sr cnt --	Copia CNT dword de SR a DE (para atras)
+QFILL	| sr v cnt --
+
+MEM		| -- dir 				Direccion de inicio de memoria libre
+
+SW 		| -- w		Ancho de pantalla
+SH 		| -- h		Alto de pantalla
+FRAMEV	| -- m		Memoria de video
+
+REDRAW  | --		Dibuja nuevo FRAME
+
+UPDATE	| s -- s	Actualiza las irqel raton, el teclado, sonido, etc, s=sleep time
+MSEC 	| -- a 		milisegundos del sistema
+TIME 	| -- s m h 	hora minutos y segundos
+DATE 	| -- d m a	dia mes y anio
+
+LOAD	| d "filename" -- e		Carga un archivo en memoria, E direccion de fin E-D bytes leidos
+SAVE	| d n "filename" -- 	Graba memoria D en un archivo, N bytes
+APPEND	| d n "filename" -- 	Graba memoria D en un archivo, N bytes
+FFIRST  | "path" -- fdd/0		Obtiene la primera entrada de la carpeta
+FNEXT 	| -- fdd/0				Obtiene la siguiente entrada en la carpeta,0 es fin
+
+SYS	| "cmd" -- status		ejecuta cmd de sistema/0 end/-1 check
