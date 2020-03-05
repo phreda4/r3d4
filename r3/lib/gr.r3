@@ -138,3 +138,10 @@
 	swap $ff00 and
 	over - rot * 8 >> +
 	$ff00 and r> or ;
+
+|-----------------------------------------
+::fillbox | x1 y1 x2 y2
+	2dup op
+	swap pick2 pline
+	pick2 swap op
+	pline poli ;
