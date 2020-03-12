@@ -12,7 +12,8 @@
 |---------- rfont
 #fontrom
 #fontsize
-#fycc #fxcc	| ajustes
+##fycc 
+##fxcc	| ajustes
 
 :v>rfw ccw 14 *>> ;
 :rf>xy | value -- x y

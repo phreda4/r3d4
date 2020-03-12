@@ -16,17 +16,21 @@
 	dup 8 >> $ff and over 24 >> $ff and + 2 <<
 	over $ff and rot 16 >> $ff and + 2 << ;
 
-::grid2box | int --
+::int2box | int --
 	dup 8 >> $ff and 2 << dup 'tx1 !
 	over 24 >> $ff and 2 << + 'tx2 !
 	dup $ff and 2 << dup 'ty1 !
 	swap 16 >> $ff and 2 << + 'ty2 ! ;
 
-::box! | x1 y1 x2 y2
-	'ty2 ! 'tx2 !
-	'ty1 ! 'tx1 ! ;
+::int2pad | int --
+	dup 16 >> 'padl !
+	dup $ff and 'padx !
+	8 >> $ff and 'pady ! ;
 
-::boxpad | x y l --
+::box! | x1 y1 x2 y2 --
+	'ty2 ! 'tx2 ! 'ty1 ! 'tx1 ! ;
+
+::boxpad! | x y l --
 	'padl ! 'pady ! 'padx ! ;
 
 ::boxfill | --
@@ -36,7 +40,7 @@
 	tx1 ty1 tx1 pick3 + ty2 fillbox
 	tx2 ty1 tx2 pick3 - ty2 fillbox
 	tx1 ty1 tx2 ty1 pick4 + fillbox
-	tx1 ty2 tx2 ty2 pick4 - fillbox          
+	tx1 ty2 tx2 ty2 pick4 - fillbox
 	drop ;
 
 |-------------------------------
