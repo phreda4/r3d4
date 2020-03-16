@@ -6,24 +6,33 @@
 ^r3/lib/print.r3
 ^r3/lib/key.r3
 
-#nav32 $08008 | 8x8 32bits
-$ffffff $ffffff $ffffff $ffff $ffff $ffff $ffff $ffff
-$ffffff $ffffff $ffffff $ffff $ffff $ffff $ffff $ffff
-$ffffff $ffffff $ffffff $ffff $ffff $ffff $ffff $ffff
-$ffffff $ffffff $ffffff $ffff $ffff $ffff $ffff $ffff
-$ffff $ffff $ffff $ffff $ffff $ffff $ffff $ffff
-$ffff $ffff $ffff $ffff $ffff $ffff $ffff $ffff
-$ff00 $ff00 $ff00 $ff00 $ff00 $ff00 $ff00 $ff00
-$ff00 $ff00 $ff00 $ff00 $ff00 $ff00 $ff00 $ff00
+#mario $1010010 | 16x16 32bits alpha
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 $FFED2B2B $FFED2B2B $FFED2B2B $FFED2B2B $FFED2B2B $FFED2B2B 0 0 0 0
+ 0 0 0 0 0 $FFED2B2B $FFED2B2B $FFED2B2B $FFED2B2B $FFEDEFF3 $FFEDEFF3 $FFED2B2B 0 0 0 0
+ 0 0 0 0 $FFED2B2B $FFED2B2B $FFED2B2B $FFA4103F $FFA4103F $FFA4103F $FFA4103F $FFA4103F $FFA4103F 0 0 0
+ 0 0 0 0 $FFA4103F $FFA4103F $FFA4103F $FFF09364 $FF202030 $FFF09364 $FF202030 $FFF09364 0 0 0 0
+ 0 0 0 0 $FFF09364 $FF202030 $FF202030 $FFFCCBA8 $FF202030 $FFFCCBA8 $FF202030 $FFFCCBA8 0 0 0 0
+ 0 0 0 0 $FFFCCBA8 $FFF09364 $FF202030 $FFFCCBA8 $FFFCCBA8 $FFFCCBA8 $FFFCCBA8 $FFFCCBA8 $FFFCCBA8 0 0 0
+ 0 0 0 0 0 $FFF09364 $FFFCCBA8 $FFFCCBA8 $FF202030 $FF202030 $FFF09364 $FFF09364 $FFFCCBA8 0 0 0
+ 0 0 0 0 0 $FFA4103F $FFF09364 $FFFCCBA8 $FFFCCBA8 $FF202030 $FF202030 $FF202030 0 0 0 0
+ 0 0 0 0 $FFED2B2B $FFED2B2B $FFA4103F $FF256DD5 $FFED2B2B $FFED2B2B $FF256DD5 0 0 0 0 0
+ 0 0 0 0 $FFED2B2B $FFEDEFF3 $FFEDEFF3 $FFFFC619 $FF256DD5 $FF256DD5 $FFFFC619 $FFEDEFF3 0 0 0 0
+ 0 0 0 0 $FFA4103F $FFEDEFF3 $FFEDEFF3 $FF256DD5 $FF256DD5 $FF256DD5 $FF256DD5 $FFEDEFF3 0 0 0 0
+ 0 0 0 0 0 $FF256DD5 $FF256DD5 $FF256DD5 $FF256DD5 $FF256DD5 $FF256DD5 0 0 0 0 0
+ 0 0 0 0 0 $FFD5592F $FFD5592F $FFD5592F 0 $FFAF2D19 $FFAF2D19 $FFAF2D19 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
 
 #xn 100 #yn 100
 
 :player
-	xn yn 'nav32 sprite
-	xn 8 + yn 8 + 'nav32 sprite
-	xn yn 8 + 'nav32 sprite
-	xn 8 + yn 'nav32 sprite	
+	xn yn 'mario sprite
+
+	xypen 128 dup 'mario spritesize
+
+	300 300 msec 2 << 'mario rsprite
 	acursor
 	;
 

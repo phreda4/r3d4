@@ -40,7 +40,9 @@ opensanslight
 opensansregular
 
 ::nfont! | nro size --
-	>r $f and 2 << 'fontlist + @ ex r> fontr! ;
+	>r $f and 2 << 'fontlist + @ ex 
+	r> fontr!
+	;
 
 :semit1 | c --
 	ccy ccx
