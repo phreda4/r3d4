@@ -13,7 +13,7 @@
 :test
 	cls home
 	cc "%h" print cr
-	cc "%l" print
+	cc "%l" print cr
 
 	key
 	>esc< =? ( exit )

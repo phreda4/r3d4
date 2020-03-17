@@ -2,6 +2,7 @@
 | PHREDA 2018
 
 ^r3/lib/sys.r3
+^r3/lib/mem.r3
 
 ##paper 0
 ##ccx 0 ##ccy 0
@@ -115,6 +116,53 @@
 			)
 		'xm !
 		) 4drop ;
+
+|----
+#cf #cc
+#sa #sb
+#herel
+
+:spanabove | adr y x -- adr y x
+	sa 0? ( drop
+		2dup swap 1 - -? ( 2drop ; )
+		pget cf <>? ( drop ; ) drop
+		rot >a 2dup	swap 1 -
+		a!+ a!+ a> rot rot
+		1 'sa ! ; ) drop
+	2dup swap 1 - pget cf =? ( drop ; ) drop
+	0 'sa ! ;
+
+:spanbelow | adr y x -- adr y x
+	sb 0? ( drop
+		2dup swap 1 + sh >=? ( 2drop ; )
+		pget cf <>? ( drop ; ) drop
+		rot >a 2dup swap 1 +
+		a!+ a!+ a> rot rot
+		1 'sb ! ; ) drop
+	2dup swap 1 + pget cf =? ( drop ; ) drop
+	0 'sb ! ;
+
+:fillline | adr y x1 -- adr'
+	0 'sa ! 0 'sb !
+	( sw <?
+		2dup swap pget cf <>? ( 3drop ; ) drop
+		cc over pick3 pset | adr y x
+		spanabove
+		spanbelow
+		1 + ) 2drop ;
+
+:firstx | y x -- y x
+	( +? 2dup swap pget cf <>? ( drop 1 + ; ) drop 1 - ) 1 + ;
+
+::floodfill | c x y --
+	2dup pget pick3 =? ( 4drop ; )
+	'cf ! rot 'cc !
+	here dup 'herel !
+	!+ !+	| x y
+ 	( herel >? 8 - dup @+ swap @	| adr y x
+ 		firstx	| adr y x1
+		fillline
+ 		) drop ;
 
 |-----------------------------------------
 ::colavg | a b -- c
