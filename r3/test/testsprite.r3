@@ -5,6 +5,7 @@
 ^r3/lib/str.r3
 ^r3/lib/print.r3
 ^r3/lib/key.r3
+^r3/util/miniscr.r3
 
 #mario $1010010 | 16x16 32bits alpha
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -29,17 +30,15 @@
 
 :player
 	xn yn 'mario sprite
-
-	xypen 128 dup 'mario spritesize
-
-	300 300 msec 2 << 'mario rsprite
+	xypen 32 dup 'mario spritesize
+	200 100 msec 3 << 'mario rsprite
 	acursor
 	;
 
 #val
 
 :ongame
-	cls home
+	cls home $ff00 'ink !
 	xypen .d print " " print .d print cr
 	val .h print cr
 
@@ -53,8 +52,10 @@
 	>esc< =? ( exit )
 	drop
 	player
+	minidraw
 	;
 :
+340 200 miniscreen
 'ongame onshow
 ;
 

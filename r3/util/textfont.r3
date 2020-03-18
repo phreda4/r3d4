@@ -3,21 +3,21 @@
 |---------------
 ^r3/lib/fontr.r3
 
-^r3/rft/robotobold.rft
-^r3/rft/robotolight.rft
-^r3/rft/robotoregular.rft
-^r3/rft/robotothin.rft
-^r3/rft/architectsdaughter.rft
-^r3/rft/archivoblackregular.rft
-^r3/rft/comfortaa_bold.rft
-^r3/rft/comfortaa_thin.rft
-^r3/rft/dejavusans.rft
-^r3/rft/dejavuserif.rft
-^r3/rft/dejavuserifbold.rft
-^r3/rft/droidsansbold.rft
-^r3/rft/gooddog.rft
-^r3/rft/opensanslight.rft
-^r3/rft/opensansregular.rft
+^media/rft/robotobold.rft
+^media/rft/robotolight.rft
+^media/rft/robotoregular.rft
+^media/rft/robotothin.rft
+^media/rft/architectsdaughter.rft
+^media/rft/archivoblackregular.rft
+^media/rft/comfortaa_bold.rft
+^media/rft/comfortaa_thin.rft
+^media/rft/dejavusans.rft
+^media/rft/dejavuserif.rft
+^media/rft/dejavuserifbold.rft
+^media/rft/droidsansbold.rft
+^media/rft/gooddog.rft
+^media/rft/opensanslight.rft
+^media/rft/opensansregular.rft
 
 ^r3/util/textbox.r3
 

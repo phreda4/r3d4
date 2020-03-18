@@ -20,5 +20,5 @@
 
 :
 	mark
-	"a1a.png" loadimg 'ima1 !
+	"media/img/logo.png" loadimg 'ima1 !
 	'main onshow ;

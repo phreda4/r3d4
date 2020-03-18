@@ -18,6 +18,9 @@
 ::pset | x y --
   xy>v ink swap ! ;
 
+::psetc | c x y --
+  xy>v ! ;
+
 ::pget | x y -- c
   xy>v @ ;
 
@@ -146,7 +149,7 @@
 	0 'sa ! 0 'sb !
 	( sw <?
 		2dup swap pget cf <>? ( 3drop ; ) drop
-		cc over pick3 pset | adr y x
+		dup pick2 pset | adr y x
 		spanabove
 		spanbelow
 		1 + ) 2drop ;
@@ -156,7 +159,7 @@
 
 ::floodfill | c x y --
 	2dup pget pick3 =? ( 4drop ; )
-	'cf ! rot 'cc !
+	'cf ! rot 'ink !
 	here dup 'herel !
 	!+ !+	| x y
  	( herel >? 8 - dup @+ swap @	| adr y x
