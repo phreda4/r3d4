@@ -52,7 +52,7 @@
 ::Bou_In		1.0 swap - Bou_Out 1.0 swap - ;
 ::Bou_InOut	1 << 1.0 <? ( Bou_In 1 >> ; ) 1.0 - Bou_Out 1 >> 0.5 + ;
 
-##ease 0
+##easet 0
 Quad_In	Quad_Out Quad_InOut
 Cub_In Cub_Out Cub_InOut
 Quar_In Quar_Out Quar_InOut
@@ -64,6 +64,9 @@ Ela_In Ela_Out Ela_InOut
 Bac_In Bac_Out Bac_InOut
 Bou_In Bou_Out Bou_InOut
 0
+
+::ease | t nro -- t'
+	0? ( drop ; ) 2 << 'easet + @ ex ;
 
 ::catmullRom | p0 p1 p2 p3 t -- v
 	>r pick2 - 1 >> 	| p0 p1 p2 v1

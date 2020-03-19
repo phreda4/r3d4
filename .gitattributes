@@ -1,3 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 *.r3 text eol=crlf linguist-language=forth
+*.fnt text eol=crlf linguist-language=forth
+*.rft text eol=crlf linguist-language=forth
+*.ric text eol=crlf linguist-language=forth
