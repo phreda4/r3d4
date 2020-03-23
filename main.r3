@@ -8,7 +8,7 @@
 ^r3/lib/trace.r3
 
 ^r3/lib/fontm.r3
-^r3/fntm/droidsans13.fnt
+^media/fntm/droidsans13.fnt
 
 #path * 1024
 #name * 1024
