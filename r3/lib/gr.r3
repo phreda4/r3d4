@@ -190,6 +190,33 @@
 	over - rot * 8 >> +
 	$ff00 and r> or ;
 
+| hsv 1.0 1.0 1.0 --> rgb
+
+:h0 ;				|v, n, m
+:h1 >r swap r> ;	|n, v, m
+:h2 rot rot ;		|m, v, n
+:h3 swap rot ;		|m, n, v
+:h4 rot ;			|n, m, v
+:h5 swap ;			|v, m, n
+#acch h0 h1 h2 h3 h4 h5
+
+::hsv2rgb | h s v -- rgb32
+	1? ( 1 - ) $ffff and swap
+	0? ( drop nip 8 >> dup 8 << dup 8 << or or ; ) | hvs
+	rot 1? ( 1 - ) $ffff and
+	dup 1 << + 1 <<	| 6*
+	dup 16 >> 	| vshH
+	1 na? ( $ffff rot - swap ) | vsfH
+	>r $ffff and	| vsf
+	1.0 pick2 - pick3 16 *>> | vsfm
+	>r
+	16 *>> 1.0 swap - | v (1-s*f)
+	over 16 *>> r> | vnm
+	r> 2 << 'acch + @ ex | rgb
+	8 >> swap
+	$ff00 and or swap
+	8 << $ff0000 and or ;
+
 |-----------------------------------------
 ::fillbox | x1 y1 x2 y2
 	2dup op

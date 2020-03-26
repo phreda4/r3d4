@@ -3,62 +3,75 @@
 |--------------------
 ^r3/lib/gui.r3
 
+:print2gc | "" --
+	ccx 1 - 'xr1 !
+	ccy 1 - 'yr1 !
+	swprint ccx 1 + + 'xr2 !
+	cch ccy 1 + 'yr2 !
+	;
+
+:botonsimple
+	xr1 yr1 xr2 yr2 fillbox
+|	ink $444444 over
+|	[ swap ; ]	guiI
+|	vbtn 'ink !
+	;
+
 ::.btnt | acc "txt" --
 	ccw 'ccx +!
 	print2gc
-	ccw 2* 'w +!
-	cch 2/ 'h +!
+	-4 dup 'xr1 +! 'yr1 +!
+	4 dup 'xr2 +! 'yr2 +!
 	botonsimple
-	ink >r 
+	ink >r
 	$ffffff 'ink !
 	print
 	r> 'ink !
-	'bordeyfoco in/foco
-	guiBtn
+|	'bordeyfoco in/foco
+	onClick
 	ccw 'ccx +!
 	;
 
 
 ::.link | acc "txt" --
-	ccw 2/ 'ccx +!
+	ccw 1 >> 'ccx +!
 	print2gc
-	ccw 2/ 'w +!
+	ccw 1 >> 'xr2 +!
 	botonsimple
 	ink >r
 	$ffffff 'ink !
 	print
 	r> 'ink !
-	'bordeyfoco in/foco
-	guiBtn
-	ccw 2/ 'ccx +!
+|	'bordeyfoco in/foco
+	onClick
+	ccw 1 >> 'ccx +!
 	;
 
 
 ::btnt | 'event "texto" --
-	ccw 2/ 'ccx +!
+	ccw 1 >> 'ccx +!
 	print2gc
-	ccw 'w +!
-	cch 2/ 'h +!
+	ccw dup neg 'xr1 +! 'xr2 +!
+	cch 1 >> dup neg 'yr1 +! 'yr2 +!
 	botonsimple
 	ink >r
 	$ffffff 'ink !
 	print
 	r> 'ink !
-	guiBtn
-	ccw 2/ 'ccx +!
-	gc.pop
+	onClick
+	ccw 1 >> 'ccx +!
 	;
 
 ::link | acc "txt" --
-	ccw 2/ 'ccx +!
+	ccw 1 >> 'ccx +!
 	print2gc
-	ccw 2/ 'w +!
+	ccw 1 >> 'xr2 +!
 	botonsimple
 	ink >r
 	$ffffff 'ink !
 	print
 	r> 'ink !
-	guiBtn
-	ccw 2/ 'ccx +!
+	onClick
+	ccw 1 >> 'ccx +!
 	;
 

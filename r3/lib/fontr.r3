@@ -63,7 +63,7 @@
 	'emitrf 'fontrw font!
 	;
 
-::fontremit | 'rf --
+::remit | 'rf --
 	@+ rf>xy 2dup 'yp !+ ! op
 	( @+ 1?
 		dup $7 and 2 << 'gfont + @ ex
@@ -71,6 +71,10 @@
 	xp yp pline
 	poli ;
 
+
+::rpos	'ccy ! 'ccx ! ;
+
+::rsize 'cch ! 'ccw ! ;
 
 |--------------------------
 #cosa #sina | para rotar
@@ -91,7 +95,7 @@
 
 #gfontr a0 a1 a2 a3 a4 a5 a6 0
 
-::fontremitr | adr ang --
+::remitr | adr ang --
 	dup cos 'cosa ! sin 'sina !
 	@+ r>xy 2dup 'yp !+ ! op
 	( @+ 1?
