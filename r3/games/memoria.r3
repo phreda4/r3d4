@@ -266,19 +266,20 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 :main
 	cls home gui
 	gooddog 64 fontr!
-	$ff 'ink !
+	$ff 'ink ! cr
 	"Memoria" printc cr
 	gooddog 40 fontr!
 	cr cr
 	$ff00 'ink !
 	gooddog 48 fontr!
-	sp sp [ 16 jugar ; ] "16" btnt
-	sp [ 30 jugar ; ] "30" btnt
-	sp [ 48 jugar ; ] "48" btnt
+|	sp sp [ 16 jugar ; ] "16" btnt
+|	sp [ 30 jugar ; ] "30" btnt
+|	sp [ 48 jugar ; ] "48" btnt
 	cr cr
 	$ff0000 'ink !
-	sp sp 'exit " Exit " btnt
+|	sp sp 'exit " Exit " btnt
 	cr cr
+	0 sh 70 - atxy
 	$0 'ink !
 	"r3 - PHREDA 2020" printc
 	key
