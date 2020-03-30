@@ -6,8 +6,8 @@
 :print2gc | "" --
 	ccx 1 - 'xr1 !
 	ccy 1 - 'yr1 !
-	swprint ccx 1 + + 'xr2 !
-	cch ccy 1 + 'yr2 !
+	swprint ccx + 1 + 'xr2 !
+	cch ccy + 1 + 'yr2 !
 	;
 
 :botonsimple

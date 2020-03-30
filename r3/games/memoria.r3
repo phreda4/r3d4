@@ -4,10 +4,8 @@
 ^r3/lib/gui.r3
 ^r3/lib/rand.r3
 ^r3/lib/btn.r3
-^r3/lib/3d.r3
 
 ^r3/lib/fontr.r3
-^r3/lib/fontr3d.r3
 
 ^media/ric/efon.ric
 ^media/rft/gooddog.rft
@@ -56,7 +54,6 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 :cartafront | nro --
 	$0 'ink ! 1.05 3dbox
 	$ffffff 'ink ! 0.98 3dbox
-
 	]nro @
 	dup 8 >> 'ink !
 	$ff and 2 << 'cartasric + @
@@ -83,9 +80,8 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	dup ]est @ dup mrotyi
 	0.25 - oxyztransform nip atan2 + | correccion por vista
 	$ffff and 0.5 <? ( 2drop cartaback mpop ; )
-	drop cartafront mpop ;
-
-
+	drop cartafront
+	mpop ;
 
 :printmazog
 	columnas 2.2 * 1 >> 1.1 + neg
@@ -213,18 +209,11 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	gooddog 64 fontr!
 	intentos puntos 1 >> " %d/%d" print
 
-	'exit >esc<
-	acursor
-	;
+	key
+	>esc< =? ( exit )
+	drop
 
-:accion
-	llenacartas
-	mexclacartas
-	esconder
-	0 'puntos !
-	0 'intentos !
-	resetelije
-	'juego onshow
+	acursor
 	;
 
 :pantallaf
@@ -234,33 +223,39 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	0 0 zcam mtrans
 	printmazog
 	cartasgiro
+
 	gooddog 64 fontr!
 	cr
 	$ff0000 'ink !
 	"Fin de juego" printc
 	cr cr
 	$ff00 'ink !
-	intentos puntos 1 >>  "Aciertos: %d/%d" printc cr
-	tiempo 1000 / "%d segundos" printc
+	intentos puntos 1 >>  "Aciertos: %d/%d" mformat printc cr
+	tiempo 1000 / "%d segundos" mformat printc
+
 	key
 	>esc< =? ( exit )
 	drop
-	;
-
-:final
-	llenacartas
-	mexclacartas
-	mezclagiro
-	msec tiempo - 'tiempo !
-	'pantallaf onshow
 	;
 
 :jugar | cartas --
 	'cartascnt !
 	msec 'tiempo !
 	calcdim
-	accion
-	final
+|...............
+	llenacartas
+	mexclacartas
+	esconder
+	0 'puntos !
+	0 'intentos !
+	resetelije
+	'juego onshow
+|...............
+	llenacartas
+	mexclacartas
+	mezclagiro
+	msec tiempo - 'tiempo !
+	'pantallaf onshow
 	;
 
 :main
@@ -272,18 +267,19 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	cr cr
 	$ff00 'ink !
 	gooddog 48 fontr!
-|	sp sp [ 16 jugar ; ] "16" btnt
-|	sp [ 30 jugar ; ] "30" btnt
-|	sp [ 48 jugar ; ] "48" btnt
+	sp sp [ 16 jugar ; ] "16" btnt
+	sp [ 30 jugar ; ] "30" btnt
+	sp [ 48 jugar ; ] "48" btnt
 	cr cr
 	$ff0000 'ink !
-|	sp sp 'exit " Exit " btnt
+	sp sp 'exit " Exit " btnt
 	cr cr
 	0 sh 70 - atxy
 	$0 'ink !
 	"r3 - PHREDA 2020" printc
 	key
 	>esc< =? ( exit )
+	<f1> =? ( 16 jugar )
 	drop
 	acursor
 	;

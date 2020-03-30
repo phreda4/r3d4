@@ -7,7 +7,7 @@
 ^r3/lib/sprite.r3
 
 ^r3/lib/fontm.r3
-^r3/fntm/droidsans13.fnt
+^media/fntm/droidsans13.fnt
 
 #name * 1024
 

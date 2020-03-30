@@ -27,6 +27,10 @@
 	xypen rpos
 	'i.S msec 2 << remitr
 
+	omode
+	0 0 -30.0 mtrans
+	$ff00 'ink !
+	'i.a remit3d
 |	acursor
 	teclado
 	;

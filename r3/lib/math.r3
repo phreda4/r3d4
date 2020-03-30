@@ -57,13 +57,11 @@
 	sincos pick2 16 *>> >r 16 *>> r> ;
 
 :iatan2p
-	+? ( 2dup + >r swap - >r 0.125 ; )
-	2dup - >r + >r 0.375 ;
+	+? ( 2dup + >r swap - >r 0.125 0.125 r> r> ; )
+	2dup - >r + >r 0.375 0.125 r> r> ;
 
 :iatan2 | |x| y -- bangle
-	iatan2p
-	0.125 r> r> 0? ( nip nip nip ; )
-	*/ - ;
+	iatan2p 0? ( nip nip nip ; ) */ - ;
 
 ::atan2 | x y -- bangle
 	swap -? ( neg swap iatan2 neg ; )
