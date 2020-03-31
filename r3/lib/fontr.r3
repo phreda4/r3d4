@@ -133,13 +133,9 @@
 #gfont a0 a1 a2 a3 a4 0 0 0
 
 ::remit3d | 'rf --
-	fxcc 'ccx +!
-	fycc 'ccy +!
 	@+ 3d>xy 2dup 'yp !+ ! op
 	( @+ 1? dup $7 and 2 << 'gfont + @ ex ) 2drop
 	xp yp pline
-	fxcc neg 'ccx +!
-	fycc neg 'ccy +!
 	poli
 	;
 
