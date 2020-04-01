@@ -13,7 +13,7 @@
 |---------- rfont
 #fontrom
 #fontsize
-##fycc 
+##fycc
 ##fxcc	| ajustes
 
 :v>rfw ccw 14 *>> ;
@@ -122,7 +122,7 @@
 |--------------- fuente en 3d
 :3d>xy
 	dup 18 >> ccw 14 *>> ccx + 			|fxcc +
-	swap 14 << 18 >> cch 14 *>> ccy +	|fycc +
+	swap 46 << 50 >> cch 14 *>> ccy +	|fycc +
 	0 project3d ; | <--- cortar por vista
 
 :a0 drop ; | el valor no puede ser 0

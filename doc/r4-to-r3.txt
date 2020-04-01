@@ -1,0 +1,70 @@
+Guia para traducir codigo de :r4 a r3
+
+* Transformar las variables exportadas:
+#: ->> ##
+
+* Transformar las palabras aritmeticas unicas de optimizacion, en r3 esta optimizacion es automatica
+Las definiciones son
+:1+ 1 + ;
+:1- 1 - ;
+:4+ 4 + ;
+:2* 1 << ;
+:2/ 1 >> ;
+
+* Cambiar los operadores
+and? ->> an?
+nand? ->> na?
+exec ->> ex
+
+* Quitar los )(
+
+Transformar los ELSE
+
+---------------
+..
+0? ( aa )( bb )
+..
+---------------
+en
+
+---------------
+:sinelse
+	0? ( aa ; ) bb ;
+
+..
+sinelse
+..
+---------------
+
+Tener cuidado que contenga alguna operacion con la pila R!
+
+Reemplazar la definicion de memoria
+
+#mem )( 10240 ->> #mem * 1024
+
+Quitar la indicacion del WHILE
+
+---------------
+( 1? )( 1- ..
+	) drop
+---------------
+
+por
+
+---------------
+( 1? 1 - ..
+	) drop
+---------------
+
+* Cambio del lugar en FILL
+
+* Desplazamientos ahora es 64 bits!
+
+16 << 16 >> 
+es una extension de signo para un numero que esta en los 16 bits inferiores,
+debe ser ahora
+48 << 48 >>
+
+ya que el bit de signo es el 64, no el 32
+
+

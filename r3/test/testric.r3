@@ -28,10 +28,12 @@
 	'i.S msec 2 << remitr
 
 	omode
-	0 0 -15.0 mtrans
+	0 0 10.0 mtrans
+	msec 4 << mrotxi
+	msec 5 << mrotyi
 	$ff00 'ink !
 	0 0 rpos
-	1.0 dup rsize
+	2.0 dup rsize
 
 	'i.a remit3d
 |	acursor

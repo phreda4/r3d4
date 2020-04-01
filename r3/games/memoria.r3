@@ -84,6 +84,7 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	mpop ;
 
 :printmazog
+	2.0 dup rsize
 	columnas 2.2 * 1 >> 1.1 + neg
 	filas 2.2 * 1 >> 1.1 - neg
 	0 mtransi
@@ -156,7 +157,7 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	500 'estado !
 	carta1 vuelvecarta
 	carta2 vuelvecarta
-	estado 502 <? ( drop ; )
+	estado 502 <? ( drop ; ) drop
 	resetelije ;
 
 :coincidencia
@@ -267,19 +268,18 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	cr cr
 	$ff00 'ink !
 	gooddog 48 fontr!
-	sp sp [ 16 jugar ; ] "16" btnt
-	sp [ 30 jugar ; ] "30" btnt
-	sp [ 48 jugar ; ] "48" btnt
-	cr cr
+	8 nsp [ 16 jugar ; ] "16" btnt
+	3 nsp [ 30 jugar ; ] "30" btnt
+	3 nsp [ 48 jugar ; ] "48" btnt
+	cr cr cr
 	$ff0000 'ink !
-	sp sp 'exit " Exit " btnt
+	10 nsp 'exit " Exit " btnt
 	cr cr
 	0 sh 70 - atxy
 	$0 'ink !
 	"r3 - PHREDA 2020" printc
 	key
 	>esc< =? ( exit )
-	<f1> =? ( 16 jugar )
 	drop
 	acursor
 	;

@@ -11,10 +11,11 @@
 	;
 
 :botonsimple
+	ink $444444 over
+	[ swap ; ]	guiI
+	'ink ! drop
 	xr1 yr1 xr2 yr2 fillbox
-|	ink $444444 over
-|	[ swap ; ]	guiI
-|	vbtn 'ink !
+	'ink !
 	;
 
 ::.btnt | acc "txt" --
@@ -59,7 +60,9 @@
 	print
 	r> 'ink !
 	onClick
-	ccw 1 >> 'ccx +!
+	xr2
+|	ccw 1 >>
+	'ccx !
 	;
 
 ::link | acc "txt" --
