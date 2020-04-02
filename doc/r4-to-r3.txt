@@ -67,4 +67,11 @@ debe ser ahora
 
 ya que el bit de signo es el 64, no el 32
 
+* cambio en INK
+como deveria ser INK es una variable por lo tanto
+$ff00 INK ->> $ff00 'ink !
+
+* se cambio el modelo de SHOW
+
+* cambio en la consulta de KEY
 
