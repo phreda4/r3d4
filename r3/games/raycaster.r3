@@ -1,6 +1,8 @@
 | RAYCASTING
 | From Lode's Computer Graphics Tutorial
+| https://lodev.org/cgtutor/raycasting.html
 | PHREDA 2020
+
 
 ^r3/lib/gui.r3
 
@@ -31,6 +33,7 @@
   4 4 4 4 4 4 4 4 4 4 1 1 1 2 2 2 2 2 2 3 3 3 3 3
 )
 
+#colores 0 $ff0000 $ff00 $ff $ffff00 $ffff $ff00ff $ffffffff
 #texture 0 0 0 0 0 0 0 0
 
 #posX #posY
@@ -62,11 +65,12 @@
 	-? ( drop posY $ffff and 'sideDistY ! ; ) drop
 	1.0 posY $ffff and - 'sideDistY ! ;
 
-:maphit | mx my -- hit
+:mapadr | mx my -- adr
 	16 >> 24 * swap 16 >> +
-	0 <? ( trace )
-	24 24 * >? ( trace )
-	'worldMap + c@ ;
+	'worldMap + ;
+
+:maphit | mx my -- hit
+	mapadr c@ ;
 
 :step | mx my -- mx' my'
 	sideDistX sideDistY <? ( drop
@@ -79,10 +83,11 @@
 #texn
 
 :dda | -- mapx mapy
-	posX posY
+	posX $ffff not and posY $ffff not and
 	( 2dup maphit 0?
 		drop step )
-	'texn !
+	|'texn !
+	2 << 'colores + @ 'ink !
 	;
 
 :perpWall | mapx mapy --
@@ -106,7 +111,7 @@
 	calcDistY
 	dda | mapx mapy
 	perpWall 'perpWallDist !
-	sh 16 << perpWallDist 
+	sh 16 << perpWallDist
 	0? ( 1 + ) /
 	'lineHeight !
 	sh 1 >> lineHeight 1 >>
@@ -115,11 +120,11 @@
 	dup 2 << vframe + >a
 	0
 	( y1 <? 1 +
-		$ff00 a!
+|		$ff00 a!
 		sw 2 << a+
 		)
 	( y2 <? 1 +
-		$ff a!
+		ink a!
 		sw 2 << a+
 		)
 	drop
@@ -159,6 +164,30 @@
 		drawline
 		1 + ) drop  ;
 
+|---------------------------------
+:drawcell | map x y --
+	rot c@+ 2 << 'colores + @ 'ink !
+	rot rot
+	over 4 << over 4 <<
+	over 15 + over 15 +
+	fillbox
+	;
+
+:drawmap
+	'worldMap
+	0 ( 24 <?
+		0 ( 24 <?
+			drawcell
+			1 + ) drop
+		1 + ) 2drop
+	$ffffff 'ink !
+	posX 12 >> posY 12 >>
+	2dup op
+	swap dirX 12 >> + swap dirY 12 >> +
+	line
+	;
+
+|---------------------------------
 :mover | speed --
 	dirX over *. posX + posy maphit 0? ( over dirX *. 'posX +! ) drop
 	posX over dirY *. posY + maphit 0? ( over dirY *. 'posY +! ) drop
@@ -170,22 +199,29 @@
 :rota
 	angr + dup 'angr !
 	1.0 polar | bangle largo -- dx dy
-	2dup 'dirX ! 'dirY !
-	neg 'planeY ! 'planeX !
+	2dup 'dirY ! 'dirX !
+	0.66 *. 'planeX !
+	neg 0.66 *. 'planeY !
 	;
 
 #vrot
 #vmov
+#mm
 
 :game
 	cls
 	render
+	mm 1? ( drawmap ) drop
+
 	home
 	$ffffff 'ink !
-	over "%d" print cr
-	posx posy "%f %f " print
-	dirX dirY "%f %f " print cr
+	"<f1> mapa" print
+|	posx posy "%f %f " print dirX dirY "%f %f " print cr
+
+
 	key
+	<f1> =? ( mm 1 xor 'mm ! )
+
 	<le> =? ( -0.01 'vrot ! )
 	<ri> =? ( 0.01 'vrot ! )
 	>le< =? ( 0 'vrot ! ) >ri< =? ( 0 'vrot ! )
@@ -200,10 +236,8 @@
 	;
 
 :main
-	6.0 'posX ! 6.0 'posY !
-	-1.0 'dirX ! 0.0 'dirY !
-	0.0 'planeX ! 0.66 'planeY !
-	33 31
+	5.5 'posX ! 5.5 'posY !
+	0 rota
 	'game onshow ;
 
 : initex main ;
