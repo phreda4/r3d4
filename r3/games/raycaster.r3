@@ -3,8 +3,9 @@
 | https://lodev.org/cgtutor/raycasting.html
 | PHREDA 2020
 
-
 ^r3/lib/gui.r3
+^r3/lib/sprite.r3
+^r3/util/loadpng.r3
 
 #worldMap (
   4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 7 7 7 7 7 7 7 7
@@ -33,15 +34,19 @@
   4 4 4 4 4 4 4 4 4 4 1 1 1 2 2 2 2 2 2 3 3 3 3 3
 )
 
-#colores 0 $ff0000 $ff00 $ff $ffff00 $ffff $ff00ff $ffffffff
-#texture 0 0 0 0 0 0 0 0
+#colores 0 $ff0000 $ff00 $ff $ffff00 $ffff $ff00ff $ffffffff $888888
 
 #posX #posY
 #dirX #dirY
 #planeX #planeY
 
+#texs
+#texn
+
 :initex
 	mark
+	| 64x64x8
+	"media/img/wolftexturesobj.png" loadpng 'texs !
 	;
 
 #rayDirX
@@ -57,13 +62,13 @@
 
 :calcDistX
 	rayDirX sign 16 << 'stepX !
-	-? ( drop posX $ffff and 'sideDistX ! ; ) drop
-	1.0 posX $ffff and - 'sideDistX ! ;
+	-? ( drop posX $ffff and deltaDistX *. 'sideDistX ! ; ) drop
+	1.0 posX $ffff and - deltaDistX *. 'sideDistX ! ;
 
 :calcDistY
 	rayDirY sign 16 << 'stepY !
-	-? ( drop posY $ffff and 'sideDistY ! ; ) drop
-	1.0 posY $ffff and - 'sideDistY ! ;
+	-? ( drop posY $ffff and deltaDistY *. 'sideDistY ! ; ) drop
+	1.0 posY $ffff and - deltaDistY *. 'sideDistY ! ;
 
 :mapadr | mx my -- adr
 	16 >> 24 * swap 16 >> +
@@ -80,14 +85,13 @@
 	deltaDistY 'sideDistY +!
 	stepY + 1 'side ! ;
 
-#texn
 
 :dda | -- mapx mapy
 	posX $ffff not and posY $ffff not and
 	( 2dup maphit 0?
 		drop step )
-	|'texn !
-	2 << 'colores + @ 'ink !
+	8 << texs + 'texn !
+|	2 << 'colores + @ 'ink !
 	;
 
 :perpWall | mapx mapy --
@@ -95,80 +99,78 @@
 	posY - 1.0 stepY - 1 >> + rayDirY 0? ( 1.0 + ) /.
 	;
 
+:deltaX
+	rayDirY 0? ( ; ) drop
+	rayDirX 0? ( drop 1.0 ; )
+	1.0 swap /. abs ;
 
-#lineHeight
+:deltaY
+	rayDirX 0? ( ; ) drop
+	rayDirY 0? ( drop 1.0 ; )
+	1.0 swap /. abs ;
+
+
+:calcWallX
+	side 0? ( drop rayDirY perpWallDist *. posY + ; ) drop
+	rayDirX perpWallDist *. posX +
+	;
+
 #y1
 #y2
+#altura
+#wallX
+#wallY
+#addY
 
 :drawline | x -- x
-	dup 17 << sw / 1.0 - | 'cameraX ! = 2 * x / (double)w - 1; //x-coordinate in camera space
+	dup 17 << sw / 1.0 -
 	dup
-	planeX *. dirX + 'rayDirX ! | = dirX + planeX*cameraX;
-	planeY *. dirY + 'rayDirY ! | = dirY + planeY*cameraX;
-	1.0 rayDirX 0? ( 1.0 + ) /. abs 'deltaDistX !
-	1.0 rayDirY 0? ( 1.0 + ) /. abs 'deltaDistY !
+	planeX *. dirX + 'rayDirX !
+	planeY *. dirY + 'rayDirY !
+	deltaX 'deltaDistX !
+	deltaY 'deltaDistY !
 	calcDistX
 	calcDistY
 	dda | mapx mapy
 	perpWall 'perpWallDist !
 	sh 16 << perpWallDist
-	0? ( 1 + ) /
-	'lineHeight !
-	sh 1 >> lineHeight 1 >>
-	2dup - clamp0 'y1 !
+	1? ( 1 + ) / 'altura !
+	0 'wallY !
+	sh 1 >> altura 1 >> 2dup
+	- -? ( dup neg $3f0000 * altura 0? ( 1 + ) / 'wallY ! )
+	clamp0 'y1 !
 	+ sh clampmax 'y2 !
+
+	calcWallX
+	10 >> $3f and 2 << texn + 8 + 'wallX !
+	$3f0000 altura 0? ( 1 + ) / 'addY !
+
 	dup 2 << vframe + >a
 	0
 	( y1 <? 1 +
-|		$ff00 a!
+		$3f3f3f a!
 		sw 2 << a+
 		)
 	( y2 <? 1 +
-		ink a!
+		wallX wallY 16 >> 11 << + @
+		side 1? ( swap 1 >> 8355711 and  swap ) drop | oscurece
+		a!
+		addY 'wallY +!
 		sw 2 << a+
 		)
 	drop
 	;
 
-|      //calculate value of wallX
-|      double wallX; //where exactly the wall was hit
-|      if(side == 0) wallX = posY + perpWallDist * rayDirY;
-|      else          wallX = posX + perpWallDist * rayDirX;
-|      wallX -= floor((wallX));
-
-|      //x coordinate on the texture
-||      int texX = int(wallX * double(texWidth));
-|      if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-|      if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
-
-|      // TODO: an integer-only bresenham or DDA like algorithm could make the texture coordinate stepping faster
-|      // How much to increase the texture coordinate per screen pixel
-|      double step = 1.0 * texHeight / lineHeight;
-|      // Starting texture coordinate
-|      double texPos = (drawStart - h / 2 + lineHeight / 2) * step;
-|      for(int y = drawStart; y < drawEnd; y++)
-|      {
-|        // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-|        int texY = (int)texPos & (texHeight - 1);
-|        texPos += step;
-|        Uint32 color = texture[texNum][texHeight * texY + texX];
-|        //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-|        if(side == 1) color = (color >> 1) & 8355711;
-|        buffer[y][x] = color;
-|      }
-|    }
-
-
-:render
+ :render
 	0 ( sw <?
 		drawline
 		1 + ) drop  ;
 
 |---------------------------------
-:drawcell | map x y --
+:drawcell | map y x --
 	rot c@+ 2 << 'colores + @ 'ink !
 	rot rot
-	over 4 << over 4 <<
+	over 4 << over 4 << swap
 	over 15 + over 15 +
 	fillbox
 	;
@@ -182,8 +184,9 @@
 		1 + ) 2drop
 	$ffffff 'ink !
 	posX 12 >> posY 12 >>
-	2dup op
-	swap dirX 12 >> + swap dirY 12 >> +
+	over dirX 12 >> + over dirY 12 >> + op
+	2dup line
+	swap planeX 12 >> + swap planeY 12 >> +
 	line
 	;
 
@@ -218,6 +221,7 @@
 	"<f1> mapa" print
 |	posx posy "%f %f " print dirX dirY "%f %f " print cr
 
+|	xypen texs sprite
 
 	key
 	<f1> =? ( mm 1 xor 'mm ! )
