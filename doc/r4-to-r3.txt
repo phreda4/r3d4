@@ -1,20 +1,34 @@
 Guia para traducir codigo de :r4 a r3
+-------------------------------------
+
+Diferencias entre codigo :r4 y r3
+
+r3 posee la directiva
+|MEM <memoria en KB>
+por lo que la mv arranca con muy poca memoria (1MB), si el programa va a usar mas,
+deberia declararse en esta linea
 
 * Transformar las variables exportadas:
+---------------
 #: ->> ##
+---------------
 
 * Transformar las palabras aritmeticas unicas de optimizacion, en r3 esta optimizacion es automatica
 Las definiciones son
+---------------
 :1+ 1 + ;
 :1- 1 - ;
 :4+ 4 + ;
 :2* 1 << ;
 :2/ 1 >> ;
+---------------
 
 * Cambiar los operadores
+---------------
 and? ->> an?
 nand? ->> na?
 exec ->> ex
+---------------
 
 * Quitar los )(
 
@@ -40,7 +54,9 @@ Tener cuidado que contenga alguna operacion con la pila R!
 
 Reemplazar la definicion de memoria
 
+---------------
 #mem )( 10240 ->> #mem * 1024
+---------------
 
 Quitar la indicacion del WHILE
 
@@ -58,20 +74,45 @@ por
 
 * Cambio del lugar en FILL
 
+valor lugar cant FILL ->> lugar valor cant FILL
+
 * Desplazamientos ahora es 64 bits!
 
-16 << 16 >> 
+---------------
+16 << 16 >>
+---------------
 es una extension de signo para un numero que esta en los 16 bits inferiores,
 debe ser ahora
+---------------
 48 << 48 >>
+---------------
 
 ya que el bit de signo es el 64, no el 32
 
 * cambio en INK
 como deveria ser INK es una variable por lo tanto
+---------------
 $ff00 INK ->> $ff00 'ink !
+---------------
+* se cambio el modelo de SHOW y KEY
 
-* se cambio el modelo de SHOW
+---------------------
+:dibujo
+	show clrscr
+		"hola" print
+		'exit >esc<
+		;
 
-* cambio en la consulta de KEY
+->>
 
+:pant
+	cls home
+	"hola" print
+	key
+	>esc< =? ( exit )
+	drop ;
+
+
+:dibujo
+	'pant onShow ;
+-----------------------

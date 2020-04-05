@@ -153,7 +153,7 @@
 		)
 	( y2 <? 1 +
 		wallX wallY 16 >> 11 << + @
-		side 1? ( swap 1 >> 8355711 and  swap ) drop | oscurece
+		side 1? ( swap 1 >> $7f7f7f and swap ) drop | oscurece
 		a!
 		addY 'wallY +!
 		sw 2 << a+

@@ -291,8 +291,9 @@
 	;
 :mode08 | b -- b pixel ; modo 0 8bits
 	c@+ $ff and
-	key.rgb <>? ( drop $ff000000 ; )
-	over 8 << dup 8 << or or or ;
+	key.rgb =? ( drop 0 ; )
+	dup 8 << dup 8 << or or
+	$ff000000 or ;
 
 |//RGB color
 :mode28
