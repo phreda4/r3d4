@@ -134,7 +134,7 @@
 	dda | mapx mapy
 	perpWall 'perpWallDist !
 	sh 16 << perpWallDist
-	1? ( 1 + ) / 'altura !
+	0? ( 1 + ) / 'altura !
 	0 'wallY !
 	sh 1 >> altura 1 >> 2dup
 	- -? ( dup neg $3f0000 * altura 0? ( 1 + ) / 'wallY ! )
@@ -156,6 +156,10 @@
 		side 1? ( swap 1 >> $7f7f7f and swap ) drop | oscurece
 		a!
 		addY 'wallY +!
+		sw 2 << a+
+		)
+	( sh <? 1 +
+		$0f0f3f a!
 		sw 2 << a+
 		)
 	drop
@@ -212,7 +216,7 @@
 #mm
 
 :game
-	cls
+|	cls
 	render
 	mm 1? ( drawmap ) drop
 
