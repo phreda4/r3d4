@@ -46,6 +46,9 @@
 ::p.nro | nro list -- adr
 	4 + @ swap 5 << + ;
 
+::p.last | nro list -- adr
+	@ 32 - ;
+
 ::p.cnt | list -- cnt
 	@+ swap @ | last fist
 	- 5 >> ;
