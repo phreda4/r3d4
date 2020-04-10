@@ -284,6 +284,9 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 	$10000000 an? ( swap @+ 'paleta ! swap )
 	24 >> $f and 2 << 'rdraw + @ ex ;
 
+::spr.alpha | 'bmr --
+	dup @ $1000000 or swap ! ;
+
 ##arrow $1010009 | 9x16 32bits ALPHA
 $ff000000 $ff000000 $00000000 $00000000 $00000000 $00000000 $00000000 $00000000 $00000000
 $ff000000 $ffffffff $ff000000 $00000000 $00000000 $00000000 $00000000 $00000000 $00000000

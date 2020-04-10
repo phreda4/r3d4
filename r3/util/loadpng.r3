@@ -416,7 +416,7 @@ $1201
 	c@+ 'fpng !
 	c@+	'ipng !
 
-	imem 8 +
+	imem 4 +
 |	dup 'pal ! palsize +
 	dup 'img ! wpng hpng * 2 << +
 	'emem !

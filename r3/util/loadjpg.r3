@@ -581,5 +581,5 @@
 	a> emem imgcols imgrows * 2 << dup >r
 	moveor
 |	move
-	here r> 8 + 'here +! ;
+	here r> 4 + 'here +! ;
 

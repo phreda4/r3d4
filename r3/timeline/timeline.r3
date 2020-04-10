@@ -4,12 +4,14 @@
 |MEM $fff
 
 ^r3/lib/gui.r3
+^r3/lib/sprite.r3
 ^r3/lib/rand.r3
 ^r3/util/arr8.r3
+^r3/util/penner.r3
+^r3/util/loadimg.r3
 
 #screen 0 0
 #fx 0 0
-
 #fxp 0 0
 
 |------ tiempo
@@ -66,25 +68,12 @@
 		@+ "%d " print cr
 		) drop ;
 
-|------ duracion convertida
-:a
-|	>a
-|	timenow a@+ - a@+ *. | 0--1.0
-|	1.0 >=? ( drop setlastcoor 0 ; )
-|	Bac_InOut
-
-	;
-
-:+evento
-	;
-
-
 |-----------------------------
 :xy2 | int -- x y
 	dup 48 << 48 >> swap 16 >> ;
 
 :2xy | x y -- int
-	16 >> $ffff and swap $ffff and or ;
+	$ffff and 16 << swap $ffff and or ;
 
 :drawbox
 	>b
@@ -101,12 +90,50 @@
 	a!+
 	;
 
+:drawsprite
+	>b
+	b@+ -? ( drop ; ) drop
+	b@+ dup 48 << 48 >> swap 16 >>
+	b@+ dup 48 << 48 >> pick3 - swap 16 >> pick2 -
+	b@+ spritesize
+	;
+
+:+sprite | spr x1 y1 x2 y2 --
+	'drawsprite 'screen p!+ >a
+	-1 a!+
+	2swap
+	16 << swap $ffff and or a!+
+	16 << swap $ffff and or a!+
+	a!+
+	;
+
 |-----------------------------
 :getscr | -- adrlast
 	'screen p.last ;
 
 :getfx | -- adrlast
 	'fxp p.last ;
+
+#t0
+:interpola
+	dup 48 << 48 >> swap 16 >> t0 *. + ;
+
+:interlast
+	dup 48 << 48 >> swap 16 >> + ;
+
+:setlastcoor
+	a@+ >b
+	a@+ interlast $ffff and a@+ interlast 16 << or b!+
+	a@+ interlast $ffff and a@+ interlast 16 << or b!+
+	;
+
+:getxdx | xy xy -- xy xy xdx
+	over 48 << 48 >> over 48 << 48 >> over -
+	16 << swap $ffff and or ;
+
+:getydy | xy xy -- ydy
+	swap 16 >> swap 16 >> over -
+	16 << swap $ffff and or ;
 
 |-----------------------------
 :evt.on | adr -- adr
@@ -115,32 +142,33 @@
 :+fx.on | sec --
 	>r 0 getscr 'evt.on r> +tline ;
 
-
+|-----------------------------
 :evt.off
 	dup 8 + @ 4 + -1 swap ! ;
 
 :+fx.off | sec --
 	>r 0 getscr 'evt.off r> +tline ;
 
-#t0
-:interpola
-	dup 48 << 48 >> swap 16 >> t0 *. + ;
-
-:fxanimbox-lin | screena --
-	>a
-	timenow a@+ - a@+ *.
-	1.0 >=? ( drop 0 ; )
+|-----------------------------
+:boxanim0 | screena --
+	>a timenow a@+ - 1.0 1000 */ a@+ *.
+	1.0 >=? ( drop setlastcoor 0 ; )
 	't0 !
 	a@+ >b
 	a@+ interpola $ffff and a@+ interpola 16 << or b!+
 	a@+ interpola $ffff and a@+ interpola 16 << or b!+
 	;
 
-
 :evt.lin |
-	dup 8 + @ | scr
-	over 12 + @ | scr fxp
-	2drop
+	'boxanim0 'fx p!+ >a
+	dup 12 + @ >b | fxp
+	b@+ 1000 *. a!+	| inicio
+	1.0 b@+ /. a!+ | tiempo
+    dup 8 + @ 8 + a!+ | scr
+   	b@+ b@+ |xy2f xy1f
+	b@+ b@+ |xy2i xy1i
+	rot getxdx a!+ getydy a!+
+	swap getxdx a!+ getydy a!+
 	;
 
 :+fx.lin | xy1 xy2 xy1f xy2f duracion inicio --
@@ -149,73 +177,98 @@
 	a!+ a!+ a!+ a!+ a!+ a!+
 	getfx getscr 'evt.lin r> +tline ;
 
+|-----------------------------
+:boxanim1 | screena --
+	>a timenow a@+ - 1.0 1000 */ a@+ *.
+	1.0 >=? ( drop setlastcoor 0 ; )
+	Bac_InOut
+	't0 !
+	a@+ >b
+	a@+ interpola $ffff and a@+ interpola 16 << or b!+
+	a@+ interpola $ffff and a@+ interpola 16 << or b!+
+	;
 
 :evt.2bou |
+	'boxanim1 'fx p!+ >a
+	dup 12 + @ >b | fxp
+	b@+ 1000 *. a!+	| inicio
+	1.0 b@+ /. a!+ | tiempo
+    dup 8 + @ 8 + a!+ | scr
+   	b@+ b@+ |xy2f xy1f
+	b@+ b@+ |xy2i xy1i
+	rot getxdx a!+ getydy a!+
+	swap getxdx a!+ getydy a!+
 	;
 
 :+fx.2bou | xy1 xy2 xy1f xy2f duracion inicio --
-	>r
+	dup >r
 	'fxp p! >a
-	a!+ a!+ a!+ a!+ a!+
-	getfx getscr 'evt.lin r> +tline	;
+	a!+ a!+ a!+ a!+ a!+ a!+
+	getfx getscr 'evt.2bou r> +tline	;
 
 |-----------------------------
-:event1
-	$ff0000 10 10 40 40 +box ;
-:event2
-	$ff00 40 40 140 70 +box ;
-:event3
-	$ff 200 210 240 280 +box ;
-
+#mario
 
 :timeline! | --
 	'screen p.clear
 	'fx p.clear
+	itline
 
 	$ff00 40 40 140 70 +box
 	1.0 +fx.on
-	10 10 2xy 40 40 2xy 100 100 2xy 200 200 2xy 1.2 2.0 +fx.lin
+	10 10 2xy 40 40 2xy 100 100 2xy 400 400 2xy 3.0 1.0 +fx.lin
 	100 100 2xy 200 200 2xy 10 10 2xy 40 40 2xy 1.2 3.0 +fx.2bou
-	4.2 +fx.off
-	5.0 +fx.on
-	6.0 +fx.off
+	4.0 +fx.off
 
 	$ff 200 210 240 280 +box
 	3.0 +fx.on
 	200 200 2xy 210 210 2xy 400 200 2xy 180 180 2xy 3.0 3.0 +fx.lin
-	5.0 +fx.off
+	6.0 +fx.off
 
 	$ff0000 10 10 40 40 +box
 	0.0 +fx.on
 	-100 100 2xy 0 200 2xy 0 100 2xy 100 200 2xy 0.5 0.0 +fx.2bou
 	6.0 +fx.off
+
+	mario 50 50 60 60 +sprite
+	0.0 +fx.on
+	50 50 2xy 60 60 2xy 100 200 2xy 290 590 2xy 6.0 0.0 +fx.2bou
+	18.0 +fx.off
+
+	itime
 	;
 
 |-----------------------------
-
 :main
 	cls home
 
 	dtime
 	tictline
 
+	'fx p.draw
+	'screen p.drawo
 
-	$ff00 'ink !
+	$ffffff 'ink !
 	"timeline " print
 	timenow "%d" print cr
+	t0 "%f" print cr
 
 |	dumptline
 |	[ dup @+ "%h " print @ "%d" print  cr ; ] 'screen p.mapv cr
+|	[ dup @+ "%f " print
+|		@+ "%f " print
+|		@+ xy2 "%d,%d " print
+|		@+ xy2 "%d,%d " print
+|		@+ xy2 "%d,%d " print
+|		@ xy2 "%d,%d " print
+|		cr ; ] 'fxp p.mapv cr
 
 
 	key
-	<f1> =? ( itline timeline! itime )
-
+	<f1> =? ( timeline! )
 	>esc< =? ( exit )
-	drop
 
-	'screen p.drawo
-	'fx p.draw
+	drop
 	;
 
 
@@ -227,6 +280,8 @@
 	1024 'fx p.ini
 	1024 'fxp p.ini
 
+	"media/img/lolomario.png" loadimg 'mario !
+	mario spr.alpha
 	itline
 	;
 
