@@ -142,7 +142,7 @@
 	+ sh clampmax 'y2 !
 
 	calcWallX
-	10 >> $3f and 2 << texn + 8 + 'wallX !
+	10 >> $3f and 2 << texn + 4 + 'wallX !
 	$3f0000 altura 0? ( 1 + ) / 'addY !
 
 	dup 2 << vframe + >a

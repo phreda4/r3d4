@@ -1,4 +1,5 @@
 | About timeline
+| framerate independient event animation system
 | PHREDA 2020
 |------------------
 |MEM $fff
@@ -6,9 +7,12 @@
 ^r3/lib/gui.r3
 ^r3/lib/sprite.r3
 ^r3/lib/rand.r3
+
 ^r3/util/arr8.r3
 ^r3/util/penner.r3
 ^r3/util/loadimg.r3
+^r3/util/textbox.r3
+^r3/util/textfont.r3
 
 #screen 0 0
 #fx 0 0
@@ -75,24 +79,23 @@
 :2xy | x y -- int
 	$ffff and 16 << swap $ffff and or ;
 
-:drawbox
-	>b
-	b@+ -? ( drop ; ) drop
-	b@+ xy2 b@+ xy2 b@+ 'ink !
+|-------------------- FILLBOX
+:drawbox | adr --
+	>b b@+ 1 an? ( drop ; ) 8 >> 'ink !
+	b@+ xy2 b@+ xy2
 	fillbox ;
 
-:+box | color x1 y1 x2 y2 --
+:+box | x1 y1 x2 y2 color --
 	'drawbox 'screen p!+ >a
-	-1 a!+
+	8 << 1 or a!+
 	2swap
 	16 << swap $ffff and or a!+
 	16 << swap $ffff and or a!+
-	a!+
 	;
 
-:drawsprite
-	>b
-	b@+ -? ( drop ; ) drop
+|-------------------- SPRITE
+:drawsprite | adr --
+	>b b@+ 1 an? ( drop ; ) drop
 	b@+ dup 48 << 48 >> swap 16 >>
 	b@+ dup 48 << 48 >> pick3 - swap 16 >> pick2 -
 	b@+ spritesize
@@ -100,11 +103,37 @@
 
 :+sprite | spr x1 y1 x2 y2 --
 	'drawsprite 'screen p!+ >a
-	-1 a!+
+	1 a!+
 	2swap
 	16 << swap $ffff and or a!+
 	16 << swap $ffff and or a!+
 	a!+
+	;
+
+|-------------------- TEXTBOX
+:drawtbox | adr --
+	@+ 1 an? ( 2drop ; ) 8 >> 'ink !
+	@+ dup 48 << 48 >> 'tx1 ! 16 >> 'ty1 !
+	@+ dup 48 << 48 >> 'tx2 ! 16 >> 'ty2 !
+	@+ int2pad
+	@+
+	dup 24 >> fxfont! 	| fx --
+	dup 16 >> $ff and swap $ffff and
+	nfont! 		| nro size --
+	@+ swap @ textbox ;
+
+| pad=llllyyxx l=interlineado pady padx 16-8-8
+| font=fxfosize 8-8-16
+:+textbox | "" fx/font/size pad x1 y1 x2 y2 col --
+	'drawtbox 'screen p!+ >a
+	8 << 1 or a!+
+	2swap
+	16 << swap $ffff and or a!+
+	16 << swap $ffff and or a!+
+	a!+	| pad
+	a!+	| font
+	a!+	| str
+	a!+ | centrado
 	;
 
 |-----------------------------
@@ -137,14 +166,14 @@
 
 |-----------------------------
 :evt.on | adr -- adr
-	dup 8 + @ 4 + 0 swap ! ;
+	dup 8 + @ 4 + dup @ 1 not and swap ! ;
 
 :+fx.on | sec --
 	>r 0 getscr 'evt.on r> +tline ;
 
 |-----------------------------
 :evt.off
-	dup 8 + @ 4 + -1 swap ! ;
+	dup 8 + @ 4 + dup @ 1 or swap ! ;
 
 :+fx.off | sec --
 	>r 0 getscr 'evt.off r> +tline ;
@@ -214,63 +243,67 @@
 	'fx p.clear
 	itline
 
-	$ff00 40 40 140 70 +box
+	40 40 140 70 $ff00 +box
 	1.0 +fx.on
 	10 10 2xy 40 40 2xy 100 100 2xy 400 400 2xy 3.0 1.0 +fx.lin
 	100 100 2xy 200 200 2xy 10 10 2xy 40 40 2xy 1.2 3.0 +fx.2bou
 	4.0 +fx.off
 
-	$ff 200 210 240 280 +box
+	200 210 240 280 $ff +box
 	3.0 +fx.on
 	200 200 2xy 210 210 2xy 400 200 2xy 180 180 2xy 3.0 3.0 +fx.lin
 	6.0 +fx.off
 
-	$ff0000 10 10 40 40 +box
+	10 10 40 40 $ff0000 +box
 	0.0 +fx.on
 	-100 100 2xy 0 200 2xy 0 100 2xy 100 200 2xy 0.5 0.0 +fx.2bou
 	6.0 +fx.off
 
 	mario 50 50 60 60 +sprite
 	0.0 +fx.on
-	50 50 2xy 60 60 2xy 100 200 2xy 290 590 2xy 6.0 0.0 +fx.2bou
+	10 10 2xy 60 60 2xy 100 200 2xy 290 590 2xy 6.0 0.0 +fx.2bou
 	18.0 +fx.off
+
+	$11 "Hola_a todos" $10d003f $0 100 100 300 300 $ff00ff +textbox
+	0.0 +fx.on
+	100 100 2xy 300 300 2xy 200 200 2xy 500 500 2xy 3.0 2.0 +fx.2bou
+	9.0 +fx.off
 
 	itime
 	;
 
 |-----------------------------
-:main
-	cls home
+:debug
+	t0 "%f" print cr
+	dumptline
+	[ dup @+ "%h " print @ "%d" print  cr ; ] 'screen p.mapv cr
+	[ dup @+ "%f " print
+		@+ "%f " print
+		@+ xy2 "%d,%d " print
+		@+ xy2 "%d,%d " print
+		@+ xy2 "%d,%d " print
+		@ xy2 "%d,%d " print
+		cr ; ] 'fxp p.mapv cr
+	;
 
+:main
+	cls
 	dtime
 	tictline
-
 	'fx p.draw
 	'screen p.drawo
 
+	home
 	$ffffff 'ink !
 	"timeline " print
 	timenow "%d" print cr
-	t0 "%f" print cr
-
-|	dumptline
-|	[ dup @+ "%h " print @ "%d" print  cr ; ] 'screen p.mapv cr
-|	[ dup @+ "%f " print
-|		@+ "%f " print
-|		@+ xy2 "%d,%d " print
-|		@+ xy2 "%d,%d " print
-|		@+ xy2 "%d,%d " print
-|		@ xy2 "%d,%d " print
-|		cr ; ] 'fxp p.mapv cr
-
+	| debug
 
 	key
 	<f1> =? ( timeline! )
 	>esc< =? ( exit )
-
 	drop
 	;
-
 
 :memory
 	mark

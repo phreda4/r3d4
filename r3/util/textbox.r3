@@ -59,6 +59,7 @@
 	2drop ;
 
 #emitv 'emit
+#padyy
 
 :lineemit | adr -- adr'
 	( c@+ 1?
@@ -68,7 +69,7 @@
 
 :boxprintl | adr --
 	dup cntlin
-	ty1 pady + 'ccy !
+	ty1 padyy + 'ccy !
 	( 1? 1 -
 		tx1 padx + 'ccx !
 		swap lineemit swap cr padl 'ccy +!
@@ -76,7 +77,7 @@
 
 :boxprintc | adr --
 	dup cntlin
-	ty1 pady + 'ccy !
+	ty1 padyy + 'ccy !
 	( 1? 1 -
 		over sizeline
 		tx1 tx2 + 1 >> swap 1 >> - padx + 'ccx !
@@ -85,7 +86,7 @@
 
 :boxprintr | adr --
 	dup cntlin
-	ty1 pady + 'ccy !
+	ty1 padyy + 'ccy !
 	( 1? 1 -
 		over sizeline
 		tx2 swap - padx - 'ccx !
@@ -97,8 +98,9 @@
 
 ::textbox | str n --
 	dup 4 >> $3 and
-	1 =? ( ty2 ty1 - 1 >> pick3 cntlin cch padl + * 1 >> - padl 1 >> + 'pady +! )
-	2 =? ( ty2 ty1 - pick3 cntlin cch padl + * - pady - padl + 'pady ! )
+	pady 'padyy !
+	1 =? ( ty2 ty1 - 1 >> pick3 cntlin cch padl + * 1 >> - padl 1 >> + 'padyy +! )
+	2 =? ( ty2 ty1 - pick3 cntlin cch padl + * - pady - padl + 'padyy ! )
 	drop
 	$3 and
 	0? ( drop boxprintl ; )
