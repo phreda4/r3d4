@@ -2,6 +2,7 @@
 | BTN.TXT PHREDA 2010
 |--------------------
 ^r3/lib/gui.r3
+^r3/lib/trace.r3
 
 :print2gc | "" --
 	ccx 1 - 'xr1 !
@@ -9,6 +10,9 @@
 	swprint ccx + 1 + 'xr2 !
 	cch ccy + 1 + 'yr2 !
 	;
+
+:btn.draw
+	xr1 yr1 xr2 yr2 fillbox ;
 
 :botonsimple
 	ink $444444 over
@@ -78,3 +82,24 @@
 	ccw 1 >> 'ccx +!
 	;
 
+:gcxy+!
+	dup 'ccx +! 'ccy +! ;
+
+::ibtn | acc 'ico --
+	dup
+	@ dup $ff and 4 + ccx dup 'xr1 ! + 'xr2 !
+	8 >> $ff and 4 + ccy dup 'yr1 ! + 'yr2 !
+	btn.draw
+	2 [ 1 + ; ] guiI gcxy+!
+	0 swap drawcico  | negro
+	-2 [ 1 - ; ] guiI gcxy+!
+	onClick
+	6 'ccx +!
+	;
+
+::btnfpx | 'event px py --
+	ccy dup 'yr1 ! + 'yr2 !
+	ccx dup 'xr1 ! + 'xr2 !
+	btn.draw
+	onClick
+	;

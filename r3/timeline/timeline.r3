@@ -136,6 +136,13 @@
 	a!+ | centrado
 	;
 
+|-------------------- SONIDO
+:evt.play
+	dup 8 + @ SPLAY ;
+
+:+sound | sonido inicio --
+	0 'evt.play 2swap >r swap r> +tline ;
+
 |-----------------------------
 :getscr | -- adrlast
 	'screen p.last ;
@@ -180,7 +187,7 @@
 
 |-----------------------------
 :boxanim0 | screena --
-	>a timenow a@+ - 1.0 1000 */ a@+ *.
+	>a timenow a@+ - a@+ *.
 	1.0 >=? ( drop setlastcoor 0 ; )
 	't0 !
 	a@+ >b
@@ -192,7 +199,7 @@
 	'boxanim0 'fx p!+ >a
 	dup 12 + @ >b | fxp
 	b@+ 1000 *. a!+	| inicio
-	1.0 b@+ /. a!+ | tiempo
+	1.0 b@+ 1000 *.u /. a!+ | tiempo
     dup 8 + @ 8 + a!+ | scr
    	b@+ b@+ |xy2f xy1f
 	b@+ b@+ |xy2i xy1i
@@ -208,7 +215,7 @@
 
 |-----------------------------
 :boxanim1 | screena --
-	>a timenow a@+ - 1.0 1000 */ a@+ *.
+	>a timenow a@+ - a@+ *.
 	1.0 >=? ( drop setlastcoor 0 ; )
 	Bac_InOut
 	't0 !
@@ -221,7 +228,7 @@
 	'boxanim1 'fx p!+ >a
 	dup 12 + @ >b | fxp
 	b@+ 1000 *. a!+	| inicio
-	1.0 b@+ /. a!+ | tiempo
+	1.0 b@+ 1000 *.u /. a!+ | tiempo
     dup 8 + @ 8 + a!+ | scr
    	b@+ b@+ |xy2f xy1f
 	b@+ b@+ |xy2i xy1i
@@ -237,6 +244,7 @@
 
 |-----------------------------
 #mario
+#son
 
 :timeline! | --
 	'screen p.clear
@@ -261,13 +269,14 @@
 
 	mario 50 50 60 60 +sprite
 	0.0 +fx.on
-	10 10 2xy 60 60 2xy 100 200 2xy 290 590 2xy 6.0 0.0 +fx.2bou
+	10 10 2xy 60 60 2xy 100 200 2xy 290 590 2xy 4.0 0.0 +fx.2bou
 	18.0 +fx.off
 
-	$11 "Hola_a todos" $10d003f $0 100 100 300 300 $ff00ff +textbox
+	$00 "Hola_a todos" $10d003f $0 100 100 300 300 $ff00ff +textbox
 	0.0 +fx.on
 	100 100 2xy 300 300 2xy 200 200 2xy 500 500 2xy 3.0 2.0 +fx.2bou
 	9.0 +fx.off
+	son 4.0 +sound
 
 	itime
 	;
@@ -314,6 +323,7 @@
 	1024 'fxp p.ini
 
 	"media/img/lolomario.png" loadimg 'mario !
+	"media/snd/piano.wav" sload 'son !
 	mario spr.alpha
 	itline
 	;

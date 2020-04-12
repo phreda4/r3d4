@@ -280,3 +280,49 @@
 
 ::size8i
   8 nip ;
+
+|---------------- ICON
+
+:px
+	1 an? ( ink a!+ ; ) 4 a+ ;
+
+::drawico | c --
+	ccx ccy xy>v >a
+	@+ dup $ff and swap 8 >> $ff and
+	( 1? rot @+
+		pick3 ( 1? 1 - swap
+			px 1 >> swap ) 2drop
+		rot rot 1 -
+		sw pick2 - 2 << a+
+		) drop
+	'ccx +!
+	drop ;
+
+:pxc
+	1 an? ( pick4 a!+ ; ) 4 a+ ;
+
+::drawcico | color c --
+	ccx ccy xy>v >a
+	@+ dup $ff and swap 8 >> $ff and
+	( 1? rot @+
+		pick3 ( 1? 1 - swap
+			pxc	1 >> swap ) 2drop
+		rot rot 1 -
+		sw pick2 - 2 << a+
+		) drop
+	'ccx +!
+	2drop ;
+:pxi
+	1 na? ( ink a!+ ; ) 4 a+ ;
+
+::drawnico | c --
+	ccx ccy xy>v >a
+	@+ dup $ff and swap 8 >> $ff and
+	( 1? rot @+
+		pick3 ( 1? 1 - swap
+			pxi 1 >> swap ) 2drop
+		rot rot 1 -
+		sw pick2 - 2 << a+
+		) drop
+	'ccx +!
+	drop ;

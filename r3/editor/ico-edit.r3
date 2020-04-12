@@ -5,7 +5,7 @@
 ^r3/lib/btn.r3
 ^r3/lib/input.r3
 ^r3/lib/parse.r3
-|^r3/lib/trazo.r3
+^r3/lib/vdraw.r3
 
 ^r3/lib/sprite.r3
 ^r3/util/loadimg.r3
@@ -414,7 +414,7 @@
 	xa 10 - 3 >> ya 48 - 3 >> vline! ;
 
 :editico
-	verde
+	$ff00 'ink !
 	1 26 gotoxy
 	'upico 'i_aup ibtn sp |ibtn " U " btnt sp
 	'dnico 'i_adn ibtn sp |" D " btnt sp
@@ -425,16 +425,16 @@
 	'mvico 'i_mver ibtn sp |"Mv " btnt sp
 	'vhico 'iturn ibtn sp |"MVH" btnt sp
 
-   	azul cr cr sp
-	'newdib dup <f1> 'i_new ibtn |"f1-New" link
-	'copydib dup <f2> 'i_copy sp ibtn |"f2-Copy" link
-	'rendib dup <f3> 'i_name sp ibtn |"f3-Rename" link
-	'import dup <f4> 'i_img sp ibtn |"f4-IMG" link
+   	$ff 'ink ! cr cr sp
+	'newdib 'i_new ibtn |"f1-New" link
+	'copydib 'i_copy sp ibtn |"f2-Copy" link
+	'rendib 'i_name sp ibtn |"f3-Rename" link
+	'import 'i_img sp ibtn |"f4-IMG" link
 	'uplist 'i_sup sp ibtn |" U " btnt sp
 	'dnlist 'i_sdn sp ibtn |" D " btnt sp
-	'deldib dup <del> 'i_del sp ibtn |"Del" link
+	'deldib 'i_del sp ibtn |"Del" link
 
-	cyan cr cr cr sp
+	$ffff 'ink ! cr cr cr sp
 	[ icohw dup $ff and 1 - 0 max swap $ff00 and or 'icohw ! ; ] "-" btnt sp
 	icohw $ff and "w:%d" print
 	[ icohw dup $ff and 1 + 32 min swap $ff00 and or 'icohw ! ; ] "+" sp btnt
@@ -446,16 +446,24 @@
 	[ $1818 'icohw ! ; ] "24" sp btnt
 	[ $2020 'icohw ! ; ] "32" sp btnt
 
-	gris oscuro
+	$999999 'ink !
 	10 48
 	icohw $ff and 3 << pick2 +
 	icohw 8 >> $ff and 3 << pick2 +
-	gcxyxy gc.fbox
+	fillbox
 
-	blanco
+	$ffffff 'ink !
 	'dn 'mv 'up guiMap
 	10 48 xy>v >a
 	'icohw drawzico
+
+	key
+	<f1> =? ( newdib )
+	<f2> =? ( copydib )
+	<f3> =? ( rendib )
+	<f4> =? ( import )
+	<del> =? ( deldib )
+	drop
 	;
 
 |----------------------------
@@ -472,13 +480,13 @@
 	cr cr cr ;
 
 :tabladib
-	36 3 gotoxy chome!
+	36 3 gotoxy |chome!
 	0 ( cntlist <?
 		cadadib 1 + ) drop ;
 
 :viewall
-	scr 62 3 gotoxy chome!
-	0 ( cntvar <? )(
+	62 3 gotoxy |chome!
+	0 ( cntvar <?
 		ccx 32 + sw >? ( cr cr ) drop
 		dup 8 << 'index + drawico
 		1 + ) drop ;
@@ -503,7 +511,7 @@
 	over " :R%d" print
 	$ffffff 'ink !
 	"eDIT iCO" print
-	'nombre "%s " printr
+	'nombre "%s " mformat printr
 
 	sp editname
 	cr cr
@@ -524,10 +532,11 @@
 	'nombre "mem/inc-ico.mem" load drop
 	'nombre parsefile
 	actual 8 << 'index + copyico
-	fonti scr home
+	fonti home
 	rows 3 / 1 - 'cntlist !
 	0 'inilist !
-	4 'mains onshow ;
+	4
+	'mains onshow ;
 
 |--------------------------------------------------
 :	0 'paper !
