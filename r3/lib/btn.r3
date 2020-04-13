@@ -11,14 +11,11 @@
 	cch ccy + 1 + 'yr2 !
 	;
 
-:btn.draw
-	xr1 yr1 xr2 yr2 fillbox ;
-
 :botonsimple
 	ink $444444 over
 	[ swap ; ]	guiI
 	'ink ! drop
-	xr1 yr1 xr2 yr2 fillbox
+	guiFill
 	'ink !
 	;
 
@@ -86,20 +83,20 @@
 	dup 'ccx +! 'ccy +! ;
 
 ::ibtn | acc 'ico --
-	dup
-	@ dup $ff and 4 + ccx dup 'xr1 ! + 'xr2 !
-	8 >> $ff and 4 + ccy dup 'yr1 ! + 'yr2 !
-	btn.draw
+	ccx ccy pick2 @
+	dup $ff and 4 +
+	swap 8 >> $ff and 4 +
+	guiBox
+	guiFill
 	2 [ 1 + ; ] guiI gcxy+!
 	0 swap drawcico  | negro
 	-2 [ 1 - ; ] guiI gcxy+!
 	onClick
-	6 'ccx +!
+	2 'ccx +!
 	;
 
 ::btnfpx | 'event px py --
-	ccy dup 'yr1 ! + 'yr2 !
-	ccx dup 'xr1 ! + 'xr2 !
-	btn.draw
+	ccy ccy 2swap guiBox
+	guiFill
 	onClick
 	;

@@ -1,6 +1,6 @@
 | PHReda 2010
 | Virtual Draw
-|
+| PHREDA 2020
 |-------------
 #vec
 #xa #ya
@@ -16,11 +16,11 @@
 :rline | xd yd --
 	ya =? ( xa hline ; )
 	xa ya pick2 <? ( 2swap )	| xm ym xM yM
-	pick2 - >r			| xm ym xM  r:canty
+	pick2 - 1 + >r			| xm ym xM  r:canty
 	pick2 - r@ 16 <</
-	rot 16 << rot rot
-	r> 				|xm<<16 ym delta canty
-	1 + ( 1? 1 - >r >r
+	rot 16 << $8000 +
+	rot rot r> 				|xm<<16 ym delta canty
+	( 1? 1 - >r >r
 		over 16 >> over pick3 r@ + 16 >> hline
 		1 + swap
 		r@ + swap

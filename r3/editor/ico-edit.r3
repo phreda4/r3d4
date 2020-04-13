@@ -64,8 +64,7 @@
 	>b b@+ dup $ff and swap 8 >> $ff and
 	( 1? b@+
 		pick2 ( 1? 1 - swap
-			p.
-			1 >> swap ) 2drop
+			p. 1 >> swap ) 2drop
 		over pxline
 		1 - ) 2drop ;
 
@@ -112,7 +111,7 @@
 		rot 1 >> rot rot
 		1 - ) drop nip ;
 
-:mhico
+:mvico
 	'icomem >a
 	icohw dup $ff and swap 8 >> $ff and
 	( 1? a@
@@ -120,7 +119,7 @@
 		a!+ 1 - )
 	2drop ;
 
-:mvico
+:mhico
 	'icomem >a
 	0 icohw 8 >> $ff and 1 -
 	( over >?
@@ -375,7 +374,7 @@
 	[ 16 dup 'capx ! 'capy ! ; ] " 16 " link
 	[ 24 dup 'capx ! 'capy ! ; ] " 24 " link
 	[ 32 dup 'capx ! 'capy ! ; ] " 32 " link
-	$ffff 'ink !
+	$7f7f 'ink !
 	'cargaimg " Load " link
 	'marca1 " set " link
 	$ff0000 'ink !
@@ -396,13 +395,16 @@
 	acursor ;
 
 :import
-	'importm onshow ;
+	3
+	'importm onshow
+	drop ;
 
 |---------------------------------------------------
 :invp | x y --
 	2 << 'icomem + >a 1 swap << a@ xor a! ;
 
 #xa #ya
+
 :dn
 	xypen 'ya ! 'xa ! ;
 :mv
@@ -434,7 +436,7 @@
 	'dnlist 'i_sdn sp ibtn |" D " btnt sp
 	'deldib 'i_del sp ibtn |"Del" link
 
-	$ffff 'ink ! cr cr cr sp
+	$7f7f 'ink ! cr cr cr sp
 	[ icohw dup $ff and 1 - 0 max swap $ff00 and or 'icohw ! ; ] "-" btnt sp
 	icohw $ff and "w:%d" print
 	[ icohw dup $ff and 1 + 32 min swap $ff00 and or 'icohw ! ; ] "+" sp btnt
@@ -444,13 +446,16 @@
 	[ icohw dup $ff00 and $100 + $2000 min swap $ff and or 'icohw ! ; ] "+" sp btnt
 	[ $1010 'icohw ! ; ] "16" sp btnt
 	[ $1818 'icohw ! ; ] "24" sp btnt
-	[ $2020 'icohw ! ; ] "32" sp btnt
+	[ $2020 'icohw ! ; ] "32" sp btnt cr cr
+	$ffffff 'ink !
+	sp 'icohw drawico
+	sp 'icohw drawnico
 
-	$999999 'ink !
 	10 48
-	icohw $ff and 3 << pick2 +
-	icohw 8 >> $ff and 3 << pick2 +
-	fillbox
+	icohw dup $ff and 3 << swap 8 >> $ff and 3 <<
+	guiBox
+	$999999 'ink !
+	guiFill
 
 	$ffffff 'ink !
 	'dn 'mv 'up guiMap
@@ -529,19 +534,19 @@
 	acursor ;
 
 :main
-	'nombre "mem/inc-ico.mem" load drop
-	'nombre parsefile
-	actual 8 << 'index + copyico
+|	'nombre "mem/inc-ico.mem" load drop
+|	'nombre parsefile
+|	actual 8 << 'index + copyico
 	fonti home
 	rows 3 / 1 - 'cntlist !
 	0 'inilist !
-	4
+	3
 	'mains onshow ;
 
 |--------------------------------------------------
 :	0 'paper !
 	mark
 	main
-	'nombre writefile
+|	'nombre writefile
 	;
 

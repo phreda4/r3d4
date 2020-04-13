@@ -190,3 +190,6 @@
 
 ::>>cr | adr -- adr'
 	( c@+ 1? 10 =? ( drop 1 - ; ) 13 =? ( drop 1 - ; ) drop ) drop 1 - ;
+
+::>>0 | adr -- adr' ; pasa 0
+	( c@+ 1? drop ) drop ;

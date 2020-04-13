@@ -41,6 +41,9 @@
 	'yr1 ! 'xr1 !
 	;
 
+::guiFill
+	xr1 yr1 xr2 yr2 fillbox ;
+
 |---------
 ::gui
 	idf 'idl ! hot 'hotnow !

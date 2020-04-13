@@ -2,11 +2,11 @@
 
 ^r3/lib/math.r3
 
-::Quad_In dup *. ;
+::Quad_In	dup *. ;
 ::Quad_Out	2.0 over - *. ;
 ::Quad_InOut	1 << 1.0 <? ( Quad_In 1 >> ; ) 1.0 - Quad_Out 1 >> 0.5 + ;
 
-::Cub_In		dup dup *. *. ;
+::Cub_In	dup dup *. *. ;
 ::Cub_Out	1.0 - Cub_In 1.0 + ;
 ::Cub_InOut	1 << 1.0 <? ( Cub_In 1 >> ; ) 2.0 - Cub_In 2.0 + 1 >> ;
 
