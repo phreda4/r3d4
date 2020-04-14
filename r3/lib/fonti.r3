@@ -299,9 +299,10 @@
 	drop ;
 
 :pxc
-	1 an? ( pick4 a!+ ; ) 4 a+ ;
+	1 an? ( b> a!+ ; ) 4 a+ ;
 
-::drawcico | color c --
+::drawcico | c color --
+	>b
 	ccx ccy xy>v >a
 	@+ dup $ff and swap 8 >> $ff and
 	( 1? rot @+
@@ -311,7 +312,8 @@
 		sw pick2 - 2 << a+
 		) drop
 	'ccx +!
-	2drop ;
+	drop ;
+
 :pxi
 	1 na? ( ink a!+ ; ) 4 a+ ;
 

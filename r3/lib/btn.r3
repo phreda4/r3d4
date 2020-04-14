@@ -11,43 +11,32 @@
 	cch ccy + 1 + 'yr2 !
 	;
 
-:botonsimple
-	ink $444444 over
-	[ swap ; ]	guiI
-	'ink ! drop
-	guiFill
+:xy+!
+	dup 'ccx +! 'ccy +! ;
+
+:coldn | c -- c
+	2 >> $3f3f3f and ;
+
+:colup
+	$3f3f3f and 3 << $30303 or ;
+
+:drawbtn | normal up dn
 	'ink !
+	xr1 1 + yr1 xr2 1 - yr1 2 + fillbox
+	xr1 yr1 1 + xr1 2 + yr2 1 - fillbox
+	'ink !
+	xr1 1 + yr2 xr2 1 - yr2 2 - fillbox
+	xr2 yr1 1 + xr2 2 - yr2 1 - fillbox
+	'ink !
+	xr1 2 + yr1 2 +
+	xr2 2 - yr2 2 -
+	fillbox
 	;
 
-::.btnt | acc "txt" --
-	ccw 'ccx +!
-	print2gc
-	-4 dup 'xr1 +! 'yr1 +!
-	4 dup 'xr2 +! 'yr2 +!
-	botonsimple
-	ink >r
-	$ffffff 'ink !
-	print
-	r> 'ink !
-|	'bordeyfoco in/foco
-	onClick
-	ccw 'ccx +!
-	;
-
-
-::.link | acc "txt" --
-	ccw 1 >> 'ccx +!
-	print2gc
-	ccw 1 >> 'xr2 +!
-	botonsimple
-	ink >r
-	$ffffff 'ink !
-	print
-	r> 'ink !
-|	'bordeyfoco in/foco
-	onClick
-	ccw 1 >> 'ccx +!
-	;
+:btnsimple
+	ink dup coldn over colup
+	[ swap ; ] guiI
+	drawbtn ;
 
 
 ::btnt | 'event "texto" --
@@ -55,48 +44,49 @@
 	print2gc
 	ccw dup neg 'xr1 +! 'xr2 +!
 	cch 1 >> dup neg 'yr1 +! 'yr2 +!
-	botonsimple
+	btnsimple
 	ink >r
 	$ffffff 'ink !
+	[ 1 xy+! ; ] guiI
 	print
-	r> 'ink !
+	[ -1 xy+! ; ] guiI
 	onClick
 	xr2
-|	ccw 1 >>
 	'ccx !
+	r> 'ink !
 	;
 
 ::link | acc "txt" --
-	ccw 1 >> 'ccx +!
+	ccw 2 >> 'ccx +!
 	print2gc
-	ccw 1 >> 'xr2 +!
-	botonsimple
+	ccw 2 >> 'xr2 +!
+	btnsimple
 	ink >r
 	$ffffff 'ink !
+	[ 1 xy+! ; ] guiI
 	print
-	r> 'ink !
+	[ -1 xy+! ; ] guiI
 	onClick
-	ccw 1 >> 'ccx +!
+	ccw 2 >> 'ccx +!
+	r> 'ink !
 	;
 
-:gcxy+!
-	dup 'ccx +! 'ccy +! ;
 
 ::ibtn | acc 'ico --
 	ccx ccy pick2 @
-	dup $ff and 4 +
-	swap 8 >> $ff and 4 +
+	dup $ff and 6 +
+	swap 8 >> $ff and 6 +
 	guiBox
-	guiFill
-	2 [ 1 + ; ] guiI gcxy+!
-	0 swap drawcico  | negro
-	-2 [ 1 - ; ] guiI gcxy+!
+	btnsimple
+	3 [ 1 + ; ] guiI xy+!
+	$ffffff drawcico  | negro
+	-3 [ 1 - ; ] guiI xy+!
 	onClick
 	2 'ccx +!
 	;
 
 ::btnfpx | 'event px py --
-	ccy ccy 2swap guiBox
-	guiFill
+	ccx ccy 2swap guiBox
+	btnsimple
 	onClick
 	;

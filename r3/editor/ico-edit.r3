@@ -190,7 +190,7 @@
 :getsize@ 8 >> $ff and ;
 
 :cadadibujo | adr $23 -- adr'
-	drop c@+ $3a <>? ( drop ; ) drop | #:
+	drop c@+ $23 <>? ( drop ; ) drop | ##
 	cntvar 5 << 'indexn + cpynom
 	cntvar 8 << 'index + >a
 	getnro dup a!+ getsize@
@@ -238,7 +238,7 @@
 	mark
 	"| ICO file" ,s ,nl
 	0 ( cntvar <?
-		'indexn over 5 << + "#:%s" ,format
+		'indexn over 5 << + "##%s" ,format
 		dup 8 << 'index + ,codigo
 		1 + ) drop
 	savemem
@@ -416,7 +416,7 @@
 	xa 10 - 3 >> ya 48 - 3 >> vline! ;
 
 :editico
-	$ff00 'ink !
+	$7f00 'ink !
 	1 26 gotoxy
 	'upico 'i_aup ibtn sp |ibtn " U " btnt sp
 	'dnico 'i_adn ibtn sp |" D " btnt sp
@@ -427,7 +427,7 @@
 	'mvico 'i_mver ibtn sp |"Mv " btnt sp
 	'vhico 'iturn ibtn sp |"MVH" btnt sp
 
-   	$ff 'ink ! cr cr sp
+   	$7f7f 'ink ! cr cr sp
 	'newdib 'i_new ibtn |"f1-New" link
 	'copydib 'i_copy sp ibtn |"f2-Copy" link
 	'rendib 'i_name sp ibtn |"f3-Rename" link
@@ -444,9 +444,7 @@
 	[ icohw dup $ff00 and $100 - 0 max swap $ff and or 'icohw ! ; ] "-" btnt sp
 	icohw 8 >> $ff and "h:%d" print
 	[ icohw dup $ff00 and $100 + $2000 min swap $ff and or 'icohw ! ; ] "+" sp btnt
-	[ $1010 'icohw ! ; ] "16" sp btnt
-	[ $1818 'icohw ! ; ] "24" sp btnt
-	[ $2020 'icohw ! ; ] "32" sp btnt cr cr
+	cr cr
 	$ffffff 'ink !
 	sp 'icohw drawico
 	sp 'icohw drawnico
@@ -454,7 +452,7 @@
 	10 48
 	icohw dup $ff and 3 << swap 8 >> $ff and 3 <<
 	guiBox
-	$999999 'ink !
+	$777777 'ink !
 	guiFill
 
 	$ffffff 'ink !
@@ -475,24 +473,23 @@
 :cadadib | n n -- n n
 	dup inilist + cntvar >=? ( drop ; )
 
-|	actual =? ( verde oscuro )( gris oscuro )
-
+	$777777 'ink !
+	actual =? ( $9900 'ink ! )
 	[ dup actual! ; ]
 	200 32 btnfpx
 	$ffffff 'ink !
 	dup 8 << 'index + sp drawico
-	5 << 'indexn + " #%s" print
+	5 << 'indexn + " %s" print
 	cr cr cr ;
 
 :tabladib
-	36 3 gotoxy |chome!
 	0 ( cntlist <?
+		36 3 pick2 3 * + gotoxy
 		cadadib 1 + ) drop ;
 
 :viewall
-	62 3 gotoxy |chome!
 	0 ( cntvar <?
-		ccx 32 + sw >? ( cr cr ) drop
+		dup $f and 0? ( 62 pick2 4 >> 2 << 3 + gotoxy ) drop
 		dup 8 << 'index + drawico
 		1 + ) drop ;
 
@@ -515,7 +512,12 @@
 	$ff00 'ink !
 	over " :R%d" print
 	$ffffff 'ink !
-	"eDIT iCO" print
+	"eDIT iCO  " print
+	$777777 'ink !
+	[ $1010 'icohw ! ; ] "16" sp btnt
+	[ $1818 'icohw ! ; ] "24" sp btnt
+	[ $2020 'icohw ! ; ] "32" sp btnt
+
 	'nombre "%s " mformat printr
 
 	sp editname
@@ -534,9 +536,9 @@
 	acursor ;
 
 :main
-|	'nombre "mem/inc-ico.mem" load drop
-|	'nombre parsefile
-|	actual 8 << 'index + copyico
+	'nombre "mem/ico-edit.mem" load drop
+	'nombre parsefile
+	actual 8 << 'index + copyico
 	fonti home
 	rows 3 / 1 - 'cntlist !
 	0 'inilist !

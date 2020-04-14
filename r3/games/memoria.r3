@@ -266,13 +266,13 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	"Memoria" printc cr
 	gooddog 40 fontr!
 	cr cr
-	$ff00 'ink !
+	$7f00 'ink !
 	gooddog 48 fontr!
 	8 nsp [ 16 jugar ; ] "16" btnt
 	3 nsp [ 30 jugar ; ] "30" btnt
 	3 nsp [ 48 jugar ; ] "48" btnt
 	cr cr cr
-	$ff0000 'ink !
+	$7f0000 'ink !
 	10 nsp 'exit " Exit " btnt
 	cr cr
 	0 sh 70 - atxy

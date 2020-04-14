@@ -2,7 +2,7 @@
 | framerate independient event animation system
 | PHREDA 2020
 |------------------
-|MEM $fff
+||MEM $fff
 
 ^r3/lib/gui.r3
 ^r3/lib/rand.r3
@@ -15,13 +15,13 @@
 ^r3/util/textbox.r3
 ^r3/util/textfont.r3
 
-#screen 0 0
-#fx 0 0
-#fxp 0 0
+##screen 0 0
+##fx 0 0
+##fxp 0 0
 
 |------ tiempo
 #prevt
-#timenow
+##timenow
 
 ::timeline.start
 	msec 'prevt ! 0 'timenow ! ;
@@ -66,17 +66,6 @@
 		16 + swap ) drop
 	'timeline< ! ;
 
-:dumptline
-	timeline< timeline - 4 >> "%d" print cr
-	timeline
-	( timeline> <?
-		timeline< =? ( "> " print )
-		@+ "%d " print
-		@+ "%d " print
-		@+ "%d " print
-		@+ "%d " print cr
-		) drop ;
-
 |-------------------- LOOP
 :evt.restart
 	'fx p.clear
@@ -87,10 +76,10 @@
 	>r 0 0 'evt.restart r> +tline ;
 
 |-----------------------------
-:xy2 | int -- x y
+::xy2 | int -- x y
 	dup 48 << 48 >> swap 16 >> ;
 
-:2xy | x y -- int
+::2xy | x y -- int
 	$ffff and 16 << swap $ffff and or ;
 
 |-------------------- FILLBOX
@@ -156,6 +145,20 @@
 
 ::+sound | sonido inicio --
 	0 'evt.play 2swap >r swap r> +tline ;
+
+|-------------------- VIDEO
+:drawvideo
+	@+ 1 an? ( 2drop ; ) drop
+	>a
+	a@+ a@+ videoshow a!
+	;
+
+:+video | x y --
+	'drawvideo 'screen p!+ >a
+	1 a!+
+	swap a!+ a!+ | x1 y1
+	0 a!+	| estado
+	;
 
 |-------------------- EXEC
 ::+event | exec inicio --
@@ -489,86 +492,30 @@
 	'fxp p! >a a!+ a!+ a!+ a!+ a!+ a!+
 	getfx getscr 'evt.I r> +tline ;
 
-
-|-----------------------------
-#mario
-#son
-
-:timeline! | --
-	timeline.clear
-
-	40 40 140 70 $ff00 +box
-	1.0 +fx.on
-	10 10 2xy 40 40 2xy 100 100 2xy 400 400 2xy 3.0 1.0 +fx.lin
-	100 100 2xy 200 200 2xy 10 10 2xy 40 40 2xy 1.2 3.0 +fx.QuaIn
-	4.0 +fx.off
-
-	mario 50 50 60 60 +sprite
-	0.0 +fx.on
-	10 10 2xy 60 60 2xy 100 200 2xy 290 590 2xy 4.0 0.0 +fx.QuaIO
-	9.0 +fx.off
-
-	$00 "Hola_a todos" $10d003f $0 100 100 300 300 $ff00ff +textbox
-	0.0 +fx.on
-	100 100 2xy 300 300 2xy 200 200 2xy 500 500 2xy 3.0 2.0 +fx.QuaOut
-	9.0 +fx.off
-
-	son 4.0 +sound
-
-	9.5 +restart
-
-	timeline.start
+|-------------------- ANIMADOR size
+:animfont
 	;
 
-
-#listPenner
-+fx.lin +fx.QuaIn +fx.QuaOut +fx.QuaIO +fx.SinI +fx.SinO +fx.SinIO
-+fx.ExpIn +fx.ExpOut +fx.ExpIO +fx.ElaIn +fx.ElaOut +fx.ElaIO +fx.BacIn
-+fx.BacOut +fx.BacIO +fx.BouOut +fx.BouIn +fx.BouIO
-
-#listPennerName
-"+fx.lin" "+fx.QuaIn" "+fx.QuaOut" "+fx.QuaIO" "+fx.SinI" "+fx.SinO" "+fx.SinIO"
-"+fx.ExpIn" "+fx.ExpOut" "+fx.ExpIO" "+fx.ElaIn" "+fx.ElaOut" "+fx.ElaIO" "+fx.BacIn"
-"+fx.BacOut" "+fx.BacIO" "+fx.BouOut" "+fx.BouIn" "+fx.BouIO"
-
-#nowy
-#stepy
-
-:possprite | y -- xy1f xy1t xy2f xy2t
-	>r 20 r@ 2xy 20 stepy + r@ stepy + 2xy 770 r@ 2xy 770 stepy + r> stepy + 2xy ;
-
-:makelist | name vec nro -- name' vec' nro
-	rot >r
-	$11 r@ $000001f $0 10 nowy 790 nowy stepy + $ff00 +textbox
-	0.0 +fx.on
-    r> >>0 rot >r
-	mario 20 nowy 20 stepy + nowy stepy + +sprite
-	0.0 +fx.on
-	nowy possprite 5.0 1.0 r@ @ ex
-	nowy possprite 2swap 5.0 7.0 r@ @ ex
-	r> 4 + rot
+:+fxfont | padi size padif sizef sec peener
 	;
 
-:exampletimeline
-	timeline.clear
-	sh 19 / 'stepy !
-	1 'nowy !
-	'listPennerName
-	'listPenner
-	19 ( 1? makelist stepy 'nowy +! 1 - ) 3drop
+|-------------------- ANIMADOR color
 
-	son 6.0 +sound
-	son 12.0 +sound
 
-	12.1 +restart
 
-|	'exit 12.1 +event
+|*********DEBUG
+:dumptline
+	timeline< timeline - 4 >> "%d" print cr
+	timeline
+	( timeline> <?
+		timeline< =? ( "> " print )
+		@+ "%d " print
+		@+ "%d " print
+		@+ "%d " print
+		@+ "%d " print cr
+		) drop ;
 
-	timeline.start
-	;
-
-|-----------------------------
-:debug
+:debugtimeline
 	t0 "%f" print cr
 	dumptline
 	[ dup @+ "%h " print @ "%d" print  cr ; ] 'screen p.mapv cr
@@ -580,42 +527,19 @@
 		@ xy2 "%d,%d " print
 		cr ; ] 'fxp p.mapv cr
 	;
+|*********DEBUG
 
-:main
-	cls
+::timeline.draw
 	dtime
 	tictline
 	'fx p.draw
 	'screen p.drawo
-
-	home fonti
-	$ffffff 'ink !
-	"timeline " print
-	timenow "%d" print cr
-
-	|debug
-
-	key
-	<f1> =? ( timeline! )
-	<f2> =? ( exampletimeline )
-	>esc< =? ( exit )
-	drop
 	;
 
-:memory
-	mark
+::timeline.inimem
 	here 'timeline !
 	$ffff 'here +!
 	1024 'screen p.ini
 	1024 'fx p.ini
 	1024 'fxp p.ini
-
-	"media/img/lolomario.png" loadimg 'mario !
-	"media/snd/piano.wav" sload 'son !
-	mario spr.alpha
-|	timeline.clear
 	;
-
-: memory 'main onShow ;
-
-
