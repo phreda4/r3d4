@@ -3,6 +3,8 @@
 
 ^r3/lib/sys.r3
 ^r3/lib/mem.r3
+^r3/lib/math.r3
+^r3/lib/rand.r3
 
 ##paper 0
 ##ccx 0 ##ccy 0
@@ -218,8 +220,68 @@
 	8 << $ff0000 and or ;
 
 |-----------------------------------------
-::fillbox | x1 y1 x2 y2
+::fillbox | x1 y1 x2 y2 --
 	2dup op
 	swap pick2 pline
 	pick2 swap op
 	pline poli ;
+
+::rectbox | x1 y1 x2 y2 --
+	2dup op
+	over pick3 line
+	2swap over swap line
+	over line line ;
+
+|------------------------------
+::box.inv | w h x y --
+	xy>v >a
+	( 1? 1 -
+		over ( 1? 1 - a@ not a!+ ) drop
+		sw pick2 - 2 << a+
+		) 2drop ;
+
+::box.mix50 | w h x y --
+	xy>v >a
+	( 1? 1 -
+		over ( 1? 1 - a@ ink col50% a!+ ) drop
+		sw pick2 - 2 << a+
+		) 2drop ;
+
+::box.noise | w h x y --
+	xy>v >a
+	( 1? 1 -
+		over ( 1? 1 - rand8 a!+ ) drop
+		sw pick2 - 2 << a+
+		) 2drop ;
+
+|--------------------------------
+:2sort | x y -- max min
+	over >? ( swap ) ;
+
+:dot
+	dup msec 5 >> +
+	%100 an? ( drop 4 a+ ; ) drop
+	a@ not a!+ ;
+
+:dotvline | x y1 y2 --
+	2sort
+	sh >=? ( 3drop ; ) 0 max
+	swap -? ( 3drop ; ) sh 1 - min
+	over - 1 +
+	>r xy>v >a r>
+	( 1? 1 - dot sw 1 - 2 << a+ ) drop ;
+
+:dothline | x1 x2 y --
+	-? ( 3drop ; ) sh >=? ( 3drop ; )
+	rot	rot 2sort
+	sw >=? ( 3drop ; ) 0 max
+	swap -? ( 3drop ; ) sw 1 - min
+	over - 1 +
+	swap rot xy>v >a
+	( 1? 1 - dot ) drop ;
+
+::box.dot | x1 y1 x2 y2 --
+	pick3 pick3 pick2 dotvline
+	over pick3 pick2 dotvline
+	pick3 pick2 rot dothline
+	swap dothline ;

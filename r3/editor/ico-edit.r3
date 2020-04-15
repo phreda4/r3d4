@@ -410,10 +410,9 @@
 :mv
 	xa ya xypen op line ;
 :up
-	'invp vop!
 	xypen
 	48 - 3 >> swap 10 - 3 >> swap vop
-	xa 10 - 3 >> ya 48 - 3 >> vline! ;
+	xa 10 - 3 >> ya 48 - 3 >> vline ;
 
 :editico
 	$7f00 'ink !
@@ -542,6 +541,7 @@
 	fonti home
 	rows 3 / 1 - 'cntlist !
 	0 'inilist !
+	'invp vset!
 	3
 	'mains onshow ;
 
