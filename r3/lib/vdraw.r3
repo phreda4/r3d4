@@ -128,3 +128,29 @@
 		drop
 		)
 	4drop ;
+
+:bor | x y x --
+	over vecs ex vecs ex ;
+
+:qfb
+	xm pick2 - ym pick2 - xm pick4 + bor
+	xm pick2 - ym pick2 + xm pick4 + bor ;
+
+::vellipseb | rx ry x y --
+	'ym ! 'xm !
+	over dup * dup 1 <<		| a b c 2aa
+	swap dup >a 'dy ! 		| a b 2aa
+	rot rot over neg 1 << 1 +	| 2aa a b c
+	swap dup * dup 1 << 		| 2aa a c b 2bb
+	rot rot * dup a+ 'dx !	| 2aa a 2bb
+	swap 1				| 2aa 2bb x y
+	pick3 'dy +! dy a+
+	xm pick2 - ym xm pick4 + bor
+	( swap +? swap 		| 2aa 2bb x y
+		a> 1 <<
+		dx >=? ( rot 1 - rot qfb rot pick3 'dx +! dx a+ )
+		dy <=? ( rot rot qfb 1 + rot pick4 'dy +! dy a+ )
+		drop
+		)
+	4drop ;
+

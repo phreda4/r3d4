@@ -1,24 +1,14 @@
 | sprite
-| PHREDA 2015,2018
+| PHREDA 2015,2018,2020
 |------------------------
-| pal-type-w-h
-| 4-4-12-12
+| pal/type-w-h
+| 8-12-12
 
 ^r3/lib/gr.r3
 ^r3/lib/math.r3
-^r3/lib/trace.r3
-
-#pal0
-$000000ff $808080ff $C0C0C0ff $FFFFFFff $800000ff $FF0000ff $808000ff $FFFF00ff
-$008000ff $00FF00ff $008080ff $00FFFFff $000080ff $0000FFff $800080ff $FF00FFff
-
-#pal8
-$000000ff $1D2B53ff $7E2553ff $008751ff $AB5236ff $5F574Fff $C2C3C7ff $FFF1E8ff
-$FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
-
 
 #wb #hb		| ancho alto
-#paleta 'pal0
+#paleta
 
 |-- internas para clip
 #addm
@@ -32,7 +22,6 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 
 |---- w/alpha
 :alp!+ | col --
-|	$ff na? ( drop 4 a+ ; )
 	dup 24 >> $ff and
 	0? ( 2drop 4 a+ ; )
 	$ff =? ( drop a!+ ; )
@@ -46,8 +35,11 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 	over - rot * 8 >> + $ff00 and
 	r> or a!+ ;
 
-:pala!+ | pal --
+:pal!+ | pal --
 	2 << paleta + @ a!+ ;
+
+:pala!+ | pal --
+	2 << paleta + @ alp!+ ;
 
 |----- 1:1
 
@@ -83,7 +75,7 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 		pick2 b+
 		1 - ) 3drop ;
 
-:d1 | adr -- ; alpha
+:d1 | adr -- ; 32 alpha
 	addm 2 << + >b
 	wb wi - 2 <<
    	sw wi - 2 <<
@@ -95,33 +87,31 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 		pick2 b+
 		1 - ) 3drop ;
 
-:d2p
-	$f0000000 an? ( dup 28 >> $f and pala!+ ; )
-	4 a+ ;
-
-:d2l | wi val -- wi2
-	over 8 max
-	( 1? 1 - swap
-		d2p 4 <<
-		swap ) 2drop
-	8 - 0 max ;
-
-:d2 | adr -- ;
-	addm 3 >> + >b
-	wb wi - 3 >>
-	sw wi - 2 <<
+:d2 | adr -- ; 8 sol
+	addm + >b
+	wb wi -
+   	sw wi - 2 <<
 	hi ( 1?
-		wi ( 1? b@+ d2l ) drop
+		wi ( 1?
+			b> c@+ pal!+ >b
+			1 - ) drop
 		over a+
 		pick2 b+
 		1 - ) 3drop ;
 
-:d3 | adr -- ;2
-:d4 | adr -- ;1
-	drop
-	;
+:d3 | adr -- ; 8 alpha
+	addm + >b
+	wb wi -
+   	sw wi - 2 <<
+	hi ( 1?
+		wi ( 1?
+			b> c@+ pala!+ >b
+			1 - ) drop
+		over a+
+		pick2 b+
+		1 - ) 3drop ;
 
-#odraw d0 d1 d2 d3 d4 0 0 0
+#odraw d0 d1 d2 d3
 
 ::sprite | x y 'spr  --
 	0? ( 3drop ; )
@@ -131,8 +121,8 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 	2swap clip | adr h x y
 	wi hi or -? ( drop 4drop ; ) drop
 	xy>v >a
-	$10000000 an? ( swap @+ 'paleta ! swap )
-	24 >> $f and 2 << 'odraw + @ ex ;
+	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	22 >> $c and 'odraw + @ ex ;
 
 |----- N:N
 :sd0 | x y adr --
@@ -163,7 +153,35 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 		sy 'ya +!
 		1 - ) 3drop ;
 
-#sdraw sd0 sd1 0 0 0 0 0 0
+:sd2 | x y adr --
+	yi 'ya !
+	sw wi - 2 << | columna
+	hi ( 1?
+		xi 'xa !
+	 	pick2 ya 16 >> wb * +
+		wi ( 1?
+			over xa 16 >> + c@ pal!+
+			sx 'xa +!
+			1 - ) 2drop
+		over a+
+		sy 'ya +!
+		1 - ) 3drop ;
+
+:sd3 | x y adr --
+	yi 'ya !
+	sw wi - 2 << | columna
+	hi ( 1?
+		xi 'xa !
+	 	pick2 ya 16 >> wb * +
+		wi ( 1?
+			over xa 16 >> + c@ pala!+
+			sx 'xa +!
+			1 - ) 2drop
+		over a+
+		sy 'ya +!
+		1 - ) 3drop ;
+
+#sdraw sd0 sd1 sd2 sd3
 
 :clipscw
 	sw >? ( sw pick2 - ; ) wr ;
@@ -194,8 +212,8 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 	wi hi or -? ( 4drop ; ) drop
 	xy>v >a
 	4 - @+
-    $10000000 an? ( swap @+ 'paleta ! swap )
-	24 >> $f and 2 << 'sdraw + @ ex ;
+	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	22 >> $c and 'sdraw + @ ex ;
 
 ::spritescale | x y scale 'img --
 	0? ( 4drop ; ) >b
@@ -274,36 +292,96 @@ $FF004Dff $FFA300ff $FFEC27ff $00E436ff $29ADFFff $83769Cff $FF77A8ff $FFCCAAff
 		rot 1 - )
 	3drop ;
 
-#rdraw r0 r1 0 0 0 0 0 0
+:point2
+	-? ( drop 4 a+ ; ) b> + c@ pal!+ ;
+
+:r2 | x y r adr --
+	>b inirot
+	wi hi or -? ( 3drop ; ) drop
+	xy>v >a
+	sx sy
+	hi ( 1?
+		pick2 pick2
+		wi ( 1?
+			dotrot point2
+			rot xa + rot ya +
+			rot 1 - ) 3drop
+		sw wi - 2 << a+
+		rot ya - rot xa +
+		rot 1 - )
+	3drop ;
+
+:point3
+	-? ( drop 4 a+ ; ) b> + c@ pala!+ ;
+
+:r3 | x y r adr --
+	>b inirot
+	wi hi or -? ( 3drop ; ) drop
+	xy>v >a
+	sx sy
+	hi ( 1?
+		pick2 pick2
+		wi ( 1?
+			dotrot point3
+			rot xa + rot ya +
+			rot 1 - ) 3drop
+		sw wi - 2 << a+
+		rot ya - rot xa +
+		rot 1 - )
+	3drop ;
+
+#rdraw r0 r1 r2 r3
 
 ::rsprite | x y r 'bmr --
 	0? ( 4drop ; )
 	@+
 	dup $fff and 'wb !
 	dup 12 >> $fff and 'hb !
-	$10000000 an? ( swap @+ 'paleta ! swap )
-	24 >> $f and 2 << 'rdraw + @ ex ;
+	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	22 >> $c and 'rdraw + @ ex ;
 
 ::spr.alpha | 'bmr --
 	dup @ $1000000 or swap ! ;
 
-##arrow $1010009 | 9x16 32bits ALPHA
-$ff000000 $ff000000 $00000000 $00000000 $00000000 $00000000 $00000000 $00000000 $00000000
-$ff000000 $ffffffff $ff000000 $00000000 $00000000 $00000000 $00000000 $00000000 $00000000
-$ff000000 $ffffffff $ffffffff $ff000000 $00000000 $00000000 $00000000 $00000000 $00000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ff000000 $00000000 $00000000 $00000000 $00000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ffffffff $ff000000 $00000000 $00000000 $00000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ff000000 $00000000 $00000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ff000000 $00000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ff000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ff000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ff000000 $ff000000 $ff000000
-$ff000000 $ffffffff $ffffffff $ffffffff $ffffffff $ffffffff $ff000000 $00000000 $00000000
-$ff000000 $ffffffff $ffffffff $ff000000 $ffffffff $ffffffff $ff000000 $00000000 $00000000
-$ff000000 $ffffffff $ff000000 $ff000000 $ffffffff $ffffffff $ff000000 $ff000000 $00000000
-$ff000000 $ff000000 $00000000 $ff000000 $ff000000 $ffffffff $ffffffff $ff000000 $00000000
-$00000000 $00000000 $00000000 $00000000 $ff000000 $ffffffff $ffffffff $ff000000 $00000000
-$00000000 $00000000 $00000000 $00000000 $ff000000 $ff000000 $ff000000 $ff000000 $00000000
+#arrow8 $3010009 | 9x16 paleta 8bits alpha, 4 colores
+$00000000 $ff000000 $ffffffff 0
+( 1 1 0 0 0 0 0 0 0
+  1 2 1 0 0 0 0 0 0
+  1 2 2 1 0 0 0 0 0
+  1 2 2 2 1 0 0 0 0
+  1 2 2 2 2 1 0 0 0
+  1 2 2 2 2 2 1 0 0
+  1 2 2 2 2 2 2 1 0
+  1 2 2 2 2 2 2 2 1
+  1 2 2 2 2 2 2 2 1
+  1 2 2 2 2 2 1 1 1
+  1 2 2 2 2 2 1 0 0
+  1 2 2 1 2 2 1 0 0
+  1 2 1 1 2 2 1 1 0
+  1 1 0 1 1 2 2 1 0
+  0 0 0 0 1 2 2 1 0
+  0 0 0 0 1 1 1 1 0 )
+
+#cross8 $300f00b | 9x15 paleta 8bits alpha, 4 colores
+$00000000 $ff000000 $ffffffff 0
+( 0 0 0 0 1 1 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  1 1 1 1 0 0 0 1 1 1 1
+  1 2 2 2 0 0 0 2 2 2 1
+  1 1 1 1 0 0 0 1 1 1 1
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 1 2 1 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 )
 
 ::acursor
-	xypen 'arrow sprite ;
+	xypen 'arrow8 sprite ;
+
+::xcursor
+	xypen 7 - swap 5 - swap 'cross8 sprite ;

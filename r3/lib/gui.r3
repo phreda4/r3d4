@@ -24,25 +24,24 @@
 ##xr2 ##yr2
 
 ::whin | x y -- -1/0
-	yr1 <? ( 2drop 0 ; )
-	yr2 >? ( 2drop 0 ; )
-	drop
-	xr1 <? ( drop 0 ; )
-	xr2 >? ( drop 0 ; )
-	drop -1 ;
+	yr2 over - swap yr1 - or swap
+	xr2 over - swap xr1 - or or
+	63 >> not ;
 
 ::guiAll
-	0 'xr1 ! 0 'yr1 !
-	sw 'xr2 ! sh 'yr2 !
-	;
+	0 'xr1 ! 0 'yr1 ! sw 'xr2 ! sh 'yr2 ! ;
 
-::guiBox | x y w h --
-	pick2 + 'yr2 ! pick2 + 'xr2 !
-	'yr1 ! 'xr1 !
-	;
+::guiBox | x1 y1 w h --
+	pick2 + 'yr2 ! pick2 + 'xr2 ! 'yr1 ! 'xr1 ! ;
+
+::guiRect | x1 y1 x2 y2 --
+	'yr2 ! 'xr2 ! 'yr1 ! 'xr1 ! ;
 
 ::guiFill
 	xr1 yr1 xr2 yr2 fillbox ;
+
+::guiBorde
+	xr1 1 - yr1 1 - xr2 yr2 rectbox ;
 
 |---------
 ::gui

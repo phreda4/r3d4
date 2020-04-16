@@ -57,7 +57,7 @@
 ::bline | x y --
   2dup iline
 
-::op | x y --
+::bop | x y --
   'ya ! 'xa ! ;
 
 ::fillrect  | w h x y --
@@ -88,6 +88,33 @@
 		a> 1 <<
 		dx >=? ( rot 1 - rot rot pick3 'dx +! dx a+ )
 		dy <=? ( rot rot qf 1 + rot pick4 'dy +! dy a+ )
+		drop
+		)
+	4drop ;
+
+:borde | x y x
+	over pset pset ;
+
+:qfb
+	xm pick2 - ym pick2 - xm pick4 + borde
+	xm pick2 - ym pick2 + xm pick4 + borde ;
+
+::bellipseb | x y rx ry --
+	'ym ! 'xm !
+	over dup * dup 1 <<		| a b c 2aa
+	swap dup >a 'dy ! 		| a b 2aa
+	rot rot over neg 1 << 1 +	| 2aa a b c
+	swap dup * dup 1 << 		| 2aa a c b 2bb
+	rot rot * dup a+ 'dx !	| 2aa a 2bb
+	swap 1				| 2aa 2bb x y
+	pick3 'dy +! dy a+
+	xm pick2 -
+	ym
+	xm pick4 + borde
+	( swap +? swap 		| 2aa 2bb x y
+		a> 1 <<
+		dx >=? ( rot 1 - rot qfb rot pick3 'dx +! dx a+ )
+		dy <=? ( rot rot qfb 1 + rot pick4 'dy +! dy a+ )
 		drop
 		)
 	4drop ;
@@ -187,8 +214,8 @@
 	pick2 $ff00ff and
 	over - pick2 * 8 >> +
 	$ff00ff and >r
-	swap $ff00 and
-	swap $ff00 and
+	rot $ff00 and
+	rot $ff00 and
 	over - rot * 8 >> +
 	$ff00 and r> or ;
 
@@ -259,7 +286,7 @@
 	over >? ( swap ) ;
 
 :dot
-	dup msec 5 >> +
+	dup herel +
 	%100 an? ( drop 4 a+ ; ) drop
 	a@ not a!+ ;
 
@@ -281,7 +308,11 @@
 	( 1? 1 - dot ) drop ;
 
 ::box.dot | x1 y1 x2 y2 --
+	msec 5 >> 'herel !
 	pick3 pick3 pick2 dotvline
+	herel neg 'herel !
 	over pick3 pick2 dotvline
+	herel neg 'herel !
 	pick3 pick2 rot dothline
+	herel neg 'herel !
 	swap dothline ;

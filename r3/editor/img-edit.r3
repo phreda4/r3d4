@@ -18,11 +18,21 @@
 #imagenw 320
 #imagenh 200
 
+#limx 60 #limy 24
+
 #zoom 0
-#xi 60
-#yi 24 | donde esta el pixel 0,0
-#color $ff
+#xi 60 #yi 24 | donde esta el pixel 0,0
+#color 0
 #size 1
+
+#pal8
+$000000 $888888 $ffffff
+$1D2B53 $7E2553 $008751
+$AB5236 $5F574F $C2C3C7
+$FFF1E8 $FF004D $FFA300
+$FFEC27 $00E436 $29ADFF
+$83769C $FF77A8 $FFCCAA
+* 200
 
 :scr2img | x y -- xi yi
 	yi - zoom >> swap
@@ -62,14 +72,16 @@
 	[ xa ya scr2img xypen scr2img vrect ; ] guiMap ;
 
 |----------- CIRCLE
+:border2cenrad
+	rot 2dup + 1 >> >r - abs 1 >> >r
+	2dup + 1 >> >r - abs 1 >>
+	r> r> swap r> ;			| xr yr xm ym
+
 :modocircle
 	[ xypen 'ya ! 'xa ! ; ]
-	[ color 'ink ! xa ya xypen rectbox ; ]
+	[ color 'ink ! xa ya xypen border2cenrad bellipseb ; ]
 	[ xa ya scr2img xypen scr2img 	| x y x y
-		rot 2dup + 1 >> >r - abs 1 >> >r
-		2dup + 1 >> >r - abs 1 >>
-		r> r> swap r> 					| xr yr xm ym
-		vellipse ; ] guiMap ;
+		border2cenrad vellipseb ; ] guiMap ;
 
 |----------- PICKER
 :modopicker
@@ -108,24 +120,50 @@
 	modo modo2xy
 	30 30 2swap
 	box.inv
-|	$ff00 'ink ! box.mix50
-
-	color 'ink !
-	xtool 8 + ytool 300 +
-	over 50 + over 50 + fillbox
 
 	xypen
 	swap xtool - -? ( 2drop ; ) 59 >? ( 2drop ; )
-	swap ytool - -? ( 2drop ; ) 299 >? ( 2drop ; )
+	swap ytool - -? ( 2drop ; ) 119 >? ( 2drop ; )
 	30 / 1 << swap 30 / +
 	dup modo2xy
 	2dup 30 30 guiBox
 	rot
 	[ dup 'modo ! dup 2 << 'modos + @ 'modoex ! ; ] onClick
 	drop
-	over 30 + over 30 +
-	$ffffff 'ink ! rectbox
+|	over 30 + over 30 +
+|	$ffffff 'ink ! rectbox
+ 	30 30 2swap
+	$7f 'ink ! box.mix50
 	;
+
+#xpal 0 #ypal 200
+#npal
+
+:palbar
+	$454545 'ink !
+	xpal ypal
+	over 60 + over 380 +
+	fillbox
+
+	color 'ink !
+	xpal 10 + ypal 5 +
+	40 30 guiBox
+	guiFill
+
+	'pal8
+	0 ( 20 <?
+		0 ( 3 <?
+			rot @+ 'ink ! rot rot
+        	over 4 << 41 + ypal +
+			over 4 << 7 + xpal + swap
+			14 14 guiBox
+			guiFill
+			over 3 * over +
+			[ dup 'npal ! ink 'color ! ; ] onClick
+			npal =? ( $ffffff 'ink ! guiBorde )
+			drop
+			1 + ) drop
+		1 + ) 2drop ;
 
 :imagen.draw | --
 |	bmrm 1 and? ( imagenw imagenh xi yi drawalphagrid ) drop
@@ -159,7 +197,7 @@
 	2 backlines
 
 	$ffffff 'ink !
-	4 4 atxy
+	4 5 atxy
 	over ":r%d Img Editor [ " print
 	'nombre print
 	imagenh imagenw " | %dx%d ] " print
@@ -170,11 +208,12 @@
 	sp [ 3 'zoom ! ; ] "x8" btnt
 
 	toolbar
+	palbar
 
-	xi clamp0
-	yi clamp0
-	imagenw zoom << sw clampmax
-	imagenh zoom << sh clampmax
+	xi limx clampmin
+	yi limy clampmin
+	imagenw zoom << xi + sw clampmax
+	imagenh zoom << yi + sh clampmax
 	guiBox
 	modoex 1? ( dup ex ) drop
 
