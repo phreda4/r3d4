@@ -10,14 +10,20 @@
 
 ^r3/util/loadimg.r3
 
+#cwx 60 #cwy 100
+
 #colorwimg |188x189
 #c1 $ffffff
-#color $ffffff
-#cwx 10 #cwy 100
-#c1x #c1y
-#c1w
+#c1x #c1y #c1w
 
-:colorWheel! | color --
+#color $ffffff
+
+::colorWheel! | color --
+	rgb2hsv
+	;
+
+:setcolor | color --
+	cwx 140 + cwy c1w + xy>v @ 'color !
 	;
 
 :selectColorWheel
@@ -30,10 +36,10 @@
 		a> swap 10 fill sw 2 << a+
 		1 + ) drop
 	cwx cwy 128 128 guiBox
-	[ xypen 2dup xy>v @ 0? ( 3drop ; ) 'c1 ! 'c1y ! 'c1x ! ; ] onMove
+	[ xypen 2dup xy>v @ 0? ( 3drop ; ) 'c1 ! 'c1y ! 'c1x ! setcolor ; ] onMove
 	cwx 138 + cwy 1 - 12 130 guiBox
-	[ xypen nip cwy - 128 clamp0max 'c1w ! ; ] onMove
-	cwx 140 + cwy c1w + xy>v @ 'color !
+	[ xypen nip cwy - 128 clamp0max 'c1w ! setcolor ; ] onMove
+
 
 	$ffffff 'ink !
 	c1x 2 - c1y 2 - over 4 + over 4 + rectbox
@@ -44,6 +50,51 @@
 	cwx 10 + cwy 134 + over 50 + over 20 + fillbox
 	;
 
+
+#pal8 * 300
+
+#xpal 0 #ypal 200
+#npal
+
+:palbar
+	$454545 'ink !
+	xpal ypal
+	over 60 + over 380 +
+	fillbox
+
+	color 'ink !
+	xpal 10 + ypal 5 +
+	40 30 guiBox
+	guiFill
+
+	'pal8
+	0 ( 20 <?
+		0 ( 3 <?
+			rot @+ 'ink ! rot rot
+        	over 4 << 41 + ypal +
+			over 4 << 7 + xpal + swap
+			14 14 guiBox
+			guiFill
+			over 3 * over +
+			[ dup 'npal ! ink 'color ! ; ] onClick
+			npal =? ( $ffffff 'ink ! guiBorde )
+			drop
+			1 + ) drop
+		1 + ) 2drop ;
+
+:setpaleta
+	'pal8 >a
+	$000000 a!+
+	$888888 a!+
+	$ffffff a!+
+	0 ( 19 <?
+		dup 1.0 19 */ 1.0 0.5 hsv2rgb a!+
+		dup 1.0 19 */ 1.0 1.0 hsv2rgb a!+
+		dup 1.0 19 */ 0.5 1.0 hsv2rgb a!+
+		1 + ) drop
+	;
+
+|--------------------
 :drawcircle
 	0 'ink !
 	400 64 - dup over 128 + over 128 + fillbox
@@ -57,9 +108,11 @@
 		1 - ) drop
 	;
 
+|--------------------
 :main
 	cls
 	gui
+    palbar
 	selectColorWheel
 	key
 	>esc< =? ( exit )
@@ -75,4 +128,5 @@
 : inimem
 	| $666666 'paper !
 	| cls drawcircle
+setpaleta
 	'main onshow ;

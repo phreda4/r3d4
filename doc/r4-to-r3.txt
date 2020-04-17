@@ -28,6 +28,8 @@ Las definiciones son
 and? ->> an?
 nand? ->> na?
 exec ->> ex
+xymouse ->> xypen
+bmouse ->> bpen
 ---------------
 
 * Quitar los )(

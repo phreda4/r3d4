@@ -118,8 +118,7 @@
 	swap ;
 
 :getcasen
-	0? ( getcase1 ; )
-	getcase2 ;
+	1 - 0? ( getcase1 ; ) getcase2 ;
 
 :JPGGetImageAttr | adr -- adr+
 	3 +	| Length of segment
@@ -127,8 +126,7 @@
 	get16 'imgcols !
 	get8	| Number of components
 	( 1? swap
-		get8
-		1 - getcasen
+		get8 getcasen
 		drop swap 1 - ) drop ;
 
 |----------------------------------
@@ -375,14 +373,11 @@
 	n2cbcr 2rgb r> ! ;
 
 :modo34 | x y a -- x y a ;3 components (Y-Cb-Cr) 4 samplesY
-
 	dcY 'dcCoef !
 	QuantTableY QuantNum!
 	HuffACTableY huffAC!
 	HuffDCTableY huffDC!
-
 	'YVector1 JPGGetBlock -? ( drop ; ) | $ffd9
-
 	'YVector2 JPGGetBlock -? ( drop ; )
 	'YVector3 JPGGetBlock -? ( drop ; )
 	'YVector4 JPGGetBlock -? ( drop ; )
@@ -397,7 +392,6 @@
 	QuantTableCbCr QuantNum!
 	'CrVector JPGGetBlock -? ( drop ; )
 	dcCoef 'dcCr !
-
 	0 ( 8 <? 0 ( 8 <? q134 1 + ) drop 1 + ) drop
 	0 ( 8 <? 0 ( 8 <? q234 1 + ) drop 1 + ) drop
 	0 ( 8 <? 0 ( 8 <? q334 1 + ) drop 1 + ) drop
@@ -559,27 +553,17 @@
 	2drop 0 0 ;
 
 |---------------------------------
-:moveor | de sr cnt --
-	rot >a
-	( 1? 1 - swap
-		@+ $ff000000 or a!+
-		swap ) 2drop ;
-
 ::loadjpg | "" -- adr/0
 	here swap load
-	here =? ( drop 0 ; )
-	dup $3 and +
-	'emem !
+	here =? ( drop 0 ; ) 'emem !
 	here
 	get16 $ffd8 <>? ( 2drop 0 ; ) drop
-
 	( get16 decodetype 1? ) drop
 	0? ( ; )
 	buildimg drop
-	here >a
-	imgcols imgrows 12 << or a!+	| size
-	a> emem imgcols imgrows * 2 << dup >r
-	moveor
-|	move
-	here r> 4 + 'here +! ;
 
+	here
+	imgcols imgrows 12 << or over !+	| header
+	emem
+	imgcols imgrows * 2 << dup 4 + 'here +!
+	move ;

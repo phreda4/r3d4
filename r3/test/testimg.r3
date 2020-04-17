@@ -1,4 +1,4 @@
-|--MEM 8192
+|MEM $ffff
 ^r3/lib/sys.r3
 ^r3/lib/mem.r3
 ^r3/lib/print.r3
@@ -15,10 +15,12 @@
 :main
 	cls home
 	xypen ima1 sprite
+	0 0 ima2 sprite
 	teclado
 	;
 
 :
 	mark
 	"media/img/logo.png" loadimg 'ima1 !
+	"media/img/cerezo.jpg" loadimg 'ima2 !
 	'main onshow ;

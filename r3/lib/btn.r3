@@ -43,7 +43,7 @@
 	ccw 1 >> 'ccx +!
 	print2gc
 	ccw dup neg 'xr1 +! 'xr2 +!
-	cch 1 >> dup neg 'yr1 +! 'yr2 +!
+	cch 2 >> dup neg 'yr1 +! 'yr2 +!
 	btnsimple
 	ink >r
 	$ffffff 'ink !

@@ -5,7 +5,7 @@
 ^r3/lib/math.r3
 
 ^r3/lib/gui.r3
-^r3/util/loadimg.r3
+^r3/util/loadjpg.r3
 
 #sf		| calidad
 #wi		| ancho
@@ -310,7 +310,7 @@ $f9 $fa
 	'bitcode + @ writeBits ;
 
 :fistDU0 | -- endpos0
-	63 ( 1? 
+	63 ( 1?
 		dup 2 << 'DU + @ 1? ( drop ; ) drop
 		1 - ) ;
 
@@ -355,9 +355,9 @@ $f9 $fa
 	rot 0.5 * rot -0.4187 * rot -0.0813 * + + 16 >> r> 'VDU + ! ;
 
 :RGB2YUV | y x -- (img:BitmapData, xpos:int, ypos:int):void
-	2dup swap sw * + 2 << framev + >a
-	0 ( 8 <? 
-		0 ( 8 <? 
+	2dup swap sw * + 2 << vframe + >a
+	0 ( 8 <?
+		0 ( 8 <?
 			a@+ (rgb2yuv)
 			1 + ) drop
 		sw 8 - 2 << a+
@@ -398,7 +398,7 @@ $f9 $fa
 	| Encode 8x8 macroblocks
 	0 'DCY ! 0 'DCU ! 0 'DCV !
 	0 'bytenew ! 7 'bytepos !
-	0 ( hi <? 
+	0 ( hi <?
 		0 ( wi <?
 			macroblock
 			8 + ) drop
@@ -433,7 +433,7 @@ $f9 $fa
 
 :main
 	mark
-	"media/img/smiley.jpg" loadjpg 'imgp !
+	"media/img/cerezo.jpg" loadjpg 'imgp !
 	'show onShow ;
 
 : main ;
