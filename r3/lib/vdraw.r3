@@ -1,6 +1,8 @@
 | Virtual Draw
 | PHREDA 2020
 |-------------
+^r3/lib/math.r3
+
 #vecs
 #vecg
 #maxw #maxh
@@ -107,21 +109,25 @@
 #ym #xm
 #dx #dy
 
+:iniellipse
+	over dup * dup 1 <<		| a b c 2aa
+	swap dup >a 'dy ! 		| a b 2aa
+	rot rot over neg 1 << 1 +	| 2aa a b c
+	swap dup * dup 1 << 		| 2aa a c b 2bb
+	rot rot * dup a+ 'dx !	| 2aa a 2bb
+	1 + swap 1				| 2aa 2bb x y
+	pick3 'dy +! dy a+
+	;
+
 :qf
 	xm pick2 - ym pick2 - xm pick4 + ihline
 	xm pick2 - ym pick2 + xm pick4 + ihline ;
 
 ::vellipse | rx ry x y --
 	'ym ! 'xm !
-	over dup * dup 1 <<		| a b c 2aa
-	swap dup >a 'dy ! 		| a b 2aa
-	rot rot over neg 1 << 1 +	| 2aa a b c
-	swap dup * dup 1 << 		| 2aa a c b 2bb
-	rot rot * dup a+ 'dx !	| 2aa a 2bb
-	swap 1				| 2aa 2bb x y
-	pick3 'dy +! dy a+
+	iniellipse
 	xm pick2 - ym xm pick4 + ihline
-	( swap +? swap 		| 2aa 2bb x y
+	( swap 0 >? swap 		| 2aa 2bb x y
 		a> 1 <<
 		dx >=? ( rot 1 - rot rot pick3 'dx +! dx a+ )
 		dy <=? ( rot rot qf 1 + rot pick4 'dy +! dy a+ )
@@ -138,15 +144,9 @@
 
 ::vellipseb | rx ry x y --
 	'ym ! 'xm !
-	over dup * dup 1 <<		| a b c 2aa
-	swap dup >a 'dy ! 		| a b 2aa
-	rot rot over neg 1 << 1 +	| 2aa a b c
-	swap dup * dup 1 << 		| 2aa a c b 2bb
-	rot rot * dup a+ 'dx !	| 2aa a 2bb
-	swap 1				| 2aa 2bb x y
-	pick3 'dy +! dy a+
+	iniellipse
 	xm pick2 - ym xm pick4 + bor
-	( swap +? swap 		| 2aa 2bb x y
+	( swap 0 >? swap 		| 2aa 2bb x y
 		a> 1 <<
 		dx >=? ( rot 1 - rot qfb rot pick3 'dx +! dx a+ )
 		dy <=? ( rot rot qfb 1 + rot pick4 'dy +! dy a+ )

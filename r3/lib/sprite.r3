@@ -124,6 +124,7 @@
 	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	22 >> $c and 'odraw + @ ex ;
 
+
 |----- N:N
 :sd0 | x y adr --
 	yi 'ya !
@@ -342,6 +343,9 @@
 
 ::spr.alpha | 'bmr --
 	dup @ $1000000 or swap ! ;
+
+::spr.wh | 'spr -- w h
+	@ dup $fff and swap 12 >> $fff and ;
 
 #arrow8 $3010009 | 9x16 paleta 8bits alpha, 4 colores
 $00000000 $ff000000 $ffffffff 0

@@ -77,7 +77,7 @@
 	rot rot over neg 1 << 1 +	| 2aa a b c
 	swap dup * dup 1 << 		| 2aa a c b 2bb
 	rot rot * dup a+ 'dx !	| 2aa a 2bb
-	swap 1				| 2aa 2bb x y
+	1 + swap 1				| 2aa 2bb x y
 	pick3 'dy +! dy a+
 	;
 
@@ -89,7 +89,7 @@
 	'ym ! 'xm !
 	inielipse
 	xm pick2 - ym xm pick4 + hlineo
-	( swap +? swap 		| 2aa 2bb x y
+	( swap 0 >? swap 		| 2aa 2bb x y
 		a> 1 <<
 		dx >=? ( rot 1 - rot rot pick3 'dx +! dx a+ )
 		dy <=? ( rot rot qf 1 + rot pick4 'dy +! dy a+ )
@@ -108,7 +108,7 @@
 	'ym ! 'xm !
     inielipse
 	xm pick2 - ym xm pick4 + borde
-	( swap +? swap 		| 2aa 2bb x y
+	( swap 0 >? swap 		| 2aa 2bb x y
 		a> 1 <<
 		dx >=? ( rot 1 - rot qfb rot pick3 'dx +! dx a+ )
 		dy <=? ( rot rot qfb 1 + rot pick4 'dy +! dy a+ )

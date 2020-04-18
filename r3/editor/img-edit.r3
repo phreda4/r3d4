@@ -9,6 +9,7 @@
 ^r3/lib/vdraw.r3
 
 ^r3/util/loadimg.r3
+^r3/util/dlgcolor.r3
 
 ^r3/lib/trace.r3
 
@@ -22,17 +23,7 @@
 
 #zoom 0
 #xi 60 #yi 24 | donde esta el pixel 0,0
-#color 0
 #size 1
-
-#pal8
-$000000 $888888 $ffffff
-$1D2B53 $7E2553 $008751
-$AB5236 $5F574F $C2C3C7
-$FFF1E8 $FF004D $FFA300
-$FFEC27 $00E436 $29ADFF
-$83769C $FF77A8 $FFCCAA
-* 200
 
 :scr2img | x y -- xi yi
 	yi - zoom >> swap
@@ -97,7 +88,6 @@ $83769C $FF77A8 $FFCCAA
 	[ xs1 ys1 xypen box.dot ; ]
 	[ xypen scr2img 'ys2 ! 'xs2 ! ; ] guiMap ;
 
-
 |------------------------------
 #modo 0
 #modoex 'mododraw
@@ -135,35 +125,6 @@ $83769C $FF77A8 $FFCCAA
  	30 30 2swap
 	$7f 'ink ! box.mix50
 	;
-
-#xpal 0 #ypal 200
-#npal
-
-:palbar
-	$454545 'ink !
-	xpal ypal
-	over 60 + over 380 +
-	fillbox
-
-	color 'ink !
-	xpal 10 + ypal 5 +
-	40 30 guiBox
-	guiFill
-
-	'pal8
-	0 ( 20 <?
-		0 ( 3 <?
-			rot @+ 'ink ! rot rot
-        	over 4 << 41 + ypal +
-			over 4 << 7 + xpal + swap
-			14 14 guiBox
-			guiFill
-			over 3 * over +
-			[ dup 'npal ! ink 'color ! ; ] onClick
-			npal =? ( $ffffff 'ink ! guiBorde )
-			drop
-			1 + ) drop
-		1 + ) 2drop ;
 
 :imagen.draw | --
 |	bmrm 1 and? ( imagenw imagenh xi yi drawalphagrid ) drop
@@ -208,7 +169,7 @@ $83769C $FF77A8 $FFCCAA
 	sp [ 3 'zoom ! ; ] "x8" btnt
 
 	toolbar
-	palbar
+	dlgColor
 
 	xi limx clampmin
 	yi limy clampmin
@@ -220,21 +181,28 @@ $83769C $FF77A8 $FFCCAA
 	teclado
 	acursor ;
 
+:canvassize | w h --
+	2dup 'imagenh ! 'imagenw !
+	2dup vsize
+	imagen >a
+	2dup $fff and 12 << swap $fff and or a!+
+	*
+	( 1? 1 - $ffffff a!+ ) drop
+|	a> $ffffff pick2 fill | ??? align
+
+	a> 'here !
+	"new" 'nombre strcpy
+	;
+
 :inimem
-	mark
-	"media/img/img-toolbar.png" loadimg 'imgtoolbar !
-	here
-	dup 'imagen !
-	imagenw $fff and imagenh $fff and 12 << or swap !+
-
-	dup >a imagenw imagenh * ( 1? 1 - $ffffff a!+ ) drop
-
-	imagenw imagenh * 2 << +
-	'here !
-
-	imagenw imagenh vsize
 	'imagenset vset!
 	'imagenget vget!
+	mark
+	dlgColorIni
+	"media/img/img-toolbar.png" loadimg 'imgtoolbar !
+	mark
+	here 'imagen !
+	320 240 canvassize
 	;
 
 :   inimem

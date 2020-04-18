@@ -1,19 +1,19 @@
-| Color Wheel selector
+| Color Select Dialog
 | PHREDA 2020
+|---------------
+
 
 ^r3/lib/gui.r3
 ^r3/lib/btn.r3
-^r3/lib/rand.r3
 ^r3/lib/input.r3
 ^r3/lib/sprite.r3
-^r3/lib/vdraw.r3
 
 ^r3/util/loadimg.r3
 
 #xpal 0 #ypal 200
 #cwx 60 #cwy 200
 
-#color $ffffff
+##color $ffffff
 
 #colorwimg |188x189
 #c1 $ffffff
@@ -28,7 +28,7 @@
 	select 0? ( 2drop ; ) drop
 	rgb2hsv | h s v
 	128 16 *>> 128 swap - 'c1w !
-	64 16 *>>
+	61 16 *>> | 61 cae en color siempre, deberia ser 64!
 	cwx 68 + cwy 68 + 2swap
 	xy+polar
 	2dup xy>v @ 0? ( 3drop ; )
@@ -36,7 +36,7 @@
 	;
 
 :setcolor | color --
-	cwx 140 + cwy c1w + xy>v @ 
+	cwx 140 + cwy c1w + xy>v @
 	dup 'color !
 	'pal8 npal 2 << + !
 	;
@@ -108,43 +108,5 @@
 		dup 1.0 19 */ 1.0 1.0 hsv2rgb a!+
 		dup 1.0 19 */ 0.5 1.0 hsv2rgb a!+
 		1 + ) drop
-
+	$0 'color !
 	;
-
-|--------------------
-:drawcircle
-	0 'ink !
-	400 64 - dup over 128 + over 128 + fillbox
-	64 ( 0 >?
-		0 ( 1.0 <?
-			dup pick2 1.0 64 */ 1.0 hsv2rgb 'ink !
-			400 400 pick2 pick4 ar>xy
-|			bop bline
-			op line
-			0.0001 + ) drop
-		1 - ) drop
-	;
-
-|--------------------
-:main
-	cls gui home
-	$ffffff 'ink !
-
-    dlgColor
-
-	key
-	>esc< =? ( exit )
-	drop
-	acursor
-	;
-
-:inimem
-	mark
-	dlgColorIni
-	;
-
-: inimem
-	| $666666 'paper !
-	| cls drawcircle
-
-	'main onshow ;

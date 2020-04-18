@@ -81,45 +81,26 @@
 	$ff00 and or swap
 	8 << $ff0000 and or ;
 
-:mimax3 | a b c -- a b c min max
-	pick2 pick2 min over min
-	pick3 pick3 max pick2 max
+
+#vR #vG #vB
+:getzone | x max -- x max h
+	vr =? ( vg vb - pick2 /. ; )
+	vg =? ( vb vr - pick2 /. 2.0 + ; )
+	vr vg - pick2 /. 4.0 + ;
+
+::rgb2hsv | argb -- h s v
+	dup 16 >> $ff and 1.0 255 */ 'vr !
+	dup 8 >> $ff and 1.0 255 */ 'vg !
+	$ff and 1.0 255 */ 'vb !
+	vr vg min vb min
+	vr vg max vb max | min max
+	over =? ( 2drop 0 0 vr ; )
+	dup rot - swap | x max
+	getzone | x val h
+	6/ -? ( 1.0 + )
+	rot pick2 /.	| val h s
+	rot
 	;
-
-:maxb
-	>r >r drop - $400 r>
-	| g-b fac min  R:max
-	rot 8 << r@ pick2 - / | fac min h  r:max
-	rot + 			| min H   r:max
-	$600 mod -? ( $5ff + )
-	r@ rot - r@ 8 <</ | H S
-	r> ;
-
-:maxg
-	>r >r rot - nip $200 r>
-	| g-b fac min  R:max
-	rot 8 << r@ pick2 - / | fac min h  r:max
-	rot + 			| min H   r:max
-	$600 mod -? ( $5ff + )
-	r@ rot - r@ 8 <</ | H S
-	r> ;
-
-::rgb2hsv | argb -- h s l
-	dup 16 >> $ff and
-	over 8 >> $ff and
-	rot $ff and
-	mimax3
-	over =? ( nip nip nip nip dup dup ; )
-	pick2 =? ( maxb ; )
-	pick3 =? ( maxg ; )
-	| maxr
-	>r >r - nip 0 r>
-	| g-b fac min  R:max
-	rot 8 << r@ pick2 - / | fac min h  r:max
-	rot + 			| min H   r:max
-	$600 mod -? ( $5ff + )
-	r@ rot - r@ 8 <</ | H S
-	r> ;
 
 | YCoCg colorspace (very fast)
 ::rgb2ycocg | r g b -- y co cg
