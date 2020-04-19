@@ -44,6 +44,12 @@
 		c@+ rot swap (crc32)
 		swap r> 1 - ) 2drop not ;
 
+::crc32n | a n p - u
+	not rot rot
+	( 1? >r
+		c@+ rot swap (crc32)
+		swap r> 1 - ) 2drop not ;
+
 
 ::adler32 | a n - u
 	0 0 2swap

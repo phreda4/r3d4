@@ -101,27 +101,36 @@
 		1 + ) 2drop ;
 
 |-----------------
-#nrot
+#nroi
+#nroa
 
 :drawpal | --
-	nrot
+	nroi
 	0 ( 14 <?
-		16 over 1 + 32 * xy>v >a
+		160 over 1 + 32 * xy>v >a
 		0 ( 15 <? 1 +
 			rot dup drawtile 1 +
 			rot rot ) drop
 		1 + ) 2drop ;
 
 
+:drawtilepal | --
+	nroi
+	0 ( 14 <?
+    	8 over 1 + 32 * xy>v >a
+		swap dup drawtile 1 +
+		swap ) 2drop ;
+
 :main
 	cls home gui
-	nrot "%d" print
+	nroi "%d" print
 
 	drawpal
+	|drawtilepal
 
 	key
-	<up> =? ( nrot 15 - clamp0 'nrot ! )
-	<dn> =? ( nrot 15 + cnttiles 15 14 * - clampmax 'nrot ! )
+	<up> =? ( nroi 15 - clamp0 'nroi ! )
+	<dn> =? ( nroi 15 + cnttiles 15 14 * - clampmax 'nroi ! )
 	>esc< =? ( exit )
 	drop
 	acursor
