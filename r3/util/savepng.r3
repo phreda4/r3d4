@@ -17,6 +17,24 @@
 #pngcrc
 #pngadler
 
+:,big | nbigendian --
+	dup 24 >> ,c dup 16 >> ,c dup 8 >> ,c ,c ;
+
+#icrc
+:inicrc |
+	here 'icrc ;
+
+:getcrc |
+	icrc dup here - crc32 ;
+
+:,chunk | data len str --
+	inicrc
+	,s
+	dup ,big
+	( 1? swap c@+ ,c swap 1 - )
+	2drop
+	getcrc ,big ;
+
 :header
 	pngw 3 * 1 + pngh * dup 'uncompRm !
 	dup DEFLATE_MAX_BLOCK_SIZE /
@@ -25,16 +43,20 @@
 	numBlocks 5 * 6 + uncompRm + 'idatSize !
 
 	| PNG header
-	$89 ,c $50 ,c $4E ,c $47 ,c $0D ,c $0A ,c $1A ,c $0A ,c
+	$89504E47 ,big
+	$0D0A1A0A ,big
+
 								| IHDR chunk
 	$00 ,c $00 ,c $00 ,c $0D ,c
 	$49 ,c $48 ,c $44 ,c $52 ,c
-	pngw , pnfh ,				| 'width' 'height' placeholder
+	pngw ,big
+	pnfh ,big				| 'width' 'height' placeholder
 	$08 ,c $02 ,c $00 ,c $00 ,c $00 ,c
 
 	here 17 - 17 crc32 ,c		| IHDR CRC-32 placeholder
+
 	| IDAT chunk
-	idatsize ,			 		| 'idatSize' placeholder
+	idatsize ,big		 		| 'idatSize' placeholder
 	$49 ,c $44 ,c $41 ,c $54 ,c
 								| DEFLATE data
 	$08 ,c $1D ,c
@@ -45,29 +67,14 @@
 
 
 :footer
-	pngadler ,			| DEFLATE Adler-32 placeholder
-	here 4 - 4 pngcrc crc32n ,	| IDAT CRC-32 placeholder
+	pngadler ,big			| DEFLATE Adler-32 placeholder
+	here 4 - 4 pngcrc crc32n ,big	| IDAT CRC-32 placeholder
 	| IEND chunk
 	$00 ,c $00 ,c $00 ,c $00 ,c
 	$49 ,c $45 ,c $4E ,c $44 ,c
 	$AE ,c $42 ,c $60 ,c $82 ,c
 	;
 
-:startdeflate
-	if (this->deflateFilled == 0) {  // Start DEFLATE block
-		uint16_t size = DEFLATE_MAX_BLOCK_SIZE;
-		if (this->uncompRemain < size)
-			size = (uint16_t)this->uncompRemain;
-		const uint8_t header[] = {  // 5 bytes long
-			(uint8_t)(this->uncompRemain <= DEFLATE_MAX_BLOCK_SIZE ? 1 : 0),
-			(uint8_t)(size >> 0),
-			(uint8_t)(size >> 8),
-			(uint8_t)((size >> 0) ^ 0xFF),
-			(uint8_t)((size >> 8) ^ 0xFF),
-		};
-		if (!write(this, header, sizeof(header) / sizeof(header[0])))
-			return TINYPNGOUT_IO_ERROR;
-	crc32(this, header, sizeof(header) / sizeof(header[0]));
 
 :beginline |  Beginning of line - write filter method byte
 	0 ,c
