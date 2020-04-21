@@ -3,8 +3,6 @@
 | PHREDA 2020
 |-------------
 ^./r3base.r3
-^./r3stack.r3
-^./r3cellana.r3
 
 #lastdircode 0 | ultima direccion de codigo
 
@@ -84,54 +82,41 @@
 :g0 :g: :g:: :g# :g: :g| :g^    ;
 
 :gdec
-	,DUP
-	getcte "mov rax,$%h" ,format ,cr
-	 ;
+	,DUP getcte "mov rax,$%h" ,format ,cr  ;
 
 :ghex
-	,DUP
-	getcte2 "mov rax,$%h" ,format ,cr
-	 ;
+	,DUP getcte2 "mov rax,$%h" ,format ,cr ;
 
 
 :gstr
-	,DUP
-	getval "mov rax,STR%h" ,format ,cr
-	;
+	,DUP getval "mov rax,str%h" ,format ,cr ;
 
 :gdwor
 	,DUP
-	getval
-	dup 'lastdircode !
-	push.wrd
-	 ;
+	getval dup 'lastdircode !
+	"mov rax,w%h" ,format ,cr ;			|--	3 word  'word
 
 :gdvar
 	,DUP
 	getval
-	push.wrd
-	 ;
+	"mov rax,w%h" ,format ,cr ;			|--	3 word  'word
 
 :gvar
 	,DUP
 	getval
-	push.var
-	 ;
+	"mov rax,dword[w%h]" ,format ,cr ;	|--	4 var   [var]
 
 :gwor
 	dup @ $ff and
 	16 =? ( drop getval "jmp w%h" ,format ,cr ; ) drop | ret?
 	getval
-	dup "call w%h" ,format ,cr
-	;
-
+	dup "call w%h" ,format ,cr ;
 
 :g;
 	dup 8 - @ $ff and
 	12 =? ( drop ; ) | tail call  call..ret?
 	drop
-	"ret" ,ln
-	;
+	"ret" ,ln ;
 
 |--- IF
 :g(
@@ -164,84 +149,80 @@
 
 :g0?
 	gwhilejmp
-	'TOS needREG
-	"or #0,#0" ,asm
+	"or rax,rax" ,ln
 	getval "jnz _o%h" ,format ,cr
 	;
 
 :g1?
 	gwhilejmp
-	'TOS needREG
-	"or #0,#0" ,asm
+	"or rax,rax" ,asm
 	getval "jz _o%h" ,format ,cr
 	;
 
 :g+?
 	gwhilejmp
-	'TOS needREG
-	"or #0,#0" ,asm
+	"or rax,rax" ,asm
 	getval "js _o%h" ,format ,cr
 	;
 
 :g-?
 	gwhilejmp
-	'TOS needREG
-	"or #0,#0" ,asm
+	"or rax,rax" ,asm
 	getval "jns _o%h" ,format ,cr
 	;
 
 :g<?
-	"cmp #1,#0" ,asm
-	.drop
+	"cmp [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "jge _o%h" ,format ,cr
 	;
 
 :g>?
-	"cmp #1,#0" ,asm
-	.drop
+	"cmp [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "jle _o%h" ,format ,cr
 	;
 
 :g=?
-	"cmp #1,#0" ,asm
-	.drop
+	"cmp [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "jne _o%h" ,format ,cr
 	;
 
 :g>=?
-	"cmp #1,#0" ,asm
-	.drop
+	"cmp [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "jl _o%h" ,format ,cr
 	;
 
 :g<=?
-	"cmp #1,#0" ,asm
-	.drop
+	"cmp [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "jg _o%h" ,format ,cr
 	;
 
 :g<>?
-	"cmp #1,#0" ,asm
-	.drop
+	"cmp [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "je _o%h" ,format ,cr
 	;
 
 :gA?
-	"test #1,#0" ,asm
-	.drop
+	"test [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "jnz _o%h" ,format ,cr
 	;
 
 :gN?
-	"test #1,#0" ,asm
-	.drop
+	"test [rbp],rax" ,ln
+	,drop
 	gwhilejmp
 	getval "jz _o%h" ,format ,cr
 	;
@@ -250,34 +231,28 @@
 	| sub nos2,nos
 	| cmp nos,tos-nos
 	"cmp #2,#1" ,asm
-	.2drop
+	,2drop
 	gwhilejmp
 	getval "jge _o%h" ,format ,cr
 	;
 
 :g>R
-	"push rax" ,ln
-	,drop ;
+	"push rax" ,ln ,drop ;
 
 :gR>
-	,dup
-	"pop rax" ,ln ;
+	,dup "pop rax" ,ln ;
 
 :gR@
-	,dup
-	"mov rax,[rsp]" ,ln ;
+	,dup "mov rax,[rsp]" ,ln ;
 
 :gAND
-	"and rax,[rbp]" ,ln
-	,drop ;
+	"and rax,[rbp]" ,ln ,drop ;
 
 :gOR
-	"or rax,[rbp]" ,ln
-	,drop ;
+	"or rax,[rbp]" ,ln ,drop ;
 
 :gXOR
-	"xor rax,[rbp]" ,ln
-	,drop ;
+	"xor rax,[rbp]" ,ln ,drop ;
 
 :gNOT
 	"not rax" ,ln ;
@@ -286,17 +261,13 @@
 	"neg rax" ,ln ;
 
 :g+
-	"add rax,[rbp]" ,ln
-	,drop ;
+	"add rax,[rbp]" ,ln ,drop ;
 
 :g-
-	"neg rax" ,ln
-	"add rax,[rbp]" ,ln
-	,drop ;
+	"neg rax;add rax,[rbp]" ,ln ,drop ;
 
 :g*
-	"imul rax,[rbp]" ,ln
-	,drop ;
+	"imul rax,[rbp]" ,ln ,drop ;
 
 :g/
 	"mov rbx,rax" ,ln
@@ -305,8 +276,7 @@
 	;
 
 :g*/
-	"mov rbx,rax" ,ln
-	"mov rcx,[rbp]" ,ln
+	"mov rbx,rax;mov rcx,[rbp]" ,ln
 	,2drop
 	"cdq;imul rcx;idiv rbx" ,ln
 	;
@@ -377,128 +347,89 @@
 	"mov rax,qword[rax]" ,ln ;
 
 :g@+
-	"movsx rbx,dword [rax]" ,ln
-	"add rax,4"
+	"movsx rbx,dword [rax];add rax,4" ,ln
 	,dup
 	"mov rax,rbx" ,ln ;
 
 :gC@+
-	"movsx rbx,byte [rax]" ,ln
-	"add rax,1"
+	"movsx rbx,byte [rax];add rax,1" ,ln
 	,dup
 	"mov rax,rbx" ,ln ;
 
 :gQ@+
-	"mov rbx,[rax]" ,ln
-	"add rax,8"
+	"mov rbx,[rax];add rax,8" ,ln
 	,dup
 	"mov rax,rbx" ,ln ;
 
 :g!
-	"mov rcx,[rbp]" ,ln
-	"mov dword[rax],ecx" ,ln
-	,2DROP ;
+	"mov rcx,[rbp];mov dword[rax],ecx" ,ln ,2DROP ;
 
 :gC!
-	"mov rcx,[rbp]" ,ln
-	"mov byte[rax],cl" ,ln
-	,2DROP ;
+	"mov rcx,[rbp];mov byte[rax],cl" ,ln ,2DROP ;
 
 :gQ!
-	"mov rcx,[rbp]" ,ln
-	"mov [rax],rcx" ,ln
-	,2DROP ;
+	"mov rcx,[rbp];mov [rax],rcx" ,ln ,2DROP ;
 
 :g!+
-	"mov rcx,[rbp]" ,ln
-	"mov dword [rax],ecx" ,ln
-	"add rax,4" ,ln
-	,NIP ;
+	"mov rcx,[rbp];mov dword [rax],ecx;add rax,4" ,ln ,NIP ;
 
 :gC!+
-	"mov rcx,[rbp]" ,ln
-	"mov byte [rax],cl" ,ln
-	"add rax,1" ,ln
-	,NIP ;
+	"mov rcx,[rbp];mov byte [rax],cl;add rax,1" ,ln ,NIP ;
 
 :gQ!+
-	"mov rcx,[rbp]" ,ln
-	"mov [rax],rcx" ,ln
-	"add rax,8" ,ln
-	,NIP ;
+	"mov rcx,[rbp];mov [rax],rcx;add rax,8" ,ln ,NIP ;
 
 :g+!
-	"mov rcx,[rbp]" ,ln
-	"add dword [rax],ecx" ,ln
-	,2DROP ;
+	"mov rcx,[rbp];add dword [rax],ecx" ,ln ,2DROP ;
 
 :gC+!
-	"mov rcx,[rbp]" ,ln
-	"add byte [rax],cl" ,ln
-	,2DROP ;
+	"mov rcx,[rbp];add byte [rax],cl" ,ln ,2DROP ;
 
 :gQ+!
-	"mov rcx,[rbp]" ,ln
-	"add [rax],rcx" ,ln
-	,2DROP ;
+	"mov rcx,[rbp];add [rax],rcx" ,ln ,2DROP ;
 
 
 :g>A
-	"mov r8,rax" ,ln
-	,drop ;
+	"mov r8,rax" ,ln ,drop ;
 
 :gA>
-	,dup
-	"mov rax,r8" ,ln ;
+	,dup "mov rax,r8" ,ln ;
 
 :gA@
-	,dup
-	"mov rax,[r8]" ,ln ;
+	,dup "mov rax,[r8]" ,ln ;
 
 :gA!
-	"mov [r8],rax" ,ln
-	,drop ;
+	"mov [r8],rax" ,ln ,drop ;
 
 :gA+
-	"add r8,rax" ,ln
-	,drop ;
+	"add r8,rax" ,ln ,drop ;
 
 :gA@+
-	,dup
-	"movsx rax,dword [r8];add r8,4" ,asm ;
+	,dup "movsx rax,dword [r8];add r8,4" ,ln ;
 
 :gA!+
-	"mov dword[r8],rax;add r8,4" ,asm
-	,drop ;
+	"mov dword[r8],rax;add r8,4" ,ln ,drop ;
 
 :g>B
-	"mov r9,rax" ,ln
-	,drop ;
+	"mov r9,rax" ,ln ,drop ;
 
 :gB>
-	,dup
-	"mov rax,r9" ,ln ;
+	,dup "mov rax,r9" ,ln ;
 
 :gB@
-	,dup
-	"mov rax,[r9]" ,ln ;
+	,dup "mov rax,[r9]" ,ln ;
 
 :gB!
-	"mov [r9],rax" ,ln
-	,drop ;
+	"mov [r9],rax" ,ln ,drop ;
 
 :gB+
-	"add r9,rax" ,ln
-	,drop ;
+	"add r9,rax" ,ln ,drop ;
 
 :gB@+
-	,dup
-	"movsx rax,dword [r9];add r9,4" ,asm ;
+	,dup "movsx rax,dword [r9];add r9,4" ,ln ;
 
 :gB!+
-	"mov dword[r9],rax;add r9,4" ,asm
-	,drop ;
-
+	"mov dword[r9],rax;add r9,4" ,ln ,drop ;
 
 
 :gMOVE
@@ -527,60 +458,98 @@
 	,3DROP ;
 
 :gCMOVE
-	needESIEDIECX
-	"rep movsb" ,asm ;
+	"mov rcx,rax" ,ln
+	"mov rsi,dword[rbp]" ,ln
+	"mov rdi,dword[rbp-8]" ,ln
+	"rep movsb" ,ln
+	,3DROP ;
+
 :gCMOVE>
-	needESIEDIECX
-	"lea esi,[esi+ecx-1];lea edi,[edi+ecx-1];std;rep movsb;cld" ,asm ;
+	"mov rcx,rax" ,ln
+	"mov rsi,dword[rbp]" ,ln
+	"mov rdi,dword[rbp-8]" ,ln
+	"lea rsi,[rsi+rcx-1]" ,ln
+	"lea rdi,[rdi+rcx-1]" ,ln
+	"std" ,ln
+	"rep movsb" ,ln
+	"cld" ,ln
+	,3DROP ;
+
 :gCFILL
-	needEDIECXEAX
-	"rep stosb" ,asm ;
+	"mov rcx,rax" ,ln
+	"mov rax,dword[rbp]" ,ln
+	"mov rdi,dword[rbp-8]" ,ln
+	"rep stosb" ,ln
+	,3DROP ;
+
 :gQMOVE
-	needESIEDIECX
-	"rep movsq" ,asm ;
+	"mov rcx,rax" ,ln
+	"mov rsi,dword[rbp]" ,ln
+	"mov rdi,dword[rbp-8]" ,ln
+	"rep movsq" ,ln
+	,3DROP ;
+
 :gQMOVE>
-	needESIEDIECX
-	"lea rsi,[rsi+rcx*8-8];lea rdi,[rdi+rcx*8-8];std;rep movsq;cld" ,asm ;
+	"mov rcx,rax" ,ln
+	"mov rsi,dword[rbp]" ,ln
+	"mov rdi,dword[rbp-8]" ,ln
+	"lea rsi,[rsi+rcx*8-8]" ,ln
+	"lea rdi,[rdi+rcx*8-8]" ,ln
+	"std" ,ln
+	"rep movsq" ,ln
+	"cld" ,ln
+	,3DROP ;
+
 :gQFILL
-	needEDIECXEAX
-	"rep stosq" ,asm ;
+	"mov rcx,rax" ,ln
+	"mov rax,dword[rbp]" ,ln
+	"mov rdi,dword[rbp-8]" ,ln
+	"rep stosq" ,ln
+	,3DROP ;
 
 :gUPDATE
-	"call SYSREDRAW" ,asm
+	"call SYSREDRAW" ,ln
 	;
 :gREDRAW
-	"call SYSUPDATE" ,asm
+	"call SYSUPDATE" ,ln
 	;
+
 :gMEM
-	0 PUSH.CTEM ;
+	,dup "mov rax,[FREE_MEM]" ,ln ;
+
 :gSW
-	0 PUSH.CTE ;
+	,dup "mov rax,XRES" ,ln ;
 :gSH
-	1 PUSH.CTE ;
+	,dup "mov rax,YRES" ,ln ;
 :gFRAMEV
-	1 PUSH.CTEM ;
+	,dup "mov rax,[SYSFRAME]" ,ln ;
 
 :gXYPEN
-	2 PUSH.CTEM 3 PUSH.CTEM ;
+	,dup "mov rax,[SYSXM]" ,ln
+	,dup "mov rax,[SYSYM]" ,ln ;
+
 :gBPEN
-	4 PUSH.CTEM ;
+	,dup "movsx rax,dword[SYSBM]" ,ln ;
+
 :gKEY
-	5 PUSH.CTEM ;
+	,dup "movsx rax,dword[SYSKEY]" ,ln ;
+
 :gCHAR
-	6 PUSH.CTEM ;
+	,dup "movsx rax,dword[SYSCHAR]" ,ln ;
+
 
 :gMSEC
-	"call SYSMSEC" ,asm ;
+	"call SYSMSEC" ,ln ;
 :gTIME
-	"call SYSTIME" ,asm ;
+	"call SYSTIME" ,ln ;
 :gDATE
-	"call SYSDATE" ,asm ;
+	"call SYSDATE" ,ln ;
 :gLOAD
-	"call SYSLOAD" ,asm ;
+	"call SYSLOAD" ,ln ;
 :gSAVE
-	"call SYSSAVE" ,asm ;
+	"call SYSSAVE" ,ln ;
 :gAPPEND
-	"call SYSAPPEND" ,asm ;
+	"call SYSAPPEND" ,ln ;
 
 :gFFIRST
 :gFNEXT
@@ -589,8 +558,7 @@
 	;
 
 
-
-|----
+|-----------------------------------------
 #vmc
 0 0 0 0 0 0 0 gdec ghex gdec gdec gstr gwor gvar gdwor gdvar
 g; g( g) g[ g] gEX g0? g1? g+? g-? g<? g>? g=? g>=? g<=? g<>?
@@ -610,11 +578,10 @@ gFNEXT gSYS
 
 
 ::genasmcode | duse --
-|	dup cellinig
-	cellstart
+	drop
 	'bcode ( bcode> <?
 		@+
-		"; " ,s dup ,tokenprint 9 ,c ,printstk ,cr
+		"; " ,s dup ,tokenprint ,cr
 		codestep
 |		"asm/code.asm" savemem | debug
 		) drop ;
