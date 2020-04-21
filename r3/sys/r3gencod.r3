@@ -4,7 +4,8 @@
 ^./r3base.r3
 ^./r3cellana.r3
 |^./r3asm1.r3
-^./r3asm.r3
+|^./r3asm.r3
+^./r3asm0.r3
 
 #lastdircode
 
