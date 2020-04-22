@@ -526,7 +526,7 @@ iFNEXT iSYS
 		@+
 
 		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-		"asm/code.asm" savemem | debug
+|		"asm/code.asm" savemem | debug
 
 		anastep
 		) drop

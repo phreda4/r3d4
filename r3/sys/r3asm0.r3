@@ -26,22 +26,22 @@
 
 |--------------------------
 :,DUP
-	"lea rbp,[rbp+8]" ,ln
+	"add rbp,8" ,ln
 	"mov [rbp],rax" ,ln ;
 :,DROP
 	"mov rax,[rbp]" ,ln
-	"lea rbp,[rbp-8]" ,ln ;
+	"sub rbp,8" ,ln ;
 :,NIP
-	"lea rbp,[rbp-8]" ,ln ;
+	"sub rbp,8" ,ln ;
 :,2DROP
 	"mov rax,[rbp-8]" ,ln
-	"lea rbp,[rbp-8*2]" ,ln ;
+	"sub rbp,8*2" ,ln ;
 :,3DROP
 	"mov rax,[rbp-8]" ,ln
-	"lea rbp,[rbp-8*3]" ,ln ;
+	"sub rbp,8*3" ,ln ;
 :,4DROP
 	"mov rax,[rbp-8*3]" ,ln
-	"lea rbp,[rbp-8*4]" ,ln ;
+	"sub rbp,8*4" ,ln ;
 
 :,OVER
 	,DUP "mov rax,[rbp-8]" ,ln ;
@@ -87,7 +87,6 @@
 :ghex
 	,DUP getcte2 "mov rax,$%h" ,format ,cr ;
 
-
 :gstr
 	,DUP getval "mov rax,str%h" ,format ,cr ;
 
@@ -104,13 +103,13 @@
 :gvar
 	,DUP
 	getval
-	"mov rax,dword[w%h]" ,format ,cr ;	|--	4 var   [var]
+	"movsxd rax,dword[w%h]" ,format ,cr ;	|--	4 var   [var]
 
 :gwor
 	dup @ $ff and
 	16 =? ( drop getval "jmp w%h" ,format ,cr ; ) drop | ret?
 	getval
-	dup "call w%h" ,format ,cr ;
+	"call w%h" ,format ,cr ;
 
 :g;
 	dup 8 - @ $ff and
@@ -172,57 +171,65 @@
 	;
 
 :g<?
-	"cmp [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"cmp rax,rbx" ,ln
 	gwhilejmp
 	getval "jge _o%h" ,format ,cr
 	;
 
 :g>?
-	"cmp [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"cmp rax,rbx" ,ln
 	gwhilejmp
 	getval "jle _o%h" ,format ,cr
 	;
 
 :g=?
-	"cmp [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"cmp rax,rbx" ,ln
 	gwhilejmp
 	getval "jne _o%h" ,format ,cr
 	;
 
 :g>=?
-	"cmp [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"cmp rax,rbx" ,ln
 	gwhilejmp
 	getval "jl _o%h" ,format ,cr
 	;
 
 :g<=?
-	"cmp [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"cmp rax,rbx" ,ln
 	gwhilejmp
 	getval "jg _o%h" ,format ,cr
 	;
 
 :g<>?
-	"cmp [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"cmp rax,rbx" ,ln
 	gwhilejmp
 	getval "je _o%h" ,format ,cr
 	;
 
 :gA?
-	"test [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"test rax,rbx" ,ln
 	gwhilejmp
 	getval "jnz _o%h" ,format ,cr
 	;
 
 :gN?
-	"test [rbp],rax" ,ln
+	"mov rbx,rax" ,ln
 	,drop
+	"test rax,rbx" ,ln
 	gwhilejmp
 	getval "jz _o%h" ,format ,cr
 	;
@@ -246,13 +253,13 @@
 	,dup "mov rax,[rsp]" ,ln ;
 
 :gAND
-	"and rax,[rbp]" ,ln ,drop ;
+	"and rax,[rbp]" ,ln ,nip ;
 
 :gOR
-	"or rax,[rbp]" ,ln ,drop ;
+	"or rax,[rbp]" ,ln ,nip ;
 
 :gXOR
-	"xor rax,[rbp]" ,ln ,drop ;
+	"xor rax,[rbp]" ,ln ,nip ;
 
 :gNOT
 	"not rax" ,ln ;
@@ -261,30 +268,36 @@
 	"neg rax" ,ln ;
 
 :g+
-	"add rax,[rbp]" ,ln ,drop ;
+	"add rax,[rbp]" ,ln ,nip ;
 
 :g-
-	"neg rax;add rax,[rbp]" ,ln ,drop ;
+	"neg rax" ,ln
+	"add rax,[rbp]" ,ln ,nip ;
 
 :g*
-	"imul rax,[rbp]" ,ln ,drop ;
+	"imul rax,[rbp]" ,ln ,nip ;
 
 :g/
 	"mov rbx,rax" ,ln
 	,drop
-	"cdq;idiv rbx" ,ln
+	"cdq" ,ln
+	"idiv rbx" ,ln
 	;
 
 :g*/
-	"mov rbx,rax;mov rcx,[rbp]" ,ln
+	"mov rbx,rax" ,ln
+	"mov rcx,[rbp]" ,ln
 	,2drop
-	"cdq;imul rcx;idiv rbx" ,ln
+	"cdq" ,ln
+	"imul rcx" ,ln
+	"idiv rbx" ,ln
 	;
 
 :g/MOD
 	"mov rbx,rax" ,ln
 	"mov rax,[rbp]" ,ln
-	"cdq;idiv rbx" ,ln
+	"cdq" ,ln
+	"idiv rbx" ,ln
 	"mov [rbp],rax" ,ln
 	"xchg rax,rdx" ,ln
 	;
@@ -292,30 +305,37 @@
 :gMOD
 	"mov rbx,rax" ,ln
 	,drop
-	"cdq;idiv rbx;mov rax,rdx" ,ln
+	"cdq" ,ln
+	"idiv rbx" ,ln
+	"mov rax,rdx" ,ln
 	;
 
 :gABS
-	"cdq;add rdx,rdx;xor rax,rdx" ,ln ;
+	"cdq" ,ln
+	"add rdx,rdx" ,ln
+	"xor rax,rdx" ,ln ;
 
 :gSQRT
 	"call sqrt" ,ln ;
 
 :gCLZ
-	"bsr rax,rax;xor rax,63" ,ln ;
+	"bsr rax,rax" ,ln
+	"xor rax,63" ,ln ;
 
 :g<<
-	"mov rcx,rax" ,ln
+	"mov cl,al" ,ln
 	,drop
-	"shl rax,rcx" ,ln
+	"shl rax,cl" ,ln ;
+
 :g>>
-	"mov rcx,rax" ,ln
+	"mov cl,al" ,ln
 	,drop
-	"sar rax,rcx" ,ln
+	"sar rax,cl" ,ln ;
+
 :g>>>
-	"mov rcx,rax" ,ln
+	"mov cl,al" ,ln
 	,drop
-	"shr rax,rcx" ,ln
+	"shr rax,cl" ,ln ;
 
 :g*>>
 	"mov rcx,rax" ,ln
@@ -347,46 +367,61 @@
 	"mov rax,qword[rax]" ,ln ;
 
 :g@+
-	"movsx rbx,dword [rax];add rax,4" ,ln
+	"movsx rbx,dword [rax]" ,ln
+	"add rax,4" ,ln
 	,dup
 	"mov rax,rbx" ,ln ;
 
 :gC@+
-	"movsx rbx,byte [rax];add rax,1" ,ln
+	"movsx rbx,byte [rax]" ,ln
+	"add rax,1" ,ln
 	,dup
 	"mov rax,rbx" ,ln ;
 
 :gQ@+
-	"mov rbx,[rax];add rax,8" ,ln
+	"mov rbx,[rax]" ,ln
+	"add rax,8" ,ln
 	,dup
 	"mov rax,rbx" ,ln ;
 
 :g!
-	"mov rcx,[rbp];mov dword[rax],ecx" ,ln ,2DROP ;
+	"mov rcx,[rbp]" ,ln
+	"mov dword[rax],ecx" ,ln ,2DROP ;
 
 :gC!
-	"mov rcx,[rbp];mov byte[rax],cl" ,ln ,2DROP ;
+	"mov rcx,[rbp]" ,ln
+	"mov byte[rax],cl" ,ln ,2DROP ;
 
 :gQ!
-	"mov rcx,[rbp];mov [rax],rcx" ,ln ,2DROP ;
+	"mov rcx,[rbp]" ,ln
+	"mov [rax],rcx" ,ln ,2DROP ;
 
 :g!+
-	"mov rcx,[rbp];mov dword [rax],ecx;add rax,4" ,ln ,NIP ;
+	"mov rcx,[rbp]" ,ln
+	"mov dword[rax],ecx" ,ln
+	"add rax,4" ,ln ,NIP ;
 
 :gC!+
-	"mov rcx,[rbp];mov byte [rax],cl;add rax,1" ,ln ,NIP ;
+	"mov rcx,[rbp]" ,ln
+	"mov byte[rax],cl" ,ln
+	"add rax,1" ,ln ,NIP ;
 
 :gQ!+
-	"mov rcx,[rbp];mov [rax],rcx;add rax,8" ,ln ,NIP ;
+	"mov rcx,[rbp]" ,ln
+	"mov [rax],rcx" ,ln
+	"add rax,8" ,ln ,NIP ;
 
 :g+!
-	"mov rcx,[rbp];add dword [rax],ecx" ,ln ,2DROP ;
+	"mov rcx,[rbp]" ,ln
+	"add dword[rax],ecx" ,ln ,2DROP ;
 
 :gC+!
-	"mov rcx,[rbp];add byte [rax],cl" ,ln ,2DROP ;
+	"mov rcx,[rbp]" ,ln
+	"add byte [rax],cl" ,ln ,2DROP ;
 
 :gQ+!
-	"mov rcx,[rbp];add [rax],rcx" ,ln ,2DROP ;
+	"mov rcx,[rbp]" ,ln
+	"add [rax],rcx" ,ln ,2DROP ;
 
 
 :g>A
@@ -405,10 +440,12 @@
 	"add r8,rax" ,ln ,drop ;
 
 :gA@+
-	,dup "movsx rax,dword [r8];add r8,4" ,ln ;
+	,dup "mov eax,dword[r8]" ,ln
+	"add r8,4" ,ln ;
 
 :gA!+
-	"mov dword[r8],rax;add r8,4" ,ln ,drop ;
+	"mov dword[r8],eax" ,ln
+	"add r8,4" ,ln ,drop ;
 
 :g>B
 	"mov r9,rax" ,ln ,drop ;
@@ -426,10 +463,12 @@
 	"add r9,rax" ,ln ,drop ;
 
 :gB@+
-	,dup "movsx rax,dword [r9];add r9,4" ,ln ;
+	,dup "mov eax,dword[r9]" ,ln
+	"add r9,4" ,ln ;
 
 :gB!+
-	"mov dword[r9],rax;add r9,4" ,ln ,drop ;
+	"mov dword[r9],eax" ,ln
+	"add r9,4" ,ln ,drop ;
 
 
 :gMOVE
@@ -508,11 +547,10 @@
 	,3DROP ;
 
 :gUPDATE
-	"call SYSREDRAW" ,ln
-	;
+	"call SYSREDRAW" ,ln ;
+
 :gREDRAW
-	"call SYSUPDATE" ,ln
-	;
+	"call SYSUPDATE" ,ln ;
 
 :gMEM
 	,dup "mov rax,[FREE_MEM]" ,ln ;
@@ -529,13 +567,13 @@
 	,dup "mov rax,[SYSYM]" ,ln ;
 
 :gBPEN
-	,dup "movsx rax,dword[SYSBM]" ,ln ;
+	,dup "mov eax,dword[SYSBM]" ,ln ;
 
 :gKEY
-	,dup "movsx rax,dword[SYSKEY]" ,ln ;
+	,dup "mov eax,dword[SYSKEY]" ,ln ;
 
 :gCHAR
-	,dup "movsx rax,dword[SYSCHAR]" ,ln ;
+	,dup "mov eax,dword[SYSCHAR]" ,ln ;
 
 
 :gMSEC

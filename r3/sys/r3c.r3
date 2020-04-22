@@ -48,9 +48,11 @@
 	r3-stage-3
 	" pass4" slog
 	r3-stage-4
-	" gencode" slog
+	" genset" slog
 	r3-genset
+	" gencode" slog
 	r3-gencode
+	" gendata" slog
 	r3-gendata
 	;
 

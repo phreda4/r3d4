@@ -72,14 +72,15 @@ include 'code.asm'
 ;===============================================
 align 16
 SYSREDRAW:
-;  push rax rbp
+  push rax rbp   ; c d r8 r9
   cinvoke SDL_UpdateWindowSurface,[window]
-;  pop rbp rax
+  pop rbp rax
   ret
 
 ;===============================================
 align 16
 SYSUPDATE:
+  push rax rbp
   xor eax,eax
   mov [SYSKEY],eax
   mov [SYSCHAR],eax
@@ -103,48 +104,55 @@ SYSUPDATE:
   cmp eax,SDL_QUIT
   je SYSEND
 .endr:
+  pop rbp rax
   ret
 upkeyd: ;key=(evt.key.keysym.sym&0xffff)|evt.key.keysym.sym>>16;break;
-        mov eax,[evt.key.keysym.sym]
-        and eax,0xffff
-        mov ebx,[evt.key.keysym.sym]
-        shr ebx,16
-        or eax,ebx
-        mov [SYSKEY],eax
-        ret
+  mov eax,[evt.key.keysym.sym]
+  and eax,0xffff
+  mov ebx,[evt.key.keysym.sym]
+  shr ebx,16
+  or eax,ebx
+  mov [SYSKEY],eax
+  pop rbp rax
+  ret
 upkeyu: ;key=0x1000|(evt.key.keysym.sym&0xffff)|evt.key.keysym.sym>>16;break;
-        mov eax,[evt.key.keysym.sym]
-        and eax,0xffff
-        mov ebx,[evt.key.keysym.sym]
-        shr ebx,16
-        or eax,0x1000
-        or eax,ebx
-        mov [SYSKEY],eax
-        ret
+  mov eax,[evt.key.keysym.sym]
+  and eax,0xffff
+  mov ebx,[evt.key.keysym.sym]
+  shr ebx,16
+  or eax,0x1000
+  or eax,ebx
+  mov [SYSKEY],eax
+  pop rbp rax
+  ret
 upmobd: ;bm|=evt.button.button;break;
-        movzx eax,byte[evt.button.button]
-        or [SYSBM],eax
-        ret
+  movzx eax,byte[evt.button.button]
+  or [SYSBM],eax
+  pop rbp rax
+  ret
 upmobu: ;bm&=~evt.button.button;break;
-        movzx eax,[evt.button.button]
-        not eax
-        and [SYSBM],eax
-        ret
+  movzx eax,[evt.button.button]
+  not eax
+  and [SYSBM],eax
+  pop rbp rax
+  ret
 upmomo: ;xm=evt.motion.x;ym=evt.motion.y;break;
-        mov eax,[evt.motion.x]
-        mov [SYSXM],eax
-        mov eax,[evt.motion.y]
-        mov [SYSYM],eax
-        ret
+  mov eax,[evt.motion.x]
+  mov [SYSXM],eax
+  mov eax,[evt.motion.y]
+  mov [SYSYM],eax
+  pop rbp rax
+  ret
 uptext: ;keychar=*(int*)evt.text.text;break;
-        movzx eax,byte[evt.text.text]
-        mov [SYSCHAR],eax
-        ret
+  movzx eax,byte[evt.text.text]
+  mov [SYSCHAR],eax
+  pop rbp rax
+  ret
 
 ;===============================================
 SYSMSEC: ;  ( -- msec )
-;  add rbp,8
-;  mov [rbp],rax
+  add rbp,8
+  mov [rbp],rax
   invoke GetTickCount
 ;  cinvoke64 SDL_GetTicks
   ret
@@ -182,21 +190,22 @@ SYSDATE: ;  ( -- ymd )
 ;===============================================
 align 16
 SYSLOAD: ; ( 'from "filename" -- 'to )
-  mov rcx,[rbp]
-  sub rbp,8
-  invoke CreateFile,rcx,GENERIC_READ,FILE_SHARE_READ,0,OPEN_EXISTING,FILE_FLAG_NO_BUFFERING+FILE_FLAG_SEQUENTIAL_SCAN,0
+  invoke CreateFile,rax,GENERIC_READ,FILE_SHARE_READ,0,OPEN_EXISTING,FILE_FLAG_NO_BUFFERING+FILE_FLAG_SEQUENTIAL_SCAN,0
   mov [hdir],rax
   or rax,rax
+  mov rax,[rbp]
   jz .loadend
-  mov rax,[rsp+16]
   mov [afile],rax
+.again:
   invoke ReadFile,[hdir],[afile],$ffffff,cntr,0 ; hasta 16MB
-  cmp rax,0
-  jne .loadend
+  mov rax,[cntr]
+  add [afile],rax
+  or rax,rax
+  jnz .again
   invoke CloseHandle,[hdir]
   mov rax,[afile]
-  add rax,[cntr]
 .loadend:
+  sub rbp,8
   ret
 
 ;===============================================
@@ -243,42 +252,42 @@ SYSAPPEND: ; ( 'from cnt "filename" -- )
 ;===============================================
 SYSFFIRST: ; ( "path" -- fdd ) ;****** r4 32 bits
 ;	push ebx ecx edx edi esi
-	mov esi,_dir
+	mov rsi,_dir
 .bcpy:
-	mov bl,[eax]
+	mov bl,[rax]
 	or bl,bl
 	jz .ends
-	mov byte[esi],bl
-	add eax,1
-	add esi,1
+	mov byte[rsi],bl
+	add rax,1
+	add rsi,1
 	jmp .bcpy
 .ends:
-	mov dword [esi],$002A2f2f
+	mov dword [rsi],$002A2f2f
 	invoke FindFirstFile,_dir,fdd
-	mov [hfind],eax
+	mov [hfind],rax
 	cmp eax,INVALID_HANDLE_VALUE
 	je .nin
-	mov eax,fdd
+	mov rax,fdd
 	jmp .fin
 .nin:
-	xor eax,eax
+	xor rax,rax
 .fin:
 ;	pop esi edi edx ecx ebx
 	ret
 
 ;===============================================
 SYSFNEXT: ; ( -- fdd/0) ;****** r4 32 bits
-	lea ebp,[ebp-4]
-	mov [ebp], eax
+	add rbp,8
+	mov [rbp], rax
 ;	push ebx ecx edx edi esi
 	invoke FindNextFile,[hfind],fdd
-	or eax,eax
+	or rax,rax
 	jz .nin
-	mov eax,fdd
+	mov rax,fdd
 	jmp .fin
 .nin:
 	invoke FindClose,[hfind]
-	xor eax,eax
+	xor rax,rax
 .fin:
 ;	pop esi edi edx ecx ebx
 	ret
@@ -286,7 +295,7 @@ SYSFNEXT: ; ( -- fdd/0) ;****** r4 32 bits
 
 ;===============================================
 SYSYSTEM:	;****** r4 32 bits
-	or eax,eax
+	or rax,rax
 	jnz .no0
 	mov rax,[ProcessInfo.hProcess]
 	or rax,rax
@@ -338,7 +347,7 @@ section '.data' data readable writeable
   screen dd ?
 
   SysTime SYSTEMTIME
-  hfind	dd 0
+  hfind	dq 0
   hdir dq 0
   afile dq 0
   cntr dq 0

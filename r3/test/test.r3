@@ -13,20 +13,7 @@
 	over - r> * 8 >> + $ff00 and
 	or ;
 
-:sminmax3 | a b c -- sn sx
-	dup dup 63 >> dup
-	not rot and rot rot and		| + -
-	rot
-	dup dup 63 >> dup
-	not rot and rot rot and
-	rot + >r + r>
-	rot
-	dup dup 63 >> dup
-	not rot and rot rot and
-	rot + >r + r> swap ;
-
 :patternxor
-	1 2 3 sminmax3 2drop
 	vframe >a
 	sh ( 1? 1 -
 		sw ( 1? 1 -
