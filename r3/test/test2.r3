@@ -2,34 +2,23 @@
 | Example 1
 
 ^r3/lib/gui.r3
-^r3/lib/mem.r3
 ^r3/lib/print.r3
 
-^r3/sys/r3parse.r3
-
-#src
 #cc
 
 :test
 	cls home
 	cc "%h" print cr
-	cc "%l" print cr
+	cc "%d" print cr
 
 	key
 	>esc< =? ( exit )
-	<up> =? ( cc >>cr trimcar drop 'cc ! )
-	<dn> =? ( exit )
+	<up> =? ( 1 'cc +! )
+	<dn> =? ( -1 'cc +! )
 	drop
 	;
 
 :
-	mark
-
-	here
-	dup "r3/test.r3" load 'here !
-	'src !
-	src 'cc !
-
 	'test onshow
 ;
 

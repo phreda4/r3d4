@@ -3,6 +3,7 @@
 |---------------------------------------
 ^r3/lib/math.r3
 ^r3/lib/mem.r3
+^r3/lib/gui.r3
 ^r3/lib/print.r3
 ^r3/lib/sprite.r3
 
@@ -189,6 +190,11 @@
 :mkplain
 	savetxt
 	"r3 r3/sys/r3plain.r3" sys drop
+	;
+
+:compile
+	savetxt
+	"r3 r3/sys/r3compiler.r3" sys drop
 	;
 
 |-------------------------------------------
@@ -455,7 +461,7 @@
 	swap cch 1 <<			| x adr y ya
 	( over <?
 		cch + rot >>13 2 + rot rot ) 2drop
-	swap ccw 2 << ccw +	| adr x xa
+	swap ccw 3 << ccw +	| adr x xa
 	( over <? mmemit ) 2drop
 	'fuente> ! ;
 
@@ -546,6 +552,7 @@
 
 	<f1> =? ( runfile )
 	<f4> =? ( mkplain )
+	<f5> =? ( compile )
 	drop
 	;
 
@@ -555,15 +562,14 @@
 	$ff $ffffff fontmcolor
 	" r3 " emits
 	$3f $ffffff fontmcolor
-	" F1.Run " emits
+	" F1-Run" emits
 
-	" F4.Plain " emits
+	" F4-Plain" emits
+	" F5-Compile" emits
+
 |------------------------------
 |	'debugrun dup <f2> "2Debug" $fff37b flink sp
 |	'profiler dup <f3> "3Profile" $fff37b flink sp
-|	'mkplain dup <f4> "4Plain" $fff37b flink sp
-|	'nowcompile dup <f5> "5Compile" $fff37b flink sp
-|	'testcompile <f10>
 |------------------------------
 	;
 
@@ -582,12 +588,10 @@
 
 
 :editando
-	cls
+	cls gui guiAll
 	barratop
 	barraestado
-
-|	'dns 'mos 'ups guiMap |------ mouse
-
+	'dns 'mos 'ups guiMap |------ mouse
 	drawcode
 	acursor
 	teclado

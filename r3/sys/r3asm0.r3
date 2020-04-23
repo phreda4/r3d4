@@ -5,6 +5,9 @@
 ^./r3base.r3
 
 #lastdircode 0 | ultima direccion de codigo
+#anon * 40 | 10 niveles ** falta inicializar si hay varias ejecuciones
+#anon> 'anon
+#nanon 0
 
 |--- @@
 ::getval | a -- a v
@@ -135,8 +138,19 @@
 	;
 
 |--- REP
+
 :g[
+	1 'nanon +!
+	nanon dup anon> !+ 'anon> !
+	dup "jmp ja%h" ,format cr
+	"anon%h:" ,format ,cr
+	;
 :g]
+	-4 'anon> +!
+	anon> @
+	dup "ja%h:" ,format ,cr
+	"add rbp,8" ,ln
+	"mov rax,anon%h" ,format ,cr
 	;
 
 :gEX
@@ -546,36 +560,27 @@
 	"rep stosq" ,ln
 	,3DROP ;
 
-:gUPDATE
-	"call SYSREDRAW" ,ln ;
-
-:gREDRAW
-	"call SYSUPDATE" ,ln ;
-
 :gMEM
 	,dup "mov rax,[FREE_MEM]" ,ln ;
-
 :gSW
 	,dup "mov rax,XRES" ,ln ;
 :gSH
 	,dup "mov rax,YRES" ,ln ;
 :gFRAMEV
 	,dup "mov rax,[SYSFRAME]" ,ln ;
-
 :gXYPEN
 	,dup "mov rax,[SYSXM]" ,ln
 	,dup "mov rax,[SYSYM]" ,ln ;
-
 :gBPEN
 	,dup "mov eax,dword[SYSBM]" ,ln ;
-
 :gKEY
 	,dup "mov eax,dword[SYSKEY]" ,ln ;
-
 :gCHAR
 	,dup "mov eax,dword[SYSCHAR]" ,ln ;
-
-
+:gUPDATE
+	"call SYSREDRAW" ,ln ;
+:gREDRAW
+	"call SYSUPDATE" ,ln ;
 :gMSEC
 	"call SYSMSEC" ,ln ;
 :gTIME
@@ -588,12 +593,12 @@
 	"call SYSSAVE" ,ln ;
 :gAPPEND
 	"call SYSAPPEND" ,ln ;
-
 :gFFIRST
+	"call SYSFFIRST" ,ln ;
 :gFNEXT
-	;
+	"call SYSFNEXT" ,ln ;
 :gSYS
-	;
+	"call SYSYSTEM" ,ln ;
 
 
 |-----------------------------------------
