@@ -144,14 +144,16 @@
 		dup ?base 0 >=? ( .base ; ) drop
 		1 + ?word 1? ( .adr ; ) drop
 		"Addr not exist" 'error !
+		dup 'lerror !
 		drop 0 ; )
 	drop
 	dup isNro 1? ( drop .nro ; ) drop		| numero
 	dup ?base 0 >=? ( .base ; ) drop		| macro
 	?word 1? ( .word ; ) drop		| palabra
  	"Word not found" 'error !
- 	dup "%l" slog
- 	trace
+	dup 'lerror !
+| 	dup "%l" slog
+| 	trace
 |	dup "Word %w" 'error !
 	drop 0 ;
 

@@ -1,6 +1,6 @@
 | rutinas para compilar
 | reemplazo para ASM
-| PHREDA 2013,2019
+| PHREDA 2013,2019,2020
 |------------------------
 ^r3/lib/math.r3
 
@@ -40,8 +40,8 @@
 
 |---------- GRAFICOS ------------
 :setxy | x y -- >a
-	10 << + 2 << framev + >a ;
-|	sw * + 2 << framev + >a ;
+|	10 << + 2 << vframe + >a ;
+	sw * + 2 << vframe + >a ;
 
 |----- mexcla de colores
 :acpx!+ | alpha col --
@@ -91,8 +91,11 @@
 	setxy 1 + ( 1? 1 - ink a!+ ) drop ;
 
 |------- clipline
+:li
+	8 <? ( 0 nip ; ) sh 2 - nip ;
+
 :clip1 | y1 x1 y2 x2 c1 -- y1 x1 y2 x2 c1
-    8 <? ( 0 )( sh 2 - ) nip >r
+    li >r
 	2swap | y2 x2 y1 x1
 |		X1+=(V-Y1)*(X2-X1)/(Y2-Y1);Y1=V;
  	pick3 pick2 - r@ pick3 - pick4 pick3 - rot */ +
@@ -101,30 +104,30 @@
 	dup sw - not $20000000 and
 	over $10000000 and or
 	28 >>
-|	sw >=? ( $2 )( dup 31 >> $1 and )
 	>r 2swap r> ;
 
 :clip2 | y1 x1 y2 x2 c2 -- y1 x1 y2 x2 c2
-	8 <? ( 0 )( sh 2 - ) nip >r	| y1 x1 y2 x2
+	li >r	| y1 x1 y2 x2
 | 		X2+=(V-Y2)*(X2-X1)/(Y2-Y1);Y2=V;
 	over pick4 - over pick4 - r@ pick4 - swap rot */ +
 	nip r> swap
 
 	dup sw - not $20000000 and
 	over $10000000 and or
-	28 >>
-|	sw >=? ( $2 )( dup 31 >> $1 and )
-	;
+	28 >> ;
+
+:li
+	1 =? ( 0 nip ; ) sw 1 - nip ;
 
 :clip3 | y1 x1 y2 x2 c2 -- y1 x1 y2 x2 c2
-	1 =? ( 0 )( sw 1 - ) nip >r
+	li >r
 	swap | y1 x1 x2 y2
 |		Y2+=(V-X2)*(Y2-Y1)/(X2-X1);X2=V;C2=0;
 	dup pick4 - pick2 pick4 - r@ pick4 - rot rot */ +
 	nip r> 0 ;
 
 :clip4 | y1 x1 y2 x2 c1 -- y1 x1 y2 x2 c1
-	1 =? ( 0 )( sw 1 - ) nip >r
+	li >r
 	2swap swap 	| y2 x2 x1 y1
 |		Y1+=(V-X1)*(Y2-Y1)/(X2-X1);X1=V;C1=0;
 	pick3 over - pick3 pick3 - r@ pick4 - rot rot */ +
@@ -132,7 +135,7 @@
 	2swap 0 ;
 
 :clipline | x2 y2 x1 y1 -- y1 x1 y2 x2 in
-	dup $40000000 and 
+	dup $40000000 and
 	over sh - 1 + not $80000000 and or
 	pick2 $10000000 and or
 	pick2 sw - not $20000000 and or
@@ -143,12 +146,6 @@
 	pick2 $10000000 and or
 	pick2 sw - not $20000000 and or
 	28 >> r>
-|	sh 1 - >=? ( $8 )( dup 31 >> $4 and ) >r			| y1
-|	swap sw >=? ( $2 )( dup 31 >> $1 and ) r> + >r	| x1
-|	2swap | y1 x1 x2 y2
-|	sh 1 - >=? ( $8 )( dup 31 >> $4 and ) >r  		| y2
-|	swap sw >=? ( $2 )( dup 31 >> $1 and ) 			| x2
-|	r> + r> 						| y1 x1 y2 x2 c2 c1
 	2dup and 1? ( drop or ; ) drop
 	2dup or 0? ( drop or ; ) drop
 	>r 12 an? ( clip2 ) r> swap >r 12 an? ( clip1 ) r>
@@ -199,8 +196,8 @@
 
 |*******************************
 ::CURVE | fx fy cx cy --
-	pick3 pxBPP + pick2 2* - abs
-	pick3 pyBPP + pick2 2* - abs  +
+	pick3 pxBPP + pick2 1 << - abs
+	pick3 pyBPP + pick2 1 << - abs  +
 	4 <? ( 3drop LINE ; ) drop
 	pick3 pick2 + 1 >>  pick3 pick2 + 1 >>		| fx fy cx cy c2 c2
 	2swap 									| fx fy c2 c2 cx cy
@@ -228,15 +225,13 @@
 	2swap >r >r
 	pick3 pick2 + 1 >> pick3 pick2 + 1 >>
 	2swap r> r>
-	r> cc3 |3 <? ( drop 4drop line )( drop CURVE3 )
-	r> cc3 |3 <? ( drop 4drop line ; ) drop CURVE3 ;
-	;
+	r> cc3 r> cc3 ;
 
 |-------------------------------------------------
 | PINTADO DE POLIGONOS
 |-------------------------------------------------
 | pos(12) | len(11) | cover(9) |
-:getpos 20 0>> ;
+:getpos 20 >>> ;
 :getlen 9 >> $7ff and ;
 :getval $1ff and ;
 :setpos 20 << ;
@@ -290,8 +285,8 @@
 |----------------- degrade radial
 :distf | dx dy -- dis
 	abs swap abs over <? ( swap )
-	dup 8 << over 3 << + over 4 << - swap 2* -
-	over 7 << + over 5 << - over 3 << + swap 2* - ;
+	dup 8 << over 3 << + over 4 << - swap 1 << -
+	over 7 << + over 5 << - over 3 << + swap 1 << - ;
 
 :Rdegfill
 	( 1? 1 -
@@ -373,16 +368,18 @@
 		) drop
 	'heapseg ! ;
 
+:heapl
+	heapcnt >=? ( drop ; )
+	]heap @	| val pos ch1 V1 V2
+	>? ( drop 1 + dup ]heap @ ) | val pos chm Vm
+	;
+
 :moveDown | nodo pos --
 	( heapcnt 1 >> <?
 		dup 1 << 1 + 		| val pos ch1
 		dup ]heap @	| val pos ch1 v1
 		over 1 +         | val pos ch1 v1 ch2
-		heapcnt <? (
-			]heap @	| val pos ch1 V1 V2
-    		>? ( drop 1 + dup ]heap @ ) | val pos chm Vm
-			)( drop )
-		pick3 				| value pos chM vM va
+		heapl pick3 				| value pos chM vM va
 		>=? ( 2drop ]heap ! ; )		| value pos chM vM
 		rot over swap ]heap !	| value chM vM
 		drop )
@@ -472,6 +469,21 @@
 		add.len ; )
 	3drop b@ VALUES + b!+ ;
 
+
+:coverl
+	+? ( rot MASK and VALUES swap -
+		over add.1 1 + |sw >=? ( 3drop ; ) ??
+		; )
+	drop nip 0 'runlenscan >b ;
+
+:limup	| xb x0 x1 largo
+	sw >? ( sw pick2 - ; )
+	dup pick2 - ;
+
+:limdn | xb x1
+	0 >? ( rot swap add.len ; )
+	drop nip ;
+
 :coverpixels | xb xa --
     over BPP >> -? ( 3drop ; )
 	over BPP >> sw >=? ( 4drop ; )
@@ -481,16 +493,17 @@
 			1? ( swap add.1 ; )
 			2drop ; )
 	| xb xa x1 x0
-	+? ( rot MASK and VALUES swap -
-			over add.1
-			1 + sw >=? ( 3drop ; )
-		)( drop nip 0 'runlenscan >b )
+
+	coverl
+|	+? ( rot MASK and VALUES swap -
+|			over add.1
+|			1 + sw >=? ( 3drop ; ) |<<exit
+|		)( drop nip 0 'runlenscan >b )
+
 	| xb x1 x0
-	swap sw >? ( sw pick2 - )( dup pick2 - ) | xb x0 x1 largo
-	0 >? ( rot swap add.len )( drop nip ) | xb x1
-	sw <? ( swap MASK and
-			1? ( swap add.1 ; )
-			)
+	swap
+	limup limdn
+	sw <? ( swap MASK and 1? ( swap add.1 ; ) )
 	2drop ;
 
 :fillcover
@@ -529,11 +542,14 @@
 	'activos ( activos> <?
 		dup @ activosresort 4 + ) drop ;
 
+:delc
+	pick4 >? ( drop rot !+ swap ; ) 2drop ;
+
 :deletecopy | nodoa --
 	dup 4 + 	| en desde
-	( activos> <? 
+	( activos> <?
 		@+ dup 12 + @	| en desde seg yfin
-		pick4 >? ( drop rot !+ swap )( 2drop )
+		delc
 		) drop
 	'activos> ! ;
 
@@ -556,7 +572,7 @@
 	heapseg 16 >> dup | newy ymin
 	b> >r
 	0 over BPP >> setxy
-	( ymax <? 
+	( ymax <?
         clearscan
 		VALUES ( 1? 1 - >r
 	    	( over =? nip	| agrega nuevos ordenados
@@ -567,7 +583,7 @@
 			deleteline
 			advanceline
 			r> ) drop
-		runlencover exec
+		runlencover ex
 		) 2drop
 	r> >b
 	endpoli	;
@@ -575,8 +591,8 @@
 
 |*******************************
 :PCURVEI | fx fy cx cy --
-	pick3 pxBPP + pick2 2* - abs
-	pick3 pyBPP + pick2 2* - abs  +
+	pick3 pxBPP + pick2 1 << - abs
+	pick3 pyBPP + pick2 1 << - abs  +
 	TOLERANCE <? ( 3drop PLINEI ; ) drop
 	pick3 pick2 + 1 >>  pick3 pick2 + 1 >>		| fx fy cx cy c2 c2
 	2swap 									| fx fy c2 c2 cx cy
@@ -601,9 +617,7 @@
 	2swap >r >r
 	pick3 pick2 + 1 >> pick3 pick2 + 1 >>
 	2swap r> r>
-	r> c3 |3 <? ( drop 4drop plineI )( drop PCURVE3I )
-	r> c3 |3 <? ( drop 4drop plineI ; ) drop PCURVE3I ;
-	;
+	r> c3 r> c3 ;
 
 ::PLINE | x y --
 	BPP << swap BPP << swap PLINEI ;

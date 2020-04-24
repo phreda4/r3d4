@@ -75,13 +75,6 @@
 	0 'switchfull !
 	640 'switchresx	!
 	480 'switchresy !
-	1024 'switchmem !
-
-|	here "r3/sys/asmbase.r3"
-|	2dup load
-|	here =? ( "no asmrut" slog ; )
-|	0 swap c!+ 'here !
-|	swap includes
-
+	$1000 'switchmem !
 	includes
 	;

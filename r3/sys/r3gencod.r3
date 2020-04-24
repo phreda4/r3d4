@@ -517,6 +517,8 @@ iFNEXT iSYS
 	dup adr>toklen
 	( 1? 1 - swap
 		@+ tocode
+		"asm/code.asm" savemem | debug
+
 		swap ) 2drop
 
     ";---------ANA" ,ln |----- cell analisys
@@ -568,7 +570,6 @@ iFNEXT iSYS
 		16 + ) drop
 
 	0 ,c
-	"asm/code.asm"
-	savemem
+	"asm/code.asm" savemem
 	empty ;
 

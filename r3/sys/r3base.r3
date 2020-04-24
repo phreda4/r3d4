@@ -16,6 +16,7 @@
 ##cntdef
 
 ##error
+##lerror
 ##modo
 
 ##switchfull	| FULL			set fullscreen mode

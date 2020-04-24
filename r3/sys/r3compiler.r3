@@ -2,6 +2,7 @@
 | r3 compiler
 | PHREDA 2019
 |------------------
+|MEM $ffff
 ^./r3base.r3
 ^./r3pass1.r3
 ^./r3pass2.r3
@@ -26,9 +27,10 @@
 
 ::r3c | str --
 	r3name
-	here dup 'src !
+	here 'src !
+	"^r3/sys/asmbase.r3" ,ln | include asmbase
+	here
 	'r3filename
-
 	dup "load %s" slog
 
 	2dup load | "fn" mem
@@ -39,12 +41,13 @@
 	0 'cntdef !
 	'inc 'inc> !
 	" pass1" slog
-	swap r3-stage-1
-	error 1? ( "ERROR %s" slog ; ) drop
+	nip src |...
+	r3-stage-1
+	error 1? ( "ERROR %s" slog lerror "%l" slog ; ) drop
 	cntdef cnttokens "toks:%d def:%d" slog
 	" pass2" slog
 	r3-stage-2
-	1? ( "ERROR %s" slog ; ) drop
+	1? ( "ERROR %s" slog lerror "%l" slog ; ) drop
 	code> code - 2 >> "..code:%d" slog
 	" pass3" slog
 	r3-stage-3
