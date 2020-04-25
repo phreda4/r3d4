@@ -498,7 +498,8 @@ iFNEXT iSYS
 :,header | adr -- adr
     ";--------------------------" ,s ,cr
     "; " ,s
-	dup dicc - 4 >> ,codeinfo ,cr
+	dup dicc - 4 >> ,codeinfo
+	,cr
 	dicc> 16 - =? ( "INICIO:" ,s ,cr ; )
 	dup adr>dicname ,s
 	":" ,s ,cr ;
@@ -513,22 +514,24 @@ iFNEXT iSYS
 	,header
 	dup 12 + @ $f and
 	DeepStack
-    ";---------OPT" ,ln |----- generate buffer
+|    ";---------OPT" ,ln |----- generate buffer
+|		"asm/code.asm" savemem | debug
+
 	dup adr>toklen
 	( 1? 1 - swap
 		@+ tocode
-		"asm/code.asm" savemem | debug
-
 		swap ) 2drop
 
     ";---------ANA" ,ln |----- cell analisys
+|		"asm/code.asm" savemem | debug
+
 	dup 12 + @ $f and
 	anaDeepStack
 	'bcode ( bcode> <?
 		@+
 
 		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-|		"asm/code.asm" savemem | debug
+		"asm/code.asm" savemem | debug
 
 		anastep
 		) drop
@@ -567,6 +570,7 @@ iFNEXT iSYS
 
 	dicc ( dicc> <?
 		dup gencode
+"asm/code.asm" savemem
 		16 + ) drop
 
 	0 ,c

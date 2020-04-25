@@ -64,7 +64,7 @@
 	here !+
 	( here >?
 		4 - dup @
-        dup dic>adr @ "%w*" slog
+|        dup dic>adr @ "%w*" slog
         datacode
 		) drop ;
 

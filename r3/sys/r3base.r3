@@ -241,6 +241,7 @@
 	dup r> ,ncar >r
 	" -- " ,s
 	swap 55 << 59 >> + | deltaD
+	-? ( ,d r> drop " ]" ,s ; ) | error en analisis!!
 	r> ,ncar drop
 	" ]" ,s ;
 

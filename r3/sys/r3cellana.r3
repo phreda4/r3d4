@@ -244,7 +244,7 @@
 	newReg ;
 
 :iSYS
-	;
+	endReg ;
 
 :i0? cellr gwhilejmp ;
 :i1? cellr endREG cellr gwhilejmp ;
