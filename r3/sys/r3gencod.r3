@@ -135,9 +135,10 @@
 	;
 
 :iex
-|	lastdircode dic>du
-|	dup ( 1? 1 - .drop ) drop
-|	+ ( 1? 1 - dup push.reg ) drop
+	lastdircode dic>du
+	dup ( 1? 1 - .drop ) drop
+	+ ( 1? 1 - dup push.reg ) drop
+
 	2code!+
 	;
 
@@ -182,15 +183,15 @@
 :iR@ .dup 2code!+ ;
 
 :iAND
-	nro2stk 0? ( drop .AND ; ) drop
+	nro2stk 0? ( drop .AND code<< ; ) drop
 	2code!+
 	.drop ;
 :iOR
-	nro2stk 0? ( drop .OR ; ) drop
+	nro2stk 0? ( drop .OR code<< ; ) drop
 	2code!+
 	.drop ;
 :iXOR
-	nro2stk 0? ( drop .XOR ; ) drop
+	nro2stk 0? ( drop .XOR code<< ; ) drop
 	2code!+
 	.drop ;
 :iNOT
@@ -202,11 +203,11 @@
 	2code!+
 	;
 :i+
-	nro2stk 0? ( drop .+ ; ) drop
+	nro2stk 0? ( drop .+ code<< ; ) drop
 	2code!+
 	.drop ;
 :i-
-	nro2stk 0? ( drop .- ; ) drop
+	nro2stk 0? ( drop .- code<< ; ) drop
 	2code!+
 	.drop ;
 
@@ -235,7 +236,7 @@
 	;
 
 :i*
-	nro2stk 0? ( drop .* ; ) drop
+	nro2stk 0? ( drop .* code<< ; ) drop
 	nro1stk 0? ( drop *nro ; ) drop
 	2code!+
 	.drop ;
@@ -276,27 +277,27 @@
 	;
 
 :i/
-	nro2stk 0? ( drop ./ ; ) drop
+	nro2stk 0? ( drop ./ code<< ; ) drop
 	nro1stk 0? ( drop /nro ; ) drop
 	2code!+
 	.drop ;
 
 :i<<
-	nro2stk 0? ( drop .<< ; ) drop
+	nro2stk 0? ( drop .<< code<< ; ) drop
 	2code!+
 	.drop ;
 :i>>
-	nro2stk 0? ( drop .>> ; ) drop
+	nro2stk 0? ( drop .>> code<< ; ) drop
 	2code!+
 	.drop ;
 :i>>>
-	nro2stk 0? ( drop .>>> ; ) drop
+	nro2stk 0? ( drop .>>> code<< ; ) drop
 	2code!+
 	.drop ;
 
 |---------------- */
 :i*/
-	nro3stk 0? ( drop .*/ ; ) drop
+	nro3stk 0? ( drop .*/ code<< code<< ; ) drop
 	2code!+
 	.2drop ;
 
@@ -324,7 +325,7 @@
 	dup 1 - an? ( /modcte ; )
 	swap
     TKdup code!+ 	| dup
-	TKdup code!+	| dup  
+	TKdup code!+	| dup
     31 cte!+ | 31
 	TK>> code!+ | >>
 	33 32 pick2 clz - - cte!+ |30
@@ -349,7 +350,7 @@
 
 
 :i/MOD
-	nro2stk 0? ( drop ./MOD ; ) drop
+	nro2stk 0? ( drop ./MOD code<< ; ) drop
 	nro1stk 0? ( drop /MODnro ; ) drop
 	2code!+
 	;
@@ -389,7 +390,7 @@
 
 
 :iMOD
-	nro2stk 0? ( drop .MOD ; ) drop
+	nro2stk 0? ( drop .MOD code<< ; ) drop
 	nro1stk 0? ( drop MODnro ; ) drop
 	2code!+
 	.drop ;
@@ -408,11 +409,11 @@
 	2code!+
 	;
 :i*>>
-	nro3stk 0? ( drop .*>> ; ) drop
+	nro3stk 0? ( drop .*>> code<< code<< ; ) drop
 	2code!+
 	.2drop ;
 :i<</
-	nro3stk 0? ( drop .<</ ; ) drop
+	nro3stk 0? ( drop .<</ code<< code<< ; ) drop
 	2code!+
 	.2drop ;
 
@@ -483,11 +484,9 @@ iC! iQ! i!+ iC!+ iQ!+ i+! iC+! iQ+! i>A iA> iA@ iA! iA+ iA@+ iA!+ i>B
 iB> iB@ iB! iB+ iB@+ iB!+ iMOVE iMOVE> iFILL iCMOVE iCMOVE> iCFILL iQMOVE iQMOVE> iQFILL iUPDATE
 iREDRAW iMEM iSW iSH iFRAMEV iXYPEN iBPEN iKEY iCHAR iMSEC iTIME iDATE iLOAD iSAVE iAPPEND iFFIRST
 iFNEXT iSYS
-
 0 0 0 0 0 |iINK i'INK iALPHA iOPX iOPY
 0 0 0 0 |iOP iLINE iCURVE iCURVE3
 0 0 0 0 |iPLINE iPCURVE iPCURVE3 iPOLI
-
 ( 0 )
 
 |------------------------------------------
@@ -531,7 +530,7 @@ iFNEXT iSYS
 		@+
 
 		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-		"asm/code.asm" savemem | debug
+|		"asm/code.asm" savemem | debug
 
 		anastep
 		) drop
@@ -570,7 +569,9 @@ iFNEXT iSYS
 
 	dicc ( dicc> <?
 		dup gencode
-"asm/code.asm" savemem
+
+|"asm/code.asm" savemem
+
 		16 + ) drop
 
 	0 ,c

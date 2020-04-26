@@ -8,13 +8,14 @@
 
 :test
 	cls home
-	cc "%h" print cr
-	cc "%d" print cr
+	"hola" emits cr
+|	cc "%h" print cr
+|	cc "%d" print cr
 
 	key
 	>esc< =? ( exit )
-	<up> =? ( 1 'cc +! )
-	<dn> =? ( -1 'cc +! )
+|	<up> =? ( 1 'cc +! )
+|	<dn> =? ( -1 'cc +! )
 	drop
 	;
 

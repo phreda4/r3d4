@@ -223,7 +223,7 @@
 	dic>mov @
 
 	dup $f and neg usoDcalc
-	23 << 27 >>
+	55 << 27 >>
 	'deltaD +!
 
 	$200 flags or 'flags !
@@ -247,7 +247,7 @@
 	dup $f and neg
 	usoDcalc
 
-	23 << 27 >>
+	55 << 27 >>
 	'deltaD +!
 	;
 

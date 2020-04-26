@@ -8,6 +8,7 @@
 #anon * 40 | 10 niveles ** falta inicializar si hay varias ejecuciones
 #anon> 'anon
 #nanon 0
+#nstr 0
 
 |--- @@
 ::getval | a -- a v
@@ -40,7 +41,7 @@
 	"mov rax,[rbp-8]" ,ln
 	"sub rbp,8*2" ,ln ;
 :,3DROP
-	"mov rax,[rbp-8]" ,ln
+	"mov rax,[rbp-8*2]" ,ln
 	"sub rbp,8*3" ,ln ;
 :,4DROP
 	"mov rax,[rbp-8*3]" ,ln
@@ -91,7 +92,7 @@
 	,DUP getcte2 "mov rax,$%h" ,format ,cr ;
 
 :gstr
-	,DUP getval "mov rax,str%h" ,format ,cr ;
+	,DUP nstr "mov rax,str%h" ,format ,cr 1 'nstr +! ;
 
 :gdwor
 	,DUP
@@ -372,7 +373,7 @@
 	"idiv rbx" ,ln ;
 
 :g@
-	"movsx rax,dword [rax]" ,ln ;
+	"movsxd rax,dword [rax]" ,ln ;
 
 :gC@
 	"movsx rax,byte [rax]" ,ln ;
@@ -487,15 +488,15 @@
 
 :gMOVE
 	"mov rcx,rax" ,ln
-	"mov rsi,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rsi,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"rep movsd" ,ln
 	,3DROP ;
 
 :gMOVE>
 	"mov rcx,rax" ,ln
-	"mov rsi,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rsi,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"lea rsi,[rsi+rcx*4-4]" ,ln
 	"lea rdi,[rdi+rcx*4-4]" ,ln
 	"std" ,ln
@@ -505,22 +506,22 @@
 
 :gFILL
 	"mov rcx,rax" ,ln
-	"mov rax,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rax,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"rep stosd" ,ln
 	,3DROP ;
 
 :gCMOVE
 	"mov rcx,rax" ,ln
-	"mov rsi,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rsi,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"rep movsb" ,ln
 	,3DROP ;
 
 :gCMOVE>
 	"mov rcx,rax" ,ln
-	"mov rsi,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rsi,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"lea rsi,[rsi+rcx-1]" ,ln
 	"lea rdi,[rdi+rcx-1]" ,ln
 	"std" ,ln
@@ -530,22 +531,22 @@
 
 :gCFILL
 	"mov rcx,rax" ,ln
-	"mov rax,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rax,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"rep stosb" ,ln
 	,3DROP ;
 
 :gQMOVE
 	"mov rcx,rax" ,ln
-	"mov rsi,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rsi,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"rep movsq" ,ln
 	,3DROP ;
 
 :gQMOVE>
 	"mov rcx,rax" ,ln
-	"mov rsi,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rsi,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"lea rsi,[rsi+rcx*8-8]" ,ln
 	"lea rdi,[rdi+rcx*8-8]" ,ln
 	"std" ,ln
@@ -555,8 +556,8 @@
 
 :gQFILL
 	"mov rcx,rax" ,ln
-	"mov rax,dword[rbp]" ,ln
-	"mov rdi,dword[rbp-8]" ,ln
+	"movsxd rax,dword[rbp]" ,ln
+	"movsxd rdi,dword[rbp-8]" ,ln
 	"rep stosq" ,ln
 	,3DROP ;
 
@@ -626,5 +627,5 @@ gFNEXT gSYS
 		@+
 		"; " ,s dup ,tokenprint ,cr
 		codestep
-		"asm/code.asm" savemem | debug
+|		"asm/code.asm" savemem | debug
 		) drop ;

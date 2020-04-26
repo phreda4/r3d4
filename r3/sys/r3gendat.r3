@@ -58,7 +58,7 @@
 :,ddefv drop ;
 
 :,dlit  1 'dcnt +!
-		dcnt $f and $f =? ( ,cr ) drop	| every 16
+|		dcnt $f and $f =? ( ,cr ) drop	| every 16
 		dfin tok>cte ,s ;
 		|"$" ,s ,h ;
 
