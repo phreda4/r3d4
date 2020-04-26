@@ -401,6 +401,8 @@ $1201
 #colchan ( 1 0 3 1 2 0 4 0 0 )
 #colmode mode08 0 mode28 mode38 mode48 0 mode68
 
+#alphach
+
 :pngheader | 'mem -- 0/mem
 	12 +
 	read32 'wpng !
@@ -410,7 +412,9 @@ $1201
 	0 'palsize !
 	3 =? ( $3ff 'palsize ! )
 	dup 'colchan + c@ dpng * 7 + 3 >> 'pxsize !
-	dup 2 << 'colmode + @ 'modec !
+	0 'alphach !
+	dup 6 =? ( $1000000 'alphach ! )
+	2 << 'colmode + @ 'modec !
 	'cpng !
 	c@+ 'opng !
 	c@+ 'fpng !
@@ -428,7 +432,7 @@ $1201
 :exitok
 	emem 'here !
 	wpng hpng 12 << or	| size
-	| transparente******
+	alphach or | transparente
 	imem !
 	imem
 	;

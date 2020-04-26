@@ -253,7 +253,7 @@
 	'name 1024 "mem/main.mem" save
 
 	mark
-	"r3 r3/sys/edit-code.r3" ,s ,eol
+	"r3 r3/editor/code-edit.r3" ,s ,eol
 	empty here
 	sys drop
 	;
