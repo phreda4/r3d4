@@ -326,26 +326,26 @@
 	swap
     TKdup code!+ 	| dup
 	TKdup code!+	| dup
-    31 cte!+ | 31
-	TK>> code!+ | >>
+    31 cte!+ 		| 31
+	TK>> code!+ 	| >>
 	33 32 pick2 clz - - cte!+ |30
-	TK>>> code!+ | >>>
-	TK+	code!+	| +
+	TK>>> code!+ 	| >>>
+	TK+	code!+		| +
 	31 over clz - cte!+ 	| 2
-	TK>> code!+ | >>
+	TK>> code!+ 	| >>
 	TKswap	code!+	| swap
-	TKdup code!+ | dup
-	31 cte!+ |31
-	TK>> code!+ | >>
+	TKdup code!+ 	| dup
+	31 cte!+ 		|31
+	TK>> code!+ 	| >>
 	33 32 pick2 clz - - cte!+
 	TK>>> code!+	| >>>
 	TKswap	code!+	| swap
 	TKover	code!+	| over
-	TK+	code!+	| +
-	1 - cte!+  | mask
+	TK+	code!+		| +
+	1 - cte!+  		| mask
 	TKand code!+	| AND
 	TKswap	code!+	| swap
-	TK-	code!+	| -
+	TK-	code!+		| -
 	;
 
 
@@ -360,13 +360,13 @@
 	dup
 	calcmagic
 	divm cte!+
-	TKdup code!+ | dup
+	TKdup code!+	| dup
 	divs cte!+
-	TK*>> code!+ 		| *>>
+	TK*>> code!+	| *>>
 	signadj!+
-	cte!+	| NRO
-	TK*	code!+	| *
-	TK-	code!+	| -
+	cte!+			| NRO
+	TK*	code!+		| *
+	TK-	code!+		| -
 	;
 
 |----  8 mod --> $7 and
@@ -374,18 +374,18 @@
 :modnro
     code<<
 	dup 1 - an? ( modcte ; )
-	TKdup code!+ | dup 31
+	TKdup code!+ 	| dup 31
 	31 cte!+
-	TK>> code!+ | >>
+	TK>> code!+ 	| >>
 	33 32 pick2 clz - - cte!+
 	TK>>> code!+	| >>>
 	TKswap	code!+	| swap
 	TKover	code!+	| over
-	TK+	code!+	| +
-	1 - cte!+ | mask
+	TK+	code!+		| +
+	1 - cte!+ 		| mask
 	TKand code!+	| AND
 	TKswap	code!+	| swap
-	TK-	code!+	| -
+	TK-	code!+		| -
 	;
 
 

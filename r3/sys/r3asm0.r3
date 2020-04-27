@@ -4,11 +4,11 @@
 |-------------
 ^./r3base.r3
 
-#lastdircode 0 | ultima direccion de codigo
+#nstr 0
+
 #anon * 40 | 10 niveles ** falta inicializar si hay varias ejecuciones
 #anon> 'anon
 #nanon 0
-#nstr 0
 
 |--- @@
 ::getval | a -- a v
@@ -66,10 +66,10 @@
 	"mov rdx,[rbp]" ,ln
 	"mov [rbp+8],rax" ,ln
 	"mov [rbp+8*2],rdx" ,ln
-	"lea rbp,[rbp+8*2]" ,ln ;
+	"add rbp,8*2" ,ln ;
 :,2OVER
 	"mov [rbp+8],rax" ,ln
-	"lea rbp,[rbp+8*2]" ,ln
+	"add rbp,8*2" ,ln
 	"pushd [rbp-8*4]" ,ln
 	"popd [rbp]" ,ln
 	"mov rax,[rbp-8*3]" ,ln ;
@@ -83,7 +83,83 @@
 	"pop rax" ,ln ;
 
 |----------------------
-:g0 :g: :g:: :g# :g: :g| :g^    ;
+:g0 :g: :g:: :g# :g: :g| :g^ ;
+
+|---- Optimization WORDS
+#aux * 32
+
+:,TOS
+	'aux ,s ;
+:>TOS
+	'aux strcpy ;
+
+:oand	"and rax," ,s ,TOS ,cr ;
+:oor	"or rax," ,s ,TOS ,cr ;
+:oxor	"xor rax," ,s ,TOS ,cr ;
+:o+		"add rax," ,s ,TOS ,cr ;
+:o-		"sub rax," ,s ,TOS ,cr ;
+:o*		"imul rax," ,s ,TOS ,cr ;
+
+:o<<	"shl rax," ,s ,TOS ,cr ;
+:o<<m	"mov rcx," ,s ,TOS ,cr
+		"shl rax,cl" ,ln ;
+
+:o>>	"sar rax," ,s ,TOS ,cr ;
+:o<<m	"mov rcx," ,s ,TOS ,cr
+		"sar rax,cl" ,ln ;
+
+:o>>>	"shr rax," ,s ,TOS ,cr ;
+:o>>m	"mov rcx," ,s ,TOS ,cr
+		"shr rax,cl" ,ln ;
+
+:ocmp  	"cmp rax," ,s ,TOS ,cr ;
+:otes	"test rax," ,s ,TOS ,cr ;
+
+:o/		"mov rbx," ,s ,TOS ,cr
+		"cdq" ,ln
+		"idiv rbx" ,ln ;
+
+:o/m	"cdq" ,ln
+		"idiv " ,s ,TOS ,cr ;
+
+:oMOD	"mov rbx," ,s ,TOS ,cr
+		"cdq" ,ln
+		"idiv rbx" ,ln
+		"mov rax,rdx" ,ln ;
+
+:oMODm	"cdq" ,ln
+		"idiv " ,s ,TOS ,cr
+		"mov rax,rdx" ,ln ;
+
+:o/MOD	"mov rbx," ,s ,TOS ,cr
+		"cdq" ,ln
+		"idiv rbx" ,ln
+		"add ebp,8" ,ln
+		"mov [rbp],rax" ,ln
+		"mov rax,rdx" ,ln ;
+
+:o/MODm	"cdq" ,ln
+		"idiv " ,s ,TOS ,cr
+		"add ebp,8" ,ln
+		"mov [rbp],rax" ,ln
+		"mov rax,rdx" ,ln ;
+
+:o*/	"mov rcx,[rbp]" ,ln
+		"cdq" ,ln
+		"imul rcx" ,ln
+		"idiv " ,s ,TOS ,cr
+		"sub rbp,8*2" ,ln ;
+
+:g*>>
+	;
+
+:g<</
+	;
+
+:optimice?
+	| <? .. n?
+	| and or xor + - * / << >> >>> mod
+	;
 
 :gdec
 	,DUP getcte "mov rax,$%h" ,format ,cr  ;
@@ -96,8 +172,7 @@
 
 :gdwor
 	,DUP
-	getval dup 'lastdircode !
-	"mov rax,w%h" ,format ,cr ;			|--	3 word  'word
+	getval "mov rax,w%h" ,format ,cr ;		|--	3 word  'word
 
 :gdvar
 	,DUP
