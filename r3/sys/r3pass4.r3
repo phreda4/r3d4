@@ -212,30 +212,27 @@
 |--------------------
 :usoDcalc | u --
 	deltaD swap -
-	usoD min
-	'usoD ! ;
+	usoD min 'usoD ! ;
 
 | adr adrt t tabla
 :esPal | palabra
 	dup 4 - @ 8 >>	| obtener palabra
 	pick2 =? ( drop $20 flags or 'flags ! ; ) | es recursiva?
     dup dic>inf @ 24 >> 1 + 'nivel !
-	dic>mov @
 
+	dic>mov @
 	dup $f and neg usoDcalc
-	55 << 27 >>
-	'deltaD +!
+	55 << 59 >> 'deltaD +!
 
 	$200 flags or 'flags !
 	;
 |** falta calcular cuando el flag $200 no esta en la palabra llamada
 
 :esStr | calcula deltaD de string
-
 	dup 4 - @ 8 >>
-	dic>adr @ dumpc strusestack nip neg
-
-	1
+	dic>adr @ |***************dumpc
+	strusestack neg nip
+|	1
 	'deltaD +! ;
 
 #lastdircode
@@ -246,12 +243,8 @@
 	dup dic>inf @ 24 >> 1 + 'nivel !
 
 	dic>mov @
-
-	dup $f and neg
-	usoDcalc
-
-	55 << 27 >>
-	'deltaD +!
+	dup $f and neg usoDcalc
+	55 << 59 >> 'deltaD +!
 	;
 
 :esWordV | guarda ultima referencia para exec,

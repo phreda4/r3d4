@@ -59,10 +59,10 @@
 
 |--- ajuste por signo
 :signadj!+ | --
-	TKdup code!+
-	63 cte!+
-	TK>> code!+
-	TK- code!+
+	TKdup code!+	| dup
+	63 cte!+		| 63
+	TK>> code!+		| >>
+	TK- code!+		| -
 	;
 
 |-----------------------------------
@@ -182,46 +182,73 @@
 :iR> .dup 2code!+ ;
 :iR@ .dup 2code!+ ;
 
+:1stk | --1/0 ok
+	bcode> 4 - @ $ff and 8 >? ( -1 nip ; ) drop
+	0 ;
+
+:2stk | --1/0 ok
+	bcode> 4 - @ $ff and 8 >? ( -1 nip ; ) drop
+	bcode> 8 - @ $ff and 8 >? ( -1 nip ; ) drop
+	0 ;
+
+:3stk | --1/0
+	bcode> 4 - @ $ff and 8 >? ( -1 nip ; ) drop
+	bcode> 8 - @ $ff and 8 >? ( -1 nip ; ) drop
+	bcode> 12 - @ $ff and 8 >? ( -1 nip ; ) drop
+	0 ;
+
+:code<<<cte
+	code<< code<< code<< vTOS cte!+ ;
+
+:code<<cte
+	code<< code<< vTOS cte!+ ;
+
+:code<cte
+	code<< vTOS cte!+ ;
+
+:code<<2cte
+	code<< code<< vNOS cte!+ vTOS cte!+ ;
+
 :iAND
-	nro2stk 0? ( drop .AND code<< ; ) drop
+	2stk 0? ( drop .AND code<<cte ; ) drop
 	2code!+
 	.drop ;
 :iOR
-	nro2stk 0? ( drop .OR code<< ; ) drop
+	2stk 0? ( drop .OR code<<cte ; ) drop
 	2code!+
 	.drop ;
 :iXOR
-	nro2stk 0? ( drop .XOR code<< ; ) drop
+	2stk 0? ( drop .XOR code<<cte ; ) drop
 	2code!+
 	.drop ;
 :iNOT
-	nro1stk 0? ( drop .NOT ; ) drop
+	1stk 0? ( drop .NOT code<cte ; ) drop
 	2code!+
 	;
 :iNEG
-	nro1stk 0? ( drop .NEG ; ) drop
+	1stk 0? ( drop .NEG code<cte ; ) drop
 	2code!+
 	;
 :i+
-	nro2stk 0? ( drop .+ code<< ; ) drop
+	2stk 0? ( drop .+ code<<cte ; ) drop
 	2code!+
 	.drop ;
 :i-
-	nro2stk 0? ( drop .- code<< ; ) drop
+	2stk 0? ( drop .- code<<cte ; ) drop
 	2code!+
 	.drop ;
 
 |---------------- *
 | 8 * --> 3 <<
 :*pot
-	31 swap clz - cte!+
+	63 swap clz - cte!+
 	TK<< code!+
 	;
 
 | 7 * --> dup 3 << swap -
 :*pot-1
 	TKdup code!+	| dup
-	32 swap clz - cte!+
+	64 swap clz - cte!+
 	TK<<	code!+	| <<
 	TKswap	code!+	| swap
 	TK- code!+ | -
@@ -236,12 +263,12 @@
 	;
 
 :i*
-	nro2stk 0? ( drop .* code<< ; ) drop
-	nro1stk 0? ( drop *nro ; ) drop
+	2stk 0? ( drop .* code<<cte ; ) drop
+	1stk 0? ( drop *nro ; ) drop
 	2code!+
 	.drop ;
 
-|---- cte / --> divm divs *>> dup 31 >> -
+|---- cte / --> divm divs *>> dup 63 >> -
 :/cte
 	calcmagic
 	divs cte!+
@@ -249,27 +276,27 @@
 	TK*>> code!+ 		| *>>
 	signadj!+ ;
 
-|----  2 / --> dup 31 >> + 2/
+|----  2 / --> dup 63 >> + 2/
 :/cte2
 	TKdup code!+ | dup 31
-	31 cte!+
+	63 cte!+
 	TK>>> code!+ | >>>
 	TK+	code!+ | +
 	1 cte!+
 	TK>> code!+ | 2/
 	;
 
-|----  4 / --> dup 31 >> 30 >>> + 2 >>
+|----  4 / --> dup 63 >> 30 >>> + 2 >>
 :/nro
 	code<<
 	vTOS
 	dup 1 - an? ( /cte ; )
 	2 =? ( /cte2 ; )
 	swap
-	31 cte!+
+	63 cte!+
 	TKdup code!+ | dup
 	TK>> code!+ | >>
-	33 32 pick2 clz - - cte!+ |30
+	33 32 pick2 clz - - cte!+ |30 |**********
 	TK>>> code!+ | >>>
 	TK+	code!+	| +
 	31 swap clz - cte!+ | 2
@@ -277,27 +304,27 @@
 	;
 
 :i/
-	nro2stk 0? ( drop ./ code<< ; ) drop
-	nro1stk 0? ( drop /nro ; ) drop
+	2stk 0? ( drop ./ code<<cte ; ) drop
+	1stk 0? ( drop /nro ; ) drop
 	2code!+
 	.drop ;
 
 :i<<
-	nro2stk 0? ( drop .<< code<< ; ) drop
+	2stk 0? ( drop .<< code<<cte ; ) drop
 	2code!+
 	.drop ;
 :i>>
-	nro2stk 0? ( drop .>> code<< ; ) drop
+	2stk 0? ( drop .>> code<<cte ; ) drop
 	2code!+
 	.drop ;
 :i>>>
-	nro2stk 0? ( drop .>>> code<< ; ) drop
+	2stk 0? ( drop .>>> code<<cte ; ) drop
 	2code!+
 	.drop ;
 
 |---------------- */
 :i*/
-	nro3stk 0? ( drop .*/ code<< code<< ; ) drop
+	3stk 0? ( drop .*/ code<<<cte ; ) drop
 	2code!+
 	.2drop ;
 
@@ -326,16 +353,16 @@
 	swap
     TKdup code!+ 	| dup
 	TKdup code!+	| dup
-    31 cte!+ 		| 31
+    63 cte!+ 		| 31
 	TK>> code!+ 	| >>
-	33 32 pick2 clz - - cte!+ |30
+	33 32 pick2 clz - - cte!+ |30 |*************
 	TK>>> code!+ 	| >>>
 	TK+	code!+		| +
 	31 over clz - cte!+ 	| 2
 	TK>> code!+ 	| >>
 	TKswap	code!+	| swap
 	TKdup code!+ 	| dup
-	31 cte!+ 		|31
+	63 cte!+ 		|31
 	TK>> code!+ 	| >>
 	33 32 pick2 clz - - cte!+
 	TK>>> code!+	| >>>
@@ -350,8 +377,8 @@
 
 
 :i/MOD
-	nro2stk 0? ( drop ./MOD code<< ; ) drop
-	nro1stk 0? ( drop /MODnro ; ) drop
+	2stk 0? ( drop ./MOD code<<2cte ; ) drop
+	1stk 0? ( drop /MODnro ; ) drop
 	2code!+
 	;
 
@@ -370,12 +397,12 @@
 	;
 
 |----  8 mod --> $7 and
-|	dup 31 >> (33-4)29 >>> swap over + 7 and swap -
+|	dup 63 >> (33-4)29 >>> swap over + 7 and swap -
 :modnro
     code<<
 	dup 1 - an? ( modcte ; )
 	TKdup code!+ 	| dup 31
-	31 cte!+
+	63 cte!+
 	TK>> code!+ 	| >>
 	33 32 pick2 clz - - cte!+
 	TK>>> code!+	| >>>
@@ -390,30 +417,30 @@
 
 
 :iMOD
-	nro2stk 0? ( drop .MOD code<< ; ) drop
-	nro1stk 0? ( drop MODnro ; ) drop
+	2stk 0? ( drop .MOD code<<cte ; ) drop
+	1stk 0? ( drop MODnro ; ) drop
 	2code!+
 	.drop ;
 
 |------------------
 :iABS
-	nro1stk 0? ( drop .ABS ; ) drop
+	1stk 0? ( drop .ABS code<cte ; ) drop
 	2code!+
 	;
 :iSQRT
-	nro1stk 0? ( drop .SQRT ; ) drop
+	1stk 0? ( drop .SQRT code<cte ; ) drop
 	2code!+
 	;
 :iCLZ
-	nro1stk 0? ( drop .CLZ ; ) drop
+	1stk 0? ( drop .CLZ code<cte ; ) drop
 	2code!+
 	;
 :i*>>
-	nro3stk 0? ( drop .*>> code<< code<< ; ) drop
+	3stk 0? ( drop .*>> code<<<cte ; ) drop
 	2code!+
 	.2drop ;
 :i<</
-	nro3stk 0? ( drop .<</ code<< code<< ; ) drop
+	3stk 0? ( drop .<</ code<<<cte  ; ) drop
 	2code!+
 	.2drop ;
 

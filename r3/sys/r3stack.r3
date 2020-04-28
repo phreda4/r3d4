@@ -93,8 +93,8 @@
 	TOS NOS @ 'TOS ! -4 'NOS +! ;
 
 ::vTOS	TOS 8 >> 2 << 'stkvalue + @ ;
-::vNOS   NOS @ 8 >> 2 << 'stkvalue + @ ;
-::vPK2   NOS 4 - @ 8 >> 2 << 'stkvalue + @ ;
+::vNOS	NOS @ 8 >> 2 << 'stkvalue + @ ;
+::vPK2	NOS 4 - @ 8 >> 2 << 'stkvalue + @ ;
 
 ::.OVER     .DUP NOS 4 - @ 'TOS ! ;
 ::.PICK2    .DUP NOS 8 - @ 'TOS ! ;
@@ -204,11 +204,14 @@
 :iQ!+		NOS @ TOS q! .NIP 2 'TOS +! ;
 
 |-- 0 is nro x tops of stack
+| see ( for break   0 ( 1 - ... is not a -1
 ::nro1stk | --1/0 ok
 	TOS $f and ;
+
 ::nro2stk | --1/0 ok
 	NOS @ $f and
 	TOS $f and or ;
+
 ::nro3stk | --1/0
 	NOS 4 - @ $f and
 	NOS @ $f and or
@@ -436,7 +439,7 @@
 	'stacknormal >a
 	dup 2 << a!+
 	0? ( drop ; )
-	1 - ( 1? 
+	1 - ( 1?
 		dup neg 8 << 6 or a!+
 		1 - )
 	5 or a!+ ;

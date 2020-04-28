@@ -4,22 +4,36 @@
 ^r3/lib/gui.r3
 ^r3/lib/print.r3
 
-#cc
+#cc 330
+
 
 :test
 	cls home
-	"hola" emits cr
-|	cc "%h" print cr
+	$ffffff 'ink !
+	"hola " emits cr
+	$ff00 'ink !
+	"que tal" emits cr
+	$ff0000 'ink !
+
+|	mark
+|	cc ,d
+	"hola" ,s
+|	empty
+|	here emits
+
+|	cc ,d
+
+|	cc "%b" print cr
 |	cc "%d" print cr
 
 	key
 	>esc< =? ( exit )
-|	<up> =? ( 1 'cc +! )
-|	<dn> =? ( -1 'cc +! )
+	<up> =? ( 1 'cc +! )
+	<dn> =? ( -1 'cc +! )
 	drop
 	;
 
-:
+:	mark
 	'test onshow
 ;
 

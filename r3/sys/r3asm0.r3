@@ -1,5 +1,6 @@
 | generate amd64 code
 | BASIC GENERATOR
+| - no stack memory, only look next code to generate optimizations
 | PHREDA 2020
 |-------------
 ^./r3base.r3
@@ -83,15 +84,33 @@
 	"pop rax" ,ln ;
 
 |----------------------
-:g0 :g: :g:: :g# :g: :g| :g^ ;
+:g;
+	dup 8 - @ $ff and
+	12 =? ( drop ; ) | tail call  call..ret?
+	21 =? ( drop ; ) | tail call  EX
+	drop
+	"ret" ,ln ;
+
+|--- IF
+:g(
+	getval
+	getiw 0? ( 2drop ; ) drop
+	"_i%h:" ,format ,cr ;		| while
+
+:g)
+	getval
+	getiw 1? ( over "jmp _i%h" ,format ,cr ) drop	| while
+	"_o%h:" ,format ,cr ;
 
 |---- Optimization WORDS
-#aux * 32
+#preval * 32
+#prevalv
 
 :,TOS
-	'aux ,s ;
+	'preval ,s ;
 :>TOS
-	'aux strcpy ;
+	'preval strcpy ;
+
 
 :oand	"and rax," ,s ,TOS ,cr ;
 :oor	"or rax," ,s ,TOS ,cr ;
@@ -105,79 +124,195 @@
 		"shl rax,cl" ,ln ;
 
 :o>>	"sar rax," ,s ,TOS ,cr ;
-:o<<m	"mov rcx," ,s ,TOS ,cr
+:o>>m	"mov rcx," ,s ,TOS ,cr
 		"sar rax,cl" ,ln ;
 
 :o>>>	"shr rax," ,s ,TOS ,cr ;
-:o>>m	"mov rcx," ,s ,TOS ,cr
+:o>>>m	"mov rcx," ,s ,TOS ,cr
 		"shr rax,cl" ,ln ;
 
-:ocmp  	"cmp rax," ,s ,TOS ,cr ;
-:otes	"test rax," ,s ,TOS ,cr ;
-
 :o/		"mov rbx," ,s ,TOS ,cr
-		"cdq" ,ln
+		"cqo" ,ln
 		"idiv rbx" ,ln ;
 
-:o/m	"cdq" ,ln
+:o/v	"cqo" ,ln
 		"idiv " ,s ,TOS ,cr ;
 
 :oMOD	"mov rbx," ,s ,TOS ,cr
-		"cdq" ,ln
+		"cqo" ,ln
 		"idiv rbx" ,ln
 		"mov rax,rdx" ,ln ;
 
-:oMODm	"cdq" ,ln
+:oMODv	"cqo" ,ln
 		"idiv " ,s ,TOS ,cr
 		"mov rax,rdx" ,ln ;
 
 :o/MOD	"mov rbx," ,s ,TOS ,cr
-		"cdq" ,ln
+		"cqo" ,ln
 		"idiv rbx" ,ln
 		"add ebp,8" ,ln
 		"mov [rbp],rax" ,ln
 		"mov rax,rdx" ,ln ;
 
-:o/MODm	"cdq" ,ln
+:o/MODv	"cqo" ,ln
 		"idiv " ,s ,TOS ,cr
 		"add ebp,8" ,ln
 		"mov [rbp],rax" ,ln
 		"mov rax,rdx" ,ln ;
 
-:o*/	"mov rcx,[rbp]" ,ln
-		"cdq" ,ln
-		"imul rcx" ,ln
+:o*/	"mov rbx," ,s ,TOS ,cr
+		"cqo" ,ln
+		"imul qword[rbp]" ,ln
+		"idiv rbx" ,ln
+		"sub rbp,8" ,ln ;
+
+:o*/v	"cqo" ,ln
+		"imul qword[rbp]" ,ln
 		"idiv " ,s ,TOS ,cr
-		"sub rbp,8*2" ,ln ;
+		"sub rbp,8" ,ln ;
 
-:g*>>
+:o*>>	"cqo" ,ln
+		"imul qword[rbp]" ,ln
+		,NIP
+		prevalv
+		64 <? ( "shrd rax,rdx," ,s ,d ,cr ; )
+		64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
+		drop
+		"mov rax,rdx" ,ln
+		;
+
+:o*>>m	"mov rcx," ,s ,TOS ,cr
+		"cqo" ,ln
+		"imul qword[rbp]" ,ln
+		,NIP
+		"shrd rax,rdx,cl" ,ln
+		"sar rdx,cl" ,ln
+		"test cl,64" ,ln
+		"cmovne rax,rdx" ,ln ;
+
+:o<</	"mov rbx,rax" ,ln
+		,DROP
+		"cqo" ,ln
+	    "shld rdx,rax," ,s prevalv ,d ,cr
+		"shl rax," ,s prevalv ,d ,cr
+		"idiv rbx" ,ln ;
+
+:o<</m	"mov rcx," ,s ,TOS ,cr
+		"mov rbx,rax" ,ln
+		,DROP
+		"cqo" ,ln
+	    "shld rdx,rax,cl" ,ln
+		"shl rax,cl" ,ln
+		"idiv rbx" ,ln ;
+
+|---------------------------------
+#cteopa oAND oOR oXOR o+ o- o* o/ o<< o>> o>>> oMOD o/MOD o*/ o*>> o<</
+#cteopam oAND oOR oXOR o+ o- o* o/ o<<m o>>m o>>>m oMOD o/MOD o*/ o*>>m o<</m
+#cteopav oAND oOR oXOR o+ o- o* o/v o<<m o>>m o>>>m oMODv o/MODv o*/v o*>>m o<</m
+
+:opt?
+	dup @ $ff and
+	53 67 bt? ( ; ) 	| and or xor + - * / << >> >>> mod ..clz
+	drop 0
 	;
 
-:g<</
-	;
+:gdeco | adr nro -- adr'
+	"; OPT " ,ln
+	swap getcte dup 'prevalv ! "$%h" mformat >TOS swap
+	53 - 2 << 'cteopa + @ ex
+	4 + ; | skip next instr
 
-:optimice?
-	| <? .. n?
-	| and or xor + - * / << >> >>> mod
-	;
+:ghexo
+	"; OPTX " ,ln
+	swap getcte2 dup 'prevalv ! "$%h" mformat >TOS swap
+	53 - 2 << 'cteopa + @ ex
+	4 + ; | skip next instr
 
+:gadro | adr nro -- adr'
+	"; AOPT " ,ln
+	swap getval "w%h" mformat >TOS swap
+	53 - 2 << 'cteopam + @ ex
+	4 + ; | skip next instr
+
+:gval0 | adr nro -- adr'
+	"; VOPT " ,ln
+	swap getval "dword[w%h]" mformat >TOS swap
+	53 - 2 << 'cteopav + @ ex
+	4 + ; | skip next instr
+
+|---------------------------------
+:o<?
+	"cmp rax," ,s ,TOS ,cr
+	getval "jge _o%h" ,format ,cr ;
+
+:o>?
+	"cmp rax," ,s ,TOS ,cr
+	getval "jle _o%h" ,format ,cr ;
+
+:o=?
+	"cmp rax," ,s ,TOS ,cr
+	getval "jne _o%h" ,format ,cr ;
+
+:o>=?
+	"cmp rax," ,s ,TOS ,cr
+	getval "jl _o%h" ,format ,cr ;
+
+:o<=?
+	"cmp rax," ,s ,TOS ,cr
+	getval "jg _o%h" ,format ,cr ;
+
+:o<>?
+	"cmp rax," ,s ,TOS ,cr
+	getval "je _o%h" ,format ,cr ;
+
+:oA?
+	"test rax," ,s ,TOS ,cr
+	getval "jz _o%h" ,format ,cr ;
+
+:oN?
+	"test rax," ,s ,TOS ,cr
+	getval "jnz _o%h" ,format ,cr ;
+
+#cteopac 'o<? 'o>? 'o=? 'o>=? 'o<=? 'o<>? 'oA? 'oN?
+
+:gdecoc | adr nro -- adr'
+	"; OPTC " ,ln
+	swap getcte dup 'prevalv ! "$%h" mformat >TOS
+	4 + swap | skip next instr ( need getval the correct token
+	26 - 2 << 'cteopac + @ ex ;
+
+:ghexoc
+	"; OPTX " ,ln
+	swap getcte2 dup 'prevalv ! "$%h" mformat >TOS
+	4 + swap | skip next instr
+	26 - 2 << 'cteopac + @ ex ;
+
+:opt?c
+	dup @ $ff and
+	26 33 bt? ( ; ) | <? .. n?
+	drop 0 ;
+
+|---------------------------------
 :gdec
-	,DUP getcte "mov rax,$%h" ,format ,cr  ;
+	opt? 1? ( gdeco ; ) drop
+	opt?c 1? ( gdecoc ; ) drop
+	,DUP "mov rax,$" ,s getcte ,h ,cr  ;
 
-:ghex
-	,DUP getcte2 "mov rax,$%h" ,format ,cr ;
+:ghex  | really constant folding number
+	opt? 1? ( ghexo ; ) drop
+	opt?c 1? ( ghexoc ; ) drop
+	,DUP "mov rax,$" ,s getcte2 ,h ,cr ;
 
 :gstr
-	,DUP nstr "mov rax,str%h" ,format ,cr 1 'nstr +! ;
+	,DUP "mov rax,str" ,s nstr ,h ,cr
+	1 'nstr +! ;
 
 :gdwor
-	,DUP
-	getval "mov rax,w%h" ,format ,cr ;		|--	3 word  'word
+	,DUP "mov rax,w" ,s getval ,h ,cr ;		|--	3 word  'word
 
 :gdvar
-	,DUP
-	getval
-	"mov rax,w%h" ,format ,cr ;			|--	3 word  'word
+	opt? 1? ( gadro ; ) drop
+	,DUP "mov rax,w" ,s getval ,h ,cr ;			|--	3 word  'word
 
 :gvar
 	,DUP
@@ -189,29 +324,6 @@
 	16 =? ( drop getval "jmp w%h" ,format ,cr ; ) drop | ret?
 	getval
 	"call w%h" ,format ,cr ;
-
-:g;
-	dup 8 - @ $ff and
-	12 =? ( drop ; ) | tail call  call..ret?
-	drop
-	"ret" ,ln ;
-
-|--- IF
-:g(
-	getval
-	getiw 0? ( 2drop ; ) drop
-	"_i%h:" ,format ,cr ;		| while
-
-:g)
-	getval
-	getiw 1? ( over "jmp _i%h" ,format ,cr ) drop	| while
-	"_o%h:" ,format ,cr
-	;
-
-:gwhilejmp
-	getval getiw
-	2drop
-	;
 
 |--- REP
 
@@ -232,105 +344,82 @@
 :gEX
 	"mov rcx,rax" ,ln
 	,DROP
-	over @ $ff and
-	16 <>? ( drop "call rcx" ,asm ; ) drop
-	"jmp rcx" ,asm ;
+	dup @ $ff and
+	16 <>? ( drop "call rcx" ,ln ; ) drop
+	"jmp rcx" ,ln ;
 
 :g0?
-	gwhilejmp
 	"or rax,rax" ,ln
-	getval "jnz _o%h" ,format ,cr
-	;
+	getval "jnz _o%h" ,format ,cr ;
 
 :g1?
-	gwhilejmp
-	"or rax,rax" ,asm
-	getval "jz _o%h" ,format ,cr
-	;
+	"or rax,rax" ,ln
+	getval "jz _o%h" ,format ,cr ;
 
 :g+?
-	gwhilejmp
-	"or rax,rax" ,asm
-	getval "js _o%h" ,format ,cr
-	;
+	"or rax,rax" ,ln
+	getval "js _o%h" ,format ,cr ;
 
 :g-?
-	gwhilejmp
-	"or rax,rax" ,asm
-	getval "jns _o%h" ,format ,cr
-	;
+	"or rax,rax" ,ln
+	getval "jns _o%h" ,format ,cr ;
 
 :g<?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	gwhilejmp
-	getval "jge _o%h" ,format ,cr
-	;
+	getval "jge _o%h" ,format ,cr ;
 
 :g>?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	gwhilejmp
-	getval "jle _o%h" ,format ,cr
-	;
+	getval "jle _o%h" ,format ,cr ;
 
 :g=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	gwhilejmp
-	getval "jne _o%h" ,format ,cr
-	;
+	getval "jne _o%h" ,format ,cr ;
 
 :g>=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	gwhilejmp
-	getval "jl _o%h" ,format ,cr
-	;
+	getval "jl _o%h" ,format ,cr ;
 
 :g<=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	gwhilejmp
-	getval "jg _o%h" ,format ,cr
-	;
+	getval "jg _o%h" ,format ,cr ;
 
 :g<>?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	gwhilejmp
-	getval "je _o%h" ,format ,cr
-	;
+	getval "je _o%h" ,format ,cr ;
 
 :gA?
 	"mov rbx,rax" ,ln
 	,drop
 	"test rax,rbx" ,ln
-	gwhilejmp
-	getval "jnz _o%h" ,format ,cr
-	;
+	getval "jz _o%h" ,format ,cr ;
 
 :gN?
 	"mov rbx,rax" ,ln
 	,drop
 	"test rax,rbx" ,ln
-	gwhilejmp
-	getval "jz _o%h" ,format ,cr
-	;
+	getval "jnz _o%h" ,format ,cr ;
 
 :gB?
-	| sub nos2,nos
-	| cmp nos,tos-nos
-	"cmp #2,#1" ,asm
-	,2drop
-	gwhilejmp
+	"sub rbp,8*2" ,ln
+	"mov rbx,[rbp+8]" ,ln
+	"xchg rax,rbx" ,ln
+	"cmp rax,[rbp+8*2]" ,ln
 	getval "jge _o%h" ,format ,cr
+	"cmp rax,rbx"
+	getval "jle _o%h" ,format ,cr
 	;
 
 :g>R
@@ -370,7 +459,7 @@
 :g/
 	"mov rbx,rax" ,ln
 	,drop
-	"cdq" ,ln
+	"cqo" ,ln
 	"idiv rbx" ,ln
 	;
 
@@ -378,7 +467,7 @@
 	"mov rbx,rax" ,ln
 	"mov rcx,[rbp]" ,ln
 	,2drop
-	"cdq" ,ln
+	"cqo" ,ln
 	"imul rcx" ,ln
 	"idiv rbx" ,ln
 	;
@@ -386,7 +475,7 @@
 :g/MOD
 	"mov rbx,rax" ,ln
 	"mov rax,[rbp]" ,ln
-	"cdq" ,ln
+	"cqo" ,ln
 	"idiv rbx" ,ln
 	"mov [rbp],rax" ,ln
 	"xchg rax,rdx" ,ln
@@ -395,18 +484,20 @@
 :gMOD
 	"mov rbx,rax" ,ln
 	,drop
-	"cdq" ,ln
+	"cqo" ,ln
 	"idiv rbx" ,ln
 	"mov rax,rdx" ,ln
 	;
 
 :gABS
-	"cdq" ,ln
+	"cqo" ,ln
 	"add rdx,rdx" ,ln
 	"xor rax,rdx" ,ln ;
 
 :gSQRT
-	"call sqrt" ,ln ;
+	"cvtsi2sd xmm0,rax" ,ln
+	"sqrtsd xmm0,xmm0" ,ln 
+	"cvtsd2si rax,xmm0" ,ln ;
 
 :gCLZ
 	"bsr rax,rax" ,ln
@@ -430,11 +521,11 @@
 :g*>>
 	"mov rcx,rax" ,ln
 	,DROP
-	"cdq" ,ln
-	"imul dword [rbp]" ,ln
+	"cqo" ,ln
+	"imul qword[rbp]" ,ln
 	"shrd rax,rdx,cl" ,ln
 	"sar rdx,cl" ,ln
-	"test cl,32" ,ln
+	"test cl,64" ,ln
 	"cmovne	rax,rdx" ,ln
 	,NIP ;
 
@@ -442,7 +533,7 @@
 	"mov rcx,rax" ,ln
 	"mov rbx,[rbp]" ,ln
 	,2DROP
-	"cdq" ,ln
+	"cqo" ,ln
     "shld rdx,rax,cl" ,ln
 	"shl rax,cl" ,ln
 	"idiv rbx" ,ln ;

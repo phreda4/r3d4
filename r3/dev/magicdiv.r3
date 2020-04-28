@@ -15,8 +15,8 @@
 #mn		| magic mult
 #sn		| shift mult
 
-:2*
- 1 << ;
+:2*	1 << ;
+
 :calcstep
 	1 'p +!
 	q1 2* 'q1 !
@@ -51,25 +51,52 @@
 :divc | nn -- res
 	mn sn *>> dup 31 >> - ;
 
+|------ metodo2
+#sn2 #mn2
+
+:calcmagic2 | div --
+	$100000000 swap /. 'mn2 !
+	32 'sn2 !
+	;
+
+:divc2
+	mn2 sn2 *>> dup 31 >> - ;
+
+|--------------------------
+:inversemod | a -- x
+	dup | a x 2
+	2 pick2 pick2 * - *
+	2 pick2 pick2 * - *
+	2 pick2 pick2 * - *
+	2 pick2 pick2 * - *
+	nip
+	;
+
+|------------- test
+#nro
 :main
 	cls home
-	3 calcmagic
-	sn mn "%h %h *>> " print cr
-	cr
-		-7 ( 7 <? 1 +
-			dup "%d/5=" print
-			dup 3 / "%d " print
-			dup divc "%d " print
-			cr ) drop
-		cr
-		1 ( 1024 <?
-			dup "%d " print
-			32 over clz - "%d " print
-			cr
-			1 << ) drop
+	nro calcmagic
+	nro calcmagic2
+	nro "/%d" print cr
 
-		key >esc< =? ( exit ) drop
+	sn mn "%h %h *>> " print cr
+	sn2 mn2 "%h %h *>> " print cr
+	cr
+	-80 ( 80 <? 11 +
+		nro over "%d/%d=" print
+		dup nro / "%d " print
+		dup divc "%d " print
+		dup divc2 "%d " print
+		cr ) drop
+
+	key
+	>esc< =? ( exit )
+	<up> =? ( nro 1 + 'nro ! )
+	<dn> =? ( nro 1 - 0 max 'nro ! )
+	drop
 	;
 
 : mark
+	1 'nro !
 	'main onshow ;
