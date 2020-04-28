@@ -1,14 +1,9 @@
 | SOKOBAN - MC 2020
 | Sprites from: https://kenney.nl/assets/
 | Levels  from: https://github.com/begoon/sokoban-maps
-| 
-| TODO: menu
-| TODO: won the whole game screen
-| TODO: use tile names instead of numeric values
-| TODO: transparency in sprites
-| TODO: use penner for animations ?
 |
 |MEM 8192
+|FULLSCREEN
 
 ^r3/lib/gui.r3
 ^r3/lib/sys.r3
@@ -46,6 +41,8 @@
 #xmap 200 #ymap 200 #scale 48
 
 #NMAPS 60
+
+#nboxes 0
 
 #lvl1z ( 22 11 162 223 56 50 31 56 42 3 230 18 192 165 242 131 2 129 3 228 18 130
       37 6 205 100 34 81 172 17 161 10 5 229 17 177 20 130 41 130 49 160 225
@@ -509,6 +506,9 @@
 #map * 1000
 #map>
 
+| state of the map from the previous frame
+#prevscreen * 1000
+
 :getmapwh | ( adr1 -- adr2 )
    c@+ 'mapw ! c@+ 'maph ! ;
 
@@ -550,7 +550,7 @@
 :readpair | ( -- cnt )
        getcounter dup getcharacter rot writepair ;
 
-| compute size of sprite to fit same size w,h sprites inside 7/8 of the screen
+| compute size of sprite to fit same size _w,h sprites inside 7/8 of the screen
 :calcscale sw 7 * 8 / mapw /
 	   sh 7 * 8 / maph /
 	   min 'scale ! ;
@@ -558,6 +558,7 @@
 
 | decompresses a level in the current map
 :mapdecomp | ( lvl - )
+	   cls
 	   getmapwh 'ptr ! 0 'bitn !
 	   'map 'map> !
 	   mapw maph * 'mapwh !
@@ -568,43 +569,66 @@
 
 	   ptr bitn 8 / + getplayerxy
 	   calcscale
-	   1 'maploaded ! ;
+	   1 'maploaded !
+	   | fill previous frame map with -1 to trigger full redraw
+	   'prevscreen $AA mapwh cfill ;
 
 :xy2map mapw * + 'map + ;
 
-#x #y
-:drawmapxy 'x ! 'y !
-	   xmap ymap y scale * + swap x scale * + swap
-	   scale scale
-	   x y xy2map c@ 4 * sprites + @ spritesize ;
+:xy2prevscreen mapw * + 'prevscreen + ;
 
-:drawplayer xmap ymap playery scale * + swap playerx scale * + swap
+| save the player position and the tile on which the player is in this frame
+#px #py #ptile
+:saveplayertile playerx 'px !
+		playery 'py !
+		px py xy2prevscreen c@ 'ptile c! ;
+
+| makes sure the tile where the player was is redrawn
+:drawplayertile xmap ymap py scale * + swap px scale * + swap
+		scale scale
+		ptile 4 * sprites + @ spritesize ;
+
+:drawplayer drawplayertile
+	    xmap ymap playery scale * + swap playerx scale * + swap
 	    scale scale
 	    player playerdir 4 * + @ spritesize ;
+
+| draw only the difference with the previous frame
+#_y #_x
+:drawdiff | ( y x -- )
+	  '_x ! '_y !
+	  _y mapw * _x +     | adr in both cur and prev map
+	  dup
+	  'map + c@ swap 'prevscreen + c@  =? ( drop ; ) | nothing to draw
+	  xmap ymap _y scale * + swap _x scale * + swap
+	  rot
+	  scale scale
+ 	  rot 4 * sprites + @ 
+	  spritesize ;
 
 :drawmap
 	0 ( maph <?
 		0 ( mapw <?
-		  2dup drawmapxy
-		1 + ) drop cr
-	1 + ) drop ;
+		  2dup drawdiff
+		1 + ) drop
+	1 + ) drop
+	'prevscreen 'map mapwh cmove ;
 
 :nextmap curmap 1 + NMAPS mod 'curmap ! 0 'maploaded ! ;
 :prevmap curmap 1 - 0 max 'curmap ! 0 'maploaded ! ;
 
-#_nboxes 0
-:box? xy2map c@ 2 =? ( drop _nboxes 1 + '_nboxes ! ; ) drop ;
+:box? xy2map c@ 2 =? ( drop nboxes 1 + 'nboxes ! ; ) drop ;
 :won? 	0 ( mapw <?
 		0 ( maph <?
 		  2dup box?
 		1 + ) drop
 	1 + ) drop
-	_nboxes 0? ( nextmap ) drop ;
+	nboxes 0? ( nextmap ) drop ;
 
 :playertrans | (dx dy -- player+dx player+dy )
 	     playery + swap playerx + swap ;
 
-:dblpair |( x y -- 2*x 2*y)
+:x,y*2 |( x y -- 2*x 2*y)
 	 dup + swap dup + swap ;
 
 #_v1 #_v2
@@ -612,13 +636,13 @@
 	 '_v2 ! '_v1 !
 	 2dup playertrans
 	 xy2map _v1 swap c!
-	 dblpair playertrans
+	 x,y*2 playertrans
 	 xy2map _v2 swap c! ;
 
 #_ptile | tile on which the player is
 :pushbox? | ( vx vy ptile -- 0/1 )
 	  '_ptile !
-	  2dup dblpair playertrans
+	  2dup x,y*2 playertrans
 	  xy2map c@
 	  0?   ( drop _ptile 2 pushbox 1 ; ) | floor tile is fine
 	  4 =? ( drop _ptile 3 pushbox 1 ; ) | goal  tile is fine
@@ -626,6 +650,7 @@
 
 | can the player move to (playerx+vx, playery+vy) ? Also deals with box pushing
 :checkposition | ( vx vy -- 0/1 )
+	       saveplayertile
 	       2dup playertrans xy2map c@
 	       0? ( 3drop 1 ; )           | floor   tile is     fine
 	       1 =? ( 3drop 0 ; )         | wall    tile is not fine
@@ -656,13 +681,14 @@
 	  <f1> =? ( 0 'maploaded ! )
 	  drop ;
 	
-:game cls home
+:game |cls
+      home
   keyboard
   $ff00 'ink !
   20 20 atxy
   over "Sokoban R%d - " print curmap "Map: %d/60" print cr cr
   maploaded 0? ( 'maps curmap 4 * + @ mapdecomp ) drop
-  0 '_nboxes !
+  0 'nboxes !
   drawmap drawplayer won? ;
 
 :start	mark
