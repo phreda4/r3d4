@@ -19,7 +19,7 @@
 	switchresx "XRES equ %d" ,format ,cr
 	switchresy "YRES equ %d" ,format ,cr
 	switchfull "FULL equ %d" ,format ,cr
-	switchmem "MEMSIZE equ 0x%h" ,format ,cr
+	switchmem 10 << "MEMSIZE equ 0x%h" ,format ,cr
 	0 ,c
 	"asm/set.asm"
 	savemem

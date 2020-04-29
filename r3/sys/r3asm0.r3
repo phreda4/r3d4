@@ -234,7 +234,7 @@
 	53 - 2 << 'cteopam + @ ex
 	4 + ; | skip next instr
 
-:gval0 | adr nro -- adr'
+:gvalo | adr nro -- adr'
 	"; VOPT " ,ln
 	swap getval "dword[w%h]" mformat >TOS swap
 	53 - 2 << 'cteopav + @ ex
@@ -287,16 +287,116 @@
 	4 + swap | skip next instr
 	26 - 2 << 'cteopac + @ ex ;
 
+:gadrc
+	"; OPTC " ,ln
+	swap getval "w%h" mformat >TOS
+	4 + swap | skip next instr
+	26 - 2 << 'cteopac + @ ex ;
+
+:gvalc
+	"; OPTC " ,ln
+	swap getval "dword[w%h]" mformat >TOS
+	4 + swap | skip next instr
+	26 - 2 << 'cteopac + @ ex ;
+
 :opt?c
 	dup @ $ff and
 	26 33 bt? ( ; ) | <? .. n?
 	drop 0 ;
 
 |---------------------------------
+:o@
+	,dup
+	"movsxd rax,dword [" ,s ,TOS "]" ,ln ;
+
+:oC@
+	,dup
+	"movsx rax,byte [" ,s ,TOS "]" ,ln ;
+
+:oQ@
+	,dup
+	"mov rax,qword[" ,s ,TOS "]" ,ln ;
+
+:o@+
+	,dup
+	"mov rbx," ,s ,TOS ,cr
+	"movsx rax,dword [rbx]" ,ln
+	"add rbx,4" ,ln
+	,dup
+	"mov [rbp],rbx" ,ln ;
+
+:oC@+
+	,dup
+	"mov rbx," ,s ,TOS ,cr
+	"movsx rax,byte [rbx]" ,ln
+	"add rbx,1" ,ln
+	,dup
+	"mov [rbp],rbx" ,ln ;
+
+:oQ@+
+	,dup
+	"mov rbx," ,s ,TOS ,cr
+	"mov rax,[rbx]" ,ln
+	"add rbx,8" ,ln
+	,dup
+	"mov [rbp],rbx" ,ln ;
+
+:o!
+	"mov dword[" ,s ,TOS "],eax" ,ln ,DROP ;
+
+:oC!
+	"mov byte[" ,s ,TOS "],al" ,ln ,DROP ;
+
+:oQ!
+	"mov [" ,s ,TOS "],rax" ,ln ,DROP ;
+
+:o!+
+	"mov rcx," ,s ,TOS ,cr
+	"mov dword[rcx],eax" ,ln
+	"add rcx,4" ,ln ,NIP
+	"mov rax,rcx" ,ln ;
+
+:oC!+
+	"mov rcx," ,s ,TOS ,cr
+	"mov byte[rcx],al" ,ln
+	"add rcx,1" ,ln ,NIP
+	"mov rax,rcx" ,ln ;
+
+:oQ!+
+	"mov rcx," ,s ,TOS ,cr
+	"mov [rcx],rax" ,ln
+	"add rcx,8" ,ln ,NIP
+	"mov rax,rcx" ,ln ;
+
+:o+!
+	"add dword[" ,s ,TOS "],eax" ,ln ,DROP ;
+
+:oC+!
+	"add byte[" ,s ,TOS "],al" ,ln ,DROP ;
+
+:oQ+!
+	"add [" ,s ,TOS "],rax" ,ln ,DROP ;
+
+#memop o@ oC@ oQ@ o@+ oC@+ oQ@+ o! oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+!
+
+:gmemo
+	"; OPTM " ,ln
+	swap getval "w%h" mformat >TOS
+	swap 73 - 2 << 'memop + @ ex
+	4 + ; | skip next instr
+
+:opt?m
+	dup @ $ff and
+	73 87 bt? ( ; )
+	drop 0 ;
+
+|---------------------------------
 :gdec
 	opt? 1? ( gdeco ; ) drop
 	opt?c 1? ( gdecoc ; ) drop
-	,DUP "mov rax,$" ,s getcte ,h ,cr  ;
+	,DUP
+	getcte 0? ( drop "xor rax,rax" ,ln ; )
+	"mov rax,$" ,s ,h ,cr  ;
 
 :ghex  | really constant folding number
 	opt? 1? ( ghexo ; ) drop
@@ -308,16 +408,21 @@
 	1 'nstr +! ;
 
 :gdwor
-	,DUP "mov rax,w" ,s getval ,h ,cr ;		|--	3 word  'word
+	opt?c 1? ( gadrc ; ) drop
+	,DUP "mov rax,w" ,s getval ,h ,cr ;		|--	'word
 
 :gdvar
 	opt? 1? ( gadro ; ) drop
-	,DUP "mov rax,w" ,s getval ,h ,cr ;			|--	3 word  'word
+	opt?c 1? ( gadrc ; ) drop
+	opt?m 1? ( gmemo ; ) drop
+	,DUP "mov rax,w" ,s getval ,h ,cr ;		|--	'var
 
 :gvar
+	opt? 1? ( gvalo ; ) drop
+	opt?c 1? ( gvalc ; ) drop
 	,DUP
 	getval
-	"movsxd rax,dword[w%h]" ,format ,cr ;	|--	4 var   [var]
+	"movsxd rax,dword[w%h]" ,format ,cr ;	|--	[var]
 
 :gwor
 	dup @ $ff and
@@ -496,7 +601,7 @@
 
 :gSQRT
 	"cvtsi2sd xmm0,rax" ,ln
-	"sqrtsd xmm0,xmm0" ,ln 
+	"sqrtsd xmm0,xmm0" ,ln
 	"cvtsd2si rax,xmm0" ,ln ;
 
 :gCLZ

@@ -50,8 +50,9 @@ start:
   mov rdi,[rbx+SDL_Surface.pixels]
   mov [SYSFRAME],rdi
   cinvoke SDL_StartTextInput
-; cinvoke malloc,MEMSIZE
-; mov [FREE_MEM],eax
+
+  invoke VirtualAlloc,0,MEMSIZE,MEM_COMMIT+MEM_RESERVE,PAGE_READWRITE
+  mov [FREE_MEM],rax
 
   mov rbp,DATASTK
   xor rax,rax

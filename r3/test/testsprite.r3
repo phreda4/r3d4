@@ -26,12 +26,12 @@
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
 
-#xn 100 #yn 100
+#xn 50 #yn 100
 
 :player
 	xn yn 'mario sprite
 	xypen 32 dup 'mario spritesize
-	200 100 msec 3 << 'mario rsprite
+	100 100 msec 3 << 'mario rsprite
 	acursor
 	;
 
@@ -55,7 +55,7 @@
 	minidraw
 	;
 :
-340 200 miniscreen
+sw 2 >> sh 2 >> miniscreen
 'ongame onshow
 ;
 

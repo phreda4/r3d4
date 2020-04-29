@@ -87,7 +87,7 @@
 :datastep
 	dup $ff and
 	21 <? ( 2 << 'coded + @ ex ; )
-	$3c =? ( ,d* )
+	58 =? ( ,d* ) | token *
 	2drop  | vacio
 	;
 
