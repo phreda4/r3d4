@@ -4,6 +4,7 @@
 ^r3/lib/sprite.r3
 ^r3/lib/mem.r3
 ^r3/lib/str.r3
+^r3/lib/cursor.r3
 
 ^r3/lib/trace.r3
 
