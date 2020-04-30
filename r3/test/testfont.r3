@@ -3,7 +3,7 @@
 ^r3/lib/math.r3
 ^r3/lib/str.r3
 ^r3/lib/print.r3
-^r3/lib/sprite.r3
+^r3/lib/gui.r3
 
 ^r3/lib/fontr.r3
 ^media/rft/robotobold.rft

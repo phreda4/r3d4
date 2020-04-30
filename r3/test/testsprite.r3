@@ -1,7 +1,7 @@
 | NAVES GAME
 | PHREDA 2018
 
-^r3/lib/sprite.r3
+^r3/lib/gui.r3
 ^r3/lib/str.r3
 ^r3/lib/print.r3
 ^r3/lib/key.r3
@@ -31,7 +31,7 @@
 :player
 	xn yn 'mario sprite
 	xypen 32 dup 'mario spritesize
-	100 100 msec 3 << 'mario rsprite
+	70 100 msec 3 << 'mario rsprite
 	acursor
 	;
 

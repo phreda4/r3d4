@@ -19,7 +19,6 @@
 #sx #sy
 #xa #ya
 
-
 |---- w/alpha
 :alp!+ | col --
 	dup 24 >> $ff and
@@ -42,7 +41,6 @@
 	2 << paleta + @ alp!+ ;
 
 |----- 1:1
-
 :clipw
 	sw >? ( sw pick2 - ; )
 	wb ;
@@ -341,51 +339,54 @@
 	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	22 >> $c and 'rdraw + @ ex ;
 
+|-------
 ::spr.alpha | 'bmr --
 	dup @ $1000000 or swap ! ;
 
 ::spr.wh | 'spr -- w h
 	@ dup $fff and swap 12 >> $fff and ;
 
-#arrow8 $3010009 | 9x16 paleta 8bits alpha, 4 colores
-$00000000 $ff000000 $ffffffff 0
-( 1 1 0 0 0 0 0 0 0
-  1 2 1 0 0 0 0 0 0
-  1 2 2 1 0 0 0 0 0
-  1 2 2 2 1 0 0 0 0
-  1 2 2 2 2 1 0 0 0
-  1 2 2 2 2 2 1 0 0
-  1 2 2 2 2 2 2 1 0
-  1 2 2 2 2 2 2 2 1
-  1 2 2 2 2 2 2 2 1
-  1 2 2 2 2 2 1 1 1
-  1 2 2 2 2 2 1 0 0
-  1 2 2 1 2 2 1 0 0
-  1 2 1 1 2 2 1 1 0
-  1 1 0 1 1 2 2 1 0
-  0 0 0 0 1 2 2 1 0
-  0 0 0 0 1 1 1 1 0 )
+|--------- sprite strip
+:mem2spr | n adr ex -- adr' ex
+	$2000000 an? ( rot wb hb * * rot + swap ; )
+	rot wb hb * 2 << * rot + swap ;
 
-#cross8 $300f00b | 9x15 paleta 8bits alpha, 4 colores
-$00000000 $ff000000 $ffffffff 0
-( 0 0 0 0 1 1 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  1 1 1 1 0 0 0 1 1 1 1
-  1 2 2 2 0 0 0 2 2 2 1
-  1 1 1 1 0 0 0 1 1 1 1
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 1 2 1 0 0 0 0
-  0 0 0 0 0 1 0 0 0 0 0 )
+::ssprite | n x y 'spr  --
+	0? ( 3drop ; )
+	@+
+	dup $fff and 'wb !
+	dup 12 >> $fff and 'hb !
+	2swap clip | adr h x y
+	wi hi or -? ( drop 4drop ; ) drop
+	xy>v >a
+	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	mem2spr
+	22 >> $c and 'odraw + @ ex ;
 
-::acursor
-	xypen 'arrow8 sprite ;
+::sspritesize | n x y w h 'img --
+	0? ( 4drop drop ; ) >b
+	b@+ dup $fff and 'wb ! 12 >> $fff and 'hb !
+	0? ( 4drop ; ) 'hr !
+	0? ( 3drop ; ) 'wr !
+	b> clipsc | adr x y
+	wi hi or -? ( 4drop ; ) drop
+	xy>v >a
+	4 - @+
+	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	mem2spr
+	22 >> $c and 'sdraw + @ ex ;
 
-::xcursor
-	xypen 7 - swap 5 - swap 'cross8 sprite ;
+::sspritescale | n x y scale 'img --
+	0? ( 4drop ; ) >b
+	b@ dup		| x y s h h
+	$fff and pick2 *. rot rot 12 >> $fff and *.
+	b> sspritesize ;
+
+::srsprite | n x y r 'bmr --
+	0? ( 4drop ; )
+	@+
+	dup $fff and 'wb !
+	dup 12 >> $fff and 'hb !
+	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+    mem2spr
+	22 >> $c and 'rdraw + @ ex ;

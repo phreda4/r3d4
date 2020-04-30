@@ -27,9 +27,11 @@
 	$ff00 'ink !
 	cr
 |	cc "%b" print cr
-|	cc "%d" print cr
+	cc "%d" 
+	print 
+	cr
 
-	'vac cc $1 and 2 << + @ ex | table jmp work!!
+|	'vac cc $1 and 2 << + @ ex | table jmp work!!
 
 	key
 	>esc< =? ( exit )
