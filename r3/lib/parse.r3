@@ -155,7 +155,7 @@
 	$24 =? ( drop isHex ; )	| $ hexa $24
 	$25 =? ( drop isBin ; ) | % bin  $25
 	( $2e >=?
-	|	$2f =? ( 2drop 0 ; ) |  1/2 ?? permitir fracciones?
+		$2f =? ( 2drop 0 ; ) |  / no es un numero!!
 		$39 >? ( 2drop 0 ; )
 		drop c@+ )
 	33 <? ( 2drop 1 ; ) 2drop 0 ;

@@ -71,17 +71,23 @@
 :,2OVER
 	"mov [rbp+8],rax" ,ln
 	"add rbp,8*2" ,ln
-	"pushd [rbp-8*4]" ,ln
-	"popd [rbp]" ,ln
+	"mov rbx,[rbp-8*4]" ,ln
+	"mov [rbp],rbx" ,ln
 	"mov rax,[rbp-8*3]" ,ln ;
 :,2SWAP
-	"pushd [rbp-8]" ,ln
+	"mov rbx,[rbp-8]" ,ln
 	"mov [rbp-8],rax" ,ln
-	"pushd [rbp-8*2]" ,ln
+	"mov rcx,[rbp-8*2]" ,ln
 	"mov rax,[rbp]" ,ln
 	"mov [rbp-8*2],rax" ,ln
-	"popd [rbp]" ,ln
-	"pop rax" ,ln ;
+	"mov [rbp],rcx" ,ln
+	"xchg rbx,rax" ,ln ;
+:,2SWAP
+	"xchg rax,[rbp-8]" ,ln
+	"mov rcx,[rbp-8*2]" ,ln
+	"mov rbx,[rbp]" ,ln
+	"mov [rbp-8*2],rbx" ,ln
+	"mov [rbp],rcx" ,ln ;
 
 |----------------------
 :g;
@@ -111,13 +117,28 @@
 :>TOS
 	'preval strcpy ;
 
+:bignumber
+	prevalv 31 >>> 0? ( drop ; ) drop
+	"mov rbx," ,s ,TOS ,cr
+	"rbx" >TOS ;
 
-:oand	"and rax," ,s ,TOS ,cr ;
-:oor	"or rax," ,s ,TOS ,cr ;
-:oxor	"xor rax," ,s ,TOS ,cr ;
-:o+		"add rax," ,s ,TOS ,cr ;
-:o-		"sub rax," ,s ,TOS ,cr ;
-:o*		"imul rax," ,s ,TOS ,cr ;
+:oand	bignumber "and rax," ,s ,TOS ,cr ;
+:oor	bignumber "or rax," ,s ,TOS ,cr ;
+:oxor	bignumber "xor rax," ,s ,TOS ,cr ;
+:o+		bignumber "add rax," ,s ,TOS ,cr ;
+:o-		bignumber "sub rax," ,s ,TOS ,cr ;
+:o*		bignumber "imul rax," ,s ,TOS ,cr ;
+
+:varget
+	"movsxd rbx," ,s ,TOS ,cr
+	"rbx" >TOS ;
+
+:oandv	varget "and rax," ,s ,TOS ,cr ;
+:oorv	varget "or rax," ,s ,TOS ,cr ;
+:oxorv	varget "xor rax," ,s ,TOS ,cr ;
+:o+v	varget "add rax," ,s ,TOS ,cr ;
+:o-v	varget "sub rax," ,s ,TOS ,cr ;
+:o*v	varget "imul rax," ,s ,TOS ,cr ;
 
 :o<<	"shl rax," ,s ,TOS ,cr ;
 :o<<m	"mov rcx," ,s ,TOS ,cr
@@ -208,7 +229,7 @@
 |---------------------------------
 #cteopa oAND oOR oXOR o+ o- o* o/ o<< o>> o>>> oMOD o/MOD o*/ o*>> o<</
 #cteopam oAND oOR oXOR o+ o- o* o/ o<<m o>>m o>>>m oMOD o/MOD o*/ o*>>m o<</m
-#cteopav oAND oOR oXOR o+ o- o* o/v o<<m o>>m o>>>m oMODv o/MODv o*/v o*>>m o<</m
+#cteopav oANDv oORv oXORv o+v o-v o*v o/v o<<m o>>m o>>>m oMODv o/MODv o*/v o*>>m o<</m
 
 :opt?
 	dup @ $ff and
@@ -296,6 +317,7 @@
 :gvalc
 	"; OPTC " ,ln
 	swap getval "dword[w%h]" mformat >TOS
+	"mov ebx," ,s ,TOS ,cr "ebx" >TOS
 	4 + swap | skip next instr
 	26 - 2 << 'cteopac + @ ex ;
 
@@ -320,7 +342,7 @@
 :o@+
 	,dup
 	"mov rbx," ,s ,TOS ,cr
-	"movsx rax,dword [rbx]" ,ln
+	"movsxd rax,dword [rbx]" ,ln
 	"add rbx,4" ,ln
 	,dup
 	"mov [rbp],rbx" ,ln ;
@@ -653,7 +675,7 @@
 	"mov rax,qword[rax]" ,ln ;
 
 :g@+
-	"movsx rbx,dword [rax]" ,ln
+	"movsxd rbx,dword [rax]" ,ln
 	"add rax,4" ,ln
 	,dup
 	"mov rax,rbx" ,ln ;

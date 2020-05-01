@@ -346,13 +346,41 @@
 ::spr.wh | 'spr -- w h
 	@ dup $fff and swap 12 >> $fff and ;
 
-|--------- sprite strip
+|--------------------------
+:gettile | n --
+	2 << sx + @ >b
+	hi ( 1? 1 -
+		wi ( 1? 1 - b@+ a!+ ) drop
+		yi b+ ) drop ;
+
+::tileSheet | w h 'sprite -- ssprite
+	dup 'xi !
+	spr.wh 'hr ! 'wr !
+	'hi ! 'wi !
+	wr wi - 2 << 'yi !
+	here dup >a 'sx !
+	xi 4 + >b
+	0 ( hr <?
+		0 ( wr <?
+			b> a!+ wi dup 2 << b+
+			+ ) drop
+		hi dup 1 - wr * 2 << b+
+		+ ) drop
+	a> dup 'sy ! sx - 2 >> 'addm !
+	hi 12 << wi or xi @ $ff000000 and or a!+
+	0 ( addm <? dup gettile 1 + ) drop
+
+	xi sy addm wi hi * 2 << * 4 + move
+	sx 'here !
+	xi ;
+
+
 :mem2spr | n adr ex -- adr' ex
 	$2000000 an? ( rot wb hb * * rot + swap ; )
 	rot wb hb * 2 << * rot + swap ;
 
 ::ssprite | n x y 'spr  --
-	0? ( 3drop ; )
+	0? ( 4drop ; )
 	@+
 	dup $fff and 'wb !
 	dup 12 >> $fff and 'hb !
@@ -364,7 +392,7 @@
 	22 >> $c and 'odraw + @ ex ;
 
 ::sspritesize | n x y w h 'img --
-	0? ( 4drop drop ; ) >b
+	0? ( 2drop 4drop ; ) >b
 	b@+ dup $fff and 'wb ! 12 >> $fff and 'hb !
 	0? ( 4drop ; ) 'hr !
 	0? ( 3drop ; ) 'wr !
@@ -377,16 +405,8 @@
 	22 >> $c and 'sdraw + @ ex ;
 
 ::sspritescale | n x y scale 'img --
-	0? ( 4drop ; ) >b
+	0? ( nip 4drop ; ) >b
 	b@ dup		| x y s h h
 	$fff and pick2 *. rot rot 12 >> $fff and *.
 	b> sspritesize ;
 
-::srsprite | n x y r 'bmr --
-	0? ( 4drop ; )
-	@+
-	dup $fff and 'wb !
-	dup 12 >> $fff and 'hb !
-	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
-    mem2spr
-	22 >> $c and 'rdraw + @ ex ;
