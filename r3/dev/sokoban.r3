@@ -2,7 +2,7 @@
 | Sprites from: https://kenney.nl/assets/
 | Levels  from: https://github.com/begoon/sokoban-maps
 |
-|MEM 8192
+|MEM 16384
 |FULLSCREEN
 
 ^r3/lib/gui.r3
@@ -13,11 +13,12 @@
 ^r3/util/loadimg.r3
 
 | sprites
-#ground #wall #box #boxgoal #groundgoal
-#sprites 'ground 'wall 'box 'boxgoal 'groundgoal
+#spritesheet
+|        ground wall box boxgoal groundgoal
+#sprites 89     98   6   9       102
 
-#playerup #playerdn #playerri #playerle
-#player 'playerup 'playerdn 'playerri 'playerle
+|       playerup playerdn playerri playerle
+#player 55       52       78       81
 #playerx #playery #playerdir 0
 
 |  -- Format of the compressed levels ( RLE style )
@@ -255,15 +256,19 @@
 		playery 'py !
 		px py xy2prevscreen c@ 'ptile c! ;
 
-| makes sure the tile where the player was is redrawn
-:drawplayertile xmap ymap py scale * + swap px scale * + swap
-		scale scale
-		ptile 4 * sprites + @ spritesize ;
+:scaltrans | ( x y -- x*scale+xmap y*scale+ymap )
+	   scale * ymap + swap scale * xmap + swap ;
 
-:drawplayer drawplayertile
-	    xmap ymap playery scale * + swap playerx scale * + swap
-	    scale scale
-	    player playerdir 4 * + @ spritesize ;
+:drawtile rot rot scaltrans scale scale spritesheet sspritesize ;
+:drawtile+ | ( x y tile -- ) draws floor under tiles with transparency
+	   89 =? ( drawtile ; )
+	   102 =? ( drawtile ; )
+	   pick2 pick2 89 drawtile
+	   drawtile ;
+
+:drawplayertile px py ptile 4 * 'sprites + @ drawtile ;
+
+:drawplayer drawplayertile playerx playery playerdir 4 * 'player + @ drawtile ;
 
 | draw only the difference with the previous frame
 #_y #_x
@@ -272,11 +277,7 @@
 	  _y mapw * _x +     | adr in both cur and prev map
 	  dup
 	  'map + c@ swap 'prevscreen + c@  =? ( drop ; ) | nothing to draw
-	  xmap ymap _y scale * + swap _x scale * + swap
-	  rot
-	  scale scale
- 	  rot 4 * sprites + @ 
-	  spritesize ;
+	  4 * 'sprites + @  _x _y rot drawtile+ ;
 
 :drawmap
 	0 ( maph <?
@@ -358,29 +359,25 @@
   keyboard
   $ff00 'ink !
   20 20 atxy
-  over "Sokoban R%d - " print curmap "Map: %d/60" print cr cr
+  over "Sokoban R%d - " print curmap 1 + "Map: %d/60" print cr cr
   maploaded 0? ( 'maps curmap 4 * + @ mapdecomp ) drop
   0 'nboxes !
   drawmap drawplayer won? ;
 
-:start	mark
-	"media/img/skbn_ground.png" loadimg 'ground !
-	"media/img/skbn_wall.png" loadimg 'wall !
-	"media/img/skbn_box.png" loadimg 'box !
-	"media/img/skbn_boxgoal.png" loadimg 'boxgoal !
-	"media/img/skbn_groundgoal.png" loadimg 'groundgoal !
-	
-	"media/img/skbn_player_up.png" loadimg 'playerup !
-	"media/img/skbn_player_dn.png" loadimg 'playerdn !
-	"media/img/skbn_player_ri.png" loadimg 'playerri !
-	"media/img/skbn_player_le.png" loadimg 'playerle !
+:load_tilesheet | ( -- )
+	64 64 "media/img/sokoban_tilesheet.png" loadimg tileSheet 'spritesheet ! ;
+
+:init	mark
+	cls home
+
+	load_tilesheet
 
 	| top left of map
 	sw 1 * 16 / 'xmap !
 	sh 1 * 16 / 'ymap !
 	
 	0 'curmap !
-	3 'game onshow ;
+	;
 
-: start ;
+: init 3 'game onshow ;
 
