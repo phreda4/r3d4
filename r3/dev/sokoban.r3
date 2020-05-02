@@ -19,7 +19,13 @@
 
 |       playerup playerdn playerri playerle
 #player 55       52       78       81
-#playerx #playery #playerdir 0
+
+#playerx #playery
+
+#playerdir 0
+#UP 0 #DN 1 #RI 2 #LE 3
+
+#FLOOR 0 #WALL 1 #BOX 2 #BOXGOAL 3 #GOAL 4
 
 |  -- Format of the compressed levels ( RLE style )
 |  -- Prolog
@@ -39,7 +45,7 @@
 |         char man_x
 |         char man_y
 
-#xmap 200 #ymap 200 #scale 48
+#xmap #ymap #scale
 
 #NMAPS 60
 
@@ -176,11 +182,11 @@
 
 | data for the current map, max is 40*25
 #mapw #maph
+#mapwh 0
 #map * 1000
 #map>
 
-| state of the map from the previous frame
-#prevscreen * 1000
+| ----- Decompression related code -----
 
 :getmapwh | ( adr1 -- adr2 )
    c@+ 'mapw ! c@+ 'maph ! ;
@@ -218,20 +224,13 @@
 	      get1bit 0? ( drop 4 ; ) drop 3 ;
 
 :writepair | ( char cnt -- )
-	  ( 1? over map> c!+ 'map> ! 1 - ) drop drop ;
+	  ( 1? over map> c!+ 'map> ! 1 - ) 2drop ;
 
 :readpair | ( -- cnt )
        getcounter dup getcharacter rot writepair ;
 
-| compute size of sprite to fit same size _w,h sprites inside 7/8 of the screen
-:calcscale sw 7 * 8 / mapw /
-	   sh 7 * 8 / maph /
-	   min 'scale ! ;
-#mapwh 0
-
 | decompresses a level in the current map
 :mapdecomp | ( lvl - )
-	   cls
 	   getmapwh 'ptr ! 0 'bitn !
 	   'map 'map> !
 	   mapw maph * 'mapwh !
@@ -241,20 +240,22 @@
 	   bitn 8 mod 1? ( bitn dup 8 mod 8 swap - + 'bitn ! ) drop
 
 	   ptr bitn 8 / + getplayerxy
-	   calcscale
-	   1 'maploaded !
-	   | fill previous frame map with -1 to trigger full redraw
-	   'prevscreen $AA mapwh cfill ;
+	   1 'maploaded ! ;
+
+| ----- 
+
+| compute size of sprite to fit same size _w,h sprites inside 7/8 of the screen
+:calcscale sw 7 * 8 / mapw /
+	   sh 7 * 8 / maph /
+	   min 'scale ! ;
 
 :xy2map mapw * + 'map + ;
 
-:xy2prevscreen mapw * + 'prevscreen + ;
-
 | save the player position and the tile on which the player is in this frame
 #px #py #ptile
-:saveplayertile playerx 'px !
-		playery 'py !
-		px py xy2prevscreen c@ 'ptile c! ;
+:saveplayer playerx playery
+	    2dup 'py ! 'px !
+	    xy2map c@ 'ptile c! ;
 
 :scaltrans | ( x y -- x*scale+xmap y*scale+ymap )
 	   scale * ymap + swap scale * xmap + swap ;
@@ -266,32 +267,24 @@
 	   pick2 pick2 89 drawtile
 	   drawtile ;
 
-:drawplayertile px py ptile 4 * 'sprites + @ drawtile ;
+:restoretile px py ptile 4 * 'sprites + @ drawtile ;
 
-:drawplayer drawplayertile playerx playery playerdir 4 * 'player + @ drawtile ;
-
-| draw only the difference with the previous frame
-#_y #_x
-:drawdiff | ( y x -- )
-	  '_x ! '_y !
-	  _y mapw * _x +     | adr in both cur and prev map
-	  dup
-	  'map + c@ swap 'prevscreen + c@  =? ( drop ; ) | nothing to draw
-	  4 * 'sprites + @  _x _y rot drawtile+ ;
+:drawplayer restoretile
+	    playerx playery playerdir 4 * 'player + @ drawtile ;
 
 :drawmap
 	0 ( maph <?
 		0 ( mapw <?
-		  2dup drawdiff
+		  2dup swap 2dup xy2map c@ 4 * 'sprites + @ drawtile+
 		1 + ) drop
-	1 + ) drop
-	'prevscreen 'map mapwh cmove ;
+	1 + ) drop ;
 
 :nextmap curmap 1 + NMAPS mod 'curmap ! 0 'maploaded ! ;
 :prevmap curmap 1 - 0 max 'curmap ! 0 'maploaded ! ;
 
 :box? xy2map c@ 2 =? ( drop nboxes 1 + 'nboxes ! ; ) drop ;
-:won? 	0 ( mapw <?
+:won? 0 'nboxes !
+      0 ( mapw <?
 		0 ( maph <?
 		  2dup box?
 		1 + ) drop
@@ -304,80 +297,85 @@
 :x,y*2 |( x y -- 2*x 2*y)
 	 dup + swap dup + swap ;
 
-#_v1 #_v2
-:pushbox | ( vx vy v1 v2 -- )
-	 '_v2 ! '_v1 !
-	 2dup playertrans
-	 xy2map _v1 swap c!
-	 x,y*2 playertrans
-	 xy2map _v2 swap c! ;
+:rot- rot rot ;
 
-#_ptile | tile on which the player is
-:pushbox? | ( vx vy ptile -- 0/1 )
-	  '_ptile !
-	  2dup x,y*2 playertrans
-	  xy2map c@
-	  0?   ( drop _ptile 2 pushbox 1 ; ) | floor tile is fine
-	  4 =? ( drop _ptile 3 pushbox 1 ; ) | goal  tile is fine
-	  3drop 0 ;
+:3dup pick2 pick2 pick2 ;
 
-| can the player move to (playerx+vx, playery+vy) ? Also deals with box pushing
-:checkposition | ( vx vy -- 0/1 )
-	       saveplayertile
-	       2dup playertrans xy2map c@
-	       0? ( 3drop 1 ; )           | floor   tile is     fine
-	       1 =? ( 3drop 0 ; )         | wall    tile is not fine
-	       2 =? ( drop 0 pushbox? ; ) | box     tile is to be checked
-	       3 =? ( drop 4 pushbox? ; ) | boxgoal tile is to be checked
-	       4 =? ( 3drop 1 ; )         | goal    tile is     fine
-	       3drop 0 ;
+:updatemap! | ( dx dy tile -- )
+	    rot- playertrans
+	    3dup rot 4 * 'sprites + @ drawtile+
+	    xy2map c! ;
 
-:lookup 0 'playerdir ! ;
-:lookdn 1 'playerdir ! ;
-:lookri 2 'playerdir ! ;
-:lookle 3 'playerdir ! ;
+:pushbox! | ( dx dy tile1 tile2 -- )
+	  pick3 pick3 x,y*2 rot updatemap! updatemap! ;
 
-:tryri  1 0 checkposition playerx      + 'playerx ! lookri ;
-:tryle -1 0 checkposition playerx swap - 'playerx ! lookle ;
+:pushbox? | ( dx dy ptile -- 0/1 ) ptile is tile under the player if the move happens
+	  rot-
+	  2dup x,y*2 playertrans xy2map c@ | what tile behind the box in the push direction?
+	  FLOOR =? ( drop pick2 BOX     pushbox! drop 1 ; )
+	  GOAL  =? ( drop pick2 BOXGOAL pushbox! drop 1 ; )
+	  4drop 0 ;
 
-:tryup 0 -1 checkposition playery swap - 'playery ! lookup ;
-:trydn 0  1 checkposition playery      + 'playery ! lookdn ;
+| can the player move to (playerx+dx, playery+dy) ? Also deals with box pushing
+:movelogic | ( dx dy -- 0/1 )
+	   saveplayer                 | to redraw the tile under the player
+	   2dup playertrans xy2map c@ | what tile are we trying to move on ?
+	   FLOOR   =? ( 3drop 1 ; )
+	   BOX     =? ( drop FLOOR pushbox? ; )
+	   BOXGOAL =? ( drop GOAL  pushbox? ; )
+	   GOAL    =? ( 3drop 1 ; )
+	   3drop 0 ;
+
+:setdir 'playerdir ! ;
+
+:lookup UP setdir ;
+:lookdn DN setdir ;
+:lookri RI setdir ;
+:lookle LE setdir ;
+
+:adjustplayer playertrans 'playery ! 'playerx ! ;
+
+:trymove 2dup movelogic 1? ( drop adjustplayer ; ) 3drop ;
+
+:tryri  1  0 trymove ;
+:tryle -1  0 trymove ;
+:tryup  0 -1 trymove ;
+:trydn  0  1 trymove ;
 
 :keyboard key
 	  >esc< =? ( exit )
 	  <pgup> =? ( nextmap )
 	  <pgdn> =? ( prevmap )
-	  <ri> =? ( tryri )
-	  <le> =? ( tryle )
-	  <up> =? ( tryup )
-	  <dn> =? ( trydn )
+	  <ri> =? ( tryri lookri )
+	  <le> =? ( tryle lookle )
+	  <up> =? ( tryup lookup )
+	  <dn> =? ( trydn lookdn )
 	  <f1> =? ( 0 'maploaded ! )
 	  drop ;
-	
-:game |cls
-      home
-  keyboard
-  $ff00 'ink !
-  20 20 atxy
-  over "Sokoban R%d - " print curmap 1 + "Map: %d/60" print cr cr
-  maploaded 0? ( 'maps curmap 4 * + @ mapdecomp ) drop
-  0 'nboxes !
-  drawmap drawplayer won? ;
+
+:msg curmap 1 + pick2 "Sokoban R%d - Map: %d/60" print ;
+
+|TODO: fix for when new map is loaded
+:resetp 0 'px ! 0 'py ! ;
+
+:loadcurmap 'maps curmap 4 * + @ mapdecomp calcscale resetp ;
+
+:game home keyboard msg
+      maploaded 0? ( loadcurmap cls drawmap ) drop | full screen drawn only once
+      drawplayer won? ;
 
 :load_tilesheet | ( -- )
 	64 64 "media/img/sokoban_tilesheet.png" loadimg tileSheet 'spritesheet ! ;
 
+:topleft! | top left of map
+	  sw 16 / 'xmap !
+	  sh 16 / 'ymap ! ;
+
 :init	mark
-	cls home
-
+	cls home $ff00 'ink !
 	load_tilesheet
-
-	| top left of map
-	sw 1 * 16 / 'xmap !
-	sh 1 * 16 / 'ymap !
-	
+	topleft!
 	0 'curmap !
 	;
 
 : init 3 'game onshow ;
-
