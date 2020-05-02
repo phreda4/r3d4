@@ -588,6 +588,7 @@ iFNEXT iSYS
 ::r3-gencode
 	mark
 	";---r3 compiler code.asm" ,ln
+
 |	switchfull "; full=%d" ,format ,cr
 |	switchresy switchresx "; resx=%d resy=%d" ,format ,cr
 |	switchmem "; mem=$%h" ,format ,cr

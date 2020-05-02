@@ -106,7 +106,11 @@
 |------------------------------------------
 
 :idec  newREG ;
-:istr  newREG ;
+:istr
+	dup 4 - @ 8 >>> src +
+	strusestack ( 1? 1 - endREG ) drop
+	newREG
+	;
 :iwor
 	valtok
 	dic>du

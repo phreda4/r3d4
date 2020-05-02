@@ -59,14 +59,14 @@
 :,SWAP
 	"xchg rax,[rbp]" ,ln ;
 :,ROT
-	"mov rdx,[rbp]" ,ln
+	"mov rcx,[rbp]" ,ln
 	"mov [rbp],rax" ,ln
 	"mov rax,[rbp-8]" ,ln
-	"mov [rbp-8],rdx" ,ln ;
+	"mov [rbp-8],rcx" ,ln ;
 :,2DUP
-	"mov rdx,[rbp]" ,ln
+	"mov rcx,[rbp]" ,ln
 	"mov [rbp+8],rax" ,ln
-	"mov [rbp+8*2],rdx" ,ln
+	"mov [rbp+8*2],rcx" ,ln
 	"add rbp,8*2" ,ln ;
 :,2OVER
 	"mov [rbp+8],rax" ,ln
@@ -75,19 +75,10 @@
 	"mov [rbp],rbx" ,ln
 	"mov rax,[rbp-8*3]" ,ln ;
 :,2SWAP
-	"mov rbx,[rbp-8]" ,ln
-	"mov [rbp-8],rax" ,ln
-	"mov rcx,[rbp-8*2]" ,ln
-	"mov rax,[rbp]" ,ln
-	"mov [rbp-8*2],rax" ,ln
-	"mov [rbp],rcx" ,ln
-	"xchg rbx,rax" ,ln ;
-:,2SWAP
 	"xchg rax,[rbp-8]" ,ln
 	"mov rcx,[rbp-8*2]" ,ln
-	"mov rbx,[rbp]" ,ln
-	"mov [rbp-8*2],rbx" ,ln
-	"mov [rbp],rcx" ,ln ;
+	"xchg rcx,[rbp]" ,ln
+	"mov [rbp-8*2],rcx" ,ln ;
 
 |----------------------
 :g;
@@ -263,34 +254,42 @@
 
 |---------------------------------
 :o<?
+	bignumber
 	"cmp rax," ,s ,TOS ,cr
 	getval "jge _o%h" ,format ,cr ;
 
 :o>?
+	bignumber
 	"cmp rax," ,s ,TOS ,cr
 	getval "jle _o%h" ,format ,cr ;
 
 :o=?
+	bignumber
 	"cmp rax," ,s ,TOS ,cr
 	getval "jne _o%h" ,format ,cr ;
 
 :o>=?
+	bignumber
 	"cmp rax," ,s ,TOS ,cr
 	getval "jl _o%h" ,format ,cr ;
 
 :o<=?
+	bignumber
 	"cmp rax," ,s ,TOS ,cr
 	getval "jg _o%h" ,format ,cr ;
 
 :o<>?
+	bignumber
 	"cmp rax," ,s ,TOS ,cr
 	getval "je _o%h" ,format ,cr ;
 
 :oA?
+	bignumber
 	"test rax," ,s ,TOS ,cr
 	getval "jz _o%h" ,format ,cr ;
 
 :oN?
+	bignumber
 	"test rax," ,s ,TOS ,cr
 	getval "jnz _o%h" ,format ,cr ;
 
@@ -317,7 +316,7 @@
 :gvalc
 	"; OPTC " ,ln
 	swap getval "dword[w%h]" mformat >TOS
-	"mov ebx," ,s ,TOS ,cr "ebx" >TOS
+	"mov ebx," ,s ,TOS ,cr "rbx" >TOS
 	4 + swap | skip next instr
 	26 - 2 << 'cteopac + @ ex ;
 
@@ -863,8 +862,8 @@
 :gFRAMEV
 	,dup "mov rax,[SYSFRAME]" ,ln ;
 :gXYPEN
-	,dup "mov rax,[SYSXM]" ,ln
-	,dup "mov rax,[SYSYM]" ,ln ;
+	,dup "mov eax,dword[SYSXM]" ,ln
+	,dup "mov eax,dword[SYSYM]" ,ln ;
 :gBPEN
 	,dup "mov eax,dword[SYSBM]" ,ln ;
 :gKEY

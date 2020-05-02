@@ -229,11 +229,8 @@
 |** falta calcular cuando el flag $200 no esta en la palabra llamada
 
 :esStr | calcula deltaD de string
-	dup 4 - @ 8 >>
-	dic>adr @ |***************dumpc
-	strusestack neg nip
-|	1
-	'deltaD +! ;
+	dup 4 - @ 8 >>> src + | string
+	strusestack neg 'deltaD +! ;
 
 #lastdircode
 
@@ -265,7 +262,7 @@ inA usoA inB usoB usomem
 
 :prosstoken | t --
 
-|	dup ,tokenprint "-->" ,s
+|	dup tokenprint "-->" slog
 
 	2 << 'deltainternos +
 	c@+ usoDcalc
@@ -274,7 +271,7 @@ inA usoA inB usoB usomem
 	c@+ 'deltaR +!
 	c@ 2 << 'acct + @ ex
 
-|	deltaD usoD "U:%d D:%d" ,format ,cr
+|	deltaD usoD "U:%d D:%d" slog
 	;
 
 ::getuso | nro -- uso delta

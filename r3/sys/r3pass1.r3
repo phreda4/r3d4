@@ -75,6 +75,6 @@
 	0 'switchfull !
 	640 'switchresx	!
 	480 'switchresy !
-	$4 'switchmem !
+	$10 'switchmem !
 	includes
 	;
