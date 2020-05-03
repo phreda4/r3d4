@@ -119,16 +119,9 @@
 	;
 
 |------------
-:i;
-	2code!+	;
-
-:i(
-	2code!+
-	stk.push ;
-
-:i)
-	2code!+
-	stk.pop	;
+:i;	2code!+	;
+:i( 2code!+ stk.push ;
+:i) 2code!+ stk.pop	;
 
 :i[
 :i]
@@ -138,28 +131,23 @@
 	lastdircode dic>du
 	dup ( 1? 1 - .drop ) drop
 	+ ( 1? 1 - dup push.reg ) drop
-
-	2code!+
-	;
+	2code!+ ;
 
 :gwhilejmp
 	getval getiw
 	1? ( stk.drop stk.push ) | while
-	2drop
-	;
+	2drop ;
 
 :i0? :i1? :i+? :i-?
 	2code!+
 	gwhilejmp ;
 
 :i<? :i>? :i=? :i>=? :i<=? :i<>? :iA? :iN?
-	2code!+
-	.drop
+	2code!+ .drop
 	gwhilejmp ;
 
 :iB?
-	2code!+
-	.2drop
+	2code!+ .2drop
 	gwhilejmp ;
 
 :iDUP	2code!+ .dup ;
@@ -271,8 +259,8 @@
 |---- cte / --> divm divs *>> dup 63 >> -
 :/cte
 	calcmagic
-	divs cte!+
 	divm cte!+
+	divs cte!+
 	TK*>> code!+ 		| *>>
 	signadj!+ ;
 
@@ -330,16 +318,15 @@
 
 
 |---------------- /MOD
-:/modcte
-	dup
-	calcmagic
+:/modcte | val --
+	dup calcmagic
 	TKdup code!+	| dup
 	divm cte!+
 	divs cte!+
 	TK*>> code!+ 	| *>>
 	signadj!+
-	TKswap	code!+	| swap
-	TKover	code!+	| over
+	TKswap code!+	| swap
+	TKover code!+	| over
 	cte!+			| NRO
 	TK*	code!+		| *
 	TK-	code!+		| -
@@ -384,10 +371,9 @@
 
 |---------------- MOD
 :modcte
-	dup
-	calcmagic
-	divm cte!+
+	dup calcmagic
 	TKdup code!+	| dup
+	divm cte!+
 	divs cte!+
 	TK*>> code!+	| *>>
 	signadj!+
@@ -400,6 +386,7 @@
 |	dup 63 >> (33-4)29 >>> swap over + 7 and swap -
 :modnro
     code<<
+	vTOS
 	dup 1 - an? ( modcte ; )
 	TKdup code!+ 	| dup 31
 	63 cte!+
@@ -518,7 +505,7 @@ iFNEXT iSYS
 
 |------------------------------------------
 :tocode | adr token -- adr
-|	"; " ,s dup ,tokenprint |9 ,c ,printstka ,cr
+|	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
 	$ff and 2 << 'vmc + @ ex
 	;
 
@@ -546,6 +533,8 @@ iFNEXT iSYS
 	dup adr>toklen
 	( 1? 1 - swap
 		@+ tocode
+|		"asm/code.asm" savemem | debug
+
 		swap ) 2drop
 
     ";---------ANA" ,ln |----- cell analisys

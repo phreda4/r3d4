@@ -32,7 +32,7 @@
 	ctecode>
 	dup 'ctecode - 8 << 8 or | token hex are generated
 	code!+
-	!+ 'ctecode> ! ;
+	q!+ 'ctecode> ! ;
 
 |--- Pilas
 #REGA
@@ -71,7 +71,7 @@
 ::PUSH.NRO	| nro --
 	.DUP
 	newval dup 8 << 0 or 'TOS !
-	2 << 'stkvalue + ! ;
+	3 << 'stkvalue + q! ;
 
 ::PUSH.CTE	| ncte --
 	.DUP 8 << 1 or 'TOS ! ;
@@ -92,9 +92,9 @@
 ::.POP | -- nro
 	TOS NOS @ 'TOS ! -4 'NOS +! ;
 
-::vTOS	TOS 8 >> 2 << 'stkvalue + @ ;
-::vNOS	NOS @ 8 >> 2 << 'stkvalue + @ ;
-::vPK2	NOS 4 - @ 8 >> 2 << 'stkvalue + @ ;
+::vTOS	TOS 8 >> 3 << 'stkvalue + q@ ;
+::vNOS	NOS @ 8 >> 3 << 'stkvalue + q@ ;
+::vPK2	NOS 4 - @ 8 >> 3 << 'stkvalue + q@ ;
 
 ::.OVER     .DUP NOS 4 - @ 'TOS ! ;
 ::.PICK2    .DUP NOS 8 - @ 'TOS ! ;
@@ -264,7 +264,7 @@
 |---- imprime celda
 :value 8 >> ;
 
-:mt0 value 2 << 'stkvalue + @ "%d" ,format ;	|--	0 nro 	33
+:mt0 value 3 << 'stkvalue + q@ "%d" ,format ;	|--	0 nro 	33
 
 :mt1 value 'syscons list2str ,s ;	|--	1 cte	XRES
 :mt7 value 'sysconm list2str ,s ;	|--	7 ctem [FREE_MEM]
@@ -710,7 +710,7 @@
 		swap 1 - ) 2drop ;
 
 :mt0 value
-	2 << 'stkvalue + @ "%d" print ;			|--	0 nro 	33
+	3 << 'stkvalue + q@ "%d" print ;			|--	0 nro 	33
 
 :mt1 value 'syscons list2str print ;	|--	1 cte	XRES
 :mt7 value 'sysconm list2str print ;	|--	1 cte	[FREEMEM]

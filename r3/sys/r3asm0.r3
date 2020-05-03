@@ -27,7 +27,7 @@
 	dup 4 - @ 8 >>> src + getsrcnro ;
 
 ::getcte2 | a -- a v
-	dup 4 - @ 8 >>> 'ctecode + @	;
+	dup 4 - @ 8 >>> 'ctecode + q@ ;
 
 |--------------------------
 :,DUP
@@ -190,8 +190,7 @@
 		64 <? ( "shrd rax,rdx," ,s ,d ,cr ; )
 		64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
 		drop
-		"mov rax,rdx" ,ln
-		;
+		"mov rax,rdx" ,ln ;
 
 :o*>>m	"mov rcx," ,s ,TOS ,cr
 		"cqo" ,ln
@@ -448,8 +447,7 @@
 :gwor
 	dup @ $ff and
 	16 =? ( drop getval "jmp w%h" ,format ,cr ; ) drop | ret?
-	getval
-	"call w%h" ,format ,cr ;
+	getval "call w%h" ,format ,cr ;
 
 |--- REP
 
@@ -664,14 +662,11 @@
 	"shl rax,cl" ,ln
 	"idiv rbx" ,ln ;
 
-:g@
-	"movsxd rax,dword [rax]" ,ln ;
+:g@		"movsxd rax,dword [rax]" ,ln ;
 
-:gC@
-	"movsx rax,byte [rax]" ,ln ;
+:gC@	"movsx rax,byte [rax]" ,ln ;
 
-:gQ@
-	"mov rax,qword[rax]" ,ln ;
+:gQ@    "mov rax,qword[rax]" ,ln ;
 
 :g@+
 	"movsxd rbx,dword [rax]" ,ln
@@ -731,20 +726,18 @@
 	"add [rax],rcx" ,ln ,2DROP ;
 
 
-:g>A
-	"mov r8,rax" ,ln ,drop ;
+:g>A	"mov r8,rax" ,ln ,drop ;
+:o>A    "mov r8," ,s ,TOS ,cr ;
 
-:gA>
-	,dup "mov rax,r8" ,ln ;
+:gA>    ,dup "mov rax,r8" ,ln ;
 
-:gA@
-	,dup "mov rax,[r8]" ,ln ;
+:gA@    ,dup "mov rax,[r8]" ,ln ;
 
-:gA!
-	"mov [r8],rax" ,ln ,drop ;
+:gA!    "mov [r8],rax" ,ln ,drop ;
+:oA!    "mov [r8]," ,s ,TOS ,cr ;
 
-:gA+
-	"add r8,rax" ,ln ,drop ;
+:gA+    "add r8,rax" ,ln ,drop ;
+:oA+    "add r8," ,s ,TOS ,cr ;
 
 :gA@+
 	,dup "mov eax,dword[r8]" ,ln
@@ -753,21 +746,22 @@
 :gA!+
 	"mov dword[r8],eax" ,ln
 	"add r8,4" ,ln ,drop ;
+:oA!+
+	"mov dword[r8]," ,s ,TOS ,cr
+	"add r8,4" ,ln ;
 
-:g>B
-	"mov r9,rax" ,ln ,drop ;
+:g>B	"mov r9,rax" ,ln ,drop ;
+:o>B    "mov r9," ,s ,TOS ,cr ;
 
-:gB>
-	,dup "mov rax,r9" ,ln ;
+:gB>    ,dup "mov rax,r9" ,ln ;
 
-:gB@
-	,dup "mov rax,[r9]" ,ln ;
+:gB@    ,dup "mov rax,[r9]" ,ln ;
 
-:gB!
-	"mov [r9],rax" ,ln ,drop ;
+:gB!    "mov [r9],rax" ,ln ,drop ;
+:oB!    "mov [r9]," ,s ,TOS ,cr ;
 
-:gB+
-	"add r9,rax" ,ln ,drop ;
+:gB+    "add r9,rax" ,ln ,drop ;
+:oB+    "add r9," ,s ,TOS ,cr ;
 
 :gB@+
 	,dup "mov eax,dword[r9]" ,ln
@@ -776,6 +770,9 @@
 :gB!+
 	"mov dword[r9],eax" ,ln
 	"add r9,4" ,ln ,drop ;
+:oB!+
+	"mov dword[r9]," ,s ,TOS ,cr
+	"add r9,4" ,ln ;
 
 
 :gMOVE
@@ -912,12 +909,21 @@ gFNEXT gSYS
 |	dup r3tokenname slog
 	2 << 'vmc + @ ex ;
 
+:ctetoken
+	8 >>> 'ctecode + q@ "$%h ; calc" mformat ,s ,cr
+	;
+
+::,tokenprinto
+	"; " ,s
+	dup dup $ff and 8 =? ( drop ctetoken ; ) drop
+	,tokenprint ,cr
+	;
 
 ::genasmcode | duse --
 	drop
 	'bcode ( bcode> <?
 		@+
-		"; " ,s dup ,tokenprint ,cr
+        ,tokenprinto
 		codestep
 |		"asm/code.asm" savemem | debug
 		) drop ;

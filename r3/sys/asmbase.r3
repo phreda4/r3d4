@@ -101,9 +101,9 @@
  	pick3 pick2 - r@ pick3 - pick4 pick3 - rot */ +
 |	r@ pick2 - pick3 pick2 - * pick4 pick3 - / +
 	nip r> swap
-	dup sw - not $20000000 and
-	over $10000000 and or
-	28 >>
+	dup sw - not $200000 and
+	over $100000 and or
+	20 >>
 	>r 2swap r> ;
 
 :clip2 | y1 x1 y2 x2 c2 -- y1 x1 y2 x2 c2
@@ -112,9 +112,9 @@
 	over pick4 - over pick4 - r@ pick4 - swap rot */ +
 	nip r> swap
 
-	dup sw - not $20000000 and
-	over $10000000 and or
-	28 >> ;
+	dup sw - not $200000 and
+	over $100000 and or
+	20 >> ;
 
 :li
 	1 =? ( 0 nip ; ) sw 1 - nip ;
@@ -135,17 +135,17 @@
 	2swap 0 ;
 
 :clipline | x2 y2 x1 y1 -- y1 x1 y2 x2 in
-	dup $40000000 and
-	over sh - 1 + not $80000000 and or
-	pick2 $10000000 and or
-	pick2 sw - not $20000000 and or
-	28 >> >r
+	dup $400000 and
+	over sh - 1 + not $800000 and or
+	pick2 $100000 and or
+	pick2 sw - not $200000 and or
+	20 >> >r
 	2swap
-	dup $40000000 and
-	over sh - 1 + not $80000000 and or
-	pick2 $10000000 and or
-	pick2 sw - not $20000000 and or
-	28 >> r>
+	dup $400000 and
+	over sh - 1 + not $800000 and or
+	pick2 $100000 and or
+	pick2 sw - not $200000 and or
+	20 >> r>
 	2dup and 1? ( drop or ; ) drop
 	2dup or 0? ( drop or ; ) drop
 	>r 12 an? ( clip2 ) r> swap >r 12 an? ( clip1 ) r>
