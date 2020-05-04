@@ -96,55 +96,41 @@
 
 :clip1 | y1 x1 y2 x2 c1 -- y1 x1 y2 x2 c1
     li >r
-	2swap | y2 x2 y1 x1
-|		X1+=(V-Y1)*(X2-X1)/(Y2-Y1);Y1=V;
+	2swap | y2 x2 y1 x1 X1+=(V-Y1)*(X2-X1)/(Y2-Y1);Y1=V;
  	pick3 pick2 - r@ pick3 - pick4 pick3 - rot */ +
-|	r@ pick2 - pick3 pick2 - * pick4 pick3 - / +
 	nip r> swap
 	dup sw - not $200000 and
 	over $100000 and or
-	20 >>
-	>r 2swap r> ;
+	20 >> >r 2swap r> ;
 
 :clip2 | y1 x1 y2 x2 c2 -- y1 x1 y2 x2 c2
-	li >r	| y1 x1 y2 x2
-| 		X2+=(V-Y2)*(X2-X1)/(Y2-Y1);Y2=V;
+	li >r	| y1 x1 y2 x2 X2+=(V-Y2)*(X2-X1)/(Y2-Y1);Y2=V;
 	over pick4 - over pick4 - r@ pick4 - swap rot */ +
 	nip r> swap
-
 	dup sw - not $200000 and
-	over $100000 and or
-	20 >> ;
+	over $100000 and or 20 >> ;
 
 :li
 	1 =? ( 0 nip ; ) sw 1 - nip ;
 
 :clip3 | y1 x1 y2 x2 c2 -- y1 x1 y2 x2 c2
 	li >r
-	swap | y1 x1 x2 y2
-|		Y2+=(V-X2)*(Y2-Y1)/(X2-X1);X2=V;C2=0;
+	swap | y1 x1 x2 y2 	Y2+=(V-X2)*(Y2-Y1)/(X2-X1);X2=V;C2=0;
 	dup pick4 - pick2 pick4 - r@ pick4 - rot rot */ +
 	nip r> 0 ;
 
 :clip4 | y1 x1 y2 x2 c1 -- y1 x1 y2 x2 c1
 	li >r
-	2swap swap 	| y2 x2 x1 y1
-|		Y1+=(V-X1)*(Y2-Y1)/(X2-X1);X1=V;C1=0;
+	2swap swap | y2 x2 x1 y1  Y1+=(V-X1)*(Y2-Y1)/(X2-X1);X1=V;C1=0;
 	pick3 over - pick3 pick3 - r@ pick4 - rot rot */ +
-	nip r>
-	2swap 0 ;
+	nip r> 2swap 0 ;
 
 :clipline | x2 y2 x1 y1 -- y1 x1 y2 x2 in
-	dup $400000 and
-	over sh - 1 + not $800000 and or
-	pick2 $100000 and or
-	pick2 sw - not $200000 and or
-	20 >> >r
-	2swap
-	dup $400000 and
-	over sh - 1 + not $800000 and or
-	pick2 $100000 and or
-	pick2 sw - not $200000 and or
+	dup $400000 and over sh - 1 + not $800000 and or rot
+	dup $100000 and over sw - not $200000 and or rot or
+	20 >> >r 2swap
+	dup $400000 and over sh - 1 + not $800000 and or rot
+	dup $100000 and over sw - not $200000 and or rot or
 	20 >> r>
 	2dup and 1? ( drop or ; ) drop
 	2dup or 0? ( drop or ; ) drop
@@ -472,9 +458,14 @@
 
 :coverl
 	+? ( rot MASK and VALUES swap -
-		over add.1 1 + |sw >=? ( 3drop ; ) ??
+		over add.1 1 + sw >=? ( 3drop r> drop ; ) ??
 		; )
 	drop nip 0 'runlenscan >b ;
+
+|	+? ( rot MASK and VALUES swap -
+|			over add.1
+|			1 + sw >=? ( 3drop ; ) |<<exit
+|		)( drop nip 0 'runlenscan >b )
 
 :limup	| xb x0 x1 largo
 	sw >? ( sw pick2 - ; )
@@ -493,13 +484,7 @@
 			1? ( swap add.1 ; )
 			2drop ; )
 	| xb xa x1 x0
-
 	coverl
-|	+? ( rot MASK and VALUES swap -
-|			over add.1
-|			1 + sw >=? ( 3drop ; ) |<<exit
-|		)( drop nip 0 'runlenscan >b )
-
 	| xb x1 x0
 	swap
 	limup limdn

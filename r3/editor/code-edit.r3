@@ -420,7 +420,7 @@
 		linenro
 		swap
 |		drawsel lf
-		codelinecolor 0? ( 2drop ; )
+		codelinecolor 0? ( 2drop drawcursor ; )
 		cr
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
