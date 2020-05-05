@@ -528,12 +528,12 @@ iFNEXT iSYS
 	,header
 	dup 12 + @ $f and
 	DeepStack
-|    ";---------OPT" ,ln |----- generate buffer
+    ";---------OPT" ,ln |----- generate buffer
 
 	dup adr>toklen
 	( 1? 1 - swap
 		@+ tocode
-|		"asm/code.asm" savemem | debug
+		"asm/code.asm" savemem | debug
 
 		swap ) 2drop
 
@@ -577,18 +577,12 @@ iFNEXT iSYS
 ::r3-gencode
 	mark
 	";---r3 compiler code.asm" ,ln
-
-|	switchfull "; full=%d" ,format ,cr
-|	switchresy switchresx "; resx=%d resy=%d" ,format ,cr
-|	switchmem "; mem=$%h" ,format ,cr
+	"; " ,s 'r3filename ,s ,cr
 
 |	debugblok
 
 	dicc ( dicc> <?
-		dup gencode
-
-|"asm/code.asm" savemem
-
+		dup gencode | "asm/code.asm" savemem
 		16 + ) drop
 
 	0 ,c

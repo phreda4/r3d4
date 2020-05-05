@@ -458,7 +458,7 @@
 
 :coverl
 	+? ( rot MASK and VALUES swap -
-		over add.1 1 + sw >=? ( 3drop r> drop ; ) ??
+		over add.1 1 + sw >=? ( 3drop r> drop ; ) |??
 		; )
 	drop nip 0 'runlenscan >b ;
 
