@@ -1,19 +1,33 @@
 |SCR 512 512
-| block error
 
 ^r3/lib/gui.r3
 
-#rom
 
-:tt
-	4 ( 1 - 1? ) drop ;
-
+#x #y
 :test
 	cls home
-	2 3 * 1 + 'rom !
+	$ff00 'ink !
+	"test 3" print cr
+	y x "%d %d" print cr
+
+	$ffffff 'ink !
+	50 50 op
+	x y line
+
+	$ff 'ink !
+	xypen op
+	40 40 pline
+	90 120 pline
+	20 30 pline
+	xypen pline
+	poli
+
 	key
 	>esc< =? ( exit )
-	<f1> =? ( 15 tt )
+	<up> =? ( -10 'y +! )
+	<dn> =? ( 10 'y +! )
+	<le> =? ( -10 'x +! )
+	<ri> =? ( 10 'x +! )
 	drop
 	;
 

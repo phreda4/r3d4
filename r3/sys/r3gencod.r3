@@ -67,24 +67,19 @@
 
 |-----------------------------------
 :idec | --
-	getcte push.nro
-	2code!+ ;
+	getcte push.nro	2code!+ ;
 
 :ihex | --
-	getcte2 push.nro
-	2code!+ ;
+	getcte2 push.nro 2code!+ ;
 
 :istr
-	getval push.str
-	2code!+ ;
+	getval push.str 2code!+ ;
 
 :idwor
-	getval push.wrd
-	2code!+ ;
+	getval push.wrd 2code!+ ;
 
 :idvar
-	getval push.wrd
-	2code!+ ;
+	getval push.wrd 2code!+ ;
 
 |----------- inline cte
 :d1 8 >>> src + getsrcnro push.nro ;
@@ -110,9 +105,7 @@
 
 :iwor
 	| inline?
-
-	getval
-	dic>du
+	getval dic>du
 	dup ( 1? 1 - .drop ) drop
 	+ ( 1? 1 -  dup push.reg ) drop
 	2code!+
@@ -171,18 +164,24 @@
 :iR@ .dup 2code!+ ;
 
 :1stk | --1/0 ok
-	bcode> 4 - @ $ff and 8 >? ( -1 nip ; ) drop
+	bcode> 4 - 
+	'bcode <? ( -1 nip ; )
+	@ $ff and 8 >? ( -1 nip ; ) drop
 	0 ;
 
 :2stk | --1/0 ok
+	bcode> 8 -
+	'bcode <? ( -1 nip ; )
+	@ $ff and 8 >? ( -1 nip ; ) drop
 	bcode> 4 - @ $ff and 8 >? ( -1 nip ; ) drop
-	bcode> 8 - @ $ff and 8 >? ( -1 nip ; ) drop
 	0 ;
 
 :3stk | --1/0
-	bcode> 4 - @ $ff and 8 >? ( -1 nip ; ) drop
+	bcode> 12 -
+	'bcode <? ( -1 nip ; )
+	@ $ff and 8 >? ( -1 nip ; ) drop
 	bcode> 8 - @ $ff and 8 >? ( -1 nip ; ) drop
-	bcode> 12 - @ $ff and 8 >? ( -1 nip ; ) drop
+	bcode> 4 - @ $ff and 8 >? ( -1 nip ; ) drop
 	0 ;
 
 :code<<<cte
@@ -199,39 +198,31 @@
 
 :iAND
 	2stk 0? ( drop .AND code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 :iOR
 	2stk 0? ( drop .OR code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 :iXOR
 	2stk 0? ( drop .XOR code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 :iNOT
 	1stk 0? ( drop .NOT code<cte ; ) drop
-	2code!+
-	;
+	2code!+ ;
 :iNEG
 	1stk 0? ( drop .NEG code<cte ; ) drop
-	2code!+
-	;
+	2code!+ ;
 :i+
 	2stk 0? ( drop .+ code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 :i-
 	2stk 0? ( drop .- code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 
 |---------------- *
 | 8 * --> 3 <<
 :*pot
 	63 swap clz - cte!+
-	TK<< code!+
-	;
+	TK<< code!+ ;
 
 | 7 * --> dup 3 << swap -
 :*pot-1
@@ -247,14 +238,12 @@
 	vTOS
 	dup 1 - na? ( *pot ; )
 	dup 1 + na? ( *pot-1 ; )
-	drop
-	;
+	drop ;
 
 :i*
 	2stk 0? ( drop .* code<<cte ; ) drop
 	1stk 0? ( drop *nro ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 
 |---- cte / --> divm divs *>> dup 63 >> -
 :/cte
@@ -294,28 +283,21 @@
 :i/
 	2stk 0? ( drop ./ code<<cte ; ) drop
 	1stk 0? ( drop /nro ; ) drop
-	2code!+
-	.drop ;
-
+	2code!+ .drop ;
 :i<<
 	2stk 0? ( drop .<< code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 :i>>
 	2stk 0? ( drop .>> code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 :i>>>
 	2stk 0? ( drop .>>> code<<cte ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 
 |---------------- */
 :i*/
 	3stk 0? ( drop .*/ code<<<cte ; ) drop
-	2code!+
-	.2drop ;
-
+	2code!+ .2drop ;
 
 |---------------- /MOD
 :/modcte | val --
@@ -362,12 +344,10 @@
 	TK-	code!+		| -
 	;
 
-
 :i/MOD
 	2stk 0? ( drop ./MOD code<<2cte ; ) drop
 	1stk 0? ( drop /MODnro ; ) drop
-	2code!+
-	;
+	2code!+ ;
 
 |---------------- MOD
 :modcte
@@ -402,46 +382,33 @@
 	TK-	code!+		| -
 	;
 
-
 :iMOD
 	2stk 0? ( drop .MOD code<<cte ; ) drop
 	1stk 0? ( drop MODnro ; ) drop
-	2code!+
-	.drop ;
+	2code!+ .drop ;
 
 |------------------
 :iABS
 	1stk 0? ( drop .ABS code<cte ; ) drop
-	2code!+
-	;
+	2code!+ ;
 :iSQRT
 	1stk 0? ( drop .SQRT code<cte ; ) drop
-	2code!+
-	;
+	2code!+ ;
 :iCLZ
 	1stk 0? ( drop .CLZ code<cte ; ) drop
-	2code!+
-	;
+	2code!+ ;
 :i*>>
 	3stk 0? ( drop .*>> code<<<cte ; ) drop
-	2code!+
-	.2drop ;
+	2code!+ .2drop ;
 :i<</
 	3stk 0? ( drop .<</ code<<<cte  ; ) drop
-	2code!+
-	.2drop ;
-
-
-:i@ :iC@ :iQ@
-	2code!+ ;
-:i@+ :iC@+ :iQ@+
-	2code!+ .dup ;
-:i! :iC! :iQ!
 	2code!+ .2drop ;
-:i!+ :iC!+ :iQ!+
-	2code!+ .drop ;
-:i+! :iC+! :iQ+!
-	2code!+ .2drop ;
+
+:i@ :iC@ :iQ@		2code!+ ;
+:i@+ :iC@+ :iQ@+	2code!+ .dup ;
+:i! :iC! :iQ!       2code!+ .2drop ;
+:i!+ :iC!+ :iQ!+    2code!+ .drop ;
+:i+! :iC+! :iQ+!    2code!+ .2drop ;
 
 :i>A	2code!+ .drop ;
 :iA>	2code!+ .dup ;
@@ -474,7 +441,6 @@
 	.dup 2code!+ ;
 :iLOAD	|LOAD   ab -- c
 	.drop 2code!+ ;
-
 :iSAVE	|SAVE   abc --
 :iAPPEND	|APPEND   abc --
 	.3drop 2code!+ ;
@@ -483,10 +449,8 @@
 	2code!+ ;
 :iFNEXT		|FNEXT     -- a
 	.dup 2code!+ ;
-
 :iSYS
 	.drop 2code!+ ;
-
 
 #vmc
 0 0 0 0 0 0 0 idec ihex idec idec istr iwor ivar idwor idvar
@@ -528,12 +492,12 @@ iFNEXT iSYS
 	,header
 	dup 12 + @ $f and
 	DeepStack
-    ";---------OPT" ,ln |----- generate buffer
+|    ";---------OPT" ,ln |----- generate buffer
 
 	dup adr>toklen
 	( 1? 1 - swap
 		@+ tocode
-		"asm/code.asm" savemem | debug
+|		"asm/code.asm" savemem | debug
 
 		swap ) 2drop
 
