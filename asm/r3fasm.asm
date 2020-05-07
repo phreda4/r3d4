@@ -190,65 +190,90 @@ SYSDATE: ;  ( -- ymd )
 
 ;===============================================
 align 16
-SYSLOAD: ; ( 'from "filename" -- 'to )
-  invoke CreateFile,rax,GENERIC_READ,FILE_SHARE_READ,0,OPEN_EXISTING,FILE_FLAG_NO_BUFFERING+FILE_FLAG_SEQUENTIAL_SCAN,0
-  mov [hdir],rax
+SYSLOAD:
+  invoke SDL_RWFromFile,rax,"rb"
+  mov [afile],rax
   or rax,rax
   mov rax,[rbp]
-  jz .loadend
-  mov [afile],rax
-.again:
-  invoke ReadFile,[hdir],[afile],$ffffff,cntr,0 ; hasta 16MB
-  mov rax,[cntr]
-  add [afile],rax
-  or rax,rax
-  jnz .again
-  invoke CloseHandle,[hdir]
-  mov rax,[afile]
-.loadend:
+  jz .fend
+  mov rsi,rax
+  invoke SDL_RWsize,[afile]
+  mov rdi,rax
+  invoke SDL_RWread,[afile],rsi,1,rdi
+  add rsi,rax
+  invoke SDL_RWclose,[afile]
+  mov rax,rsi
+.fend:
   sub rbp,8
   ret
 
 ;===============================================
 align 16
 SYSSAVE: ; ( 'from cnt "filename" -- )
-  invoke CreateFile,rax,GENERIC_WRITE,0,0,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,0
-  mov [hdir],rax
+  invoke SDL_RWFromFile,rax,"wb+"
+  mov [afile],rax
   or rax,rax
-  jz .saveend
-  mov rdx,[rbp-8]
-  mov rcx,[rbp]
-  invoke WriteFile,[hdir],rdx,rcx,cntr,0
-  cmp [cntr],rcx
-  je .saveend
-  or rax,rax
-  jz .saveend
-  invoke CloseHandle,[hdir]
-.saveend:
-  sub rbp,24
-  mov rax,[rbp+8]
+  jz .fend
+  mov rbx,[rbp]
+  mov rsi,[rbp-8]
+  invoke SDL_RWwrite,[afile],rsi,rbx
+  invoke SDL_RWclose,[afile]
+.fend:
+  mov rax,[rbp-8*2]
+  sub rbp,8*3
   ret
+
+
+;  invoke CreateFile,rax,GENERIC_WRITE,0,0,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,0
+;  mov [hdir],rax
+;  or rax,rax
+;  jz .saveend
+;  mov rdx,[rbp-8]
+;  mov rcx,[rbp]
+;  invoke WriteFile,[hdir],rdx,rcx,cntr,0
+;  cmp [cntr],rcx
+;  je .saveend
+;  or rax,rax
+;  jz .saveend
+;  invoke CloseHandle,[hdir]
+;.saveend:
+;  sub rbp,24
+;  mov rax,[rbp+8]
+;  ret
 
 ;===============================================
 align 16
 SYSAPPEND: ; ( 'from cnt "filename" -- )
-;        mov rax,[rsp+8] ;FILE_APPEND_DATA=4
-  invoke CreateFile,eax,4,0,0,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,0
-  mov [hdir],rax
+  invoke SDL_RWFromFile,rax,"wb+"
+  mov [afile],rax
   or rax,rax
-  jz .append
-  mov rdx,[rbp-8]
-  mov rcx,[rbp]
-  invoke WriteFile,[hdir],rdx,rcx,cntr,0
-  cmp [cntr],rcx
-  je .append
-  or rax,rax
-  jz .append
-  invoke CloseHandle,[hdir]
-.append:
-  sub rbp,24
-  mov rax,[rbp+8]
+  jz .fend
+  mov rbx,[rbp]
+  mov rsi,[rbp-8]
+  invoke SDL_RWwrite,[afile],rsi,rbx
+  invoke SDL_RWclose,[afile]
+.fend:
+  mov rax,[rbp-8*2]
+  sub rbp,8*3
   ret
+
+;;        mov rax,[rsp+8] ;FILE_APPEND_DATA=4
+;  invoke CreateFile,eax,4,0,0,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,0
+;  mov [hdir],rax
+;  or rax,rax
+;  jz .append
+;  mov rdx,[rbp-8]
+;  mov rcx,[rbp]
+;  invoke WriteFile,[hdir],rdx,rcx,cntr,0
+;  cmp [cntr],rcx
+;  je .append
+;  or rax,rax
+;  jz .append
+;  invoke CloseHandle,[hdir]
+;.append:
+;  sub rbp,24
+;  mov rax,[rbp+8]
+;  ret
 
 ;===============================================
 SYSFFIRST: ; ( "path" -- fdd ) ;****** r4 32 bits

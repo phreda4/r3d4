@@ -20,8 +20,10 @@
 
 ::getsrcnro
 	dup ?numero 1? ( drop nip nip ; ) drop
-	?fnumero 1? ( drop nip ; ) drop
-	"error" slog ;
+	str>fnro nip
+|	?fnumero 1? ( drop nip ; ) drop
+|	"error GETSRCNRO" slog
+	;
 
 ::getcte | a -- a v
 	dup 4 - @ 8 >>> src + getsrcnro ;
@@ -136,6 +138,11 @@
 	"jmp rcx" ,ln ;
 :oEX
 	"mov rcx," ,s ,TOS ,cr
+	dup @ $ff and
+	16 <>? ( drop "call rcx" ,ln ; ) drop
+	"jmp rcx" ,ln ;
+:oEXv
+	"mov ecx," ,s ,TOS ,cr
 	dup @ $ff and
 	16 <>? ( drop "call rcx" ,ln ; ) drop
 	"jmp rcx" ,ln ;
@@ -432,7 +439,7 @@
 	drop
 	"mov rax,rdx" ,ln ;
 :o*>>v
-	"mov rcx," ,s ,TOS ,cr
+	"mov ecx," ,s ,TOS ,cr
 	"cqo" ,ln
 	"imul qword[rbp]" ,ln
 	,NIP
@@ -457,7 +464,7 @@
 	"shl rax," ,s prevalv ,d ,cr
 	"idiv rbx" ,ln ;
 :o<</v
-	"mov rcx," ,s ,TOS ,cr
+	"mov ecx," ,s ,TOS ,cr
 	"mov rbx,rax" ,ln
 	,DROP
 	"cqo" ,ln
@@ -469,15 +476,24 @@
 	"movsxd rax,dword [rax]" ,ln ;
 :o@
 	,dup "movsxd rax,dword [" ,s ,TOS "]" ,ln ;
+:o@v
+	varget
+	,dup "movsxd rax,dword [" ,s ,TOS "]" ,ln ;
 
 :gC@
 	"movsx rax,byte [rax]" ,ln ;
 :oC@
 	,dup "movsx rax,byte [" ,s ,TOS "]" ,ln ;
+:oC@v
+	varget
+	,dup "movsx rax,byte [" ,s ,TOS "]" ,ln ;
 
 :gQ@
 	"mov rax,qword[rax]" ,ln ;
 :oQ@
+	,dup "mov rax,qword[" ,s ,TOS "]" ,ln ;
+:oQ@v
+	varget
 	,dup "mov rax,qword[" ,s ,TOS "]" ,ln ;
 
 :g@+
@@ -488,6 +504,13 @@
 :o@+
 	,dup
 	"mov rbx," ,s ,TOS ,cr
+	"movsxd rax,dword [rbx]" ,ln
+	"add rbx,4" ,ln
+	,dup
+	"mov [rbp],rbx" ,ln ;
+:o@+v
+	,dup
+	"movsxd rbx," ,s ,TOS ,cr
 	"movsxd rax,dword [rbx]" ,ln
 	"add rbx,4" ,ln
 	,dup
@@ -505,6 +528,13 @@
 	"add rbx,1" ,ln
 	,dup
 	"mov [rbp],rbx" ,ln ;
+:oC@+v
+	,dup
+	"movsxd rbx," ,s ,TOS ,cr
+	"movsx rax,byte [rbx]" ,ln
+	"add rbx,1" ,ln
+	,dup
+	"mov [rbp],rbx" ,ln ;
 
 :gQ@+
 	"mov rbx,[rax]" ,ln
@@ -518,11 +548,21 @@
 	"add rbx,8" ,ln
 	,dup
 	"mov [rbp],rbx" ,ln ;
+:oQ@+v
+	,dup
+	"movsxd rbx," ,s ,TOS ,cr
+	"mov rax,[rbx]" ,ln
+	"add rbx,8" ,ln
+	,dup
+	"mov [rbp],rbx" ,ln ;
 
 :g!
 	"mov rcx,[rbp]" ,ln
 	"mov dword[rax],ecx" ,ln ,2DROP ;
 :o!
+	"mov dword[" ,s ,TOS "],eax" ,ln ,DROP ;
+:o!v
+	varget
 	"mov dword[" ,s ,TOS "],eax" ,ln ,DROP ;
 
 :gC!
@@ -530,11 +570,17 @@
 	"mov byte[rax],cl" ,ln ,2DROP ;
 :oC!
 	"mov byte[" ,s ,TOS "],al" ,ln ,DROP ;
+:oC!v
+	varget
+	"mov byte[" ,s ,TOS "],al" ,ln ,DROP ;
 
 :gQ!
 	"mov rcx,[rbp]" ,ln
 	"mov [rax],rcx" ,ln ,2DROP ;
 :oQ!
+	"mov [" ,s ,TOS "],rax" ,ln ,DROP ;
+:oQ!v
+	varget
 	"mov [" ,s ,TOS "],rax" ,ln ,DROP ;
 
 :g!+
@@ -613,6 +659,8 @@
 	"mov r8,rax" ,ln ,drop ;
 :o>A
 	"mov r8," ,s ,TOS ,cr ;
+:o>Av
+	varget "mov r8," ,s ,TOS ,cr ;
 
 :gA>
 	,dup "mov rax,r8" ,ln ;
@@ -622,15 +670,17 @@
 
 :gA!
 	"mov dword[r8],eax" ,ln ,drop ;
-:oA!    
+:oA!
 	"mov dword[r8]," ,s ,TOSE ,cr ;
-:oA!v    
+:oA!v
 	varget "mov dword[r8],ebx" ,ln ;
 
 :gA+
 	"add r8,rax" ,ln ,drop ;
 :oA+
 	"add r8," ,s ,TOS ,cr ;
+:oA+v
+	varget "add r8," ,s ,TOS ,cr ;
 
 :gA@+
 	,dup "mov eax,dword[r8]" ,ln
@@ -651,6 +701,8 @@
 	"mov r9,rax" ,ln ,drop ;
 :o>B
 	"mov r9," ,s ,TOS ,cr ;
+:o>Bv
+	varget "mov r9," ,s ,TOS ,cr ;
 
 :gB>
 	,dup "mov rax,r9" ,ln ;
@@ -669,6 +721,8 @@
 	"add r9,rax" ,ln ,drop ;
 :oB+
 	"add r9," ,s ,TOS ,cr ;
+:oB+v
+	varget "add r9," ,s ,TOS ,cr ;
 
 :gB@+
 	,dup "mov eax,dword[r9]" ,ln
@@ -870,12 +924,12 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 |----------- var
 #vmc2
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 oEX 0 0 0 0 o<?v o>?v o=?v o>=?v o<=?v o<>?v
+0 0 0 0 0 oEXv 0 0 0 0 o<?v o>?v o=?v o>=?v o<=?v o<>?v
 oA?v oN?v 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 oANDv oORv oXORv o+v o-v o*v o/v o<<v o>>v o>>>v oMODv
-o/MODv o*/v o*>>v o<</v 0 0 0 0 0 o@ oC@ oQ@ o@+ oC@+ oQ@+ o!
-oC! oQ! o!+v oC!+v oQ!+v o+!v oC+!v oQ+!v o>A 0 0 oA!v oA+ 0 oA!+v o>B
-0 0 oB!v oB+ 0 oB!+v 0 0 0 0 0 0 0 0 0 0
+o/MODv o*/v o*>>v o<</v 0 0 0 0 0 o@v oC@v oQ@v o@+v oC@+v oQ@+v o!v
+oC!v oQ!v o!+v oC!+v oQ!+v o+!v oC+!v oQ+!v o>Av 0 0 oA!v oA+v 0 oA!+v o>Bv
+0 0 oB!v oB+v 0 oB!+v 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0
 
@@ -926,5 +980,6 @@ gFNEXT gSYS
 	'bcode ( bcode> <?
 		@+
         ,tokenprinto
+|		"asm/code.asm" savemem
 		codestep
 		) drop ;

@@ -17,7 +17,7 @@
 	vframe >a
 	sh ( 1? 1 -
 		sw ( 1? 1 -
-			2dup xor msec 2 >> + $ff and
+			2dup xor msec 2 >> + 
 			$ff0000 $ff rot colmix
 			a!+
 		) drop

@@ -470,6 +470,7 @@ iFNEXT iSYS
 |------------------------------------------
 :tocode | adr token -- adr
 |	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+|		"asm/code.asm" savemem | debug
 	$ff and 2 << 'vmc + @ ex
 	;
 
@@ -482,6 +483,17 @@ iFNEXT iSYS
 	dup adr>dicname ,s
 	":" ,s ,cr ;
 
+:multientry | w adr len -- w adr len
+	pick2 8 + @ | now word
+	$81 an? ( drop ; ) drop | no multientry
+	pick2 16 + | next word
+	dup 8 + @ 12 >> $fff and 0? ( 2drop ; ) drop | no calls
+	nip
+	4 + @ 		| code
+	pick2 4 + @ | codeant
+	- 2 >> 		| real length
+	;
+
 |-----------------------------
 :gencode | adr --
 	dup 8 + @
@@ -492,13 +504,13 @@ iFNEXT iSYS
 	,header
 	dup 12 + @ $f and
 	DeepStack
-|    ";---------OPT" ,ln |----- generate buffer
-
-	dup adr>toklen
-	( 1? 1 - swap
-		@+ tocode
+    ";---------OPT" ,ln |----- generate buffer
 |		"asm/code.asm" savemem | debug
 
+	dup adr>toklen | w adr len
+	multientry
+	( 1? 1 - swap
+		@+ tocode
 		swap ) 2drop
 
     ";---------ANA" ,ln |----- cell analisys
@@ -542,9 +554,7 @@ iFNEXT iSYS
 	mark
 	";---r3 compiler code.asm" ,ln
 	"; " ,s 'r3filename ,s ,cr
-
 |	debugblok
-
 	dicc ( dicc> <?
 		dup gencode | "asm/code.asm" savemem
 		16 + ) drop

@@ -357,6 +357,7 @@ import sdl2,\
        SDL_RWFromMem,'SDL_RWFromMem',\
        SDL_RWclose,'SDL_RWclose',\
        SDL_RWread,'SDL_RWread',\
+       SDL_RWsize,'SDL_RWsize',\
        SDL_RWseek,'SDL_RWseek',\
        SDL_RWtell,'SDL_RWtell',\
        SDL_RWwrite,'SDL_RWwrite',\

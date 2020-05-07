@@ -7,7 +7,9 @@
 	8 >>> 4 << dicc + @ "%w" mformat ;
 
 :tok>cte | tok -- nro
-	8 >>> src + "%w" mformat ;
+	8 >>> src +
+	dup ?numero 1? ( drop nip nip ; ) drop
+	str>fnro nip ;
 
 :tok>str | tok -- str
 	8 >>> src + ;
@@ -59,8 +61,9 @@
 
 :,dlit  1 'dcnt +!
 |		dcnt $f and $f =? ( ,cr ) drop	| every 16
-		dfin tok>cte ,s ;
-		|"$" ,s ,h ;
+		dfin tok>cte
+		-? ( ,d ; )
+		"$" ,s ,h ;
 
 :,dlits	1 'dcnt +! dfins
 		tok>str |dup memmap

@@ -413,6 +413,13 @@
 		sw ccw - 2 << a+
 		) drop ;
 
+:scroll?
+	fuente>
+	( pantafin> >? scrolldw )
+	( pantaini> <? scrollup )
+	drop
+	drawcursor ;
+
 :drawcode
 	0 1 gotoxy
 	pantaini>
@@ -420,16 +427,11 @@
 		linenro
 		swap
 |		drawsel lf
-		codelinecolor 0? ( 2drop drawcursor ; )
+		codelinecolor 0? ( 2drop $fuente 1 - 'pantafin> ! scroll? ; )
 		cr
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
-	fuente>
-	( pantafin> >? scrolldw )
-	( pantaini> <? scrollup )
-	drop
-	drawcursor
-	;
+	scroll? ;
 
 |-------------- panel control
 #panelcontrol

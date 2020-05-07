@@ -19,7 +19,7 @@
 
 ##ink
 
-#px #py
+##opx ##opy
 #pxBPP #pyBPP
 
 #ymax -1
@@ -73,8 +73,8 @@
     col1 col2 rot gr_mix ;
 
 :wvline | y x --
-	-? ( drop 'py ! ; ) sw >=? ( drop 'py ! ; )
-	py pick2 dup 'py !  	| y x py  y
+	-? ( drop 'opy ! ; ) sw >=? ( drop 'opy ! ; )
+	opy pick2 dup 'opy !  	| y x py  y
 	<? ( swap rot )		| y1 x y2
 	-? ( 3drop ; ) sh 1 - clampmax
 	rot sh >=? ( 3drop ; ) clamp0 | x y2 y1
@@ -82,8 +82,8 @@
 	setxy 1 + ( 1? 1 - ink a! sw 2 << a+ ) drop ;
 
 :whline | x y --
-	-? ( drop 'px ! ; ) sh >=? ( drop 'px ! ; )
-	px pick2 dup 'px !  	| x y px x
+	-? ( drop 'opx ! ; ) sh >=? ( drop 'opx ! ; )
+	opx pick2 dup 'opx !  	| x y px x
 	<? ( swap rot )		| x1 y x2
 	-? ( 3drop ; ) sw clampmax
 	rot sw >=? ( 3drop ; ) clamp0	| y x2 x1
@@ -153,8 +153,8 @@
 
 |*******************************
 ::LINE | x y --
-	py =? ( whline ; ) swap px =? ( wvline ; ) swap | x y
-	px py 2over 'py ! 'px !		| x y x2 y2
+	opy =? ( whline ; ) swap opx =? ( wvline ; ) swap | x y
+	opx opy 2over 'opy ! 'opx !		| x y x2 y2
 	pick2 <? ( 2swap )
 	-? ( 4drop ; ) 				| y1 x1 x2 y2 ; termina en y neg..
 	2swap sh 1 - >=? ( 4drop ; )	| x2 y2 x1 y1 ; termina en y>h
@@ -178,7 +178,7 @@
 |*******************************
 ::OP | xy --
 	2dup BPP << 'pyBPP ! BPP << 'pxBPP !
-	'py ! 'px ! ;
+	'opy ! 'opx ! ;
 
 |*******************************
 ::CURVE | fx fy cx cy --
@@ -187,7 +187,7 @@
 	4 <? ( 3drop LINE ; ) drop
 	pick3 pick2 + 1 >>  pick3 pick2 + 1 >>		| fx fy cx cy c2 c2
 	2swap 									| fx fy c2 c2 cx cy
-	py + 1 >> swap px + 1 >> swap				| fx fy c2 c2 c1 c1
+	opy + 1 >> swap opx + 1 >> swap				| fx fy c2 c2 c1 c1
 	pick3 pick2 + 1 >>  pick3 pick2 + 1 >>		| fx fy c2 c2 c1 c1 ex ey
 	2swap
 	CURVE CURVE ;
@@ -205,7 +205,7 @@
 	'y2 ! 'x2 !
 	over bx + 1 >> over by + 1 >>
 	over x2 - abs over y2 - abs + >r
-	px x1 + 1 >> py y1 + 1 >>
+	opx x1 + 1 >> opy y1 + 1 >>
 	over bx + 1 >> over by + 1 >>
 	over x1 - abs over y1 - abs + >r
 	2swap >r >r

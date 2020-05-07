@@ -303,16 +303,12 @@ inA usoA inB usoB usomem
 	cano 1? ( $40 flags or 'flags ! ) drop 		| anon
 	deltaR 1? ( $8 flags or 'flags ! ) drop
 
-	nivel 24 <<
-	flags $fff and
-	or
-
+	nivel 24 << flags $fff and or
 	over dic>inf dup @ rot or swap !
 
 |	cntfin 0? ( deltaD )( deltaD1fin ) nip
-	deltaD $1f and 4 <<
-	usoD neg $f and
-	or
+
+	deltaD $1f and 4 << usoD neg $f and or
 	over dic>mov dup @ rot or swap !
 	;
 
