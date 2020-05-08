@@ -267,7 +267,8 @@
 	   pick2 pick2 89 drawtile
 	   drawtile ;
 
-:restoretile px py ptile 4 * 'sprites + @ drawtile ;
+:restoretile px -1 =? ( drop ; ) drop
+	     px py ptile 4 * 'sprites + @ drawtile ;
 
 :drawplayer restoretile
 	    playerx playery playerdir 4 * 'player + @ drawtile ;
@@ -355,8 +356,7 @@
 
 :msg curmap 1 + pick2 "Sokoban R%d - Map: %d/60" print ;
 
-|TODO: fix for when new map is loaded
-:resetp 0 'px ! 0 'py ! ;
+:resetp -1 dup 'px ! 'py ! ;
 
 :loadcurmap 'maps curmap 4 * + @ mapdecomp calcscale resetp ;
 
