@@ -113,7 +113,9 @@
   -? ( drop $2d over c! ; ) drop 1 + ;
 
 ::.d | val -- str
-  dup abs mbuffi swap
+  dup abs
+  -? ( 2drop "-9223372036854775808" ; )
+  mbuffi swap
   ( 10 /mod $30 + pick2 c! swap 1 - swap 1? ) drop
   swap sign ;
 

@@ -45,6 +45,18 @@
 	swap -? ( drop neg 'divm ! p 'divs ! ; ) drop
 	'divm ! p 'divs ! ;
 
+| CLZ don't wrk on 64 bits!
+:clzl
+	0 swap
+	$ffffffff00000000 na? ( 32 << swap 32 + swap )
+	$ffff000000000000 na? ( 16 << swap 16 + swap )
+	$ff00000000000000 na? ( 8 << swap 8 + swap )
+	$f000000000000000 na? ( 4 << swap 4 + swap )
+	$c000000000000000 na? ( 2 << swap 2 + swap )
+	$8000000000000000 na? ( swap 1 + swap )
+	drop ;
+
+|--------------------------
 #TKdup $23
 #TKover $25
 #TKswap $29
@@ -61,8 +73,8 @@
 :signadj!+ | --
 	TKdup code!+	| dup
 	63 cte!+		| 63
-	TK>> code!+		| >>
-	TK- code!+		| -
+	TK>>> code!+	| >>>
+	TK+ code!+		| +
 	;
 
 |-----------------------------------
@@ -89,20 +101,20 @@
 #tcte d1 d1 d1 d1 d2 d3 d3 d3
 
 :icte | adr word -- adr
+
+	"; INLINE CTE" ,ln
+
 	dic>tok @ @ dup
 	dup $ff and 7 - 2 << 'tcte + @ ex
-	code!+
-	;
+	code!+ ;
 
 :ivar
 	getval
-	dup dic>inf @ $8 an? ( drop icte ; ) drop | inline
+	dup dic>inf @ $8 an? ( drop icte ; ) drop | inline VAR
 	push.var
-	2code!+
-	;
+	2code!+ ;
 
 |----------- inline word
-
 :iwor
 	| inline?
 	getval dic>du
@@ -116,9 +128,7 @@
 :i( 2code!+ stk.push ;
 :i) 2code!+ stk.pop	;
 
-:i[
-:i]
-	;
+:i[ :i] ;
 
 :iex
 	lastdircode dic>du
@@ -164,7 +174,7 @@
 :iR@ .dup 2code!+ ;
 
 :1stk | --1/0 ok
-	bcode> 4 - 
+	bcode> 4 -
 	'bcode <? ( -1 nip ; )
 	@ $ff and 8 >? ( -1 nip ; ) drop
 	0 ;
@@ -221,24 +231,26 @@
 |---------------- *
 | 8 * --> 3 <<
 :*pot
-	63 swap clz - cte!+
+	code<<
+	63 swap clzl - cte!+
 	TK<< code!+ ;
 
 | 7 * --> dup 3 << swap -
 :*pot-1
+	code<<
 	TKdup code!+	| dup
-	64 swap clz - cte!+
+	64 swap clzl - cte!+
 	TK<<	code!+	| <<
 	TKswap	code!+	| swap
 	TK- code!+ | -
 	;
 
 :*nro
-	code<<
 	vTOS
 	dup 1 - na? ( *pot ; )
 	dup 1 + na? ( *pot-1 ; )
-	drop ;
+	drop
+	2code!+ .drop ;
 
 :i*
 	2stk 0? ( drop .* code<<cte ; ) drop
@@ -250,17 +262,17 @@
 	calcmagic
 	divm cte!+
 	divs cte!+
-	TK*>> code!+ 		| *>>
+	TK*>> code!+ 	| *>>
 	signadj!+ ;
 
 |----  2 / --> dup 63 >> + 2/
 :/cte2
-	TKdup code!+ | dup 31
-	63 cte!+
-	TK>>> code!+ | >>>
-	TK+	code!+ | +
+	TKdup code!+	| dup
+	63 cte!+		| 63
+	TK>>> code!+	| >>>
+	TK+	code!+		| +
 	1 cte!+
-	TK>> code!+ | 2/
+	TK>> code!+		| 2/
 	;
 
 |----  4 / --> dup 63 >> 30 >>> + 2 >>
@@ -268,15 +280,16 @@
 	code<<
 	vTOS
 	dup 1 - an? ( /cte ; )
-	2 =? ( /cte2 ; )
-	swap
-	63 cte!+
+	2 =? ( drop /cte2 ; )
 	TKdup code!+ | dup
+	63 cte!+
 	TK>> code!+ | >>
-	33 32 pick2 clz - - cte!+ |30 |**********
+
+	65 64 pick2 clzl - - cte!+
 	TK>>> code!+ | >>>
+
 	TK+	code!+	| +
-	31 swap clz - cte!+ | 2
+	63 swap clzl - cte!+ | 2
 	TK>> code!+ | >>
 	;
 
@@ -300,7 +313,7 @@
 	2code!+ .2drop ;
 
 |---------------- /MOD
-:/modcte | val --
+:/MODcte | val --
 	dup calcmagic
 	TKdup code!+	| dup
 	divm cte!+
@@ -318,23 +331,29 @@
 :/MODnro
 	code<<
 	vTOS
-	dup 1 - an? ( /modcte ; )
+	dup 1 - an? ( /MODcte ; )
 	swap
     TKdup code!+ 	| dup
 	TKdup code!+	| dup
     63 cte!+ 		| 31
 	TK>> code!+ 	| >>
-	33 32 pick2 clz - - cte!+ |30 |*************
+
+	65 64 pick2 clzl - - cte!+ |30
 	TK>>> code!+ 	| >>>
+
 	TK+	code!+		| +
-	31 over clz - cte!+ 	| 2
+
+	63 over clzl - cte!+ 	| 2
 	TK>> code!+ 	| >>
-	TKswap	code!+	| swap
+
+	TKswap code!+	| swap
 	TKdup code!+ 	| dup
 	63 cte!+ 		|31
 	TK>> code!+ 	| >>
-	33 32 pick2 clz - - cte!+
+
+	65 64 pick2 clzl - - cte!+
 	TK>>> code!+	| >>>
+
 	TKswap	code!+	| swap
 	TKover	code!+	| over
 	TK+	code!+		| +
@@ -350,7 +369,7 @@
 	2code!+ ;
 
 |---------------- MOD
-:modcte
+:MODcte
 	dup calcmagic
 	TKdup code!+	| dup
 	divm cte!+
@@ -364,14 +383,14 @@
 
 |----  8 mod --> $7 and
 |	dup 63 >> (33-4)29 >>> swap over + 7 and swap -
-:modnro
+:MODnro
     code<<
 	vTOS
 	dup 1 - an? ( modcte ; )
 	TKdup code!+ 	| dup 31
 	63 cte!+
 	TK>> code!+ 	| >>
-	33 32 pick2 clz - - cte!+
+	65 64 pick2 clzl - - cte!+
 	TK>>> code!+	| >>>
 	TKswap	code!+	| swap
 	TKover	code!+	| over
@@ -439,9 +458,9 @@
 
 :iMSEC :iTIME :iDATE
 	.dup 2code!+ ;
-:iLOAD	|LOAD   ab -- c
+:iLOAD	| ab -- c
 	.drop 2code!+ ;
-:iSAVE	|SAVE   abc --
+:iSAVE	| abc --
 :iAPPEND	|APPEND   abc --
 	.3drop 2code!+ ;
 
@@ -462,14 +481,13 @@ iC! iQ! i!+ iC!+ iQ!+ i+! iC+! iQ+! i>A iA> iA@ iA! iA+ iA@+ iA!+ i>B
 iB> iB@ iB! iB+ iB@+ iB!+ iMOVE iMOVE> iFILL iCMOVE iCMOVE> iCFILL iQMOVE iQMOVE> iQFILL iUPDATE
 iREDRAW iMEM iSW iSH iFRAMEV iXYPEN iBPEN iKEY iCHAR iMSEC iTIME iDATE iLOAD iSAVE iAPPEND iFFIRST
 iFNEXT iSYS
-0 0 0 0 0 |iINK i'INK iALPHA iOPX iOPY
-0 0 0 0 |iOP iLINE iCURVE iCURVE3
-0 0 0 0 |iPLINE iPCURVE iPCURVE3 iPOLI
+|iINK i'INK iALPHA iOPX iOPY iOP iLINE iCURVE iCURVE3 iPLINE iPCURVE iPCURVE3 iPOLI
+0 0 0 0 0 0 0 0 0 0 0 0 0
 ( 0 )
 
 |------------------------------------------
 :tocode | adr token -- adr
-|	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
 |		"asm/code.asm" savemem | debug
 	$ff and 2 << 'vmc + @ ex
 	;

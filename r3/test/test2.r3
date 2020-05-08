@@ -5,39 +5,32 @@
 ^r3/lib/print.r3
 ^r3/sys/r3parse.r3
 
-#cc 10
+#cc 18
 
-:oper | v1 v2 str --
-	rot .d emits " " emits
-	swap .d emits " " emits
-	emits ;
+:clzl
+	0 swap
+	$ffffffff00000000 na? ( 32 << swap 32 + swap )
+	$ffff000000000000 na? ( 16 << swap 16 + swap )
+	$ff00000000000000 na? ( 8 << swap 8 + swap )
+	$f000000000000000 na? ( 4 << swap 4 + swap )
+	$c000000000000000 na? ( 2 << swap 2 + swap )
+	$8000000000000000 na? ( swap 1 + swap )
+	drop ;
 
-:oper3 | v1 v2 v3 str --
-	2swap
-	swap .d emits " " emits
-	.d emits " " emits
-	swap .d emits " " emits
-	emits ;
-
-:res1 | r1 --
-	" ==> " emits
-	.d emits " " emits ;
-
-:res2 | r1 r2 --
-	" ==> " emits
-	swap .d emits " " emits
-	.d emits " " emits ;
-
+#vv 10
 
 :testop
-	cc 3 2dup "/" oper / res1 cc 3 / " opt %d" print cr
-	cc 3 2dup "mod" oper mod res1 cc 3 MOD " opt %d" print cr
-	cc 3 2dup "/mod" oper /mod res2 cc 3 /MOD " opt %d %d" print cr
-	cc 10 3 pick2 pick2 pick2 "*>>" oper3 *>> res1 cc 10 3 *>> "opt %d" print cr
-	cc 15 3 pick2 pick2 pick2 "*/" oper3 */ res1 cc 15 3 */ "opt %d" print cr
-	cc 2 2dup "and" oper and res1 cr
+	cc "%d 2 / =" print cc 2 / "%d " print cr
+	cc "%d 4 / =" print cc 4 / "%d " print cr
+	cc "%d 16 / =" print cc 16 / "%d " print cr
 
-	4 16 << cc 0? ( 1 + ) / "%d" print cr
+	cc "%d 10 /mod =" print cc 10 /mod "%d %d" print cr
+	cc abs "%d" print cr
+	cc 25.0 10 */ "%f" print cr
+	cr
+
+	$40000000000 clz "%d" print cr
+	$40000000000 clzl "%d" print cr
 	;
 
 #kk

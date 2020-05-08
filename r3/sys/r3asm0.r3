@@ -103,7 +103,7 @@
 |---- Optimization WORDS
 #preval * 32
 #prevale * 32
-#prevalv 0 
+#prevalv 0
 
 :,TOS	'preval ,s ;
 :,TOSE	'prevale ,s ;
@@ -379,7 +379,7 @@
 
 :gABS
 	"cqo" ,ln
-	"add rdx,rdx" ,ln
+	"add rax,rdx" ,ln
 	"xor rax,rdx" ,ln ;
 
 :gSQRT
@@ -397,7 +397,7 @@
 :o<<
 	"shl rax," ,s ,TOS ,cr ;
 :o<<v
-	"mov rcx," ,s ,TOS ,cr
+	"mov ecx," ,s ,TOS ,cr
 	"shl rax,cl" ,ln ;
 
 :g>>
@@ -406,7 +406,7 @@
 :o>>
 	"sar rax," ,s ,TOS ,cr ;
 :o>>v
-	"mov rcx," ,s ,TOS ,cr
+	"mov ecx," ,s ,TOS ,cr
 	"sar rax,cl" ,ln ;
 
 :g>>>
@@ -416,7 +416,7 @@
 :o>>>
 	"shr rax," ,s ,TOS ,cr ;
 :o>>>v
-	"mov rcx," ,s ,TOS ,cr
+	"mov ecx," ,s ,TOS ,cr
 	"shr rax,cl" ,ln ;
 
 :g*>>
@@ -880,8 +880,22 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 	swap getcte number
 	4 + swap ex ;
 
+:val'var! | especial case "nro 'var !"
+	"mov dword[w" ,s
+	dup @ 8 >>> ,h
+	"]," ,s
+	getcte number ,TOS ,cr
+	8 + ;
+
+::getval | a -- a v
+	dup 4 - @ 8 >>> ;
+
 :gdec
 	dup @ $ff and 2 << 'vmc1 + @ 1? ( decopt ; ) drop
+	dup @ $ff and 15 =? ( drop 			| nro 'var
+		dup 4 + @ $ff and 79 =? ( drop  | nro 'var !
+			val'var! ; )
+		) drop
 	,DUP
 	getcte 0? ( drop "xor rax,rax" ,ln ; )
 	"mov rax," ,s ,d ,cr  ;
@@ -892,8 +906,19 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 	swap getcte2 number
 	4 + swap ex ;
 
+:cal'var! | especial case "nro 'var !"
+	"mov dword[w" ,s
+	dup @ 8 >>> ,h
+	"]," ,s
+	getcte2 number ,TOS ,cr
+	8 + ;
+
 :ghex  | really constant folding number
 	dup @ $ff and 2 << 'vmc1 + @ 1? ( hexopt ; ) drop
+	dup @ $ff and 15 =? ( drop 			| nro 'var
+		dup 4 + @ $ff and 79 =? ( drop  | nro 'var !
+			cal'var! ; )
+		) drop
 	,DUP "mov rax," ,s getcte2 ,d ,cr ;
 
 |----------- adress string
