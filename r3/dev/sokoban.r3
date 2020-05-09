@@ -3,14 +3,17 @@
 | Levels  from: https://github.com/begoon/sokoban-maps
 |
 |MEM 16384
-|FULLSCREEN
+|SCR 1200 675
 
 ^r3/lib/gui.r3
 ^r3/lib/sys.r3
 ^r3/lib/mem.r3
 ^r3/lib/print.r3
 ^r3/lib/sprite.r3
+^r3/lib/xfb.r3
+^r3/lib/fontr.r3
 ^r3/util/loadimg.r3
+^media/rft/archivoblackregular.rft
 
 | sprites
 #spritesheet
@@ -354,14 +357,72 @@
 	  <f1> =? ( 0 'maploaded ! )
 	  drop ;
 
-:msg curmap 1 + pick2 "Sokoban R%d - Map: %d/60" print ;
+| :msg curmap 1 + pick2 "Sokoban R%d - Map: %d/60" print ;
 
 :resetp -1 dup 'px ! 'py ! ;
 
 :loadcurmap 'maps curmap 4 * + @ mapdecomp calcscale resetp ;
 
-:game home keyboard msg
-      maploaded 0? ( loadcurmap cls drawmap ) drop | full screen drawn only once
+| - - - - -
+
+#dt 0
+#framedt 0
+
+:angle | ( val basis -- angle)
+	swap $10000 * swap / $10000 2 / swap - ;
+
+| x = a*sin(t), y = a*cos(2t)
+:lsjw sw 3 / 16 << ;
+:lsjh sh 3 / 16 << ;
+:lsjx        cos lsjw *. 16 >> sw 2 / + ;
+:lsjy 2.0 *. sin lsjh *. 16 >> sh 2 / + ;
+
+:getxy 	1000 angle dup lsjx swap lsjy ;
+
+:incdt dt 4 + 'dt ! ;
+
+:animletter | ( l t -- )
+	    getxy atxy print ;
+
+:fontsize dt 1000 angle cos abs 128.0 *. 128.0 + 16 >> ;
+
+#levelstr "Level "
+#msg * 16
+#letterstr " "
+
+:buildmsg 'levelstr 'msg strcpy
+	  curmap 1 + .d 'msg strcat ;
+
+:drawletters | ( -- )
+	     'msg count nip
+	     ( +?
+	       dup
+	       'msg + c@ 'letterstr c!
+	       'letterstr framedt animletter
+	       framedt 32 + 'framedt !
+	       1 -
+	     )
+	     drop 
+	     ;
+
+:screen key
+	>esc< =? ( exit )
+	<pgup> =? ( nextmap exit )
+	<pgdn> =? ( prevmap exit )
+	drop
+	xfb>
+	dt 'framedt !
+	archivoblackregular fontsize fontr!
+	buildmsg | 'msg is availble
+	drawletters
+	incdt ;
+
+:animation 'screen onshow ;
+
+:loadmap loadcurmap cls drawmap >xfb animation xfb> ;
+
+:game home keyboard | msg
+      maploaded 0? ( loadmap ) drop | full screen drawn only once
       drawplayer won? ;
 
 :load_tilesheet | ( -- )
@@ -372,10 +433,13 @@
 	  sh 16 / 'ymap ! ;
 
 :init	mark
-	cls home $ff00 'ink !
+	cls home $eeeeee 'ink !
 	load_tilesheet
 	topleft!
 	0 'curmap !
+	iniXFB
 	;
 
-: init 3 'game onshow ;
+: init |3
+       'game onshow ;
+
