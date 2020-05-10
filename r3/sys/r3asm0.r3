@@ -7,22 +7,26 @@
 
 #nstr 0
 
-#anon * 40 | 10 niveles ** falta inicializar si hay varias ejecuciones
-#anon> 'anon
-#nanon 0
+#stbl * 40 | 10 niveles ** falta inicializar si hay varias ejecuciones
+#stbl> 'stbl
+
+#nblock 0
+
+:pushbl | -- block
+	nblock
+	dup 1 + 'nblock !
+	dup stbl> !+ 'stbl> ! ;
+
+:popbl | -- block
+	-4 'stbl> +! stbl> @ ;
 
 |--- @@
 ::getval | a -- a v
 	dup 4 - @ 8 >>> ;
 
-::getiw | v -- v iw
-    dup 3 << blok + @ $10000000 and ;
-
 ::getsrcnro
 	dup ?numero 1? ( drop nip nip ; ) drop
 	str>fnro nip
-|	?fnumero 1? ( drop nip ; ) drop
-|	"error GETSRCNRO" slog
 	;
 
 ::getcte | a -- a v
@@ -89,16 +93,25 @@
 	drop
 	"ret" ,ln ;
 
-|--- IF
+|--- IF/WHILE
+
+::getiw | v -- iw
+    3 << blok + @ $10000000 and ;
+
 :g(
-	getval
-	getiw 0? ( 2drop ; ) drop
+	getval getiw 0? ( pushbl 2drop ; ) drop
+	pushbl
 	"_i%h:" ,format ,cr ;		| while
 
 :g)
-	getval
-	getiw 1? ( over "jmp _i%h" ,format ,cr ) drop	| while
+	getval getiw
+	popbl swap
+	1? ( over "jmp _i%h" ,format ,cr ) drop	| while
 	"_o%h:" ,format ,cr ;
+
+:?? | -- nblock
+	getval getiw
+	0? ( drop nblock ; ) drop stbl> 4 - @ ;
 
 |---- Optimization WORDS
 #preval * 32
@@ -117,14 +130,12 @@
 
 |-------------------------------------
 :g[
-	1 'nanon +!
-	nanon dup anon> !+ 'anon> !
+	pushbl
 	dup "jmp ja%h" ,format cr
 	"anon%h:" ,format ,cr
 	;
 :g]
-	-4 'anon> +!
-	anon> @
+	popbl	
 	dup "ja%h:" ,format ,cr
 	"add rbp,8" ,ln
 	"mov rax,anon%h" ,format ,cr
@@ -137,10 +148,9 @@
 	16 <>? ( drop "call rcx" ,ln ; ) drop
 	"jmp rcx" ,ln ;
 :oEX
-	"mov rcx," ,s ,TOS ,cr
 	dup @ $ff and
-	16 <>? ( drop "call rcx" ,ln ; ) drop
-	"jmp rcx" ,ln ;
+	16 <>? ( drop "call " ,s ,TOS ,cr ; ) drop
+	"jmp " ,s ,TOS ,cr ;
 :oEXv
 	"mov ecx," ,s ,TOS ,cr
 	dup @ $ff and
@@ -149,125 +159,125 @@
 
 :g0?
 	"or rax,rax" ,ln
-	getval "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,format ,cr ;
 
 :g1?
 	"or rax,rax" ,ln
-	getval "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,format ,cr ;
 
 :g+?
 	"or rax,rax" ,ln
-	getval "js _o%h" ,format ,cr ;
+	?? "js _o%h" ,format ,cr ;
 
 :g-?
 	"or rax,rax" ,ln
-	getval "jns _o%h" ,format ,cr ;
+	?? "jns _o%h" ,format ,cr ;
 
 :g<?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	getval "jge _o%h" ,format ,cr ;
+	?? "jge _o%h" ,format ,cr ;
 :o<?
 	"cmp rax," ,s ,TOS ,cr
-	getval "jge _o%h" ,format ,cr ;
+	?? "jge _o%h" ,format ,cr ;
 :o<?v
 	"cmp eax," ,s ,TOS ,cr
-	getval "jge _o%h" ,format ,cr ;
+	?? "jge _o%h" ,format ,cr ;
 
 
 :g>?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	getval "jle _o%h" ,format ,cr ;
+	?? "jle _o%h" ,format ,cr ;
 :o>?
 	"cmp rax," ,s ,TOS ,cr
-	getval "jle _o%h" ,format ,cr ;
+	?? "jle _o%h" ,format ,cr ;
 :o>?v
 	"cmp eax," ,s ,TOS ,cr
-	getval "jle _o%h" ,format ,cr ;
+	?? "jle _o%h" ,format ,cr ;
 
 :g=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	getval "jne _o%h" ,format ,cr ;
+	?? "jne _o%h" ,format ,cr ;
 :o=?
 	"cmp rax," ,s ,TOS ,cr
-	getval "jne _o%h" ,format ,cr ;
+	?? "jne _o%h" ,format ,cr ;
 :o=?v
 	"cmp eax," ,s ,TOS ,cr
-	getval "jne _o%h" ,format ,cr ;
+	?? "jne _o%h" ,format ,cr ;
 
 :g>=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	getval "jl _o%h" ,format ,cr ;
+	?? "jl _o%h" ,format ,cr ;
 :o>=?
 	"cmp rax," ,s ,TOS ,cr
-	getval "jl _o%h" ,format ,cr ;
+	?? "jl _o%h" ,format ,cr ;
 :o>=?v
 	"cmp eax," ,s ,TOS ,cr
-	getval "jl _o%h" ,format ,cr ;
+	?? "jl _o%h" ,format ,cr ;
 
 :g<=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	getval "jg _o%h" ,format ,cr ;
+	?? "jg _o%h" ,format ,cr ;
 :o<=?
 	"cmp rax," ,s ,TOS ,cr
-	getval "jg _o%h" ,format ,cr ;
+	?? "jg _o%h" ,format ,cr ;
 :o<=?v
 	"cmp eax," ,s ,TOS ,cr
-	getval "jg _o%h" ,format ,cr ;
+	?? "jg _o%h" ,format ,cr ;
 
 :g<>?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	getval "je _o%h" ,format ,cr ;
+	?? "je _o%h" ,format ,cr ;
 :o<>?
 	"cmp rax," ,s ,TOS ,cr
-	getval "je _o%h" ,format ,cr ;
+	?? "je _o%h" ,format ,cr ;
 :o<>?v
 	"cmp eax," ,s ,TOS ,cr
-	getval "je _o%h" ,format ,cr ;
+	?? "je _o%h" ,format ,cr ;
 
 :gA?
 	"mov rbx,rax" ,ln
 	,drop
 	"test rax,rbx" ,ln
-	getval "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,format ,cr ;
 :oA?
 	"test rax," ,s ,TOS ,cr
-	getval "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,format ,cr ;
 :oA?v
 	"test eax," ,s ,TOS ,cr
-	getval "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,format ,cr ;
 
 :gN?
 	"mov rbx,rax" ,ln
 	,drop
 	"test rax,rbx" ,ln
-	getval "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,format ,cr ;
 :oN?
 	"test rax," ,s ,TOS ,cr
-	getval "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,format ,cr ;
 :oN?v
 	"test eax," ,s ,TOS ,cr
-	getval "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,format ,cr ;
 
 :gB?
 	"sub rbp,8*2" ,ln
 	"mov rbx,[rbp+8]" ,ln
 	"xchg rax,rbx" ,ln
 	"cmp rax,[rbp+8*2]" ,ln
-	getval "jge _o%h" ,format ,cr
+	?? "jge _o%h" ,format ,cr
 	"cmp rax,rbx"
-	getval "jle _o%h" ,format ,cr
+	?? "jle _o%h" ,format ,cr
 	;
 
 :g>R

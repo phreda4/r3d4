@@ -101,44 +101,44 @@
 1 0 0 0		|@      a -- b
 1 0 0 0		|C@     a -- b
 1 0 0 0		|Q@     a -- b
-1 1 0 16	|@+     a -- bc
-1 1 0 16	|C@+    a -- bc
-1 1 0 16	|Q@+    a -- bc
-2 -2 0 16	|!     ab --
-2 -2 0 16	|C!    ab --
-2 -2 0 16	|Q!    ab --
-2 -1 0 16	|!+    ab -- c
-2 -1 0 16	|C!+   ab -- c
-2 -1 0 16	|Q!+   ab -- c
-2 -2 0 16	|+!    ab --
-2 -2 0 16	|C+!   ab --
-2 -2 0 16	|W+!   ab --
+1 1 0 0		|@+     a -- bc
+1 1 0 0		|C@+    a -- bc
+1 1 0 0		|Q@+    a -- bc
+2 -2 0 0	|!     ab --
+2 -2 0 0	|C!    ab --
+2 -2 0 0	|Q!    ab --
+2 -1 0 0	|!+    ab -- c
+2 -1 0 0	|C!+   ab -- c
+2 -1 0 0	|Q!+   ab -- c
+2 -2 0 0	|+!    ab --
+2 -2 0 0	|C+!   ab --
+2 -2 0 0	|W+!   ab --
 
-1 -1 0 12	|>A
-0 1 0 13	|A>
-0 1 0 13	|A@
-1 -1 0 13 	|A!
-1 -1 0 13	|A+
-0 1 0 13	|A@+
-1 -1 0 13	|A!+
+1 -1 0 0	|>A
+0 1 0 0		|A>
+0 1 0 0		|A@
+1 -1 0 0 	|A!
+1 -1 0 0	|A+
+0 1 0 0		|A@+
+1 -1 0 0	|A!+
 
-1 -1 0 14	|>B
-0 1 0 15	|B>
-0 1 0 15	|B@
-1 -1 0 15 	|B!
-1 -1 0 15	|B+
-0 1 0 15	|B@+
-1 -1 0 15	|B!+
+1 -1 0 0	|>B
+0 1 0 0		|B>
+0 1 0 0		|B@
+1 -1 0 0 	|B!
+1 -1 0 0	|B+
+0 1 0 0		|B@+
+1 -1 0 0	|B!+
 
-3 -3 0 16	|MOVE  abc --
-3 -3 0 16	|MOVE> abc --
-3 -3 0 16	|FILL abc --
-3 -3 0 16	|CMOVE abc --
-3 -3 0 16	|CMOVE> abc --
-3 -3 0 16	|CFILL abc --
-3 -3 0 16	|QMOVE abc --
-3 -3 0 16	|QMOVE> abc --
-3 -3 0 16	|QFILL abc --
+3 -3 0 0	|MOVE  abc --
+3 -3 0 0	|MOVE> abc --
+3 -3 0 0	|FILL abc --
+3 -3 0 0	|CMOVE abc --
+3 -3 0 0	|CMOVE> abc --
+3 -3 0 0	|CFILL abc --
+3 -3 0 0	|QMOVE abc --
+3 -3 0 0	|QMOVE> abc --
+3 -3 0 0	|QFILL abc --
 
 1 0 0 0		|UPDATE  a -- a
 0 0 0 0		|REDRAW  --
@@ -180,21 +180,17 @@
 |---- Anonimas
 :es[
 	pushvar
-	1 'pano +! 1 'cano +!
-	;
+	1 'pano +! 1 'cano +! ;
 
 :es]
 	popvar
     -1 'pano +!
-	1 'deltad +!
-	; | deja direccion en pila
+	1 'deltad +! ; | deja direccion en pila
 
 :es(
-	pushvar
-	;
+	pushvar ;
 :es)
-	popvar
-	;
+	popvar ;
 
 :es??
 	dup 4 - @
@@ -218,15 +214,16 @@
 :esPal | palabra
 	dup 4 - @ 8 >>	| obtener palabra
 	pick2 =? ( drop $20 flags or 'flags ! ; ) | es recursiva?
-    dup dic>inf @ 24 >> 1 + 'nivel !
+    dup dic>inf @
+
+	$100 an? ( flags $400 or 'flags ! )
+
+	24 >> 1 + 'nivel !
 
 	dic>mov @
 	dup $f and neg usoDcalc
 	55 << 59 >> 'deltaD +!
-
-	$200 flags or 'flags !
 	;
-|** falta calcular cuando el flag $200 no esta en la palabra llamada
 
 :esStr | calcula deltaD de string
 	dup 4 - @ 8 >>> src + | string
@@ -245,33 +242,19 @@
 	;
 
 :esWordV | guarda ultima referencia para exec,
-	$200 flags or 'flags !
 	dup 4 - @ 8 >> 'lastdircode ! ;
-|** falta no agregar si no tiene mov de pila
-|** falta calcular cuando el flag $200 no esta en la palabra llamada
 
 :V0 ;
-:inA	flags $40000600 or 'flags ! ;
-:usoA   flags $600 or 'flags ! ;
-:inB    flags $80000a00 or 'flags ! ;
-:usoB   flags $a00 or 'flags ! ;
-:usomem flags $200 or 'flags ! ;
 
 #acct v0 esPal es( es?? es) es[ es] esFin v0 esStr esExe esWordV
-inA usoA inB usoB usomem
 
 :prosstoken | t --
-
-|	dup tokenprint "-->" slog
-
 	2 << 'deltainternos +
 	c@+ usoDcalc
 	c@+ 'deltaD +!
 	deltaD maxdepth max 'maxdepth !
 	c@+ 'deltaR +!
 	c@ 2 << 'acct + @ ex
-
-|	deltaD usoD "U:%d D:%d" slog
 	;
 
 ::getuso | nro -- uso delta
@@ -288,15 +271,19 @@ inA usoA inB usoB usomem
 	0 'maxdepth !
 	;
 
-:inlinemark
-|	$fc na? (  | no dir, no r, no ;;, no []
-|		pick2
-|		cntwords 1 - <? (
-|			dic>len@ MAXINLINE <? ( drop $100 or )( drop ) | inline
-|			)( drop )
-|		)
-	;
+|	dup 1 >> $1 and "le" + c@ ,c	| export/local
+|	dup 2 >> $1 and " '" + c@ ,c	| /adress used
+|	dup 3 >> $1 and " r" + c@ ,c	| /rstack mod
+|	dup 4 >> $1 and " ;" + c@ ,c	| /multi;
+|	dup 5 >> $1 and " R" + c@ ,c	| /recurse
+|	dup 6 >> $1 and " [" + c@ ,c	| /anon
+|	dup 7 >> $1 and " ." + c@ ,c	| /no ;
+|	dup 8 >> $1 and " i" + c@ ,c	| /inline
 
+:inlinemark | word inf flags -- word inf flags
+	%1111100 an? ( ; )
+	pick2 dic>len@ MAXINLINE >? ( drop ; ) drop
+	$100 or ;
 
 :setvars | nro -- nro
 	cntfin 1 >? ( $10 flags or 'flags ! ) drop	| +1;
@@ -304,7 +291,9 @@ inA usoA inB usoB usomem
 	deltaR 1? ( $8 flags or 'flags ! ) drop
 
 	nivel 24 << flags $fff and or
-	over dic>inf dup @ rot or swap !
+	over dic>inf dup @ rot or
+	inlinemark
+	swap !
 
 |	cntfin 0? ( deltaD )( deltaD1fin ) nip
 
@@ -338,14 +327,13 @@ inA usoA inB usoB usomem
 	over 4 - @ 8 >> dic>mov @ $1ff and 'deltaS ! ;
 
 :sumavars | adr c -- adr
-	$6 >? ( $b <? (
-|		over 4 - @ tok>cte 1? ( 1 'cntn0 +! ) drop
-		1 'cntn0 +!
-			 ) )		| NRO
-	$b =? ( 1 'cnts +! )												| string
-	$c =? ( 1 'cntdc +! copydeltaS ) $e =? ( 1 'cntdc +! copydeltaS )	| word y dir word
-	$d =? ( 1 'cntdv +! ) $f =? ( 1 'cntdv +! )							| var y dir var
-	$3c =? (  1 'flags ! )	| *
+	$6 >? ( $b <? ( 1 'cntn0 +! ) )  	| NRO
+	$b =? ( 1 'cnts +! )				| string
+	$c =? ( 1 'cntdc +! copydeltaS )
+	$e =? ( 1 'cntdc +! copydeltaS )	| word y dir word
+	$d =? ( 1 'cntdv +! ) 
+	$f =? ( 1 'cntdv +! )				| var y dir var
+	$3c =? (  1 'flags ! )				| *
 	drop ;
 
 |--- info de variables

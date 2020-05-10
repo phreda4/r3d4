@@ -101,9 +101,7 @@
 #tcte d1 d1 d1 d1 d2 d3 d3 d3
 
 :icte | adr word -- adr
-
-	"; INLINE CTE" ,ln
-
+|	"; INLINE CTE" ,ln
 	dic>tok @ @ dup
 	dup $ff and 7 - 2 << 'tcte + @ ex
 	code!+ ;
@@ -113,15 +111,6 @@
 	dup dic>inf @ $8 an? ( drop icte ; ) drop | inline VAR
 	push.var
 	2code!+ ;
-
-|----------- inline word
-:iwor
-	| inline?
-	getval dic>du
-	dup ( 1? 1 - .drop ) drop
-	+ ( 1? 1 -  dup push.reg ) drop
-	2code!+
-	;
 
 |------------
 :i;	2code!+	;
@@ -139,7 +128,7 @@
 :gwhilejmp
 	getval getiw
 	1? ( stk.drop stk.push ) | while
-	2drop ;
+	drop ;
 
 :i0? :i1? :i+? :i-?
 	2code!+
@@ -471,6 +460,26 @@
 :iSYS
 	.drop 2code!+ ;
 
+|----------- inline word
+#tocodeex 0
+
+:inlinew
+	"; INLINE WORD " ,s dup dic>adr @ "%w" ,format ,cr
+
+	dic>toklen 1 - | cut ;
+	( 1? 1 - swap
+		@+ tocodeex ex |code!+
+		swap ) 2drop ;
+
+:iwor
+	getval
+	dup dic>inf @ $100 an? ( drop inlinew ; ) drop
+
+	dic>du
+	dup ( 1? 1 - .drop ) drop
+	+ ( 1? 1 -  dup push.reg ) drop
+	2code!+ ;
+
 #vmc
 0 0 0 0 0 0 0 idec ihex idec idec istr iwor ivar idwor idvar
 i; i( i) i[ i] iEX i0? i1? i+? i-? i<? i>? i=? i>=? i<=? i<>?
@@ -516,6 +525,7 @@ iFNEXT iSYS
 :gencode | adr --
 	dup 8 + @
 	1 an? ( 2drop ; )	| code
+	$100 an? ( over 16 + dicc> <? ( 3drop ; ) drop ) | inline
 	12 >> $fff and 0? ( 2drop ; )	| no calls
 	drop
 	codeini
@@ -569,6 +579,7 @@ iFNEXT iSYS
 
 |----------------------------
 ::r3-gencode
+	'tocode 'tocodeex !
 	mark
 	";---r3 compiler code.asm" ,ln
 	"; " ,s 'r3filename ,s ,cr

@@ -59,6 +59,7 @@
 | $40	1 si tiene anonimas
 | $80	1 termina sin ;
 | $100	1 inline
+| $200	tiene inline dentro
 
 |   $fff000 - calls
 | $ff000000 - level/data type
@@ -255,9 +256,10 @@
 
 ::,codeinfo | nro --
 	dic>adr
-	@+ ":%w  " ,format
+	@+ ":%w  |" ,format
 	@+ drop |code - 2 >> "(%h) " ,format
 	@+
+	dup "%h|" ,format
 	dup 1 >> $1 and "le" + c@ ,c	| export/local
 	dup 2 >> $1 and " '" + c@ ,c	| /adress used
 	dup 3 >> $1 and " r" + c@ ,c	| /rstack mod
@@ -265,9 +267,12 @@
 	dup 5 >> $1 and " R" + c@ ,c	| /recurse
 	dup 6 >> $1 and " [" + c@ ,c	| /anon
 	dup 7 >> $1 and " ." + c@ ,c	| /no ;
-	dup 8 >> $1 and " >" + c@ ,c	| /inline
+	dup 8 >> $1 and " i" + c@ ,c	| /inline
+|	dup 9 >> $1 and " >" + c@ ,c	| /llama palabras
+	dup 10 >> $1 and " I" + c@ ,c	| /inline adentro
 
-	dup 12 >> $fff and "calls:%d " ,format
+
+	dup 12 >> $fff and "| calls:%d " ,format
 	24 >> $ff and "niv:%d " ,format
 	@ dup 12 >>> "len:%d " ,format
 	,mov
