@@ -357,8 +357,6 @@
 	  <f1> =? ( 0 'maploaded ! )
 	  drop ;
 
-| :msg curmap 1 + pick2 "Sokoban R%d - Map: %d/60" print ;
-
 :resetp -1 dup 'px ! 'py ! ;
 
 :loadcurmap 'maps curmap 4 * + @ mapdecomp calcscale resetp ;
@@ -386,12 +384,11 @@
 
 :fontsize dt 1000 angle cos abs 128.0 *. 128.0 + 16 >> ;
 
-#levelstr "Level "
+#levelstr "Level %d"
 #msg * 16
 #letterstr " "
 
-:buildmsg 'levelstr 'msg strcpy
-	  curmap 1 + .d 'msg strcat ;
+:buildmsg curmap 1 + 'levelstr mformat 'msg strcpy ;
 
 :drawletters | ( -- )
 	     'msg count nip
@@ -400,46 +397,44 @@
 	       'msg + c@ 'letterstr c!
 	       'letterstr framedt animletter
 	       framedt 32 + 'framedt !
-	       1 -
-	     )
-	     drop 
-	     ;
+	       1 - ) drop ;
 
 :screen key
 	>esc< =? ( exit )
+	>esp< =? ( exit )
 	<pgup> =? ( nextmap exit )
 	<pgdn> =? ( prevmap exit )
 	drop
 	xfb>
 	dt 'framedt !
 	archivoblackregular fontsize fontr!
-	buildmsg | 'msg is availble
-	drawletters
+	buildmsg drawletters
 	incdt ;
 
 :animation 'screen onshow ;
 
 :loadmap loadcurmap cls drawmap >xfb animation xfb> ;
 
-:game home keyboard | msg
+:game home keyboard
       maploaded 0? ( loadmap ) drop | full screen drawn only once
       drawplayer won? ;
 
 :load_tilesheet | ( -- )
 	64 64 "media/img/sokoban_tilesheet.png" loadimg tileSheet 'spritesheet ! ;
 
-:topleft! | top left of map
+:topleft! | set top left of map
 	  sw 16 / 'xmap !
 	  sh 16 / 'ymap ! ;
 
+:gray $eeeeee 'ink ! ;
+
 :init	mark
-	cls home $eeeeee 'ink !
+	cls home gray
 	load_tilesheet
 	topleft!
 	0 'curmap !
 	iniXFB
 	;
 
-: init |3
-       'game onshow ;
+: init 'game onshow ;
 
