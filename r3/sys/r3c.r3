@@ -13,10 +13,10 @@
 :r3-genset
 	mark
 	";---r3 setings" ,ln
-	switchresx "XRES equ %d" ,format ,cr
-	switchresy "YRES equ %d" ,format ,cr
-	switchfull "FULL equ %d" ,format ,cr
-	switchmem "MEMSIZE equ 0x%h" ,format ,cr
+	switchresx "XRES equ %d" ,print ,cr
+	switchresy "YRES equ %d" ,print ,cr
+	switchfull "FULL equ %d" ,print ,cr
+	switchmem "MEMSIZE equ 0x%h" ,print ,cr
 	0 ,c
 	"asm/set.asm"
 	savemem

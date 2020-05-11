@@ -75,7 +75,7 @@
 	( c@+ 1? emit ) 2drop ;
 
 ::print | s s "" --
-	mformat emits ;
+	sprint emits ;
 
 ::printc | "" --
 	swprint 1 >> sw 1 >> swap - 'ccx !

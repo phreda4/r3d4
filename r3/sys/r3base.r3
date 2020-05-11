@@ -182,10 +182,10 @@
 	dic>adr 12 + @ 12 >>> ;
 
 ::adr>dicname | adr -- nadr
-	adr>dic "w%h" mformat ;
+	adr>dic "w%h" sprint ;
 
 ::tok>dicname | nro -- nadr
-	8 >>> "w%h" mformat ;
+	8 >>> "w%h" sprint ;
 
 ::dic>toklen | nro -- adr len
 	dic>adr 4 + @+ swap 4 + @ 12 >>> ;
@@ -248,18 +248,18 @@
 
 :,movx | mov --
 	dup
-	dup $f and "U:%d " ,format
-	55 << 59 >> "D:%d " ,format
+	dup $f and "U:%d " ,print
+	55 << 59 >> "D:%d " ,print
 	,mov
 	;
 
 
 ::,codeinfo | nro --
 	dic>adr
-	@+ ":%w  |" ,format
-	@+ drop |code - 2 >> "(%h) " ,format
+	@+ ":%w  |" ,print
+	@+ drop |code - 2 >> "(%h) " ,print
 	@+
-	dup "%h|" ,format
+	dup "%h|" ,print
 	dup 1 >> $1 and "le" + c@ ,c	| export/local
 	dup 2 >> $1 and " '" + c@ ,c	| /adress used
 	dup 3 >> $1 and " r" + c@ ,c	| /rstack mod
@@ -272,11 +272,11 @@
 	dup 10 >> $1 and " I" + c@ ,c	| /inline adentro
 
 
-	dup 12 >> $fff and "| calls:%d " ,format
-	24 >> $ff and "niv:%d " ,format
-	@ dup 12 >>> "len:%d " ,format
+	dup 12 >> $fff and "| calls:%d " ,print
+	24 >> $ff and "niv:%d " ,print
+	@ dup 12 >>> "len:%d " ,print
 	,mov
-|	$fff and " %h " ,format
+|	$fff and " %h " ,print
 	;
 
 #datastr "val" "ddat" "dcod" "str" "lval" "lddat" "ldcod" "lstr" "multi" "buff"
@@ -286,19 +286,19 @@
 
 ::,datainfo | nro --
 	dic>adr
-	@+ "#%w " ,format
-	@+ drop |code - 2 >> "(%h) " ,format
+	@+ "#%w " ,print
+	@+ drop |code - 2 >> "(%h) " ,print
 	@+
 	dup 1 >> $1 and "le" + c@ ,c	| export/local
 	dup 2 >> $1 and " '" + c@ ,c	| /adress used
 	dup 3 >> $1 and " c" + c@ ,c	| cte
 
-	dup 12 >> $fff and "calls:%d " ,format
+	dup 12 >> $fff and "calls:%d " ,print
 	" type:" ,s
 	24 >> $f and datatype ,s
 
-	@ dup 12 >>> " len:%d " ,format
-	$fff and " %h " ,format
+	@ dup 12 >>> " len:%d " ,print
+	$fff and " %h " ,print
 	;
 
 ::,wordinfo
@@ -316,10 +316,10 @@
 		,c )
 	2drop ;
 
-:tn val src + "%w" mformat ,s ;
+:tn val src + "%w" sprint ,s ;
 :ts """" ,s valstr """" ,s ;
-:tw val dic>adr @ "%w" mformat ,s ;
-:taw val dic>adr @ "'%w" mformat ,s ;
+:tw val dic>adr @ "%w" sprint ,s ;
+:taw val dic>adr @ "'%w" sprint ,s ;
 
 #ltok 0 0 0 0 0 0 0 tn tn tn tn ts tw tw taw taw
 

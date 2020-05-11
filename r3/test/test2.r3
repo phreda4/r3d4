@@ -29,8 +29,10 @@
 	cc 25.0 10 */ "%f" print cr
 	cr
 
-	$40000000000 clz "%d" print cr
-	$40000000000 clzl "%d" print cr
+	-446534001.233 25.0 mod "mod %f" print cr
+	cr
+	$4000000000000 clz "%d" print cr
+	$4000000000000 clzl "%d" print cr
 	;
 
 #kk

@@ -388,7 +388,7 @@
 #msg * 16
 #letterstr " "
 
-:buildmsg curmap 1 + 'levelstr mformat 'msg strcpy ;
+:buildmsg curmap 1 + 'levelstr sprint 'msg strcpy ;
 
 :drawletters | ( -- )
 	     'msg count nip

@@ -35,13 +35,13 @@
 :cellnew | -- nro
 	ncell
 	0 over 2 << 'cellf + !
-|	dup itok ";ini:%d r:%d" ,format ,cr | DEBUG
+|	dup itok ";ini:%d r:%d" ,print ,cr | DEBUG
 	itok over 2 << 'cellv + ! | inicio de vida
 	dup 1 + 'ncell !
 	;
 
 :cellend | nro ---
-|	dup itok ";end:%d r:%d" ,format ,cr | DEBUG
+|	dup itok ";end:%d r:%d" ,print ,cr | DEBUG
 	itok 10 <<
 	swap 2 << 'cellv +
 	dup @ $ff000fff and
@@ -383,7 +383,7 @@ iSYS
 	over 2 << 'cellf + @
 	0? ( drop ; )
 	256 <? ( ,sp ,d ; )
-	@ "%h" ,sp ,format
+	@ "%h" ,sp ,print
 	;
 
 
@@ -400,8 +400,8 @@ iSYS
 	2 << 'cellv + @
 	dup 10 >> $3ff and
 	over $3ff and
-	" (%d:%d)" ,format
-	24 >> $ff and " %d" ,format
+	" (%d:%d)" ,print
+	24 >> $ff and " %d" ,print
 	;
 
 ::cellinfo

@@ -4,7 +4,7 @@
 ^./r3base.r3
 
 :tok>dicn | nro -- adr
-	8 >>> 4 << dicc + @ "%w" mformat ;
+	8 >>> 4 << dicc + @ "%w" sprint ;
 
 :tok>cte | tok -- nro
 	8 >>> src +
@@ -125,7 +125,7 @@
 
 :otrostr
 	1 'dini !
-	nstr "str%h " ,format
+	nstr "str%h " ,print
 	over ,dlits
 	1 'nstr +!
 	,cr ;

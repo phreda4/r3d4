@@ -38,7 +38,7 @@
 
 :freename | -- ""
 	0
-	( dup "new%d" mformat existname? 1? 2drop 1 + )
+	( dup "new%d" sprint existname? 1? 2drop 1 + )
 	drop nip
 	;
 |------------------------------
@@ -228,17 +228,17 @@
 
 |--- write
 :,codigo | adr --
-	@+ dup " $%h" ,format
+	@+ dup " $%h" ,print
 	8 >> $ff and
 	( 1? 1 - swap
-	   @+ " $%h" ,format swap ) 2drop
+	   @+ " $%h" ,print swap ) 2drop
 	,nl ;
 
 :writefile | "" --
 	mark
 	"| ICO file" ,s ,nl
 	0 ( cntvar <?
-		'indexn over 5 << + "##%s" ,format
+		'indexn over 5 << + "##%s" ,print
 		dup 8 << 'index + ,codigo
 		1 + ) drop
 	savemem
@@ -247,7 +247,7 @@
 
 |--------------------------------------------------
 :newdib
-	freename |cntvar "new%d" mformat
+	freename |cntvar "new%d" sprint
 	cntvar 5 << 'indexn + strcpy
 	cntvar 8 << 'index + >a
 	$f0f a!+
@@ -257,7 +257,7 @@
 	;
 
 :copydib
-	freename |cntvar "new%d" mformat
+	freename |cntvar "new%d" sprint
 	cntvar 5 << 'indexn + strcpy
 	cntvar 8 << 'index + >a
 	actual 8 << 'index + @+ a!+
@@ -312,7 +312,7 @@
 
 :makeico
 	cntvar
-	freename |	dup "new%d" mformat
+	freename |	dup "new%d" sprint
 	over 5 << 'indexn + strcpy
 	8 << 'index + >b
 	capy 8 << capx or b!+
@@ -517,7 +517,7 @@
 	[ $1818 'icohw ! ; ] "24" sp btnt
 	[ $2020 'icohw ! ; ] "32" sp btnt
 
-	'nombre "%s " mformat printr
+	'nombre "%s " sprint printr
 
 	sp editname
 	cr cr

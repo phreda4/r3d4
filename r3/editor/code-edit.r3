@@ -252,9 +252,9 @@
 	mark
 	dup c@ 46 =? ( swap 2 + 'path ,s ) drop
 	,w
-|	dup "mem/inc-%w.mem" mformat savemem
+|	dup "mem/inc-%w.mem" sprint savemem
 	empty
-|	"r4/system/inc-%w.txt" mformat run
+|	"r4/system/inc-%w.txt" sprint run
 	drop
 	;
 

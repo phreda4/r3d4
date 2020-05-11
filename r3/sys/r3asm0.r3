@@ -101,13 +101,13 @@
 :g(
 	getval getiw 0? ( pushbl 2drop ; ) drop
 	pushbl
-	"_i%h:" ,format ,cr ;		| while
+	"_i%h:" ,print ,cr ;		| while
 
 :g)
 	getval getiw
 	popbl swap
-	1? ( over "jmp _i%h" ,format ,cr ) drop	| while
-	"_o%h:" ,format ,cr ;
+	1? ( over "jmp _i%h" ,print ,cr ) drop	| while
+	"_o%h:" ,print ,cr ;
 
 :?? | -- nblock
 	getval getiw
@@ -131,14 +131,14 @@
 |-------------------------------------
 :g[
 	pushbl
-	dup "jmp ja%h" ,format cr
-	"anon%h:" ,format ,cr
+	dup "jmp ja%h" ,print cr
+	"anon%h:" ,print ,cr
 	;
 :g]
 	popbl	
-	dup "ja%h:" ,format ,cr
+	dup "ja%h:" ,print ,cr
 	"add rbp,8" ,ln
-	"mov rax,anon%h" ,format ,cr
+	"mov rax,anon%h" ,print ,cr
 	;
 
 :gEX
@@ -159,125 +159,125 @@
 
 :g0?
 	"or rax,rax" ,ln
-	?? "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,print ,cr ;
 
 :g1?
 	"or rax,rax" ,ln
-	?? "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,print ,cr ;
 
 :g+?
 	"or rax,rax" ,ln
-	?? "js _o%h" ,format ,cr ;
+	?? "js _o%h" ,print ,cr ;
 
 :g-?
 	"or rax,rax" ,ln
-	?? "jns _o%h" ,format ,cr ;
+	?? "jns _o%h" ,print ,cr ;
 
 :g<?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	?? "jge _o%h" ,format ,cr ;
+	?? "jge _o%h" ,print ,cr ;
 :o<?
 	"cmp rax," ,s ,TOS ,cr
-	?? "jge _o%h" ,format ,cr ;
+	?? "jge _o%h" ,print ,cr ;
 :o<?v
 	"cmp eax," ,s ,TOS ,cr
-	?? "jge _o%h" ,format ,cr ;
+	?? "jge _o%h" ,print ,cr ;
 
 
 :g>?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	?? "jle _o%h" ,format ,cr ;
+	?? "jle _o%h" ,print ,cr ;
 :o>?
 	"cmp rax," ,s ,TOS ,cr
-	?? "jle _o%h" ,format ,cr ;
+	?? "jle _o%h" ,print ,cr ;
 :o>?v
 	"cmp eax," ,s ,TOS ,cr
-	?? "jle _o%h" ,format ,cr ;
+	?? "jle _o%h" ,print ,cr ;
 
 :g=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	?? "jne _o%h" ,format ,cr ;
+	?? "jne _o%h" ,print ,cr ;
 :o=?
 	"cmp rax," ,s ,TOS ,cr
-	?? "jne _o%h" ,format ,cr ;
+	?? "jne _o%h" ,print ,cr ;
 :o=?v
 	"cmp eax," ,s ,TOS ,cr
-	?? "jne _o%h" ,format ,cr ;
+	?? "jne _o%h" ,print ,cr ;
 
 :g>=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	?? "jl _o%h" ,format ,cr ;
+	?? "jl _o%h" ,print ,cr ;
 :o>=?
 	"cmp rax," ,s ,TOS ,cr
-	?? "jl _o%h" ,format ,cr ;
+	?? "jl _o%h" ,print ,cr ;
 :o>=?v
 	"cmp eax," ,s ,TOS ,cr
-	?? "jl _o%h" ,format ,cr ;
+	?? "jl _o%h" ,print ,cr ;
 
 :g<=?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	?? "jg _o%h" ,format ,cr ;
+	?? "jg _o%h" ,print ,cr ;
 :o<=?
 	"cmp rax," ,s ,TOS ,cr
-	?? "jg _o%h" ,format ,cr ;
+	?? "jg _o%h" ,print ,cr ;
 :o<=?v
 	"cmp eax," ,s ,TOS ,cr
-	?? "jg _o%h" ,format ,cr ;
+	?? "jg _o%h" ,print ,cr ;
 
 :g<>?
 	"mov rbx,rax" ,ln
 	,drop
 	"cmp rax,rbx" ,ln
-	?? "je _o%h" ,format ,cr ;
+	?? "je _o%h" ,print ,cr ;
 :o<>?
 	"cmp rax," ,s ,TOS ,cr
-	?? "je _o%h" ,format ,cr ;
+	?? "je _o%h" ,print ,cr ;
 :o<>?v
 	"cmp eax," ,s ,TOS ,cr
-	?? "je _o%h" ,format ,cr ;
+	?? "je _o%h" ,print ,cr ;
 
 :gA?
 	"mov rbx,rax" ,ln
 	,drop
 	"test rax,rbx" ,ln
-	?? "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,print ,cr ;
 :oA?
 	"test rax," ,s ,TOS ,cr
-	?? "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,print ,cr ;
 :oA?v
 	"test eax," ,s ,TOS ,cr
-	?? "jz _o%h" ,format ,cr ;
+	?? "jz _o%h" ,print ,cr ;
 
 :gN?
 	"mov rbx,rax" ,ln
 	,drop
 	"test rax,rbx" ,ln
-	?? "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,print ,cr ;
 :oN?
 	"test rax," ,s ,TOS ,cr
-	?? "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,print ,cr ;
 :oN?v
 	"test eax," ,s ,TOS ,cr
-	?? "jnz _o%h" ,format ,cr ;
+	?? "jnz _o%h" ,print ,cr ;
 
 :gB?
 	"sub rbp,8*2" ,ln
 	"mov rbx,[rbp+8]" ,ln
 	"xchg rax,rbx" ,ln
 	"cmp rax,[rbp+8*2]" ,ln
-	?? "jge _o%h" ,format ,cr
+	?? "jge _o%h" ,print ,cr
 	"cmp rax,rbx"
-	?? "jle _o%h" ,format ,cr
+	?? "jle _o%h" ,print ,cr
 	;
 
 :g>R
@@ -693,7 +693,7 @@
 	varget "add r8," ,s ,TOS ,cr ;
 
 :gA@+
-	,dup "mov eax,dword[r8]" ,ln
+	,dup "movsxd rax,dword[r8]" ,ln
 	"add r8,4" ,ln ;
 
 :gA!+
@@ -735,7 +735,7 @@
 	varget "add r9," ,s ,TOS ,cr ;
 
 :gB@+
-	,dup "mov eax,dword[r9]" ,ln
+	,dup "movsxd rax,dword[r9]" ,ln
 	"add r9,4" ,ln ;
 
 :gB!+
@@ -880,8 +880,8 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 :number | value --
 	dup 'prevalv !
 	dup 32 << 32 >>
-	=? ( "%d" mformat >TOS ; )
-	"mov rbx,%d" mformat ,s ,cr
+	=? ( "%d" sprint >TOS ; )
+	"mov rbx,%d" sprint ,s ,cr
 	"rbx" >TOS
 	"ebx" >TOSE ;
 
@@ -939,7 +939,7 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 |----------- adress word
 :sworopt
 	"; OPTAW " ,s over @ ,tokenprint ,cr
-	swap getval	"w%h" mformat >TOS
+	swap getval	"w%h" sprint >TOS
 	4 + swap ex ;
 
 :gdwor
@@ -949,7 +949,7 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 |----------- adress var
 :dvaropt
 	"; OPTAV " ,s over @ ,tokenprint ,cr
-	swap getval	"w%h" mformat >TOS
+	swap getval	"w%h" sprint >TOS
 	4 + swap ex ;
 
 :gdvar
@@ -970,7 +970,7 @@ oC!v oQ!v o!+v oC!+v oQ!+v o+!v oC+!v oQ+!v o>Av 0 0 oA!v oA+v 0 oA!+v o>Bv
 
 :varopt
 	"; OPTV " ,s over @ ,tokenprint ,cr
-	swap getval "dword[w%h]" mformat >TOS
+	swap getval "dword[w%h]" sprint >TOS
 	4 + swap ex ;
 
 :gvar
@@ -981,8 +981,8 @@ oC!v oQ!v o!+v oC!+v oQ!+v o+!v oC+!v oQ+!v o>Av 0 0 oA!v oA+v 0 oA!+v o>Bv
 |----------- call word
 :gwor
 	dup @ $ff and
-	16 =? ( drop getval "jmp w%h" ,format ,cr ; ) drop | ret?
-	getval "call w%h" ,format ,cr ;
+	16 =? ( drop getval "jmp w%h" ,print ,cr ; ) drop | ret?
+	getval "call w%h" ,print ,cr ;
 
 |-----------------------------------------
 #vmc
@@ -1001,7 +1001,7 @@ gFNEXT gSYS
 	2 << 'vmc + @ ex ;
 
 :ctetoken
-	8 >>> 'ctecode + q@ "$%h ; calc" mformat ,s ,cr
+	8 >>> 'ctecode + q@ "$%h ; calc" sprint ,s ,cr
 	;
 
 ::,tokenprinto

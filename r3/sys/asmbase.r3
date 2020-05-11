@@ -590,7 +590,8 @@
 	3 <? ( drop 4drop plineI ; ) drop
 
 :PCURVE3I | xf yf x2 y2 x1 y1
-	pick3 pick2 + 1 >> pick3 pick2 + 1 >> 'by ! 'bx !
+	pick3 pick2 + 1 >> 'bx !
+	pick2 over + 1 >> 'by !
 	'y1 ! 'x1 !
 	pick3 pick2 + 1 >> pick3 pick2 + 1 >> 2swap
 	'y2 ! 'x2 !

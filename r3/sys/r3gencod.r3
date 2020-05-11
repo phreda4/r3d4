@@ -464,7 +464,7 @@
 #tocodeex 0
 
 :inlinew
-	"; INLINE WORD " ,s dup dic>adr @ "%w" ,format ,cr
+	"; INLINE WORD " ,s dup dic>adr @ "%w" ,print ,cr
 
 	dic>toklen 1 - | cut ;
 	( 1? 1 - swap
@@ -473,7 +473,7 @@
 
 :iwor
 	getval
-	dup dic>inf @ $100 an? ( drop inlinew ; ) drop
+|	dup dic>inf @ $100 an? ( drop inlinew ; ) drop
 
 	dic>du
 	dup ( 1? 1 - .drop ) drop
@@ -525,7 +525,7 @@ iFNEXT iSYS
 :gencode | adr --
 	dup 8 + @
 	1 an? ( 2drop ; )	| code
-	$100 an? ( over 16 + dicc> <? ( 3drop ; ) drop ) | inline
+|	$100 an? ( over 16 + dicc> <? ( 3drop ; ) drop ) | inline
 	12 >> $fff and 0? ( 2drop ; )	| no calls
 	drop
 	codeini
@@ -570,11 +570,11 @@ iFNEXT iSYS
 	blok >a
 	,cr
 	nbloques ( 1? 1 -
-		nbloques over - "; %h. " ,format
+		nbloques over - "; %h. " ,print
 		a@+ dup 28 >>>
 		swap $ffffff and
 		a@+
-		"%d %d %d" ,format ,cr
+		"%d %d %d" ,print ,cr
 		) drop ;
 
 |----------------------------

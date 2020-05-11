@@ -26,7 +26,7 @@
 	dup 4 - @ 8 >>> 'ctecode + @	;
 
 ::checkvreg
-	cellnewg |dup "[%d]" ,format
+	cellnewg |dup "[%d]" ,print
 	0? ( drop ; )
 	'TOS cell.REG ;
 
@@ -72,9 +72,9 @@
 :gwor
 	stk.normal
 	dup @ $ff and
-	16 =? ( drop getval "jmp w%h" ,format ,cr ; ) drop | ret?
+	16 =? ( drop getval "jmp w%h" ,print ,cr ; ) drop | ret?
 	getval
-	dup "call w%h" ,format ,cr
+	dup "call w%h" ,print ,cr
 	dic>du stk.gennormal
 	;
 
@@ -94,7 +94,7 @@
 	stk.push
 	getval
 	getiw 0? ( 2drop ; ) drop
-	"_i%h:" ,format ,cr ;		| while
+	"_i%h:" ,print ,cr ;		| while
 
 :g)
 	dup 8 - @ $ff and
@@ -105,8 +105,8 @@
 	drop
 
 	getval
-	getiw 1? ( over "jmp _i%h" ,format ,cr ) drop	| while
-	"_o%h:" ,format ,cr
+	getiw 1? ( over "jmp _i%h" ,print ,cr ) drop	| while
+	"_o%h:" ,print ,cr
 	stk.pop
 	;
 
@@ -134,84 +134,84 @@
 	gwhilejmp
 	'TOS needREG
 	"or #0,#0" ,asm
-	getval "jnz _o%h" ,format ,cr
+	getval "jnz _o%h" ,print ,cr
 	;
 
 :g1?
 	gwhilejmp
 	'TOS needREG
 	"or #0,#0" ,asm
-	getval "jz _o%h" ,format ,cr
+	getval "jz _o%h" ,print ,cr
 	;
 
 :g+?
 	gwhilejmp
 	'TOS needREG
 	"or #0,#0" ,asm
-	getval "js _o%h" ,format ,cr
+	getval "js _o%h" ,print ,cr
 	;
 
 :g-?
 	gwhilejmp
 	'TOS needREG
 	"or #0,#0" ,asm
-	getval "jns _o%h" ,format ,cr
+	getval "jns _o%h" ,print ,cr
 	;
 
 :g<?
 	"cmp #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "jge _o%h" ,format ,cr
+	getval "jge _o%h" ,print ,cr
 	;
 
 :g>?
 	"cmp #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "jle _o%h" ,format ,cr
+	getval "jle _o%h" ,print ,cr
 	;
 
 :g=?
 	"cmp #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "jne _o%h" ,format ,cr
+	getval "jne _o%h" ,print ,cr
 	;
 
 :g>=?
 	"cmp #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "jl _o%h" ,format ,cr
+	getval "jl _o%h" ,print ,cr
 	;
 
 :g<=?
 	"cmp #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "jg _o%h" ,format ,cr
+	getval "jg _o%h" ,print ,cr
 	;
 
 :g<>?
 	"cmp #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "je _o%h" ,format ,cr
+	getval "je _o%h" ,print ,cr
 	;
 
 :gA?
 	"test #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "jnz _o%h" ,format ,cr
+	getval "jnz _o%h" ,print ,cr
 	;
 
 :gN?
 	"test #1,#0" ,asm
 	.drop
 	gwhilejmp
-	getval "jz _o%h" ,format ,cr
+	getval "jz _o%h" ,print ,cr
 	;
 
 :gB?
@@ -220,7 +220,7 @@
 	"cmp #2,#1" ,asm
 	.2drop
 	gwhilejmp
-	getval "jge _o%h" ,format ,cr
+	getval "jge _o%h" ,print ,cr
 	;
 
 

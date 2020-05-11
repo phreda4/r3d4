@@ -89,14 +89,14 @@
 	$25 <>? ( ,c ; ) drop
 	c@+ $f and 2 << 'control + @ ex ;
 
-::,format | p p .. "" --
+::,print | p p .. "" --
 	( c@+ 1? ,emit ) 2drop ;
 
-::mformat | p p .. "" -- adr
+::sprint | p p .. "" -- adr
 	mark
 	here 4096 +
 	over =? ( 4096 + )
 	dup 'here ! >r
-	,format ,eol
+	,print ,eol
 	empty r> ;
 

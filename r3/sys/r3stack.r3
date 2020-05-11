@@ -264,14 +264,14 @@
 |---- imprime celda
 :value 8 >> ;
 
-:mt0 value 3 << 'stkvalue + q@ "%d" ,format ;	|--	0 nro 	33
+:mt0 value 3 << 'stkvalue + q@ "%d" ,print ;	|--	0 nro 	33
 
 :mt1 value 'syscons list2str ,s ;	|--	1 cte	XRES
 :mt7 value 'sysconm list2str ,s ;	|--	7 ctem [FREE_MEM]
 
-:mt2 value "str%h" ,format ;			|--	2 str   "hola"
-:mt3 value "w%h" ,format ;			|--	3 word  'word
-:mt4 value "dword[w%h]" ,format ;	|--	4 var   [var]
+:mt2 value "str%h" ,print ;			|--	2 str   "hola"
+:mt3 value "w%h" ,print ;			|--	3 word  'word
+:mt4 value "dword[w%h]" ,print ;	|--	4 var   [var]
 :mt5 value 'sysregs list2str ,s ;	|-- 5 reg 	eax
 :mt5b value 'sysregb list2str ,s ;	|-- 5 regb 	al
 :mt5w value 'sysregw list2str ,s ;	|-- 5 regw 	ax
@@ -347,8 +347,8 @@
 
 ::,printstka
 	"; [ " ,s
-	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,format ) drop
-	'PSP NOS <? ( TOS 8 >> "%h " ,format ) drop
+	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,print ) drop
+	'PSP NOS <? ( TOS 8 >> "%h " ,print ) drop
 	"] " ,s
 	;
 

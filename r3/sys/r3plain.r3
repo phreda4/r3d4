@@ -16,7 +16,7 @@
 	$fff000 na? ( 2drop ; )	| no calls
 	1 and ":#" + c@ ,c
 	dicc> 16 - <? ( dup adr>dicname ,s )
-|	dup @ " | %w" ,format ,cr | debug plain
+|	dup @ " | %w" ,print ,cr | debug plain
 	adr>toklen
 	( 1? 1 - swap
 		@+ ,sp ,tokenprintn
@@ -26,9 +26,9 @@
 
 :r3-genplain
 	mark
-	switchresy switchresx "|SCR %d %d" ,format ,cr
-	switchfull 1? ( "|FULL" ,format ,cr ) drop
-	switchmem "|MEM %d" ,format ,cr
+	switchresy switchresx "|SCR %d %d" ,print ,cr
+	switchfull 1? ( "|FULL" ,print ,cr ) drop
+	switchmem "|MEM %d" ,print ,cr
 
 	dicc ( dicc> <?
 		dup genword

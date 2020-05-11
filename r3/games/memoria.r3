@@ -231,8 +231,8 @@ i.L i.M i.N i.O i.P i.Q i.R i.S i.T i.U i.V i.W i.X i.Y i.Z i.bracketleft i.back
 	"Fin de juego" printc
 	cr cr
 	$ff00 'ink !
-	intentos puntos 1 >>  "Aciertos: %d/%d" mformat printc cr
-	tiempo 1000 / "%d segundos" mformat printc
+	intentos puntos 1 >>  "Aciertos: %d/%d" sprint printc cr
+	tiempo 1000 / "%d segundos" sprint printc
 
 	key
 	>esc< =? ( exit )

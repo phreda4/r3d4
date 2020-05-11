@@ -44,6 +44,13 @@
 		cr 1 - ) 2drop
 	waitesc ;
 
+::dumpf | adr --
+	16 ( 1?
+		8 ( 1?
+			rot @+ .f emits sp
+			rot rot 1 - ) drop
+		cr 1 - ) 2drop
+	waitesc ;
 
 :scroll
 	cch neg 'ccy +!
