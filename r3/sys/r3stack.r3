@@ -244,7 +244,8 @@
 	;
 
 ::stk.drop
-	-4 'stks> +! stks> @
+	stks> 4 - 'stks max 'stks> !
+	stks> @
 	'memstk> !
 	;
 

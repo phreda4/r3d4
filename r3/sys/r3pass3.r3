@@ -19,7 +19,7 @@
 |--------- caso !+ w!+ c!+
 :nextis!+ | stack adr v -- stack adr v v
 	over @ $ff and
-	$55 <? ( ; ) $57 >? ( ; )  | !+ c!+ w!+
+	$52 <? ( ; ) $54 >? ( ; )  | !+ c!+ w!+
 	drop over 4 - @ 8 >> 1 + nip dup
 	dic>inf dup
 	@ dup $1000 + $4 or rot !	| set adr!

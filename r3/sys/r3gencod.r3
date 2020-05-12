@@ -108,7 +108,8 @@
 
 :ivar
 	getval
-	dup dic>inf @ $8 an? ( drop icte ; ) drop | inline VAR
+	dup dic>inf @
+	$8 an? ( drop icte ; ) drop | inline VAR
 	push.var
 	2code!+ ;
 
@@ -473,7 +474,7 @@
 
 :iwor
 	getval
-|	dup dic>inf @ $100 an? ( drop inlinew ; ) drop
+	dup dic>inf @ $100 an? ( drop inlinew ; ) drop
 
 	dic>du
 	dup ( 1? 1 - .drop ) drop
@@ -525,7 +526,7 @@ iFNEXT iSYS
 :gencode | adr --
 	dup 8 + @
 	1 an? ( 2drop ; )	| code
-|	$100 an? ( over 16 + dicc> <? ( 3drop ; ) drop ) | inline
+	$100 an? ( over 16 + dicc> <? ( 3drop ; ) drop ) | inline
 	12 >> $fff and 0? ( 2drop ; )	| no calls
 	drop
 	codeini

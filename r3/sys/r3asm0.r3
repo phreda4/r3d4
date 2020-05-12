@@ -891,10 +891,8 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 	4 + swap ex ;
 
 :val'var! | especial case "nro 'var !"
-	"mov dword[w" ,s
-	dup @ 8 >>> ,h
-	"]," ,s
-	getcte number ,TOS ,cr
+	getcte number
+	"mov dword[w" ,s dup @ 8 >>> ,h "]," ,s ,TOSE ,cr
 	8 + ;
 
 ::getval | a -- a v

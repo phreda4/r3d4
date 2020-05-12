@@ -295,9 +295,9 @@
 	inlinemark
 	swap !
 
-|	cntfin 0? ( deltaD )( deltaD1fin ) nip
-
-	deltaD $1f and 4 << usoD neg $f and or
+	deltaD1fin
+	cntfin 0? ( nip deltaD swap ) drop
+	$1f and 4 << usoD neg $f and or
 	over dic>mov dup @ rot or swap !
 	;
 
