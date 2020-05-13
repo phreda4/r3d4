@@ -203,19 +203,6 @@
 :iQ@+		.DUP 2 NOS +! TOS q@ 'TOS ! ;
 :iQ!+		NOS @ TOS q! .NIP 2 'TOS +! ;
 
-|-- 0 is nro x tops of stack
-| see ( for break   0 ( 1 - ... is not a -1
-::nro1stk | --1/0 ok
-	TOS $f and ;
-
-::nro2stk | --1/0 ok
-	NOS @ $f and
-	TOS $f and or ;
-
-::nro3stk | --1/0
-	NOS 4 - @ $f and
-	NOS @ $f and or
-	TOS $f and or ;
 
 #stks * 256 		| stack of stack 64 levels
 #stks> 'stks
@@ -244,7 +231,8 @@
 	;
 
 ::stk.drop
-	stks> 4 - 'stks max 'stks> !
+	stks> 4 - 'stks <? ( trace )
+	'stks> !
 	stks> @
 	'memstk> !
 	;
@@ -571,7 +559,7 @@
 	IniStack
 	dup 'stacknow !
 	0? ( drop ; )
-	1 - ( 1? 
+	1 - ( 1?
 		dup neg push.stk
 		1 - )
 	push.reg ;

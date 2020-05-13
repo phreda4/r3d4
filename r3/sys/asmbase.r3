@@ -4,8 +4,9 @@
 |------------------------
 ^r3/lib/math.r3
 
-#BPP 4 #TOLERANCE 24 #VALUES $10 #QFULL $100 #MASK $f
-|#BPP 2 #TOLERANCE 8 #VALUES $4 #QFULL $8 #MASK $3
+|#BPP 4 #TOLERANCE 24 #VALUES $10 #QFULL $100 #MASK $f #SHIFTA 0
+|#BPP 3 #TOLERANCE 12 #VALUES $8 #QFULL $40 #MASK $7 #SHIFTA 6
+#BPP 2 #TOLERANCE 8 #VALUES $4 #QFULL $10 #MASK $3 #SHIFTA 4
 
 #FBASE	8
 
@@ -228,8 +229,8 @@
 	( 1? 1 - ink a!+ ) drop ;
 
 :solidoalpha
-	$ff xor
-	swap ( 1? 1 - over pxa ) 2drop ;
+	$ff SHIFTA *>> $ff xor swap
+	( 1? 1 - over pxa ) 2drop ;
 
 :rlq
 	QFULL =? ( drop solidofill ; )
@@ -249,7 +250,7 @@
 		mex 8 >> mixcolor a!+
 		ma 'mex +! ) drop ;
 :Ldegalpha
-	$ff xor swap
+	$ff SHIFTA *>> $ff xor swap
 	( 1? 1 -
 		over mex 8 >> mixcolor acpx!+
 		ma 'mex +! ) 2drop ;
@@ -280,7 +281,7 @@
 	    ma 'mex +! mb 'mey +!
 		) drop ;
 :Rdegalpha
-	$ff xor swap
+	$ff SHIFTA *>> $ff xor swap 
 	( 1? 1 -
 		over
 	    mex mey distf 16 >> mixcolor acpx!+
@@ -307,7 +308,7 @@
 	    ma 'mex +! mb 'mey +!
 		) drop ;
 :Texalpha
-	$ff xor swap
+	$ff SHIFTA *>> $ff xor swap
 	( 1? 1 - over
 	    mex 8 >> $ff and mey $ff00 and or 2 << tex + @ acpx!+
 	    ma 'mex +! mb 'mey +!
@@ -401,7 +402,7 @@
 	0 sw 1 + setlen 'runlenscan !+ ! ;
 
 :searchscan | valor -- valor
-	( b@+ 1? 
+	( b@+ 1?
 		getpos over >? ( drop -8 b+ ; )
 		drop ) drop
 	-8 b+ ;

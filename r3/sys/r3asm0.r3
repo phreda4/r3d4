@@ -131,13 +131,13 @@
 |-------------------------------------
 :g[
 	pushbl
-	dup "jmp ja%h" ,print cr
+	dup "jmp ja%h" ,print ,cr
 	"anon%h:" ,print ,cr
 	;
 :g]
-	popbl	
+	popbl
 	dup "ja%h:" ,print ,cr
-	"add rbp,8" ,ln
+	,DUP
 	"mov rax,anon%h" ,print ,cr
 	;
 

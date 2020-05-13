@@ -118,7 +118,8 @@
 :i( 2code!+ stk.push ;
 :i) 2code!+ stk.pop	;
 
-:i[ :i] ;
+:i[ 2code!+ stk.push ;
+:i] 2code!+ stk.pop 1 push.wrd ;
 
 :iex
 	lastdircode dic>du
@@ -497,7 +498,7 @@ iFNEXT iSYS
 
 |------------------------------------------
 :tocode | adr token -- adr
-	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+|	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
 |		"asm/code.asm" savemem | debug
 	$ff and 2 << 'vmc + @ ex
 	;
@@ -557,7 +558,7 @@ iFNEXT iSYS
 		) drop
     anaend
 
-	cellinfo
+|	cellinfo
 
     ";---------GEN" ,ln |----- generate code
 	12 + @ $f and	| use
