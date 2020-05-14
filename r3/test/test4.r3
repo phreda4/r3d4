@@ -61,7 +61,7 @@
 	drawc
 
 	omode
-| freelook
+ freelook
 	0.2 mrotx
 	2.3 2.3 40.0  mtrans
 	drawcube

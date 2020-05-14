@@ -316,10 +316,10 @@
 		,c )
 	2drop ;
 
-:tn val src + "%w" sprint ,s ;
+:tn val src + ,w ;
 :ts """" ,s valstr """" ,s ;
-:tw val dic>adr @ "%w" sprint ,s ;
-:taw val dic>adr @ "'%w" sprint ,s ;
+:tw val dic>adr @ ,w ;
+:taw val dic>adr @ "'" ,s ,w ;
 
 #ltok 0 0 0 0 0 0 0 tn tn tn tn ts tw tw taw taw
 

@@ -17,8 +17,8 @@
 	$ff 'ink !
 	xypen op
 	40 40 pline
-	90 120 pline
-	20 30 pline
+	190 120 pline
+	20 300 pline
 	xypen pline
 	poli
 

@@ -1,6 +1,6 @@
 | Sistema de Particulas
 | PHREDA 2019
-
+|mem $ffff
 ^r3/lib/sys.r3
 ^r3/lib/rand.r3
 ^r3/lib/print.r3
@@ -44,7 +44,7 @@
 :xypos
 	rand sw mod abs 16 << rand sh mod abs 16 << ;
 :vxypos
-	rand 15.0 mod rand 15.0 mod ;
+	rand 32 << 32 >> 15.0 mod rand 32 << 32 >> 15.0 mod ;
 
 :add
 	100 ( 1? 1 -

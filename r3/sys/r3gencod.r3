@@ -498,8 +498,8 @@ iFNEXT iSYS
 
 |------------------------------------------
 :tocode | adr token -- adr
-|	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-|		"asm/code.asm" savemem | debug
+	"; " ,s dup ,tokenprint ,cr |9 ,c ,printstka ,cr
+|	"asm/code.asm" savemem | debug
 	$ff and 2 << 'vmc + @ ex
 	;
 
@@ -558,7 +558,7 @@ iFNEXT iSYS
 		) drop
     anaend
 
-|	cellinfo
+	cellinfo
 
     ";---------GEN" ,ln |----- generate code
 	12 + @ $f and	| use
@@ -587,7 +587,8 @@ iFNEXT iSYS
 	"; " ,s 'r3filename ,s ,cr
 |	debugblok
 	dicc ( dicc> <?
-		dup gencode | "asm/code.asm" savemem
+		dup gencode 
+| "asm/code.asm" savemem
 		16 + ) drop
 
 	0 ,c
