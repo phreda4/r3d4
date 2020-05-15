@@ -5,8 +5,6 @@
 |-------------
 ^./r3base.r3
 
-#nstr 0
-
 #stbl * 40 | 10 niveles ** falta inicializar si hay varias ejecuciones
 #stbl> 'stbl
 
@@ -931,8 +929,9 @@ oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 
 |----------- adress string
 :gstr
-	,DUP "mov rax,str" ,s nstr ,h ,cr
-	1 'nstr +! ;
+	,DUP "mov rax,str" ,s
+	dup 4 - @ 8 >>> ,h ,cr
+	;
 
 |----------- adress word
 :sworopt

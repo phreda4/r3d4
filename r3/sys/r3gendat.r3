@@ -66,7 +66,7 @@
 		"$" ,s ,h ;
 
 :,dlits	1 'dcnt +! dfins
-		tok>str |dup memmap
+		tok>str
 		stringwith0 ;
 
 :,dwor	1 'dcnt +! dfind
@@ -121,13 +121,10 @@
 
 
 |----- string
-#nstr
-
 :otrostr
 	1 'dini !
-	nstr "str%h " ,print
+	over 8 >>> "str%h " ,print
 	over ,dlits
-	1 'nstr +!
 	,cr ;
 
 :gendatastr | adr --
@@ -144,7 +141,6 @@
 ::r3-gendata
 	mark
 	";---r3 compiler data.asm" ,ln
-	0 'nstr !
 	"; *** STRINGS ***" ,s ,cr
 
 	dicc ( dicc> <?

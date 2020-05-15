@@ -1,15 +1,23 @@
 | r3STACK 2018
 | PHREDA
 |--------------------
-^r3/lib/gui.r3
-^r3/lib/trace.r3
 
-|-- buffer code
+^r3/lib/trace.r3
+^r3/sys/r3base.r3
+
+| buffer code
+| -make code for generate code, last step
+| -save after modification (inline, folding, etc..)
+
 ##bcode * 8192
 ##bcode> 'bcode
 
+| calculated number
+| for constant folding.
+
 ##ctecode * 8192
 ##ctecode> 'ctecode
+
 
 ::codeini
 	'bcode 'bcode> !
@@ -33,6 +41,7 @@
 	dup 'ctecode - 8 << 8 or | token hex are generated
 	code!+
 	q!+ 'ctecode> ! ;
+
 
 |--- Pilas
 #REGA
@@ -253,7 +262,7 @@
 |---- imprime celda
 :value 8 >> ;
 
-:mt0 value 3 << 'stkvalue + q@ "%d" ,print ;	|--	0 nro 	33
+:mt0 value 3 << 'stkvalue + q@ ,d ;	|--	0 nro 	33
 
 :mt1 value 'syscons list2str ,s ;	|--	1 cte	XRES
 :mt7 value 'sysconm list2str ,s ;	|--	7 ctem [FREE_MEM]
