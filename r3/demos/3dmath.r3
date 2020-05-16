@@ -1,7 +1,7 @@
 | 3d math demo
 | PHREDA 2020
 |----------------------
-|MEM 8192
+|MEM $ffff
 
 ^r3/lib/gui.r3
 ^r3/lib/3d.r3
@@ -98,7 +98,7 @@
 
 :main
 	mark
-	10000 'objetos p.ini
+	1000 'objetos p.ini
 	'screen onshow ;
 
 : main ;
