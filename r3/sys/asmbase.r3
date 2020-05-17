@@ -4,9 +4,9 @@
 |------------------------
 ^r3/lib/math.r3
 
-|#BPP 4 #TOLERANCE 24 #VALUES $10 #QFULL $100 #MASK $f #SHIFTA 0
-|#BPP 3 #TOLERANCE 12 #VALUES $8 #QFULL $40 #MASK $7 #SHIFTA 6
-#BPP 2 #TOLERANCE 8 #VALUES $4 #QFULL $10 #MASK $3 #SHIFTA 4
+|#BPP 4 #TOLERANCE 24 #VALUES $10 #QFULL $ff #MASK $f #SHIFTA 0
+|#BPP 3 #TOLERANCE 12 #VALUES $8 #QFULL $3f #MASK $7 #SHIFTA 6
+#BPP 2 #TOLERANCE 8 #VALUES $4 #QFULL $f #MASK $3 #SHIFTA 4
 
 #FBASE	8
 
@@ -233,7 +233,7 @@
 	( 1? 1 - over pxa ) 2drop ;
 
 :rlq
-	QFULL =? ( drop solidofill ; )
+	QFULL >=? ( drop solidofill ; )
 	1? ( solidoalpha ; )
 	drop 2 << a+ ;
 
@@ -256,7 +256,7 @@
 		ma 'mex +! ) 2drop ;
 
 :rlq
-	QFULL =? ( drop Ldegfill ; )
+	QFULL >=? ( drop Ldegfill ; )
 	1? ( Ldegalpha ; )
 	drop dup 2 << a+ ma * 'mex +! ;
 
@@ -288,7 +288,7 @@
 	    ma 'mex +! mb 'mey +!
 		) 2drop ;
 :rlq
-	QFULL =? ( drop Rdegfill ; )
+	QFULL >=? ( drop Rdegfill ; )
 	1? ( Rdegalpha ; )
 	drop dup 2 << a+ dup ma * 'mex +! mb * 'mey +! ;
 
@@ -315,7 +315,7 @@
 		) 2drop ;
 
 :rlq
-	QFULL =? ( drop Texfill ; )
+	QFULL >=? ( drop Texfill ; )
 	1? ( Texalpha ; )
 	drop dup 2 << a+ dup ma * 'mex +! mb * 'mey +! ;
 
@@ -459,14 +459,9 @@
 
 :coverl
 	+? ( rot MASK and VALUES swap -
-		over add.1 1 + sw >=? ( 3drop r> drop ; ) |??
+		over add.1 1 + |sw >=? ( 3drop r> drop ; ) |??
 		; )
 	drop nip 0 'runlenscan >b ;
-
-|	+? ( rot MASK and VALUES swap -
-|			over add.1
-|			1 + sw >=? ( 3drop ; ) |<<exit
-|		)( drop nip 0 'runlenscan >b )
 
 :limup	| xb x0 x1 largo
 	sw >? ( sw pick2 - ; )
