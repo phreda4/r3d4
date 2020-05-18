@@ -433,28 +433,32 @@
 	"cqo" ,ln
 	"imul qword[rbp]" ,ln
 	"shrd rax,rdx,cl" ,ln
-	"sar rdx,cl" ,ln
-	"test cl,64" ,ln
-	"cmovne	rax,rdx" ,ln
+|	"sar rdx,cl" ,ln
+|	"test cl,64" ,ln
+|	"cmovne	rax,rdx" ,ln
 	,NIP ;
 :o*>>
 	"cqo" ,ln
 	"imul qword[rbp]" ,ln
 	,NIP
 	prevalv
-	64 <? ( "shrd rax,rdx," ,s ,d ,cr ; )
-	64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
-	drop
-	"mov rax,rdx" ,ln ;
+|	64 <? (
+	"shrd rax,rdx," ,s ,d ,cr ;
+|	)
+|	64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
+|	drop
+|	"mov rax,rdx" ,ln ;
+
 :o*>>v
 	"mov ecx," ,s ,TOS ,cr
 	"cqo" ,ln
 	"imul qword[rbp]" ,ln
 	,NIP
 	"shrd rax,rdx,cl" ,ln
-	"sar rdx,cl" ,ln
-	"test cl,64" ,ln
-	"cmovne rax,rdx" ,ln ;
+|	"sar rdx,cl" ,ln
+|	"test cl,64" ,ln
+|	"cmovne rax,rdx" ,ln
+	;
 
 :g<</
 	"mov rcx,rax" ,ln

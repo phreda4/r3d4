@@ -27,7 +27,7 @@
 | $80 copia de A en cellt
 | $100 celda exec
 | $800 celda ya asignada (para vreg)
-| $1000 celda A
+| $1000 celda A/D
 | $2000 celda C
 | $4000 celda SI
 | $8000 celda DI
@@ -82,7 +82,8 @@
 :cellfl | -- adr flg
 	TOS 8 >> 2 << 'cellf + dup @ ;
 
-:cellA cellfl $1000 or swap ! ;
+:cellA cellfl $1000 or swap ! ; |**********
+:cellAD cellfl $1000 or swap ! ;
 :cellC cellfl $2000 or swap ! ;
 :cellSI	cellfl $4000 or swap ! ;
 :cellDI	cellfl $8000 or swap ! ;
@@ -141,17 +142,17 @@
 	;
 
 |---- pila
-:iDUP 	.dup ;
-:iOVER  .over ;
-:iPICK2 .pick2 ;
-:iPICK3 .pick3 ;
-:iPICK4 .pick4 ;
-:i2OVER	.2over ;
+:iDUP 	newreg ; |.dup ;
+:iOVER  newreg ; |.over ;
+:iPICK2 newreg ; |.pick2 ;
+:iPICK3 newreg ; |.pick3 ;
+:iPICK4 newreg ; |.pick4 ;
+:i2OVER	newreg newreg ; |.2over ;
 
 :iSWAP	.swap ;
 :iNIP   .nip ;
 :iROT   .rot ;
-:i2DUP  .2dup ;
+:i2DUP  newreg newreg ; |.2dup ;
 :i2SWAP .2swap ;
 
 :iDROP  endreg ;
@@ -163,30 +164,30 @@
 :iR>    .r> ;
 :iR@	.r@ ;
 
-:iop2a1	endREG endREG newreg cellW ; | + - * and or xor
-:iop1a1	endreg newreg cellW ; | neg not
+:iop2a1	endREG cellW ; | + - * and or xor
+:iop1a1	cellW ; | neg not
 
 :i/
-	endREG endREG newreg cellW ;
+	endREG cellAD cellW ;
 :i*/
-	endREG endREG endREG newreg cellW ;
+	endREG endREG cellAD cellW ;
 :i/MOD
-	endREG endREG newreg cellW newreg cellW ;
+	cellAD cellW ;
 :iMOD
-	endREG endREG newreg cellW ;
+	endREG cellAD cellW ;
 :iABS
-	endREG newreg cellW ;
+	cellW ;
 :iSQRT
-	endREG newreg cellW ;
+	cellW ;
 :iCLZ
-	endREG newreg cellW ;
+	cellW ;
 :i<<
 :i>>
 :i>>>
-	endREG endREG newreg cellW ;
+	endREG cellC cellW ;
 :i*>>
 :i<</
-	endREG endREG endREG newreg cellW ;
+	cellC endREG endREG cellAD cellW ;
 
 :i@
 :iC@
@@ -210,17 +211,17 @@
 	endREG endREG ;
 :i>A	endReg ;
 :iA>    newReg ;
-:iA@    newReg ;
+:iA@    newReg cellW ;
 :iA!    endReg ;
 :iA+    endReg ;
-:iA@+   newReg ;
+:iA@+   newReg cellW ;
 :iA!+   endReg ;
 :i>B    endReg ;
 :iB>    newReg ;
-:iB@    newReg ;
+:iB@    newReg cellW ;
 :iB!    endReg ;
 :iB+    endReg ;
-:iB@+   newReg ;
+:iB@+   newReg cellW ;
 :iB!+   endReg ;
 
 :iMOVE :iMOVE>

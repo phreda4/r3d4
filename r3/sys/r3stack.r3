@@ -18,7 +18,6 @@
 ##ctecode * 8192
 ##ctecode> 'ctecode
 
-
 ::codeini
 	'bcode 'bcode> !
 	'ctecode 'ctecode> !
@@ -51,8 +50,6 @@
 ##NOS 'PSP
 #RSP * 1024
 ##RTOS 'RSP
-
-::NOS2 NOS 4 - ;
 
 | format cell
 | type-- $0000000f
@@ -251,9 +248,9 @@
 #syscons "XRES" "YRES"
 #sysconm "[FREE_MEM]" "[SYSFRAME]" "dword[SYSXM]" "dword[SYSYM]" "dword[SYSBM]" "dword[SYSKEY]" "dword[SYSCHAR]"
 
-#sysregr "rax" "rbx" "rcx" "rdx" "r8" "r9" "r10" "r11" "r12" "r13" "r14" "r15" "rdi" "rsi"
+#sysregr "rax" "rbx" "rcx" "rdx" "r8"  "r9"  "r10"  "r11"  "r12"  "r13"  "r14"  "r15"  "rdi" "rsi"
 #sysregs "eax" "ebx" "ecx" "edx" "r8d" "r9d" "r10d" "r11d" "r12d" "r13d" "r14d" "r15d" "edi" "esi"
-#sysregw  "ax"  "bx"  "cx"  "dx" "r8w" "r9w" "r10w" "r11w" "r12w" "r13w" "r14w" "r15w" "di" "si"
+#sysregw  "ax"  "bx"  "cx"  "dx" "r8w" "r9w" "r10w" "r11w" "r12w" "r13w" "r14w" "r15w" "di"  "si"
 #sysregb  "al"  "bl"  "cl"  "dl" "r8b" "r9b" "r10b" "r11b" "r12b" "r13b" "r14b" "r15b" "dil" "sil"
 
 :list2str | nro 'list -- str
@@ -267,19 +264,18 @@
 :mt1 value 'syscons list2str ,s ;	|--	1 cte	XRES
 :mt7 value 'sysconm list2str ,s ;	|--	7 ctem [FREE_MEM]
 
-:mt2 value "str%h" ,print ;			|--	2 str   "hola"
-:mt3 value "w%h" ,print ;			|--	3 word  'word
-:mt4 value "dword[w%h]" ,print ;	|--	4 var   [var]
+:mt2 value "str" ,s ,h ;			|--	2 str   "hola"
+:mt3 value "w" ,s ,h ;				|--	3 word  'word
+:mt4 value "dword[w" ,s ,h "]" ,s ;	|--	4 var   [var]
 :mt5 value 'sysregs list2str ,s ;	|-- 5 reg 	eax
 :mt5b value 'sysregb list2str ,s ;	|-- 5 regb 	al
 :mt5w value 'sysregw list2str ,s ;	|-- 5 regw 	ax
 :mt5r value 'sysregr list2str ,s ;	|-- 5 reg 	rax
 
-:mt6 value 2 << "qword[rbp" ,s
+:mt6 value 3 << "qword[rbp" ,s
 	0? ( drop "]" ,s ; )
 	+? ( "+" ,s ) ,d
 	"]" ,s ;
-
 
 
 #tiposrm mt0 mt1 mt2 mt3 mt4 mt5 mt6 mt7 mt0
@@ -300,13 +296,10 @@
 	dup $f and 2 << 'tiposrm + @ ex ;
 
 |---------- ASM
-| "movzx %0,#1" --> movzx rax,ebx ; TOS,NOS
-| "add %-0,%0" --> add rax,rax ; TOS(new),TOS ****
+| "add %0,#1" --> add rax,rbx ; TOS,NOS
 |
 :,cstack | adr -- adr
 	c@+
-|	$2d =? ( ) | next
-
 	$30 -
 	0? ( drop TOS ,cell ; )
 	1 - 2 << NOS swap - @ ,cell ;
@@ -335,19 +328,11 @@
 	,cr ;
 
 |---------- ASM
-
 ::,printstk
 	"; [ " ,s
 	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
 	'PSP NOS <? ( TOS ,cell ) drop
 	" ] " ,s
-	;
-
-::,printstka
-	"; [ " ,s
-	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,print ) drop
-	'PSP NOS <? ( TOS 8 >> "%h " ,print ) drop
-	"] " ,s
 	;
 
 ::stackmap | xx vector -- xx
@@ -397,18 +382,31 @@
 	,cr ;
 
 :cell.STK | stk 'cell --
-	"mov [ebp" ,s
+	"mov [rbp" ,s
 	over
-	1? ( 2 << +? ( "+" ,s ) ,d drop )
+	1? ( 3 << +? ( "+" ,s ) ,d drop )
 	"]," ,s
 	dup @ ,cell
 	swap 8 << 6 or swap !
 	,cr ;
 
-|-----
-::setEAX | 'cell --
+|--- cell access
+
+::DTOS 'TOS ;
+::DNOS NOS ;
+::DPK2 NOS 4 - ;
+::DPK3 NOS 8 - ;
+::DPK4 NOS 12 - ;
+::DPK5 NOS 16 - ;
+
+|--- set and query
+
+::regA? | 'cell -- 1/0
+	;
+
+::callA! | 'cell --
 	0 8 << 5 or swap ! ;
-::setEDX | 'cell --
+::cellD! | 'cell --
 	3 8 << 5 or swap ! ;
 
 :setSTK | 'cell --
@@ -429,7 +427,7 @@
 
 #stacknow
 
-|------- convert to normal ; xxx --> ... [ebp-4] eax
+|------- convert to normal ; xxx --> ... [rbp-4] rax
 #stacknormal * 256
 
 :fillnormal | deep --
@@ -454,7 +452,7 @@
 :shiftEBP | deltap --	; corre ebp a nuevo lugar
 	0? ( drop ; )
 	dup neg
-	"lea rbp,[rbp" ,s +? ( "+" ,s ) 3 << ,d "]" ,ln
+	"add rbp," ,s 3 << ,d ,cr
     'cellEBP stackmap
 	drop ;
 
@@ -719,7 +717,7 @@
 :mt5b value 'sysregb list2str print ;	|-- 5 regb 	al
 :mt5w value 'sysregw list2str print ;	|-- 5 regw 	ax
 
-:mt6 value 2 << "qword[ebr" print 1? ( +? ( "+" print ) "%d" print "]" print ; ) drop "]" print ; |-- 6 stack
+:mt6 value 3 << "qword[ebp" print 1? ( +? ( "+" print ) "%d" print "]" print ; ) drop "]" print ; |-- 6 stack
 
 #tiposrm mt0 mt1 mt2 mt3 mt3 mt5 mt6 mt7 mt0
 #tiposrmb mt0 mt1 mt2 mt3 mt3 mt5b mt6 mt7 mt0

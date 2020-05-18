@@ -230,7 +230,10 @@
 	,dup "mov rax,[rsp]" ,ln ;
 
 
-:gAND	"and rax,[rbp]" ,ln ,nip ;
+:gAND
+	| regNOS
+	"and #1,#0" ,asm
+	.drop ;
 
 :gOR    "or rax,[rbp]" ,ln ,nip ;
 
@@ -242,7 +245,10 @@
 
 :g+		"add rax,[rbp]" ,ln ,nip ;
 
-:g-		"neg rax" ,ln "add rax,[rbp]" ,ln ,nip ;
+:g-
+	| regNOS
+	"sub #1,#0" ,asm
+	.drop ;
 
 :g*		"imul rax,[rbp]" ,ln ,nip ;
 
@@ -302,16 +308,20 @@
 	,drop
 	"shr rax,cl" ,ln ;
 
+:setA.RM.CC
+	cell.fillreg  | reg used?
+	DPK2 regA? 0? ( ) drop
+	DNOS reg/M? 0? ( ) drop
+	DTOS regC/C? 0? ( ) drop
+	freeD
+	;
+
 :g*>>
-	"mov rcx,rax" ,ln
-	,DROP
-	"cqo" ,ln
-	"imul qword[rbp]" ,ln
-	"shrd rax,rdx,cl" ,ln
-	"sar rdx,cl" ,ln | *** cl-64
-	"test cl,64" ,ln
-	"cmovne	rax,rdx" ,ln
-	,NIP ;
+	setA.RM.CC
+	"cqo;imul #1;shrd rax,rdx,$0" ,asm
+    .2drop
+	DTOS cellA!
+	;
 
 :g<</
 	"mov rcx,rax" ,ln
@@ -549,17 +559,19 @@
 :gSYS
 	"call SYSYSTEM" ,ln ;
 
-|---------------------------------
-
 |----------- Number
 :gdec
-	,DUP
-	getcte 0? ( drop "xor rax,rax" ,ln ; )
-	"mov rax," ,s ,d ,cr  ;
+	getcte PUSH.NRO
+|	,DUP
+|	getcte 0? ( drop "xor rax,rax" ,ln ; )
+|	"mov rax," ,s ,d ,cr
+	;
 
 |----------- Calculate Number
 :ghex  | really constant folding number
-	,DUP "mov rax," ,s getcte2 ,d ,cr ;
+	getcte2 PUSH.NRO
+|	,DUP "mov rax," ,s getcte2 ,d ,cr
+	;
 
 |----------- adress string
 :gstr
@@ -590,7 +602,7 @@
 #vmc
 0 0 0 0 0 0 0 gdec ghex gdec gdec gstr gwor gvar gdwor gdvar
 g; g( g) g[ g] gEX g0? g1? g+? g-? g<? g>? g=? g>=? g<=? g<>?
-gA? gN? gB? ,DUP ,DROP ,OVER ,PICK2 ,PICK3 ,PICK4 ,SWAP ,NIP ,ROT ,2DUP ,2DROP ,3DROP ,4DROP
+gA? gN? gB? .dup ,DROP ,OVER ,PICK2 ,PICK3 ,PICK4 ,SWAP ,NIP ,ROT ,2DUP ,2DROP ,3DROP ,4DROP
 ,2OVER ,2SWAP g>R gR> gR@ gAND gOR gXOR g+ g- g* g/ g<< g>> g>>> gMOD
 g/MOD g*/ g*>> g<</ gNOT gNEG gABS gSQRT gCLZ g@ gC@ gQ@ g@+ gC@+ gQ@+ g!
 gC! gQ! g!+ gC!+ gQ!+ g+! gC+! gQ+! g>A gA> gA@ gA! gA+ gA@+ gA!+ g>B
@@ -598,25 +610,24 @@ gB> gB@ gB! gB+ gB@+ gB!+ gMOVE gMOVE> gFILL gCMOVE gCMOVE> gCFILL gQMOVE gQMOVE
 gREDRAW gMEM gSW gSH gFRAMEV gXYPEN gBPEN gKEY gCHAR gMSEC gTIME gDATE gLOAD gSAVE gAPPEND gFFIRST
 gFNEXT gSYS
 
-:codestep | token --
-	$ff and 			| dup r3tokenname slog
-	2 << 'vmc + @ ex ;
-
 :ctetoken
-	8 >>> 'ctecode + q@ "$%h ; calc" sprint ,s ,cr
-	;
+	8 >>> 'ctecode + q@ "$" ,s ,h ;
 
 ::,tokenprinto
-	"; " ,s
 	dup dup $ff and 8 =? ( drop ctetoken ; ) drop
-	,tokenprint ,cr
-	;
+	,tokenprint ;
+
+:codestep | token --
+	"; " ,s ,tokenprinto 9 ,c ,printstk ,cr
+	|"asm/code.asm" savemem
+
+	$ff and 2 << 'vmc + @ ex ;
+
 
 ::genasmcode | duse --
-	drop
+	0? ( 1 + ) | if empty, add TOS for not forget!!
+	stk.start
 	'bcode ( bcode> <?
 		@+
-        ,tokenprinto
-|		"asm/code.asm" savemem
 		codestep
 		) drop ;

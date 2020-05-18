@@ -4,10 +4,8 @@
 ^./r3base.r3
 ^./r3cellana.r3
 
-
-^./r3asm0.r3
-|^./r3asm1.r3
-
+|^./r3asm0.r3
+^./r3asm1.r3
 
 #lastdircode
 
@@ -468,7 +466,7 @@
 #tocodeex 0
 
 :inlinew
-	"; INLINE WORD " ,s dup dic>adr @ "%w" ,print ,cr
+|	"; INLINE WORD " ,s dup dic>adr @ "%w" ,print ,cr
 
 	dic>toklen 1 - | cut ;
 	( 1? 1 - swap
@@ -500,7 +498,7 @@ iFNEXT iSYS
 
 |------------------------------------------
 :tocode | adr token -- adr
-	"; " ,s dup ,tokenprint ,cr |9 ,c ,printstka ,cr
+|	"; " ,s dup ,tokenprint ,cr |9 ,c ,printstka ,cr
 |	"asm/code.asm" savemem | debug
 	$ff and 2 << 'vmc + @ ex
 	;
@@ -536,7 +534,7 @@ iFNEXT iSYS
 	,header
 	dup 12 + @ $f and
 	DeepStack
-    ";---------OPT" ,ln |----- generate buffer
+|    ";---------OPT" ,ln |----- generate buffer
 |		"asm/code.asm" savemem | debug
 
 	dup adr>toklen | w adr len
