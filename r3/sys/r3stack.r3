@@ -46,6 +46,7 @@
 #REGA
 #REGB
 ##TOS 0
+#... * 1024 | for debug!!
 ##PSP * 1024
 ##NOS 'PSP
 #RSP * 1024
@@ -62,6 +63,7 @@
 | $6 stk	[rbp] [rbp+8] ...
 
 | $7 [cte]	[FREEMEM]
+| $8 anon
 
 |--Pila
 ::.DUP		4 'NOS +! TOS NOS ! ;
@@ -93,6 +95,8 @@
 	.DUP 8 << 6 or 'TOS ! ;
 ::PUSH.CTEM	| ncte --
 	.DUP 8 << 7 or 'TOS ! ;
+::PUSH.ANO	| anon --
+	.DUP 8 << 8 or 'TOS ! ;
 
 
 ::.POP | -- nro
@@ -262,11 +266,10 @@
 :mt0 value 3 << 'stkvalue + q@ ,d ;	|--	0 nro 	33
 
 :mt1 value 'syscons list2str ,s ;	|--	1 cte	XRES
-:mt7 value 'sysconm list2str ,s ;	|--	7 ctem [FREE_MEM]
-
 :mt2 value "str" ,s ,h ;			|--	2 str   "hola"
 :mt3 value "w" ,s ,h ;				|--	3 word  'word
 :mt4 value "dword[w" ,s ,h "]" ,s ;	|--	4 var   [var]
+
 :mt5 value 'sysregs list2str ,s ;	|-- 5 reg 	eax
 :mt5b value 'sysregb list2str ,s ;	|-- 5 regb 	al
 :mt5w value 'sysregw list2str ,s ;	|-- 5 regw 	ax
@@ -277,11 +280,13 @@
 	+? ( "+" ,s ) ,d
 	"]" ,s ;
 
+:mt7 value 'sysconm list2str ,s ;	|--	7 ctem [FREE_MEM]
+:mt8 value "anon" ,s ,h ;			|--	8 anon
 
-#tiposrm mt0 mt1 mt2 mt3 mt4 mt5 mt6 mt7 mt0
-#tiposrmb mt0 mt1 mt2 mt3 mt4 mt5b mt6 mt7 mt0
-#tiposrmw mt0 mt1 mt2 mt3 mt4 mt5w mt6 mt7 mt0
-#tiposrmq mt0 mt1 mt2 mt3 mt4 mt5r mt6 mt7 mt0
+#tiposrm mt0 mt1 mt2 mt3 mt4 mt5 mt6 mt7 mt8
+#tiposrmb mt0 mt1 mt2 mt3 mt4 mt5b mt6 mt7 mt8
+#tiposrmw mt0 mt1 mt2 mt3 mt4 mt5w mt6 mt7 mt8
+#tiposrmq mt0 mt1 mt2 mt3 mt4 mt5r mt6 mt7 mt8
 
 ::,cell | val --
 	dup $f and 2 << 'tiposrmq + @ ex ;
@@ -294,6 +299,20 @@
 
 ::,celld | nro --
 	dup $f and 2 << 'tiposrm + @ ex ;
+
+::,printstk
+	"; [ " ,s
+	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
+	'PSP NOS <? ( TOS ,cell ) drop
+	" ] " ,s
+	;
+
+::,printstka
+	"; [ " ,s	
+	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,print ) drop	
+	'PSP NOS <? ( TOS 8 >> "%h " ,print ) drop
+	"] " ,s
+	;
 
 |---------- ASM
 | "add %0,#1" --> add rax,rbx ; TOS,NOS
@@ -319,7 +338,7 @@
 :,car
 	$23 =? ( drop ,cstack ; ) | # qword reg
 	$24 =? ( drop ,cstackb ; ) | $ byte reg
-	$25 =? ( drop ,cstackd ; ) | % dword reg
+	$2A =? ( drop ,cstackd ; ) | * dword reg
 	$3b =? ( drop ,cr ; ) | ;
 	,c ;
 
@@ -327,15 +346,8 @@
 	( c@+ 1? ,car ) 2drop
 	,cr ;
 
-|---------- ASM
-::,printstk
-	"; [ " ,s
-	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
-	'PSP NOS <? ( TOS ,cell ) drop
-	" ] " ,s
-	;
-
-::stackmap | xx vector -- xx
+|---------- map cells in stack
+::stackmap | xx vector -- xx  ; LAST...TOS
 	>a 'PSP 8 +
 	( NOS <=? dup >r	| xx 'cell
 		a> ex
@@ -343,14 +355,20 @@
 	'PSP NOS >=? ( drop ; ) drop
 	'TOS a> ex ;
 
-::stackmap-1 | xx vector -- xx
+::stackmap-1 | xx vector -- xx ; LAST..NOS
 	>a 'PSP 8 +
 	( NOS <=? dup >r	| xx 'cell
 		a> ex
 		r> 4 + ) drop ;
 
-|----------------- registers used
-#maskreg 0
+::stackmap-2 | xx vector -- xx ; LAST..NOS-1
+	>a 'PSP 8 +
+	( NOS 4 - <=? dup >r	| xx 'cell
+		a> ex
+		r> 4 + ) drop ;
+
+|-------- registers used
+##maskreg 0
 
 :usereg | 'cell --
 	@ dup $f and
@@ -360,9 +378,14 @@
 	;
 
 ::cell.fillreg
-	0 'maskreg !
-	'usereg stackmap
-	;
+	0 'maskreg ! 'usereg stackmap ;
+
+
+::cell.fillreg2
+	0 'maskreg ! 'usereg stackmap-2 ;
+
+::cell.freeACD
+	%1101 maskreg or 'maskreg ! ;
 
 ::newreg | -- reg
 	0 maskreg
@@ -371,6 +394,13 @@
 
 ::setreg | reg --
 	1 swap << maskreg or 'maskreg ! ;
+
+::.dupNEW
+	.dup
+	cell.fillreg | search unused reg
+	newreg 8 << 5 or
+	"mov " ,s dup ,cell ",#1" ,asm
+	'TOS ! ;
 
 |---- set cell
 ::cell.REG | reg 'cell --
@@ -399,12 +429,9 @@
 ::DPK4 NOS 12 - ;
 ::DPK5 NOS 16 - ;
 
-|--- set and query
+|--- set
 
-::regA? | 'cell -- 1/0
-	;
-
-::callA! | 'cell --
+::cellA! | 'cell --
 	0 8 << 5 or swap ! ;
 ::cellD! | 'cell --
 	3 8 << 5 or swap ! ;
@@ -421,7 +448,7 @@
 	<>? ( 2drop ; ) drop
 	setSTK ;
 
-::freeEDX
+::freeD
 	'freeforedx stackmap ;
 
 
@@ -602,23 +629,25 @@
 |--------------------------------
 | $0 nro	33
 | $1 cte    RESX
-| $7 ctem   [FREEMEM]
 | $2 str    s01
 | $3 wrd    w32
 | $4 [wrd]	[w33]
-| $5 reg	eax ebx
-| $6 stk	[ebp] [ebp+4] ...
+| $5 reg	rax rbx
+| $6 stk	[rbp] [rbp+8] ...
+| $7 ctem   [FREEMEM]
+| $7 anon	anon1
 
 :change | cell@ reg 'cell -- 'cell reg
 	pick2 over @ <>? ( 2drop ; ) drop
 	over swap ! ;
 
-:changecellall | cell@ reg -- cell@ reg
+:changeCellAll | cell@ reg -- cell@ reg
 	'change stackmap ;
+
 
 ::needEAX | 'cell --
 	dup @ 5 =? ( 2drop ; )
-	"mov eax," ,s ,cell ,cr
+	"mov rax," ,s ,cell ,cr
 	5 swap !
 	;
 
@@ -626,7 +655,7 @@
 	dup @
 	2 8 << 5 or =? ( 2drop ; )
 	$f na? ( 2drop ; )
-	"mov ecx," ,s ,cell ,cr
+	"mov rcx," ,s ,cell ,cr
 	2 8 << 5 or swap !
 	;
 
@@ -692,47 +721,3 @@
 	NOS @ $f and 5 =? ( drop ; ) drop
 	NOS needREG ;
 
-
-|-----------------
-| DEBUG
-|-----------------
-
-:debugstk
-	stks> 4 -
-	'stks <? ( drop ; )
-	@ @+ 2 >>
-	( 1?
-		swap @+ "%h " print
-		swap 1 - ) 2drop ;
-
-:mt0 value
-	3 << 'stkvalue + q@ "%d" print ;			|--	0 nro 	33
-
-:mt1 value 'syscons list2str print ;	|--	1 cte	XRES
-:mt7 value 'sysconm list2str print ;	|--	1 cte	[FREEMEM]
-:mt2 value "str%h" print ;			|--	2 str   "hola"
-:mt3 value "w%h" print ;			|--	3 cod  'func		4 dat  'var
-
-:mt5 value 'sysregs list2str print ;	|-- 5 reg 	eax
-:mt5b value 'sysregb list2str print ;	|-- 5 regb 	al
-:mt5w value 'sysregw list2str print ;	|-- 5 regw 	ax
-
-:mt6 value 3 << "qword[ebp" print 1? ( +? ( "+" print ) "%d" print "]" print ; ) drop "]" print ; |-- 6 stack
-
-#tiposrm mt0 mt1 mt2 mt3 mt3 mt5 mt6 mt7 mt0
-#tiposrmb mt0 mt1 mt2 mt3 mt3 mt5b mt6 mt7 mt0
-#tiposrmw mt0 mt1 mt2 mt3 mt3 mt5w mt6 mt7 mt0
-
-:cell | val -- str
-	dup $f and 2 << 'tiposrm + @ ex ;
-
-:cellb | nro -- nro
-	dup $f and 2 << 'tiposrmb + @ ex ;
-
-:cellw | nro -- nro
-	dup $f and 2 << 'tiposrmw + @ ex ;
-
-:printstk
-	'PSP 8 + ( NOS <=? @+ cell " " print ) drop
-	'PSP NOS <? ( TOS cell ) drop
-	;

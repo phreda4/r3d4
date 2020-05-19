@@ -4,8 +4,8 @@
 ^./r3base.r3
 ^./r3cellana.r3
 
-|^./r3asm0.r3
-^./r3asm1.r3
+^./r3asm0.r3
+|^./r3asm1.r3
 
 #lastdircode
 
@@ -587,7 +587,7 @@ iFNEXT iSYS
 	"; " ,s 'r3filename ,s ,cr
 |	debugblok
 	dicc ( dicc> <?
-		dup gencode 
+		dup gencode
 | "asm/code.asm" savemem
 		16 + ) drop
 
