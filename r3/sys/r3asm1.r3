@@ -71,8 +71,6 @@
 	popbl
 	dup "ja%h:" ,print ,cr
 	PUSH.ANO
-|	,DUP
-|	"mov rax,anon%h" ,print ,cr
 	;
 
 :gEX
@@ -84,268 +82,172 @@
 	"jmp rcx" ,ln ;
 
 :g0?
+	stk.R
 	"or #0,#0" ,asm
 	?? "jnz _o%h" ,print ,cr ;
 
 :g1?
+	stk.R
 	"or #0,#0" ,asm
 	?? "jz _o%h" ,print ,cr ;
 
 :g+?
+	stk.R
 	"or #0,#0" ,asm
 	?? "js _o%h" ,print ,cr ;
 
 :g-?
+	stk.R
 	"or #0,#0" ,asm
 	?? "jns _o%h" ,print ,cr ;
 
 :g<?
+	stk.RG
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jge _o%h" ,print ,cr ;
 
 :g>?
+	stk.RG
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jle _o%h" ,print ,cr ;
 
 :g=?
+	stk.RG
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jne _o%h" ,print ,cr ;
 
 :g>=?
+	stk.RG
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jl _o%h" ,print ,cr ;
 
 :g<=?
+	stk.RG
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jg _o%h" ,print ,cr ;
 
 :g<>?
+	stk.RG
 	"cmp #1,#0" ,asm
 	.drop
 	?? "je _o%h" ,print ,cr ;
 
 :gA?
+	stk.RG
 	"test #1,#0" ,asm
 	.drop
 	?? "jz _o%h" ,print ,cr ;
 
 :gN?
+	stk.RG
 	"test #1,#0" ,asm
 	.drop
 	?? "jnz _o%h" ,print ,cr ;
 
 :gB?
-	"sub rbp,8*2" ,ln
-	"mov rbx,[rbp+8]" ,ln
-	"xchg rax,rbx" ,ln
-	"cmp rax,[rbp+8*2]" ,ln
+	"cmp #2,#0" ,asm
 	?? "jge _o%h" ,print ,cr
-	"cmp rax,rbx"
+	"cmp #2,#1" ,asm
 	?? "jle _o%h" ,print ,cr
-	;
+	.2drop ;
 
 :g>R
-	"push #0" ,asm 
-	.drop ;
+	"push #0" ,asm .drop ;
 
 :gR>
-	.dupnew 
+	.dupnew
 	"pop #0" ,asm ;
 
 :gR@
-	.dupnew 
+	.dupnew
 	"mov #0,[rsp]" ,asm ;
 
 
 :gAND
-	| regNOS
-	"and #1,#0" ,asm
-	.drop ;
+	stk.RG
+	"and #1,#0" ,asm .drop ;
 
 :gOR
-	| regNOS
-	"or #1,#0" ,asm
-	.drop ;
+	stk.RG
+	"or #1,#0" ,asm .drop ;
 
 :gXOR
-	| regNOS
-	"xor #1,#0" ,asm
-	.drop ;
+	stk.RG
+	"xor #1,#0" ,asm .drop ;
 
 :gNOT
+	stk.R
 	"not #0" ,asm ;
 
 :gNEG
+	stk.R
 	"neg #0" ,asm ;
 
 :g+
-	| regNOS
-	"add #1,#0" ,asm
-	.drop ;
+	stk.RG
+	"add #1,#0" ,asm .drop ;
 
 :g-
-	| regNOS
-	"sub #1,#0" ,asm
-	.drop ;
+	stk.RG
+	"sub #1,#0" ,asm .drop ;
 
 :g*
-	| regNOS
-	"imul #1,#0" ,asm
-	.drop ;
+	stk.RG
+	"imul #1,#0" ,asm .drop ;
 
 :g/
-	"mov rbx,rax" ,ln
-|	,drop
-	"cqo;idiv #0" ,asm
-	.drop
-	;
+	"cqo;idiv #0" ,asm .drop ;
 
 :g*/
-	"mov rbx,rax" ,ln
-	"mov rcx,[rbp]" ,ln
-|	,2drop
-	"cqo" ,ln
-	"imul rcx" ,ln
-	"idiv rbx" ,ln 	;
+	"cqo;imul #1;idiv #0" ,asm .2drop ;
 
 :g/MOD
-	"mov rbx,rax" ,ln
-	"mov rax,[rbp]" ,ln
-	"cqo" ,ln
-	"idiv rbx" ,ln
-	"mov [rbp],rax" ,ln
-	"xchg rax,rdx" ,ln 	;
+	"cqo;idiv #0" ,asm
+	;
 
 :gMOD
-	"mov rbx,rax" ,ln
-|	,drop
-	"cqo" ,ln
-	"idiv rbx" ,ln
-	"mov rax,rdx" ,ln ;
+	"cqo;idiv #0" ,asm .drop
+	;
 
 :gABS
-	"cqo" ,ln
-	"add rax,rdx" ,ln
-	"xor rax,rdx" ,ln ;
+	stk.R freeD
+	"mov rdx,#0;sar rdx,63;add #0,rdx;xor #0,rdx" ,asm ;
 
 :gSQRT
+	stk.R
 	"cvtsi2sd xmm0,#0;sqrtsd xmm0,xmm0;cvtsd2si #0,xmm0" ,asm ;
 
 :gCLZ
+	stk.R
 	"bsr #0,#0;xor #0,63" ,asm ;
 
 :g<<
-	"shl #1,$0" ,asm
-	.drop ;
-|	"mov cl,al" ,ln
-|	,drop "shl rax,cl" ,ln ;
+	stk.RC
+	"shl #1,$0" ,asm .drop ;
 
 :g>>
-	"sar #1,$0" ,asm
-	.drop ;
-|	"mov cl,al" ,ln ,drop
-|	"sar rax,cl" ,ln ;
+	stk.RC
+	"sar #1,$0" ,asm .drop ;
 
 :g>>>
-	"shr #1,$0" ,asm
-	.drop ;
-|	"mov cl,al" ,ln
-|	,drop
-|	"shr rax,cl" ,ln ;
-
-|---------------
-:changeC | nreg 'cell -- nreg
-	dup @ $205 <>? ( 2drop ; ) drop
-	over swap ! ;
-
-:CisUsed
-	newreg dup setreg
-	dup push.reg
-	"mov #0,#1;xchg rcx,#0" ,asm
-	8 << 5 or 'changeC stackmap-2
-	drop
-	.drop
-	$205 'TOS ! ;
-
-:CVinTOS | RCX or value in TOS
-	TOS
-	$205 =? ( drop ; )		| is RCX
-	$ff and 0? ( drop ; )	| is value
-	drop
-	maskreg %100 an? ( drop CisUsed ; ) drop
-	"mov rcx,#0" ,asm
-	$205 'TOS !
-	;
-
-|---------------
-:RinNOS | any reg in NOS
-	NOS @ $ff and 5 =? ( drop ; ) drop
-	newreg dup setreg
-	8 << 5 or
-	"mov " ,s dup ,cell ",#1" ,asm
-	NOS !
-	;
-
-|---------------
-:changeA | nreg 'cell -- nreg
-	dup @ $005 <>? ( 2drop ; ) drop
-	over swap ! ;
-
-:AisUsed
-	newreg dup setreg
-	dup push.reg
-	"mov #0,#3;xchg rax,#0" ,asm
-	.drop
-	8 << 5 or 'changeA stackmap-2 drop
-	$005 NOS 4 - !
-	;
-
-:AinDPK2
-	NOS 4 - @ $005 =? ( drop ; ) drop
-	maskreg %1 an? ( drop AisUsed ; ) drop
-	"mov rax,#2" ,asm
-	5 NOS 4 - !
-	;
-
-|---------------
-:changeA | nreg 'cell -- nreg
-	dup @ $005 <>? ( 2drop ; ) drop
-	over swap ! ;
-
-:setA.RM.CC
-	cell.fillreg
-	cell.freeACD
-
-	CVinTOS
-	RinNOS
-	AinDPK2
-	freeD
-
-	newreg
-	cell.fillreg2
-	maskreg 1 na? ( 2drop ; ) drop
-	"mov " ,s 8 << 5 or dup ,cell  ",rax" ,ln
-	'changeA stackmap-2 | nreg
-	drop
-	;
+	stk.RC
+	"shr #1,$0" ,asm .drop ;
 
 :g*>>
-	setA.RM.CC
+	stk.AGC
 	"cqo;imul #1;shrd rax,rdx,$0" ,asm
     .2drop
-	DTOS cellA!
 	;
 
 :g<</
-	setA.RM.CC
+	stk.ARC
     "cqo;shld rdx,rax,$0;shl rax,$0;idiv #1" ,asm
 	.2drop
-	DTOS cellA!
 	;
 
 :g@
@@ -370,44 +272,34 @@
 	"mov #0,[#1];add #1,8" ,asm ;
 
 :g!
-	"mov dword[#0],*1" ,asm
-	.2DROP ;
+	"mov dword[#0],*1" ,asm .2DROP ;
 
 :gC!
-	"mov byte[#0],$1" ,asm
-	.2DROP ;
+	"mov byte[#0],$1" ,asm .2DROP ;
 
 :gQ!
-	"mov [#0],#1" ,asm
-	.2DROP ;
+	"mov [#0],#1" ,asm .2DROP ;
 
 :g!+
-	"mov dword[#0],*1;add #0,4" ,asm
-	.NIP ;
+	"mov dword[#0],*1;add #0,4" ,asm .NIP ;
 
 :gC!+
-	"mov byte[#0],$1;add #0,1" ,asm
-	.NIP ;
+	"mov byte[#0],$1;add #0,1" ,asm .NIP ;
 
 :gQ!+
-	"mov [#0],#1;add #0,8" ,asm
-	.NIP ;
+	"mov [#0],#1;add #0,8" ,asm .NIP ;
 
 :g+!
-	"add dword[#0],*1" ,asm
-	.2DROP ;
+	"add dword[#0],*1" ,asm .2DROP ;
 
 :gC+!
-	"add byte[#0],$1" ,asm
-	.2DROP ;
+	"add byte[#0],$1" ,asm .2DROP ;
 
 :gQ+!
-	"add [#0],#1" ,asm
-	.2DROP ;
+	"add [#0],#1" ,asm .2DROP ;
 
 :g>A
-	"mov rsi,#0" ,asm
-	.drop ;
+	"mov rsi,#0" ,asm .drop ;
 
 :gA>
 	.dupnew
@@ -418,27 +310,23 @@
 	"movsxd #0,dword[rsi]" ,asm ;
 
 :gA!
-	"mov dword[rsi],#0" ,asm
-	.drop ;
+	"mov dword[rsi],#0" ,asm .drop ;
 
 :gA+
-	"add rsi,#0" ,asm 
-	.drop ;
+	"add rsi,#0" ,asm .drop ;
 
 :gA@+
-	.dupnew 
+	.dupnew
 	"movsxd #0,dword[rsi];add rsi,4" ,asm ;
 
 :gA!+
-	"mov dword[rsi],*0;add rsi,4" ,asm 
-	.drop ;
+	"mov dword[rsi],*0;add rsi,4" ,asm .drop ;
 
 :g>B
-	"mov rdi,#0" ,asm
-	.drop ;
+	"mov rdi,#0" ,asm .drop ;
 
 :gB>
-	.dupnew 
+	.dupnew
 	"mov #0,rdi" ,asm ;
 
 :gB@
@@ -446,25 +334,23 @@
 	"movsxd #0,dword[rdi]" ,asm ;
 
 :gB!
-	"mov dword[rdi],#0" ,asm
-	.drop ;
+	"mov dword[rdi],#0" ,asm .drop ;
 
 :gB+
-	"add rdi,#0" ,asm
-	.drop ;
+	"add rdi,#0" ,asm .drop ;
 
 :gB@+
 	.dupnew
 	"movsxd #0,dword[rdi];add rdi,4" ,asm ;
 
 :gB!+
-	"mov dword[rdi],*0;add rdi,4" ,asm
-	.drop ;
+	"mov dword[rdi],*0;add rdi,4" ,asm .drop ;
 
 :gMOVE
 	"mov rcx,rax" ,ln
 	"movsxd rsi,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+
 	"rep movsd" ,ln
 	.3DROP ;
 
