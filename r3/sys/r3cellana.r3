@@ -56,9 +56,6 @@
 	24 >>
 	;
 
-:cellconv | 'cell vreg -- 'cell vreg
-	2dup swap cell.REG
-	;
 
 ::cellstart | --
   	0 'ncell !

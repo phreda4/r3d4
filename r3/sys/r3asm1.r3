@@ -39,6 +39,7 @@
 	12 =? ( drop ; ) | tail call  call..ret?
 	21 =? ( drop ; ) | tail call  EX
 	drop
+	stk.normal
 	"ret" ,ln ;
 
 |--- IF/WHILE
@@ -47,11 +48,13 @@
     3 << blok + @ $10000000 and ;
 
 :g(
+	stk.push
 	getval getiw 0? ( pushbl 2drop ; ) drop
 	pushbl
 	"_i%h:" ,print ,cr ;		| while
 
 :g)
+	stk.pop
 	getval getiw
 	popbl swap
 	1? ( over "jmp _i%h" ,print ,cr ) drop	| while
@@ -59,7 +62,9 @@
 
 :?? | -- nblock
 	getval getiw
-	0? ( drop nblock ; ) drop stbl> 4 - @ ;
+	0? ( drop nblock ; ) drop
+	stk.drop stk.push
+	stbl> 4 - @ ;
 
 |---
 :g[
@@ -74,9 +79,8 @@
 	;
 
 :gEX
-	"mov rcx,#0" ,ln
-	.DROP
-	| normalize
+	"mov rcx,#0" ,asm .drop
+	stk.normal	| normalize
 	dup @ $ff and
 	16 <>? ( drop "call rcx" ,ln ; ) drop
 	"jmp rcx" ,ln ;
@@ -150,6 +154,7 @@
 	?? "jnz _o%h" ,print ,cr ;
 
 :gB?
+	stk.RGG
 	"cmp #2,#0" ,asm
 	?? "jge _o%h" ,print ,cr
 	"cmp #2,#1" ,asm
@@ -241,8 +246,7 @@
 :g*>>
 	stk.AGC
 	"cqo;imul #1;shrd rax,rdx,$0" ,asm
-    .2drop
-	;
+    .2drop ;
 
 :g<</
 	stk.ARC
@@ -310,7 +314,7 @@
 	"movsxd #0,dword[rsi]" ,asm ;
 
 :gA!
-	"mov dword[rsi],#0" ,asm .drop ;
+	"mov dword[rsi],*0" ,asm .drop ;
 
 :gA+
 	"add rsi,#0" ,asm .drop ;
@@ -334,7 +338,7 @@
 	"movsxd #0,dword[rdi]" ,asm ;
 
 :gB!
-	"mov dword[rdi],#0" ,asm .drop ;
+	"mov dword[rdi],*0" ,asm .drop ;
 
 :gB+
 	"add rdi,#0" ,asm .drop ;
@@ -488,7 +492,7 @@
 
 |----------- call word
 :gwor
-	| stack normalize
+	stk.normal
 	dup @ $ff and
 	16 =? ( drop getval "jmp w%h" ,print ,cr ; ) drop | ret?
 	getval "call w%h" ,print ,cr ;
@@ -519,9 +523,11 @@ gFNEXT gSYS
 
 
 ::genasmcode | duse --
-	0? ( 1 + ) | if empty, add TOS for not forget!!
+|	0? ( 1 + ) | if empty, add TOS for not forget!!
+	1 +
 	stk.start
 	'bcode ( bcode> <?
 		@+
 		codestep
+ "asm/code.asm" savemem
 		) drop ;

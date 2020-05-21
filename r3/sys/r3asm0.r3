@@ -98,7 +98,7 @@
 
 :g(
 	getval getiw 0? ( pushbl 2drop ; ) drop
-	pushbl
+    pushbl
 	"_i%h:" ,print ,cr ;		| while
 
 :g)
