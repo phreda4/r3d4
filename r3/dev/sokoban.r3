@@ -386,17 +386,20 @@
 
 #levelstr "Level %d"
 #msg * 16
-#letterstr " "
+#letter " "
 
 :buildmsg curmap 1 + 'levelstr sprint 'msg strcpy ;
 
+:strlen count nip ;
+
+:incframedt framedt 32 + 'framedt ! ;
+
 :drawletters | ( -- )
-	     'msg count nip
-	     ( +?
-	       dup
-	       'msg + c@ 'letterstr c!
-	       'letterstr framedt animletter
-	       framedt 32 + 'framedt !
+	     'msg strlen
+	     ( +? dup
+	       'msg + c@ 'letter c!
+	       'letter framedt animletter
+	       incframedt
 	       1 - ) drop ;
 
 :screen key
@@ -428,8 +431,8 @@
 
 :gray $eeeeee 'ink ! ;
 
-:init	mark
-	cls home gray
+:init	cls home gray
+	mark
 	load_tilesheet
 	topleft!
 	0 'curmap !
