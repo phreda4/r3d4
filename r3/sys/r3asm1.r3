@@ -276,30 +276,40 @@
 	"mov #0,[#1];add #1,8" ,asm ;
 
 :g!
-	"mov dword[#0],*1" ,asm .2DROP ;
+	stk.GG
+	"mov dword[#0],*1" ,asm
+	.2DROP ;
 
 :gC!
+	stk.GG
 	"mov byte[#0],$1" ,asm .2DROP ;
 
 :gQ!
+	stk.GG
 	"mov [#0],#1" ,asm .2DROP ;
 
 :g!+
+	stk.GR
 	"mov dword[#0],*1;add #0,4" ,asm .NIP ;
 
 :gC!+
+	stk.GR
 	"mov byte[#0],$1;add #0,1" ,asm .NIP ;
 
 :gQ!+
+	stk.GR
 	"mov [#0],#1;add #0,8" ,asm .NIP ;
 
 :g+!
+	stk.GG
 	"add dword[#0],*1" ,asm .2DROP ;
 
 :gC+!
+	stk.GG
 	"add byte[#0],$1" ,asm .2DROP ;
 
 :gQ+!
+	stk.GG
 	"add [#0],#1" ,asm .2DROP ;
 
 :g>A

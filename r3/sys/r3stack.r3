@@ -649,6 +649,18 @@
 | normal
 | normal-1 (ex)
 
+:cellG? | cell -- 0/1
+	$ff and
+	4 =? ( drop 0 ; )
+	6 =? ( drop 0 ; )
+	7 =? ( drop 0 ; )
+	drop 1 ;
+
+:cellR? | cell -- 0/1
+	$ff and
+	5 =? ( drop 1 ; )
+	drop 0 ;
+
 :needreg
 	newreg 8 << 5 or
 	"mov " ,s dup ,cell "," ,s over @ ,cell ,cr
@@ -777,7 +789,7 @@
 	cell.fillreg
 	TOS $205 <>? ( needC ) drop
 	NOS 4 - @ $005 =? ( drop needAU ; ) drop
-	NOS @ $005 =? ( drop .rot .rot .swap .rot ; ) drop | "xchg rax,#2" ,asm 
+	NOS @ $005 =? ( drop .rot .rot .swap .rot ; ) drop | "xchg rax,#2" ,asm
 	maskreg %1 an? ( needAU ) drop
 	NOS 4 - dup @
 	"mov rax," ,s ,cell ,cr
@@ -789,10 +801,30 @@
 	TOS $205 <>? ( needC ) drop
 
 	;
+
+:tosG
+	.dupnew | x c nr
+	"mov #0,#1" ,asm
+	TOS 'changereg stackmap-1 drop
+    .drop ;
+
+:nosG
+	.dupnew | x c nr
+	"mov #0,#2" ,asm
+	TOS 'changereg stackmap-2 drop
+    .drop ;
+
 ::stk.GG
-	;
+	TOS cellG? 0? ( tosg ) drop
+	NOS @ cellG? 0? ( nosg ) drop ;
+
 ::stk.G
-	;
+	TOS cellG? 0? ( tosg ) drop ;
+
+::stk.GR
+	TOS cellR? 0? ( tosg ) drop
+	NOS @ cellG? 0? ( nosg ) drop ;
+
 ::stk.DSC
 	;
 
