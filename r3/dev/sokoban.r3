@@ -386,17 +386,20 @@
 
 #levelstr "Level %d"
 #msg * 16
-#letterstr " "
+#letter " "
 
 :buildmsg curmap 1 + 'levelstr sprint 'msg strcpy ;
 
+:strlen count nip ;
+
+:incframedt framedt 32 + 'framedt ! ;
+
 :drawletters | ( -- )
-	     'msg count nip
-	     ( +?
-	       dup
-	       'msg + c@ 'letterstr c!
-	       'letterstr framedt animletter
-	       framedt 32 + 'framedt !
+	     'msg strlen
+	     ( +? dup
+	       'msg + c@ 'letter c!
+	       'letter framedt animletter
+	       incframedt
 	       1 - ) drop ;
 
 :screen key
@@ -413,10 +416,38 @@
 
 :animation 'screen onshow ;
 
-:loadmap loadcurmap cls drawmap >xfb animation xfb> ;
+:black 0 'ink ! ;
+
+:white $ffffff 'ink ! ;
+
+:erase black
+       sw 2 /
+       ymap 1 -
+       0 0 fillrect ;
+
+:controlsini  home erase white
+	      archivoblackregular 32 fontr!
+	      ;
+	      
+:controlsanim controlsini
+	      "ESC/SPACE: Start Level - " print
+	      "PGUP: Next Level - " print
+	      "PGDN: Previous Level" print
+	      ;
+
+:controlsplay controlsini
+	      "ESC: Exit - " print
+	      "Cursor: Move Character - " print
+	      "F1: Restart Level - " print
+	      "PGUP: Next Level - " print
+	      "PGDN: Previous Level - " print
+	      ;
+
+:newmap loadcurmap cls drawmap controlsanim >xfb animation xfb> ;
 
 :game home keyboard
-      maploaded 0? ( loadmap ) drop | full screen drawn only once
+      maploaded 0? ( newmap ) drop | full screen drawn only once
+      controlsplay
       drawplayer won? ;
 
 :load_tilesheet | ( -- )
@@ -428,8 +459,8 @@
 
 :gray $eeeeee 'ink ! ;
 
-:init	mark
-	cls home gray
+:init	cls home gray
+	mark
 	load_tilesheet
 	topleft!
 	0 'curmap !
