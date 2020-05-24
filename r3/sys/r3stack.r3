@@ -447,6 +447,7 @@
 :fillnormal | deep --
 	-? ( ";fillnormal -" ,ln drop ; ) |trace drop ; )
 	'stacknormal >a
+	dup a!+	| stacknow
 	dup 2 << a!+
 	0? ( drop ; )
 	1 - ( 1? dup neg 8 << 6 or a!+ 1 - )
@@ -519,7 +520,7 @@
 	cell.fillreg
 	TOS NOS 4 + ! | TOS in PSP
 
-|	@+ 'stacknow !
+	@+ 'stacknow !
 
 	@+ 2 >>
 |	NOS 'PSP - <>? ( ; )	| diferent size
@@ -532,6 +533,7 @@
 	;
 
 ::stk.conv | -- ;****** ojo falta stacknow
+	";>>>conv>>>" ,ln
 	stks> 4 - @ stk.cnv
 	;
 
@@ -591,8 +593,8 @@
 	push.reg ;
 
 ::stk.normal | --
-	stacknow dup "; stacknow %d " ,print ,cr
-	stack.cnt dup "; stackcnt %d " ,print ,cr
+	stacknow dup "; stacknow %d " ,print
+	stack.cnt dup " stackcnt %d " ,print ,cr
 	- shiftRBP 	| corre ebp a nuevo lugar
 	stack.cnt fillnormal
 	'stacknormal stk.cnv
@@ -750,21 +752,19 @@
 	"mov #0,#2" ,asm
 	.swap .rot .drop ;
 
+::stk.GG
+	TOS cellG? 0? ( tosg ) drop
+	NOS @ cellG? 0? ( nosg ) drop ;
+
+::stk.GR
+	TOS cellR? 0? ( tosg ) drop
+	NOS @ cellG? 0? ( nosg ) drop ;
+
 ::stk.RGG
 	NOS 4 - @ $ff and $5 =? ( drop ; ) drop
 	.dupnew
 	"mov #0,#3" ,asm
 	.swap .2swap .nip ;
-
-
-::stk.GG
-	TOS cellG? 0? ( tosg ) drop
-	NOS @ cellG? 0? ( nosg ) drop ;
-
-
-::stk.GR
-	TOS cellR? 0? ( tosg ) drop
-	NOS @ cellG? 0? ( nosg ) drop ;
 
 :needA | cell --
 

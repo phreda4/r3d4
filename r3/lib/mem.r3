@@ -20,11 +20,18 @@
 ::savemem | "" --
 	memmap> 4 - @ here over - rot save ;
 
+#inc 0
+::savememinc | "" --
+	inc 0? ( memmap> 4 - @ nip )
+	here over - rot append
+	here 'inc !
+	;
+
 ::cpymem | 'destino --
 	memmap> 4 - @ here over -
 	cmove ; | de sr cnt --
 
-::appendmem | "" -- ; agregar a diccbase la
+::appendmem | "" --
 	memmap> 4 - @ here over - rot append ;
 
 |---

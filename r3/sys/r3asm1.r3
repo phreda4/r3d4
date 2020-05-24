@@ -210,16 +210,21 @@
 	"imul #1,#0" ,asm .drop ;
 
 :g/
+	stk.AR freeD
 	"cqo;idiv #0" ,asm .drop ;
 
 :g*/
+	stk.AGR freeD
 	"cqo;imul #1;idiv #0" ,asm .2drop ;
 
 :g/MOD
+	stk.AR freeD
 	"cqo;idiv #0" ,asm
+
 	;
 
 :gMOD
+	stk.AR freeD
 	"cqo;idiv #0" ,asm .drop
 	;
 
@@ -248,12 +253,12 @@
 	"shr #1,$0" ,asm .drop ;
 
 :g*>>
-	stk.AGC
+	stk.AGC freeD
 	"cqo;imul #1;shrd rax,rdx,$0" ,asm
     .2drop ;
 
 :g<</
-	stk.ARC
+	stk.ARC freeD
     "cqo;shld rdx,rax,$0;shl rax,$0;idiv #1" ,asm
 	.2drop
 	;
@@ -339,6 +344,7 @@
 	"movsxd #0,dword[rsi];add rsi,4" ,asm ;
 
 :gA!+
+	stk.G
 	"mov dword[rsi],*0;add rsi,4" ,asm .drop ;
 
 :g>B
@@ -364,6 +370,7 @@
 	"movsxd #0,dword[rdi];add rdi,4" ,asm ;
 
 :gB!+
+	stk.G
 	"mov dword[rdi],*0;add rdi,4" ,asm .drop ;
 
 :gMOVE
@@ -496,21 +503,22 @@
 
 |----------- adress word
 :gdwor
-	getval PUSH.WRD ; |--	'word
+	getval PUSH.WRD ;	|--	'word
 
 |----------- adress var
 :gdvar
-	getval PUSH.WRD ; |--	'var
+	getval PUSH.WRD ;	|--	'var
 
 |----------- var
 :gvar
-	getval PUSH.VAR ; |--	[var]
+    getval PUSH.VAR		|--	[var]
+	.dupnew
+	"mov #0,#1" ,asm
+	.nip ;
 
 |----------- call word
 :gwor
-
 	stk.normal
-
 	dup @ $ff and
 	16 =? ( drop getval "jmp w%h" ,print ,cr ; ) drop | ret?
 	getval "call w%h" ,print ,cr ;

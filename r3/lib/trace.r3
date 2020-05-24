@@ -66,3 +66,7 @@
 ::waitkey
 	update
 	key 0? ( drop waitkey ; ) drop ;
+
+::waitesp
+	update
+	key >esp< <>? ( drop waitkey ; ) drop ;
