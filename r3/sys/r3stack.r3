@@ -213,43 +213,6 @@
 :iQ@+		.DUP 2 NOS +! TOS q@ 'TOS ! ;
 :iQ!+		NOS @ TOS q! .NIP 2 'TOS +! ;
 
-|-------------------------------------------
-#stacknow
-
-#stks * 256 		| stack of stack 64 levels
-#stks> 'stks
-
-#memstk * $fff	| stack memory
-#memstk> 'memstk
-
-::stack.cnt | -- cnt
-	NOS 'PSP - 2 >> ;
-
-::stk.push
-	memstk> dup stks> !+ 'stks> !
-	>a
-	NOS 'PSP - a!+
-	'PSP 8 + ( NOS <=? @+ a!+ ) drop
-	'PSP NOS <? ( TOS a!+ ) drop
-	;
-
-::stk.pop
-	-4 'stks> +! stks> @
-	dup 'memstk> !
-	>a
-	a@+ 'PSP + 'NOS !
-	'PSP 8 + ( NOS <=? a@+ swap !+ ) drop
-	'PSP NOS <? ( a@+ 'TOS ! ) drop
-	;
-
-::stk.drop
-	stks> 4 - 'stks <? ( trace )
-	'stks> !
-	stks> @
-	'memstk> !
-	;
-
-
 |-------- constantes del sistema
 #syscons "XRES" "YRES"
 #sysconm "[FREE_MEM]" "[SYSFRAME]" "dword[SYSXM]" "dword[SYSYM]" "dword[SYSBM]" "dword[SYSKEY]" "dword[SYSCHAR]"
@@ -348,6 +311,45 @@
 	( c@+ 1? ,car ) 2drop
 	,cr ;
 
+|-------------------------------------------
+#stacknow
+
+#stks * 256 		| stack of stack 64 levels
+#stks> 'stks
+
+#memstk * $fff	| stack memory
+#memstk> 'memstk
+
+::stack.cnt | -- cnt
+	NOS 'PSP - 2 >> ;
+
+::stk.push
+	memstk> dup stks> !+ 'stks> !
+	>a
+	stacknow a!+
+	NOS 'PSP - a!+
+	'PSP 8 + ( NOS <=? @+ a!+ ) drop
+	'PSP NOS <? ( TOS a!+ ) drop
+	;
+
+::stk.pop
+	-4 'stks> +! stks> @
+	dup 'memstk> !
+	>a
+	a@+ 'stacknow !
+	a@+ 'PSP + 'NOS !
+	'PSP 8 + ( NOS <=? a@+ swap !+ ) drop
+	'PSP NOS <? ( a@+ 'TOS ! ) drop
+	;
+
+::stk.drop
+	stks> 4 - 'stks <? ( dup "stk.drop %h" slog waitkey )
+	'stks> !
+	stks> @
+	'memstk> !
+	;
+
+
 |---------- map cells in stack
 ::stackmap | xx vector -- xx  ; LAST...TOS
 	>a 'PSP 8 +
@@ -410,14 +412,12 @@
 	( 1 an? 1 >> swap 1 + swap ) drop
 	dup setreg ;
 
-
 ::.dupNEW
 	.dup
 	cell.fillreg | search unused reg
 	newreg 8 << 5 or 'TOS ! ;
 
 |---- set cell
-
 :cell.STK | stk 'cell --
 	"mov [rbp" ,s
 	over
@@ -441,20 +441,16 @@
 ::freeD
 	'freeforedx stackmap ;
 
-
 |------- convert to normal ; xxx --> ... [rbp-8] rax
 #stacknormal * 256
 
 :fillnormal | deep --
-	-? ( trace drop ; )
+	-? ( ";fillnormal -" ,ln drop ; ) |trace drop ; )
 	'stacknormal >a
 	dup 2 << a!+
 	0? ( drop ; )
-	1 - ( 1?
-		dup neg 8 << 6 or a!+
-		1 - )
+	1 - ( 1? dup neg 8 << 6 or a!+ 1 - )
 	5 or a!+ ;
-
 
 |-----------------
 |; convert to normal
@@ -522,6 +518,9 @@
 :stk.cnv | 'adr --
 	cell.fillreg
 	TOS NOS 4 + ! | TOS in PSP
+
+|	@+ 'stacknow !
+
 	@+ 2 >>
 |	NOS 'PSP - <>? ( ; )	| diferent size
 	'PSP 8 + >a
@@ -532,7 +531,7 @@
 	NOS 4 + @ 'TOS !
 	;
 
-::stk.conv | --
+::stk.conv | -- ;****** ojo falta stacknow
 	stks> 4 - @ stk.cnv
 	;
 
@@ -592,11 +591,12 @@
 	push.reg ;
 
 ::stk.normal | --
-	stacknow stack.cnt - shiftRBP 	| corre ebp a nuevo lugar
+	stacknow dup "; stacknow %d " ,print ,cr
+	stack.cnt dup "; stackcnt %d " ,print ,cr
+	- shiftRBP 	| corre ebp a nuevo lugar
 	stack.cnt fillnormal
 	'stacknormal stk.cnv
-	stack.cnt stk.setnormal
-	;
+	stack.cnt stk.setnormal ;
 
 ::stk.gennormal | d u --
 	dup ( 1? 1 - .drop ) drop
@@ -682,14 +682,6 @@
 	drop
 	needreg ;
 
-::stk.R
-	TOS $ff and $5 =? ( drop ; ) drop
-	.dupnew
-	"mov #0,#1" ,asm
-	.nip ;
-
-
-
 #cc
 |...............
 :changereg | nreg 'cell -- nreg
@@ -702,6 +694,18 @@
 	.dupnew
  	TOS 'changereg stackmap-3 drop
 	cc 1? ( "mov #0,#2" ,asm ) drop
+	.drop ;
+
+:changeregt | nreg 'cell -- nreg
+	dup @ NOS @ <>? ( 2drop ; ) drop
+	1 'cc !
+	over swap ! ;
+
+:freeregtos
+	0 'cc !
+	.dupnew
+ 	TOS 'changeregt stackmap-2 drop
+	cc 1? ( "mov #0,#1" ,asm ) drop
 	.drop ;
 
 |...............
@@ -717,7 +721,28 @@
 	cc 1? ( "mov #0,rax" ,asm ) drop
 	.drop ;
 
+:tosG
+	.dupnew | x c nr
+	"mov #0,#1" ,asm
+	TOS 'changereg stackmap drop
+    .drop ;
+
+:nosG
+	.dupnew | x c nr
+	"mov #0,#2" ,asm
+	TOS 'changereg stackmap-2 drop
+    .drop ;
+
 |...............
+
+::stk.R
+	TOS $ff and $5 =? ( drop freeregtos ; ) drop
+	.dupnew
+	"mov #0,#1" ,asm
+	.nip ;
+
+::stk.G
+	TOS cellG? 0? ( tosg ) drop ;
 
 ::stk.RG
 	NOS @ $ff and $5 =? ( drop freeregnos ; ) drop
@@ -730,6 +755,16 @@
 	.dupnew
 	"mov #0,#3" ,asm
 	.swap .2swap .nip ;
+
+
+::stk.GG
+	TOS cellG? 0? ( tosg ) drop
+	NOS @ cellG? 0? ( nosg ) drop ;
+
+
+::stk.GR
+	TOS cellR? 0? ( tosg ) drop
+	NOS @ cellG? 0? ( nosg ) drop ;
 
 :needA | cell --
 
@@ -802,28 +837,6 @@
 
 	;
 
-:tosG
-	.dupnew | x c nr
-	"mov #0,#1" ,asm
-	TOS 'changereg stackmap-1 drop
-    .drop ;
-
-:nosG
-	.dupnew | x c nr
-	"mov #0,#2" ,asm
-	TOS 'changereg stackmap-2 drop
-    .drop ;
-
-::stk.GG
-	TOS cellG? 0? ( tosg ) drop
-	NOS @ cellG? 0? ( nosg ) drop ;
-
-::stk.G
-	TOS cellG? 0? ( tosg ) drop ;
-
-::stk.GR
-	TOS cellR? 0? ( tosg ) drop
-	NOS @ cellG? 0? ( nosg ) drop ;
 
 ::stk.DSC
 	;

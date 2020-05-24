@@ -54,6 +54,10 @@
 	"_i%h:" ,print ,cr ;		| while
 
 :g)
+	dup 8 - @ $ff and
+	16 <>? ( stk.conv ) | tail call  call..ret?
+	drop
+
 	stk.pop
 	getval getiw
 	popbl swap
@@ -324,6 +328,7 @@
 	"movsxd #0,dword[rsi]" ,asm ;
 
 :gA!
+	stk.G
 	"mov dword[rsi],*0" ,asm .drop ;
 
 :gA+
@@ -348,6 +353,7 @@
 	"movsxd #0,dword[rdi]" ,asm ;
 
 :gB!
+	stk.G
 	"mov dword[rdi],*0" ,asm .drop ;
 
 :gB+
@@ -502,7 +508,9 @@
 
 |----------- call word
 :gwor
+
 	stk.normal
+
 	dup @ $ff and
 	16 =? ( drop getval "jmp w%h" ,print ,cr ; ) drop | ret?
 	getval "call w%h" ,print ,cr ;
