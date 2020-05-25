@@ -498,8 +498,8 @@ iFNEXT iSYS
 
 |------------------------------------------
 :tocode | adr token -- adr
-|	"; " ,s dup ,tokenprint ,cr |9 ,c ,printstka ,cr
-|	"asm/code.asm" savemem | debug
+	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+	"asm/code.asm" savememinc | debug
 	$ff and 2 << 'vmc + @ ex
 	;
 
@@ -534,8 +534,8 @@ iFNEXT iSYS
 	,header
 	dup 12 + @ $f and
 	DeepStack
-|    ";---------OPT" ,ln |----- generate buffer
-|		"asm/code.asm" savemem | debug
+    ";---------OPT" ,ln |----- generate buffer
+|		"asm/code.asm" savememinc | debug
 
 	dup adr>toklen | w adr len
 	multientry
@@ -543,16 +543,16 @@ iFNEXT iSYS
 		@+ tocode
 		swap ) 2drop
 
-|    ";---------ANA" ,ln |----- cell analisys
-|		"asm/code.asm" savemem | debug
+    ";---------ANA" ,ln |----- cell analisys
+|		"asm/code.asm" savememinc | debug
 
 	dup 12 + @ $f and
 	anaDeepStack
 	'bcode ( bcode> <?
 		@+
 
-|		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-|		"asm/code.asm" savemem | debug
+		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+		"asm/code.asm" savememinc | debug
 
 		anastep
 		) drop

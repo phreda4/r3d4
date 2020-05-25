@@ -2,7 +2,7 @@
 | r3 compiler
 | PHREDA 2019
 |------------------
-|MEM $ffff
+|MEM $1ffff
 ^./r3base.r3
 ^./r3pass1.r3
 ^./r3pass2.r3

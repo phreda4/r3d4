@@ -40,27 +40,31 @@ opensanslight
 opensansregular
 
 ::nfont! | nro size --
-	>r $f and 2 << 'fontlist + @ ex 
-	r> fontr!
-	;
+	>r $f and 2 << 'fontlist + @ ex
+	r> fontr! ;
 
+#auxvar
+
+| with shadow aux=padx(4)pady(4)color(24)
 :semit1 | c --
 	ccy ccx
-	4 'ccx +! 4 'ccy +!
-	ink >r $80808 'ink !
+	auxvar 24 >> dup $f and 'ccy +! 4 >> 'ccx +!
+	ink >r
+	auxvar 'ink !
 	pick2 emit
 	'ccx ! 'ccy ! r> 'ink !
 	emit ;
 
+| with background aux=color
 :semit2 | c --
-	ccy ccx
-	4 'ccx +! 4 'ccy +!
-	ink >r $f8f8f8 'ink !
-	pick2 emit
-	'ccx ! 'ccy ! r> 'ink !
+	ink >r
+	auxvar 'ink !
+	dup emitsize cch ccx ccy fillrect
+	r> 'ink !
 	emit ;
 
 #fontfx 'emit 'semit1 'semit2
 
-::fxfont! | fx --
+::fxfont! | fx aux --
+	'auxvar !
 	$f and 2 << 'fontfx + @ textboxvec ;

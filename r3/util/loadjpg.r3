@@ -3,8 +3,6 @@
 |-----------------------
 ^r3/lib/mem.r3
 
-^r3/lib/trace.r3
-
 #emem
 #restart
 
@@ -67,7 +65,6 @@
 	c@+ $ff and ;
 :get16 | adr -- adr+ 16b
 	c@+ $ff and 8 << swap c@+ $ff and rot or ;
-
 :readNumber | adr -- adr+ 16b
 	2 + get16 ;
 :readComm | adr -- adr+
@@ -553,6 +550,12 @@
 	2drop 0 0 ;
 
 |---------------------------------
+:moveor | de sr cnt --
+	rot >a
+	( 1? 1 - swap
+		@+ $ff000000 or a!+
+		swap ) 2drop ;
+
 ::loadjpg | "" -- adr/0
 	here swap load
 	here =? ( drop 0 ; ) 'emem !
@@ -561,9 +564,8 @@
 	( get16 decodetype 1? ) drop
 	0? ( ; )
 	buildimg drop
+	here >a
+	imgcols imgrows 12 << or a!+	| size
+	a> emem imgcols imgrows * 2 << dup >r moveor
+	here r> 8 + 'here +! ;
 
-	here
-	imgcols imgrows 12 << or over !+	| header
-	emem
-	imgcols imgrows * 2 << dup 4 + 'here +!
-	move ;

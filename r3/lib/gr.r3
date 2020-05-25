@@ -13,7 +13,7 @@
 ##xa 0 ##ya 0
 
 ::cls
-  vframe paper dup 32 << or sw sh * 1 >> qfill ;
+  vframe paper sw sh * fill ;
 
 ::xy>v | x y -- adr
   sw * + 2 << vframe + ;

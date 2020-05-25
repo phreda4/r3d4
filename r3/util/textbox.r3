@@ -97,12 +97,12 @@
 | $ 0 iz $ 1 center $ 2 ri
 
 ::textbox | str n --
-	dup 4 >> $3 and
+	dup $3 and
 	pady 'padyy !
 	1 =? ( ty2 ty1 - 1 >> pick3 cntlin cch padl + * 1 >> - padl 1 >> + 'padyy +! )
 	2 =? ( ty2 ty1 - pick3 cntlin cch padl + * - pady - padl + 'padyy ! )
 	drop
-	$3 and
+	4 >> $3 and
 	0? ( drop boxprintl ; )
 	1 =? ( drop boxprintc ; )
 	drop

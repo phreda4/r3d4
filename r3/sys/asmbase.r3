@@ -4,9 +4,14 @@
 |------------------------
 ^r3/lib/math.r3
 
-|#BPP 4 #TOLERANCE 24 #VALUES $10 #QFULL $ff #MASK $f #SHIFTA 0
-|#BPP 3 #TOLERANCE 12 #VALUES $8 #QFULL $3f #MASK $7 #SHIFTA 6
-#BPP 2 #TOLERANCE 8 #VALUES $4 #QFULL $f #MASK $3 #SHIFTA 4
+|#BPP 4 #TOLERANCE 24 #VALUES $10 #QFULL $ff #MASK $f |#SHIFTA 0
+|:qalpha $ff xor ;	| BPP4
+
+|#BPP 3 #TOLERANCE 12 #VALUES $8 #QFULL $3f #MASK $7 |#SHIFTA 6
+|:qalpha 2 << $ff xor ; | BPP3
+
+#BPP 2 #TOLERANCE 8 #VALUES $4 #QFULL $f #MASK $3 |#SHIFTA 4
+:qalpha dup 4 << or $ff xor ; | BPP2
 
 #FBASE	8
 
@@ -229,7 +234,7 @@
 	( 1? 1 - ink a!+ ) drop ;
 
 :solidoalpha
-	$ff SHIFTA *>> $ff xor swap
+	qalpha swap
 	( 1? 1 - over pxa ) 2drop ;
 
 :rlq
@@ -250,7 +255,7 @@
 		mex 8 >> mixcolor a!+
 		ma 'mex +! ) drop ;
 :Ldegalpha
-	$ff SHIFTA *>> $ff xor swap
+	qalpha swap
 	( 1? 1 -
 		over mex 8 >> mixcolor acpx!+
 		ma 'mex +! ) 2drop ;
@@ -281,7 +286,7 @@
 	    ma 'mex +! mb 'mey +!
 		) drop ;
 :Rdegalpha
-	$ff SHIFTA *>> $ff xor swap 
+	qalpha swap 
 	( 1? 1 -
 		over
 	    mex mey distf 16 >> mixcolor acpx!+
@@ -308,7 +313,7 @@
 	    ma 'mex +! mb 'mey +!
 		) drop ;
 :Texalpha
-	$ff SHIFTA *>> $ff xor swap
+	qalpha swap
 	( 1? 1 - over
 	    mex 8 >> $ff and mey $ff00 and or 2 << tex + @ acpx!+
 	    ma 'mex +! mb 'mey +!
