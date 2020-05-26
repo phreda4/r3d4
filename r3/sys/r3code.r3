@@ -1,5 +1,3 @@
-|MEM 8192  | 8MB
-
 | r3 code analyzer
 | PHREDA 2019
 |------------------

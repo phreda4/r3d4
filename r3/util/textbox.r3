@@ -1,7 +1,7 @@
 | textbox
 | PHREDA 2020
 |--------------------
-##padx ##pady ##padl
+##padx 0 ##pady 0 ##padl 0
 ##tx1 ##ty1 ##tx2 ##ty2
 
 ::gridxy | int -- x1 y1
@@ -93,8 +93,8 @@
 		swap lineemit swap cr padl 'ccy +!
 		) 2drop ;
 
-| $00 up $10 center $20 dn
-| $ 0 iz $ 1 center $ 2 ri
+| $0. iz $1. center $2. ri
+| $.0 up $.1 center $.2 dn
 
 ::textbox | str n --
 	dup $3 and

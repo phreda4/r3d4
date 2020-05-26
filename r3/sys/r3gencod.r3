@@ -102,8 +102,8 @@
 
 :icte | adr word -- adr
 |	"; INLINE CTE" ,ln
-	dic>tok @ @ dup
-	dup $ff and 7 - 2 << 'tcte + @ ex
+	dic>tok @ |*************   #v1 #v2 ..if v1 is cte then crash!!
+	@ dup dup $ff and 7 - 2 << 'tcte + @ ex
 	code!+ ;
 
 :ivar
@@ -498,10 +498,9 @@ iFNEXT iSYS
 
 |------------------------------------------
 :tocode | adr token -- adr
-	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-	"asm/code.asm" savememinc | debug
-	$ff and 2 << 'vmc + @ ex
-	;
+|	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+|	"asm/code.asm" savememinc | debug
+	$ff and 2 << 'vmc + @ ex ;
 
 :,header | adr -- adr
     ";--------------------------" ,s ,cr
@@ -534,7 +533,7 @@ iFNEXT iSYS
 	,header
 	dup 12 + @ $f and
 	DeepStack
-    ";---------OPT" ,ln |----- generate buffer
+|    ";---------OPT" ,ln |----- generate buffer
 |		"asm/code.asm" savememinc | debug
 
 	dup adr>toklen | w adr len
@@ -543,7 +542,7 @@ iFNEXT iSYS
 		@+ tocode
 		swap ) 2drop
 
-    ";---------ANA" ,ln |----- cell analisys
+|    ";---------ANA" ,ln |----- cell analisys
 |		"asm/code.asm" savememinc | debug
 
 	dup 12 + @ $f and
@@ -551,8 +550,8 @@ iFNEXT iSYS
 	'bcode ( bcode> <?
 		@+
 
-		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-		"asm/code.asm" savememinc | debug
+|		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+|		"asm/code.asm" savememinc | debug
 
 		anastep
 		) drop
@@ -585,10 +584,13 @@ iFNEXT iSYS
 	mark
 	";---r3 compiler code.asm" ,ln
 	"; " ,s 'r3filename ,s ,cr
+
+|	"asm/code.asm" savemem
 |	debugblok
+
 	dicc ( dicc> <?
 		dup gencode
-		"asm/code.asm" savememinc
+|		"asm/code.asm" savememinc
 		16 + ) drop
 
 	0 ,c

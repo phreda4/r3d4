@@ -8,7 +8,7 @@
 ^r3/lib/rand.r3
 ^r3/util/arr16.r3
 
-#xcam #ycam #zcam 40.0
+#xcam 0 #ycam 0 #zcam 40.0
 #objetos 0 0	| finarray iniarray
 
 :2/ 1 >> ;
@@ -42,15 +42,15 @@
 	-0.5 0.5 drawlinez ;
 
 |-----------------------
-:r1 rand 1.0 mod ;
-:r10 rand 10.0 mod ;
-:r.1 rand 0.1 mod ;
-:r.01 rand 0.01 mod ;
+:r1 rand 32 << 32 >> 1.0 mod ;
+:r10 rand 32 << 32 >> 10.0 mod ;
+:r.1 rand 32 << 32 >> 0.1 mod ;
+:r.01 rand 32 << 32 >> 0.01 mod ;
 
 :v+ b@+ b> 28 - +! ;
 
 :boink
-	dup abs 20.0 >? ( 
+	dup abs 20.0 >? (
 		b> 20 + dup @ neg swap !	| vel
 		b> 32 + dup @ neg swap !	| rot
 		) drop ;

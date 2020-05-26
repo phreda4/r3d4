@@ -1,8 +1,8 @@
-|MEM 8192  | 8MB
 | r3 compiler
 | PHREDA 2019
 |------------------
-|MEM $1ffff
+|MEM $ffff
+
 ^./r3base.r3
 ^./r3pass1.r3
 ^./r3pass2.r3

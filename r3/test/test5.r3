@@ -8,12 +8,17 @@
 ^r3/lib/trace.r3
 
 |------- SHOW
+#v 1.2
+
 :show
 	cls home
 	$ff00 'ink !
 	" r" print over .d emits cr
+	v sin .f emits cr
 	cr
 
+	$ff00ff 'ink !
+	0 0 op sw sh line
 	key
 	>esc< =? ( exit )
 	drop
