@@ -454,7 +454,7 @@
 	rot c@+
 	13 =? ( 0 nip )
 	0? ( drop 1 - rot rot sw + ; )
-	9 =? ( drop swap $ffffffe0 and $20 + rot swap ; )
+	9 =? ( drop swap ccw 2 << + rot swap ; )
 	drop swap ccw + rot swap ;
 
 :cursormouse
@@ -463,7 +463,7 @@
 	swap cch 1 <<			| x adr y ya
 	( over <?
 		cch + rot >>13 2 + rot rot ) 2drop
-	swap ccw 3 << ccw +	| adr x xa
+	swap ccw 1 << dup 1 << + | adr x xa
 	( over <? mmemit ) 2drop
 	'fuente> ! ;
 

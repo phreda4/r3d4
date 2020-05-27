@@ -4,7 +4,10 @@
 |	^r3/lib/fontm.r3
 |   ^r3/fntm/...fuente.rtf
 |
-|	::fontm | 'fontm --
+|	fontm | 'fontm --
+|   fontmcolor | col1 col2 --
+|	fontmcol | col12 --
+|	fontminv | --
 |-------------------------------
 ^r3/lib/gr.r3
 ^r3/lib/print.r3
@@ -42,6 +45,10 @@
 	2dup $66 colmix a!+
 	2dup $cc colmix a!+
 	nip a!+ ;
+
+::fontmcol | c12 --
+	dup $f0f0f0 and dup 4 >> or swap $f0f0f and dup 4 << or
+	fontmcolor ;
 
 ::fontminv
 	'palcol @+ swap 8 + @ swap

@@ -2,7 +2,6 @@
 | framerate independient event animation system
 | PHREDA 2020
 |------------------
-||MEM $fff
 
 ^r3/lib/gui.r3
 ^r3/lib/rand.r3
@@ -120,7 +119,7 @@
 	@+ dup 48 << 48 >> 'tx2 ! 16 >> 'ty2 !
 	@+ int2pad
 	@+
-	dup 24 >> fxfont! 	| fx --
+	dup 24 >> $44000000 fxfont! 	| fx --
 	dup 16 >> $ff and swap $ffff and
 	nfont! 		| nro size --
 	@+ swap @ textbox ;

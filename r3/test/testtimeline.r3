@@ -6,7 +6,6 @@
 
 ^r3/util/timeline.r3
 
-
 #mario	| a sprite
 #son	| a sound
 
@@ -108,7 +107,6 @@
 
 	"media/img/lolomario.png" loadimg 'mario !
 	"media/snd/piano.wav" sload 'son !
-	mario spr.alpha
 	;
 
 : memory 'main onShow ;

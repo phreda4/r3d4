@@ -555,5 +555,5 @@ gFNEXT gSYS
 	'bcode ( bcode> <?
 		@+
 		codestep
- "asm/code.asm" savemem
+| "asm/code.asm" savememinc
 		) drop ;
