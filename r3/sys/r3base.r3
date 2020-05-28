@@ -134,14 +134,15 @@
 "SYS"
 | videoplay extension
 "VIDEO" "VIDEOSHOW" "VIDEOSIZE",
-"SLOAD" "SPLAY"
+"SLOAD" "SFREE" "SPLAY"
+"MLOAD" "MFREE" "MPLAY"
 ( 0 )
 
 #basedicc 'r3base
 
 ::r3fullmode
 	'r3basefull 'basedicc ! ;
-	
+
 ::r3basename | nro -- str
 	basedicc swap
 	( 1? 1 - swap >>0 swap ) drop ;

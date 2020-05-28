@@ -1,6 +1,8 @@
 | PHREDA 2018
 | r3 lib string
 
+^r3/lib/math.r3
+
 |------ STRING LIB
 ::zcopy | destino fuente -- destino' con 0
 	( @+ 1? rot !+ swap ) rot !+ nip ;
@@ -107,41 +109,41 @@
 #mbuff * 64
 
 :mbuffi | -- adr
-  'mbuff 63 + 0 over c! 1 - ;
+	'mbuff 63 + 0 over c! 1 - ;
 
 :sign | adr sign -- adr'
-  -? ( drop $2d over c! ; ) drop 1 + ;
+	-? ( drop $2d over c! ; ) drop 1 + ;
 
 ::.d | val -- str
-  dup abs
-  -? ( 2drop "-9223372036854775808" ; )
-  mbuffi swap
-  ( 10 /mod $30 + pick2 c! swap 1 - swap 1? ) drop
-  swap sign ;
+	dup abs
+	-? ( 2drop "-9223372036854775808" ; )
+	mbuffi swap
+	( 10 /mod $30 + pick2 c! swap 1 - swap 1? ) drop
+	swap sign ;
 
 ::.b | bin -- str
-  mbuffi swap
-  ( dup $1 and $30 + pick2 c! swap 1 - swap 1 >>> 1? ) drop
-  1 + ;
+	mbuffi swap
+	( dup $1 and $30 + pick2 c! swap 1 - swap 1 >>> 1? ) drop
+	1 + ;
 
 ::.h | hex -- str
-  mbuffi swap
-  ( dup $f and $30 + $39 >? ( 7 + ) pick2 c! swap 1 - swap 4 >>> 1? ) drop
-  1 + ;
+	mbuffi swap
+	( dup $f and $30 + $39 >? ( 7 + ) pick2 c! swap 1 - swap 4 >>> 1? ) drop
+	1 + ;
 
 ::.o | oct -- str
-  mbuffi swap
-  ( dup $7 and $30 + pick2 c! swap 1 - swap 3 >>> 1? ) drop
-  1 + ;
+	mbuffi swap
+	( dup $7 and $30 + pick2 c! swap 1 - swap 3 >>> 1? ) drop
+	1 + ;
 
 ::.f | fix --
-  mbuffi over
-  $ffff and 10000 16 *>> 10000 +
-  ( 10 /mod $30 + pick2 c! swap 1 - swap 1? ) drop
-  1 + $2e over c! 1 -
-  over abs 16 >>
-  ( 10 /mod $30 + pick2 c! swap 1 - swap 1? ) drop
-  swap sign ;
+ 	mbuffi over
+	$ffff and 10000 16 *>> 10000 +
+	( 10 /mod $30 + pick2 c! swap 1 - swap 1? ) drop
+	1 + $2e over c! 1 -
+	over abs 16 >>
+	( 10 /mod $30 + pick2 c! swap 1 - swap 1? ) drop
+	swap sign ;
 
 ::.r. | b nro -- b
 	'mbuff 62 + swap -

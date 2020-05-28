@@ -44,7 +44,6 @@
 #tempa * 256
 #tempw * 256
 
-
 #JPGzz (
  0  1  8 16  9  2  3 10 17 24 32 25 18 11  4  5
 12 19 26 33 40 48 41 34 27 20 13  6  7 14 21 28
@@ -227,15 +226,11 @@
 	a0 -2.613125930* over + t7 - 't6 !
 	a1 a3 - 1.414213562* t6 - 't5 !
 	a2 1.082392200* swap - t5 + 't4 !
-	dup 2 << 'tempw + >a |	0 over ]warray >r
-	t0 t7 + a!+ 28 a+ |0 pick2 ]warray !
-	t1 t6 + a!+ 28 a+ |1 pick2 ]warray !
-	t2 t5 + a!+ 28 a+ |2 pick2 ]warray !
-	t3 t4 - a!+ 28 a+ |3 pick2 ]warray !
-	t3 t4 + a!+ 28 a+ |4 pick2 ]warray !
-	t2 t5 - a!+ 28 a+ |5 pick2 ]warray !
-	t1 t6 - a!+ 28 a+ |6 pick2 ]warray !
-	t0 t7 - a! |7 pick2 ]warray !
+	dup 2 << 'tempw + >a
+	t0 t7 + a!+ 28 a+ t1 t6 + a!+ 28 a+
+	t2 t5 + a!+ 28 a+ t3 t4 - a!+ 28 a+
+	t3 t4 + a!+ 28 a+ t2 t5 - a!+ 28 a+
+	t1 t6 - a!+ 28 a+ t0 t7 - a!
 	;
 
 :pass1 | col -- col

@@ -225,12 +225,12 @@
 	dup 6/ dup 1 << + 1 << - ;
 
 ::10/mod | n -- r m
-	dup 1 >> over 2 >> + | n q
-	dup 4 >> + dup 8 >> + dup 16 >> + 3 >> | n q
-	swap over | q n q
-	dup 1 << dup 2 << + -
-	swap over | r q r
-	6 + 4 >> + ;
+	dup 1 >> over 2 >> + 		| n q
+	dup 4 >> + dup 8 >> + 3 >>	| n q
+	over over dup 2 << + 1 << - | n q rem
+	6 + 4 >> +					| n q
+	swap over dup 2 << + 1 << - | q rem
+	;
 
 ::100/ | n -- r
 	10/mod drop
