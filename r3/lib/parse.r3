@@ -1,7 +1,10 @@
 |
 | PHREDA 2019
-^r3/lib/math.r3
 
+^r3/lib/math.r3
+^r3/lib/str.r3
+
+|----------------------------------
 #basen
 
 :signo | str -- str signo
@@ -39,6 +42,12 @@
 		$39 >? ( drop 1 - swap ; )			| 0..9
 		$30 - rot 10* + swap )
 	drop 1 - swap ;
+
+::?sint | adr -- adr' nro
+	signo >r
+	0 swap ( c@+ $2f >? $39 <=? $30 - rot 10* + swap )
+	drop swap r>
+	1? ( drop neg ; ) drop ;
 
 |-----
 ::?numero | str -- 0 / str' nro 1
@@ -160,15 +169,6 @@
 		drop c@+ )
 	33 <? ( 2drop 1 ; ) 2drop 0 ;
 
-|----------------------------------
-::trim | adr -- adr'
-	( c@+ 0? ( 33 + ) $ff and 33 <? drop ) drop 1 - ;
-
-::trimc | car adr -- adr'
-	( c@+ 0? pick2 =? ( drop nip 1 - ; ) drop ) drop nip 1 - ;
-
-::trim" | adr -- adr'
-	( c@+ 1? 34 =? ( drop c@+ 34 <>? ( drop 2 - ; ) ) drop ) drop 1 - ;
 
 | prefijo?
 ::=pre | adr "str" -- adr 1/0
@@ -188,8 +188,3 @@
 	2drop 1 ;
 
 
-::>>cr | adr -- adr'
-	( c@+ 1? 10 =? ( drop 1 - ; ) 13 =? ( drop 1 - ; ) drop ) drop 1 - ;
-
-::>>0 | adr -- adr' ; pasa 0
-	( c@+ 1? drop ) drop ;

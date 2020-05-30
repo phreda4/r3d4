@@ -150,8 +150,20 @@
 	swap ( over >?
 		1 - $20 over c!
 		) drop ;
-		
-::trim | adr -- adr'	; proximo no espacio
-	( c@+ $ff and 33 <?
-		0? ( drop 1 - ; )
-		drop ) drop 1 - ;
+
+|----------------------------------
+::trim | adr -- adr'
+	( c@+ 0? ( 33 + ) $ff and 33 <? drop ) drop 1 - ;
+
+::trimc | car adr -- adr'
+	( c@+ 0? pick2 =? ( drop nip 1 - ; ) drop ) drop nip 1 - ;
+
+::trim" | adr -- adr'
+	( c@+ 1? 34 =? ( drop c@+ 34 <>? ( drop 2 - ; ) ) drop ) drop 1 - ;
+
+::>>cr | adr -- adr'
+	( c@+ 1? 10 =? ( drop 1 - ; ) 13 =? ( drop 1 - ; ) drop ) drop 1 - ;
+
+::>>0 | adr -- adr' ; pasa 0
+	( c@+ 1? drop ) drop ;
+
