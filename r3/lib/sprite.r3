@@ -24,13 +24,10 @@
 	dup 24 >> $ff and
 	0? ( 2drop 4 a+ ; )
 	$ff =? ( drop a!+ ; )
-	swap
-	dup $ff00ff and				| alpha color colorand
-	a@ dup $ff00ff and 		| alpha color colorand inkc inkcand
-	pick2 - pick4 * 8 >> rot +	| alpha color inkc inkcandl
-	$ff00ff and >r				| alpha color inkc
-	swap $ff00 and 				| alpha px colorand
-	swap $ff00 and 				| alpha colorand pxa
+	a@ rot
+	over $ff00ff and over $ff00ff and
+	over - pick4 * 8 >> + $ff00ff and >r
+	swap $ff00 and swap $ff00 and
 	over - rot * 8 >> + $ff00 and
 	r> or a!+ ;
 
@@ -246,11 +243,9 @@
 	;
 
 :dotrot | xa ya w -- n
-	over -? ( ; )
-	16 >> hb >=? ( drop -1 ; )
+	over -? ( ; ) 16 >> hb >=? ( drop -1 ; )
 	wb *
-	pick3 -? ( nip ; )
-	16 >> wb >=? ( 2drop -1 ; )
+	pick3 -? ( nip ; ) 16 >> wb >=? ( 2drop -1 ; )
 	+ ;
 
 :point0

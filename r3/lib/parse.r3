@@ -44,10 +44,11 @@
 	drop 1 - swap ;
 
 ::?sint | adr -- adr' nro
-	signo >r
-	0 swap ( c@+ $2f >? $39 <=? $30 - rot 10* + swap )
-	drop swap r>
-	1? ( drop neg ; ) drop ;
+	signo swap
+	0 swap ( c@+ $2f >? $39 <=? 
+		$30 - rot 10* + swap )
+	drop swap
+	rot 0? ( drop ; ) drop neg ;
 
 |-----
 ::?numero | str -- 0 / str' nro 1

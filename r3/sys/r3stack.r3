@@ -343,7 +343,10 @@
 	;
 
 ::stk.drop
-	stks> 4 - 'stks <? ( dup "stk.drop %h" slog waitkey )
+	stks> 4 - 'stks <? (
+		"asm/code.asm" savemem
+		dup "stk.drop %h" slog waitkey
+		)
 	'stks> !
 	stks> @
 	'memstk> !
