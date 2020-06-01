@@ -29,9 +29,10 @@
 
 :includepal | str car -- str'
 	$7c =? ( drop escom ; )		| $7c |	 Comentario
+	1 'cnttokens +!
 	$3A =? ( 1 'cntdef +! )		| $3a :  Definicion
 	$23 =? ( 1 'cntdef +! )		| $23 #  Variable
-	1 'cnttokens +!
+	$28 =? ( 1 'cntblk +! )		| $28 (
 	$22 =? ( drop >>" ; )		| $22 "	 Cadena
 	drop >>sp ;
 

@@ -175,6 +175,7 @@
 	here dup 'code ! 'code> !
 	cnttokens 2 << 'here +!
 	here 'blok !
+	cntblk 3 << 'here +!
 	0 'nbloques !
 	0 'codeini !
 	'inc ( inc> <?
@@ -188,5 +189,5 @@
 	| real length
 	dicc> 16 -
 	( dicc >? 16 - contword ) drop
-	nbloques 1 + 3 << 'here +!
+|	nbloques 1 + 3 << 'here +!
 	0 ;

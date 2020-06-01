@@ -243,8 +243,9 @@
 	@+ 1? ( 2drop pass1f ; ) drop
 	@ 1? ( drop pass1f ; ) drop
 	0 over ]inq@* over 2 << 'tempw + >a
-	dup a!+ 28 a+ dup a!+ 28 a+ dup a!+ 28 a+ dup a!+ 28 a+
-	dup a!+ 28 a+ dup a!+ 28 a+ dup a!+ 28 a+ a! ;
+	dup a!+ 28 a+ dup a!+ 28 a+ dup a!+ 28 a+
+	dup a!+ 28 a+ dup a!+ 28 a+ dup a!+ 28 a+
+	dup a!+ 28 a+ a! ;
 
 
 :]out | out col val x y
@@ -264,14 +265,14 @@
 	a2 1.082392200* swap - t5 + 't4 !
 
 	dup 5 << pick2 + >a | dup 0 ]out
-	t0 t7 + 5 >> 128 + 255 clamp0max a!+ |over 0 ]out !
-	t1 t6 + 5 >> 128 + 255 clamp0max a!+ |over 1 ]out !
-	t2 t5 + 5 >> 128 + 255 clamp0max a!+ |over 2 ]out !
-	t3 t4 - 5 >> 128 + 255 clamp0max a!+ |over 3 ]out !
-	t3 t4 + 5 >> 128 + 255 clamp0max a!+ |over 4 ]out !
-	t2 t5 - 5 >> 128 + 255 clamp0max a!+ |over 5 ]out !
-	t1 t6 - 5 >> 128 + 255 clamp0max a!+ |over 6 ]out !
-	t0 t7 - 5 >> 128 + 255 clamp0max a! |over 7 ]out !
+	t0 t7 + 5 >> 128 + 255 clamp0max a!+
+	t1 t6 + 5 >> 128 + 255 clamp0max a!+
+	t2 t5 + 5 >> 128 + 255 clamp0max a!+
+	t3 t4 - 5 >> 128 + 255 clamp0max a!+
+	t3 t4 + 5 >> 128 + 255 clamp0max a!+
+	t2 t5 - 5 >> 128 + 255 clamp0max a!+
+	t1 t6 - 5 >> 128 + 255 clamp0max a!+
+	t0 t7 - 5 >> 128 + 255 clamp0max a!
 	;
 
 :JPGidct | out --
@@ -398,7 +399,7 @@
 :build34 | a -- a
 	0 'dcY ! 0 'dcCb ! 0 'dcCr !
 	0 0 ( imgrows <?		| a x y
-		rot modo34 rot			| y a x
+		rot modo34 rot		| y a x
 		16 + bb
 		) 2drop ;
 
@@ -448,7 +449,7 @@
 :build32  | a -- a
 	0 'dcY ! 0 'dcCb ! 0 'dcCr !
 	0 0 ( imgrows <?		| a x y
-		rot modo32 rot			| y a x
+		rot modo32 rot		| y a x
 		16 + bb
 		) 2drop ;
 
@@ -545,12 +546,6 @@
 	2drop 0 0 ;
 
 |---------------------------------
-:moveor | de sr cnt --
-	rot >a
-	( 1? 1 - swap
-		@+ $ff000000 or a!+
-		swap ) 2drop ;
-
 ::loadjpg | "" -- adr/0
 	here swap load
 	here =? ( drop 0 ; ) 'emem !
@@ -561,6 +556,6 @@
 	buildimg drop
 	here >a
 	imgcols imgrows 12 << or a!+	| size
-	a> emem imgcols imgrows * 2 << dup >r moveor
+	a> emem imgcols imgrows * 2 << dup >r move
 	here r> 8 + 'here +! ;
 

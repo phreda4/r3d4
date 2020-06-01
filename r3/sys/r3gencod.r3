@@ -103,7 +103,9 @@
 :icte | adr word -- adr
 |	"; INLINE CTE" ,ln
 	dic>tok @ |*************   #v1 #v2 ..if v1 is cte then crash!!
-	@ dup dup $ff and 7 - 2 << 'tcte + @ ex
+	@ dup dup $ff and 7 -
+	-? ( "inline 0" slog trace ) 7 >? ( "inline 0" slog trace ) | stop!
+	2 << 'tcte + @ ex
 	code!+ ;
 
 :ivar
@@ -498,7 +500,7 @@ iFNEXT iSYS
 
 |------------------------------------------
 :tocode | adr token -- adr
-|	"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+|	"; " ,s over "%h:" ,print dup ,tokenprint 9 ,c ,printstka ,cr
 |	"asm/code.asm" savememinc | debug
 	$ff and 2 << 'vmc + @ ex ;
 

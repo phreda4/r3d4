@@ -18,7 +18,7 @@
 #rotsum * 2048		| 32 niveles de 2 valores*8 vert
 #rotsum> 'rotsum
 
-#mask
+#mask 0
 
 #x0 #y0 #z0
 #x1 #y1 #z1

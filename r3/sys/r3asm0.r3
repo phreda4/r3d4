@@ -997,10 +997,7 @@ gB> gB@ gB! gB+ gB@+ gB!+ gMOVE gMOVE> gFILL gCMOVE gCMOVE> gCFILL gQMOVE gQMOVE
 gREDRAW gMEM gSW gSH gFRAMEV gXYPEN gBPEN gKEY gCHAR gMSEC gTIME gDATE gLOAD gSAVE gAPPEND gFFIRST
 gFNEXT gSYS
 
-:codestep | token --
-	$ff and 			| dup r3tokenname slog
-	2 << 'vmc + @ ex ;
-
+|----------------
 :ctetoken
 	8 >>> 'ctecode + q@ "$%h ; calc" sprint ,s ,cr
 	;
@@ -1010,6 +1007,10 @@ gFNEXT gSYS
 	dup dup $ff and 8 =? ( drop ctetoken ; ) drop
 	,tokenprint ,cr
 	;
+|----------------
+
+:codestep | token --
+	$ff and 2 << 'vmc + @ ex ;
 
 ::genasmcode | duse --
 	drop

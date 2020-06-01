@@ -10,7 +10,7 @@
 
 :gc>xy | valor -- xy
 	dup 23 >> xa 9 *>> ccx +
-	swap 9 << 23 >> ya 9 *>> ccy + ;
+	swap 41 << 23 >> ya 9 *>> ccy + ;
 
 :endp xp $80000000 <>? ( yp pline ; ) drop ;
 :finpoli xp yp pline $80000000 'xp ! poli ;
@@ -30,11 +30,8 @@
 :ab swap >b gc>xy b@+ gc>xy b@+ gc>xy curve3 b> ; | curva3
 |-------- pintado de poligonos
 :ac 8 >> 'ink ! finpoli ; 			| solido
-:ad ; 	| ldegrade
-:ae ; 	| rdegrade
-:af ; 	| tdegrade
 
-#jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af
+#jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
 ::vesprite | 'rf --
 	$80000000 'xp !
@@ -57,7 +54,7 @@
 :aa swap >b r>xy b@+ r>xy curve b> ;  | curva
 :ab swap >b r>xy b@+ r>xy b@+ r>xy curve3 b> ; | curva3
 
-#jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af
+#jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
 ::rvesprite | adr ang --
 	dup cos 'cosa ! sin 'sina !
@@ -68,7 +65,7 @@
 | 3 << porque usa 14 bits a 17 bits queda 1.0
 :3d>xy
 	dup 18 >> 3 << swap 46 << 50 >> 3 << 0 project3d ;
-						
+
 |-------- poligono
 :a4 endp 3d>xy 2dup 'yp !+ ! op ;  | punto
 :a5 3d>xy pline ; | linea
@@ -80,7 +77,7 @@
 :aa swap >b 3d>xy b@+ 3d>xy curve b> ;  | curva
 :ab swap >b 3d>xy b@+ 3d>xy b@+ 3d>xy curve3 b> ; | curva3
 
-#jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af
+#jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
 ::3dvesprite | adr --
 	$80000000 'xp !

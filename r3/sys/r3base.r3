@@ -42,6 +42,7 @@
 ##code>
 ##<<boot
 ##blok
+##cntblk 0
 ##nbloques 0
 
 |---- dicc

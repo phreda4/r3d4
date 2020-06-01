@@ -102,8 +102,12 @@
 ::sprint | p p .. "" -- adr
 	mark
 	here 4096 +
-	over =? ( 4096 + )
+|	over =? ( 4096 + )
 	dup 'here ! >r
 	,print ,eol
 	empty r> ;
 
+|#buff * 4096
+
+|::sprint2 | p p .. "" -- adr
+|	mark 'buff 'here ! ,print ,eol empty 'buff ;
