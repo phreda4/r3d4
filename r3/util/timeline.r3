@@ -112,6 +112,23 @@
 	a!+
 	;
 
+|-------------------- SPRITE NO SCALE
+:drawspriteo | adr --
+	>b b@+ 1 an? ( drop ; ) drop
+	b@+ dup 48 << 48 >> swap 16 >>
+	b@+ drop 
+	b@+ sprite
+	;
+
+::+spriteo | spr x1 y1 x2 y2 --
+	'drawspriteo 'screen p!+ >a
+	1 a!+
+	2swap
+	16 << swap $ffff and or a!+
+	16 << swap $ffff and or a!+
+	a!+
+	;
+
 |-------------------- TEXTBOX
 :drawtbox | adr --
 	@+ 1 an? ( 2drop ; ) 8 >> 'ink !
