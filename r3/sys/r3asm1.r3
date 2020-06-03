@@ -48,6 +48,7 @@
     3 << blok + @ $10000000 and ;
 
 :g(
+	stk.resolve
 	stk.push
 	getval getiw 0? ( pushbl 2drop ; ) drop
 	pushbl
@@ -451,21 +452,29 @@
 
 
 :gMEM
-	0 push.ctem ;
+	0 PUSH.CTEM
+	.dupnew "mov *0,#1" ,asm .nip ;
 :gSW
 	0 push.cte ;
 :gSH
 	1 push.cte ;
 :gFRAMEV
-	1 push.ctem ;
+	1 PUSH.CTEM
+	.dupnew "mov #0,#1" ,asm .nip ;
 :gXYPEN
-	2 push.ctem 3 push.ctem ;
+	2 PUSH.CTEM
+	.dupnew "mov *0,#1" ,asm .nip
+	3 PUSH.CTEM
+	.dupnew "mov *0,#1" ,asm .nip ;
 :gBPEN
-	4 push.ctem ;
+	4 PUSH.CTEM
+	.dupnew "mov *0,#1" ,asm .nip ;
 :gKEY
-	5 push.ctem ;
+	5 PUSH.CTEM
+	.dupnew "mov *0,#1" ,asm .nip ;
 :gCHAR
-	6 push.ctem ;
+	6 PUSH.CTEM
+	.dupnew "mov *0,#1" ,asm .nip ;
 :gUPDATE
 	"call SYSREDRAW" ,ln ;
 :gREDRAW
@@ -512,9 +521,7 @@
 |----------- var
 :gvar
     getval PUSH.VAR		|--	[var]
-	.dupnew
-	"mov #0,#1" ,asm
-	.nip ;
+	.dupnew "mov *0,#1" ,asm .nip ;
 
 |----------- call word
 :gwor

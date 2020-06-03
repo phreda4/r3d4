@@ -612,6 +612,23 @@
 	stack.cnt stk.setnormal
 	;
 
+|------------------------------------
+| remove stack constant to register
+
+:allreg | 'cell --
+	dup @ $ff and
+	5 =? ( 2drop ; ) | es registro
+	6 =? ( 2drop ; )
+	drop
+	newreg 8 << 5 or
+	"mov " ,s dup ,cell "," ,s over @ ,cell ,cr
+	swap !
+	;
+
+::stk.resolve | --
+	'allreg stackmap
+	;
+
 |..........................
 :change | cell@ reg 'cell -- 'cell reg
 	pick2 over @ <>? ( 2drop ; ) drop
