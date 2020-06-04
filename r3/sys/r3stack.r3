@@ -453,7 +453,7 @@
 	dup a!+	| stacknow
 	dup 2 << a!+
 	0? ( drop ; )
-	1 - ( 1? dup neg 8 << 6 or a!+ 1 - )
+	1 - ( 1? 1 - dup neg 8 << 6 or a!+ )
 	5 or a!+ ;
 
 |-----------------
@@ -584,7 +584,7 @@
 	IniStack
 	dup 'stacknow !
 	0? ( drop ; )
-	1 - ( 1? dup neg push.stk 1 - )
+	1 - ( 1? 1 - dup neg push.stk )
 	push.reg ;
 
 :stk.setnormal | deep --
@@ -592,7 +592,7 @@
 	'RSP 'RTOS !
 	dup 'stacknow !
 	0? ( drop ; )
-	1 - ( 1? dup neg push.stk 1 - )
+	1 - ( 1? 1 - dup neg push.stk )
 	push.reg ;
 
 ::stk.normal | --
@@ -607,7 +607,7 @@
 	dup ( 1? 1 - .drop ) drop
 	+
 	0? ( drop ; )
-	1 - ( 1? dup neg push.stk 1 - )
+	1 - ( 1? 1 - dup neg push.stk )
 	push.reg
 	stack.cnt stk.setnormal
 	;
