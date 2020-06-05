@@ -374,6 +374,17 @@
 	TK-	code!+		| -
 	;
 
+
+| from https://lemire.me/blog/2019/02/08/faster-remainders-when-the-divisor-is-a-constant-beating-compilers-and-libdivide/
+|uint32_t d = ...;// your divisor > 0
+|uint64_t c = UINT64_C(0xFFFFFFFFFFFFFFFF) / d + 1;
+|// fastmod computes (n mod d) given precomputed c
+|uint32_t fastmod(uint32_t n ) {
+|  uint64_t lowbits = c * n;
+|  return ((__uint128_t)lowbits * d) >> 64;
+|}
+
+
 |----  8 mod --> $7 and
 |	dup 63 >> (33-4)29 >>> swap over + 7 and swap -
 :MODnro

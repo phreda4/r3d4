@@ -326,8 +326,9 @@
 	"cqo" ,ln
 	"idiv rbx" ,ln ;
 :o/v
+	"movsxd rbx," ,s ,TOS ,cr
 	"cqo" ,ln
-	"idiv " ,s ,TOS ,cr ;
+	"idiv rbx" ,ln ;
 
 :g*/
 	"mov rbx,rax" ,ln
@@ -343,9 +344,10 @@
 	"idiv rbx" ,ln
 	"sub rbp,8" ,ln ;
 :o*/v
+	"movsxd rbx," ,s ,TOS ,cr
 	"cqo" ,ln
 	"imul qword[rbp]" ,ln
-	"idiv " ,s ,TOS ,cr
+	"idiv rbx" ,ln
 	"sub rbp,8" ,ln ;
 
 :g/MOD
@@ -363,8 +365,9 @@
 	"mov [rbp],rax" ,ln
 	"mov rax,rdx" ,ln ;
 :o/MODv
+	"movsxd rbx," ,s ,TOS ,cr
 	"cqo" ,ln
-	"idiv " ,s ,TOS ,cr
+	"idiv rbx" ,ln
 	"add ebp,8" ,ln
 	"mov [rbp],rax" ,ln
 	"mov rax,rdx" ,ln ;
@@ -381,8 +384,9 @@
 	"idiv rbx" ,ln
 	"mov rax,rdx" ,ln ;
 :oMODv
+	"movsxd rbx," ,s ,TOS ,cr
 	"cqo" ,ln
-	"idiv " ,s ,TOS ,cr
+	"idiv rbx" ,ln
 	"mov rax,rdx" ,ln ;
 
 :gABS
@@ -433,21 +437,20 @@
 	"cqo" ,ln
 	"imul qword[rbp]" ,ln
 	"shrd rax,rdx,cl" ,ln
-|	"sar rdx,cl" ,ln
-|	"test cl,64" ,ln
-|	"cmovne	rax,rdx" ,ln
+	"sar rdx,cl" ,ln
+	"and ecx,64" ,ln
+	"cmovne	rax,rdx" ,ln
 	,NIP ;
+
 :o*>>
 	"cqo" ,ln
 	"imul qword[rbp]" ,ln
 	,NIP
 	prevalv
-|	64 <? (
-	"shrd rax,rdx," ,s ,d ,cr ;
-|	)
-|	64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
-|	drop
-|	"mov rax,rdx" ,ln ;
+	64 <? ( "shrd rax,rdx," ,s ,d ,cr ; )
+	64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
+	drop
+	"mov rax,rdx" ,ln ;
 
 :o*>>v
 	"mov ecx," ,s ,TOS ,cr
@@ -455,9 +458,9 @@
 	"imul qword[rbp]" ,ln
 	,NIP
 	"shrd rax,rdx,cl" ,ln
-|	"sar rdx,cl" ,ln
-|	"test cl,64" ,ln
-|	"cmovne rax,rdx" ,ln
+	"sar rdx,cl" ,ln
+	"and ecx,64" ,ln
+	"cmovne rax,rdx" ,ln
 	;
 
 :g<</
