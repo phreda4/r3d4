@@ -2,9 +2,10 @@
 | PHREDA 2015
 | from r4
 |-----------------------------
+^r3/lib/3d.r3
 ^r3/lib/gui.r3
 ^r3/lib/trace.r3
-^r3/lib/sort.r3
+^r3/util/sort.r3
 
 ##memvox		| inicio de puntos ordenados
 ##memvox>
@@ -68,6 +69,27 @@
 ::invmorton3d | Z -- x y z
  	dup c1x2 swap 1 >> dup c1x2 swap 1 >> c1x2 ;
 
+#tpopcnt (
+    0 1 1 2 1 2 2 3 1 2 2 3 2 3 3 4
+    1 2 2 3 2 3 3 4 2 3 3 4 3 4 4 5
+    1 2 2 3 2 3 3 4 2 3 3 4 3 4 4 5
+    2 3 3 4 3 4 4 5 3 4 4 5 4 5 5 6
+    1 2 2 3 2 3 3 4 2 3 3 4 3 4 4 5
+    2 3 3 4 3 4 4 5 3 4 4 5 4 5 5 6
+    2 3 3 4 3 4 4 5 3 4 4 5 4 5 5 6
+    3 4 4 5 4 5 5 6 4 5 5 6 5 6 6 7
+    1 2 2 3 2 3 3 4 2 3 3 4 3 4 4 5
+    2 3 3 4 3 4 4 5 3 4 4 5 4 5 5 6
+    2 3 3 4 3 4 4 5 3 4 4 5 4 5 5 6
+    3 4 4 5 4 5 5 6 4 5 5 6 5 6 6 7
+    2 3 3 4 3 4 4 5 3 4 4 5 4 5 5 6
+    3 4 4 5 4 5 5 6 4 5 5 6 5 6 6 7
+    3 4 4 5 4 5 5 6 4 5 5 6 5 6 6 7
+    4 5 5 6 5 6 6 7 5 6 6 7 6 7 7 8 )
+
+::popcnt | nro -- cnt
+	'tpopcnt + c@ ;
+
 |------------ construye octree
 :,oc | val --
 	octre> !+ 'octre> ! ;
@@ -104,14 +126,14 @@
 
 :ininode | nodo -- nodo+			| inicio de nivel
 	@+ dup 3 >> $1fffffff and 'padre !
-	$7 and place 'bith !
+	$7 and 1 swap << 'bith !
 	nodecolor+ 'colores !+ 'colores> ! ;
 
 :nextnode | nodo -- nodo+
 	@+ dup 3 >> $1fffffff and
-	padre =? ( drop $7 and place bith or 'bith ! nodecolor+ colores> !+ 'colores> ! ; )
+	padre =? ( drop $7 and 1 swap << bith or 'bith ! nodecolor+ colores> !+ 'colores> ! ; )
 	oct2!+
-	'padre ! $7 and place 'bith !
+	'padre ! $7 and 1 swap << 'bith !
 	nodecolor+ 'colores !+ 'colores> ! ;
 
 :collectnode | end start --
