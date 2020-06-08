@@ -274,7 +274,7 @@
 
 ::,printstka
 	"; [ " ,s
-	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,print ) drop	
+	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,print ) drop
 	'PSP NOS <? ( TOS 8 >> "%h " ,print ) drop
 	"] " ,s
 	;
@@ -467,7 +467,7 @@
 :shiftRBP | deltap --	; corre rbp a nuevo lugar
 	0? ( drop ; )
 	dup neg
-	"add rbp," ,s 3 << ,d ,cr
+	"add rbp," ,s ,d "*8" ,s ,cr
     'cellRBP stackmap drop ;
 
 :scanuse | to from -- to from here
@@ -523,7 +523,9 @@
 	cell.fillreg
 	TOS NOS 4 + ! | TOS in PSP
 
-	@+ 'stacknow !
+	@+
+	stacknow over - shiftrbp
+	'stacknow !
 
 	@+ 2 >>
 |	NOS 'PSP - <>? ( ; )	| diferent size
@@ -553,6 +555,16 @@
 	( 1? 1 -
 		dup PUSH.REG
 		) drop ;
+
+::stk.2normal | d --
+	'PSP 'NOS !
+	'RSP 'RTOS !
+	0 'stkvalue# !
+	stacknow + dup 'stacknow !
+	0? ( drop ; )
+	1 - ( 1? 1 - dup neg push.stk )
+	push.reg ;
+	;
 
 |------- spill reg
 
@@ -596,9 +608,9 @@
 	push.reg ;
 
 ::stk.normal | --
-	stacknow dup "; stacknow %d " ,print
-	stack.cnt dup " stackcnt %d " ,print ,cr
-	- shiftRBP 	| corre ebp a nuevo lugar
+|	stacknow dup "; stacknow %d " ,print
+|	stack.cnt dup " stackcnt %d " ,print ,cr
+|	- shiftRBP 	| corre ebp a nuevo lugar
 	stack.cnt fillnormal
 	'stacknormal stk.cnv
 	stack.cnt stk.setnormal ;

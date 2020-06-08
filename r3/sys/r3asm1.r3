@@ -18,6 +18,10 @@
 :popbl | -- block
 	-4 'stbl> +! stbl> @ ;
 
+#lastdircode 0 | ultima direccion de codigo
+
+:codtok	dup 'lastdircode ! ;
+
 |--- @@
 ::getval | a -- a v
 	dup 4 - @ 8 >>> ;
@@ -72,20 +76,23 @@
 	stbl> 4 - @ ;
 
 |---
-:g[
+:g[		|  this disapear when pre process the word
 	pushbl
 	dup "jmp ja%h" ,print ,cr
 	"anon%h:" ,print ,cr
 	;
-:g]
+:g]		|  this disapear when pre process the word
 	popbl
 	dup "ja%h:" ,print ,cr
-	PUSH.ANO
+	push.ano
 	;
 
 :gEX
 	"mov rcx,#0" ,asm .drop
 	stk.normal	| normalize
+
+   	lastdircode dic>du drop stk.2normal | exit stack calc
+
 	dup @ $ff and
 	16 <>? ( drop "call rcx" ,ln ; ) drop
 	"jmp rcx" ,ln ;
@@ -461,23 +468,23 @@
 
 
 :gMEM
-	0 PUSH.CTEM
-	.dupnew "mov *0,#1" ,asm .nip ;
+	0 PUSH.CTEM ;
 :gSW
 	0 push.cte ;
 :gSH
 	1 push.cte ;
 :gFRAMEV
-	1 PUSH.CTEM
-	.dupnew "mov #0,#1" ,asm .nip ;
+	1 PUSH.CTEM ;
 :gXYPEN
 	2 PUSH.CTEM
-	.dupnew "mov *0,#1" ,asm .nip
+|	.dupnew "mov *0,#1" ,asm .nip
 	3 PUSH.CTEM
-	.dupnew "mov *0,#1" ,asm .nip ;
+|	.dupnew "mov *0,#1" ,asm .nip
+	;
 :gBPEN
 	4 PUSH.CTEM
-	.dupnew "mov *0,#1" ,asm .nip ;
+|	.dupnew "mov *0,#1" ,asm .nip
+	;
 :gKEY
 	5 PUSH.CTEM
 	.dupnew "mov *0,#1" ,asm .nip ;
@@ -489,11 +496,20 @@
 :gREDRAW
 	"call SYSUPDATE" ,ln ;
 :gMSEC
-	"call SYSMSEC" ,ln ;
+|	%101 stk.freereg | rax rcx need free
+	"call SYSMSEC" ,ln
+	0 push.reg | rax is the result
+	;
 :gTIME
-	"call SYSTIME" ,ln ;
+|	%101 stk.freereg | rax rcx need free
+	"call SYSTIME" ,ln
+	0 push.reg | rax is the result
+	;
 :gDATE
-	"call SYSDATE" ,ln ;
+|	%101 stk.freereg | rax rcx need free
+	"call SYSDATE" ,ln
+	0 push.reg | rax is the result
+	;
 :gLOAD
 	"call SYSLOAD" ,ln ;
 :gSAVE
@@ -519,17 +535,18 @@
 :gstr
 	dup 4 - @ 8 >>> PUSH.STR ;
 
+
 |----------- adress word
 :gdwor
-	getval PUSH.WRD ;	|--	'word
+	getval codtok PUSH.WRD ;	|--	'word
 
 |----------- adress var
 :gdvar
-	getval PUSH.WRD ;	|--	'var
+	getval codtok PUSH.WRD ;	|--	'var
 
 |----------- var
 :gvar
-    getval PUSH.VAR		|--	[var]
+    getval codtok PUSH.VAR		|--	[var]
 	.dupnew "mov *0,#1" ,asm .nip ;
 
 |----------- call word
@@ -537,7 +554,10 @@
 	stk.normal
 	dup @ $ff and
 	16 =? ( drop getval "jmp w%h" ,print ,cr ; ) drop | ret?
-	getval "call w%h" ,print ,cr ;
+	getval
+	dup "call w%h" ,print ,cr
+	dic>du drop stk.2normal | exit stack calc
+	;
 
 |-----------------------------------------
 #vmc

@@ -101,9 +101,9 @@
 
 |-------------------------------
 :calco |  x y z oc -- x y z oc mask
-	pick3 x1 * pick3 y1 * + pick2 z1 * + 31 >> 1 and
-	pick4 x2 * pick4 y2 * + pick3 z2 * + 31 >> 2 and or
-	pick4 x4 * pick4 y4 * + pick3 z4 * + 31 >> 4 and or
+	pick3 x1 * pick3 y1 * + pick2 z1 * + 63 >> 1 and
+	pick4 x2 * pick4 y2 * + pick3 z2 * + 63 >> 2 and or
+	pick4 x4 * pick4 y4 * + pick3 z4 * + 63 >> 4 and or
 	$7 xor
 	;
 
@@ -112,7 +112,7 @@
 
 |---------------------------
 :2/a | a -- b
-	dup 31 >> - 1 >> ;
+	dup 63 >> - 1 >> ;
 
 :reduce
 	isovec> dup >a 48 -
