@@ -99,15 +99,15 @@
 ::,print | p p .. "" --
 	( c@+ 1? ,emit ) 2drop ;
 
-::sprint | p p .. "" -- adr
-	mark
-	here 4096 +
+|::sprint | p p .. "" -- adr
+|	mark
+|	here 4096 +
 |	over =? ( 4096 + )
-	dup 'here ! >r
-	,print ,eol
-	empty r> ;
+|	dup 'here ! >r
+|	,print ,eol
+|	empty r> ;
 
-|#buff * 4096
+#buff * 4096
 
-|::sprint2 | p p .. "" -- adr
-|	mark 'buff 'here ! ,print ,eol empty 'buff ;
+::sprint | p p .. "" -- adr
+	mark 'buff 'here ! ,print ,eol empty 'buff ;

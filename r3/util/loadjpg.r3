@@ -3,6 +3,8 @@
 |-----------------------
 ^r3/lib/mem.r3
 
+^r3/lib/trace.r3
+
 #emem
 #restart
 
@@ -62,8 +64,10 @@
 
 :get8 | adr -- adr+ 8b
 	c@+ $ff and ;
+
 :get16 | adr -- adr+ 16b
 	c@+ $ff and 8 << swap c@+ $ff and rot or ;
+
 :readNumber | adr -- adr+ 16b
 	2 + get16 ;
 :readComm | adr -- adr+
@@ -198,10 +202,10 @@
 	swap 3 << + 2 << dup 'tempa + @ swap QuantNum + @ * ;
 
 |----------------------------------------
-:1.082392200*  277 * 8 >> ;
-:1.414213562*  362 * 8 >> ;
-:1.847759065*  473 * 8 >> ;
-:-2.613125930*  -669 * 8 >> ;
+:1.0823*  277 * 8 >> ;
+:1.4142*  362 * 8 >> ;
+:1.8477*  473 * 8 >> ;
+:-2.613*  -669 * 8 >> ;
 
 #t0 #t1 #t2 #t3 #t4 #t5 #t6 #t7
 #a0 #a1 #a2 #a3
@@ -212,7 +216,7 @@
 	4 over ]inq@* 't2 !
 	6 over ]inq@* 't3 !
 	t0 t2 2dup + 'a0 ! - 'a1 !
-	t1 t3 2dup + 'a3 ! - 1.414213562* a3 - 'a2 !
+	t1 t3 2dup + 'a3 ! - 1.4142* a3 - 'a2 !
 	a0 a3 2dup + 't0 ! - 't3 !
 	a1 a2 2dup + 't1 ! - 't2 !
 	1 over ]inq@* 't4 !
@@ -222,10 +226,10 @@
 	t6 t5 2dup + 'a3 ! - 'a0 !
 	t4 t7 2dup + 'a1 ! - 'a2 !
 	a1 a3 + 't7 !
-	a0 a2 + 1.847759065*
-	a0 -2.613125930* over + t7 - 't6 !
-	a1 a3 - 1.414213562* t6 - 't5 !
-	a2 1.082392200* swap - t5 + 't4 !
+	a0 a2 + 1.8477*
+	a0 -2.613* over + t7 - 't6 !
+	a1 a3 - 1.4142* t6 - 't5 !
+	a2 1.0823* swap - t5 + 't4 !
 	dup 2 << 'tempw + >a
 	t0 t7 + a!+ 28 a+ t1 t6 + a!+ 28 a+
 	t2 t5 + a!+ 28 a+ t3 t4 - a!+ 28 a+
@@ -253,16 +257,16 @@
 
 :pass2 | out col -- out col
 	dup 0 ]warray @ over 4 ]warray @ 2dup + 'a0 ! - 'a1 !
-	dup 2 ]warray @ over 6 ]warray @ 2dup + 'a3 ! - 1.414213562* a3 - 'a2 !
+	dup 2 ]warray @ over 6 ]warray @ 2dup + 'a3 ! - 1.4142* a3 - 'a2 !
 	a0 a3 2dup + 't0 ! - 't3 !
 	a1 a2 2dup + 't1 ! - 't2 !
 	dup 5 ]warray @ over 3 ]warray @ 2dup + 'a3 ! - 'a0 !
 	dup 1 ]warray @ over 7 ]warray @ 2dup + 'a1 ! - 'a2 !
 	a1 a3 + 't7 !
-	a0 a2 + 1.847759065*
-	a0 -2.613125930* over + t7 - 't6 !
-	a1 a3 - 1.414213562* t6 - 't5 !
-	a2 1.082392200* swap - t5 + 't4 !
+	a0 a2 + 1.8477*
+	a0 -2.613* over + t7 - 't6 !
+	a1 a3 - 1.4142* t6 - 't5 !
+	a2 1.0823* swap - t5 + 't4 !
 
 	dup 5 << pick2 + >a | dup 0 ]out
 	t0 t7 + 5 >> 128 + 255 clamp0max a!+
@@ -318,9 +322,13 @@
 
 | Do color space conversion from YCbCr to RGB
 :2rgb | y cb cr -- rgb32
-	pick2 over 128 - 45 * 5 >> + 255 clamp0max 16 << >r
-	pick2 pick2 128 - 11 * 5 >> - swap 128 - 23 * 5 >> - 255 clamp0max 8 << r> or
-	rot rot 128 - 57 * 5 >> + 255 clamp0max or ;
+	pick2 over 128 - 45 * 5 >> +
+	255 clamp0max 16 <<
+	pick3 pick3 128 - 11 * 5 >> -
+	rot 128 - 23 * 5 >> -
+	255 clamp0max 8 << or
+	rot rot 128 - 57 * 5 >> +
+	255 clamp0max or ;
 
 :xyimg | x y -- adr
 	imgcols * + 2 << emem + ;
@@ -336,34 +344,34 @@
 :q134
 	pick4 pick2 + imgcols >=? ( drop ; )
 	pick4 pick2 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector1 + @
 	pick2 1 >> pick2 1 >> 3 << +
-	n2cbcr 2rgb r> ! ;
+	n2cbcr 2rgb a! ;
 
 :q234
 	pick4 pick2 + 8 + imgcols >=? ( drop ; )
 	pick4 pick2 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector2 + @
 	pick2 1 >> 4 + pick2 1 >> 3 << +
-	n2cbcr 2rgb r> ! ;
+	n2cbcr 2rgb a! ;
 
 :q334
 	pick4 pick2 + imgcols >=? ( drop ; )
 	pick4 pick2 + 8 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector3 + @
 	pick2 1 >> pick2 1 >> 4 + 3 << +
-	n2cbcr 2rgb r> ! ;
+	n2cbcr 2rgb a! ;
 
 :q434
 	pick4 pick2 + 8 + imgcols >=? ( drop ; )
 	pick4 pick2 + 8 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector4 + @
 	pick2 1 >> 4 + pick2 1 >> 4 + 3 << +
-	n2cbcr 2rgb r> ! ;
+	n2cbcr 2rgb a! ;
 
 :modo34 | x y a -- x y a ;3 components (Y-Cb-Cr) 4 samplesY
 	dcY 'dcCoef !
@@ -407,18 +415,18 @@
 :q132
 	pick4 pick2 + imgcols >=? ( drop ; )
 	pick4 pick2 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector1 + @
 	pick2 1 >> pick2 1 >> 3 << +
-	n2cbcr 2rgb r> ! ;
+	n2cbcr 2rgb a! ;
 
 :q232
 	pick4 pick2 + 8 + imgcols >=? ( drop ; )
 	pick4 pick2 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector2 + @
 	pick2 1 >> 4 + pick2 1 >> 3 << +
-	n2cbcr 2rgb r> ! ;
+	n2cbcr 2rgb a! ;
 
 :modo32 | a -- a
 	dcY 'dcCoef !
@@ -457,10 +465,10 @@
 :q131
 	pick4 pick2 + imgcols >=? ( drop ; )
 	pick4 pick2 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector1 + @
 	pick2 1 >> pick2 1 >> 3 << +
-	n2cbcr 2rgb r> ! ;
+	n2cbcr 2rgb a! ;
 
 :modo31 | a -- a
 	dcY 'dcCoef !
@@ -497,10 +505,10 @@
 :q110
 	pick4 pick2 + imgcols >=? ( drop ; )
 	pick4 pick2 + imgrows >=? ( 2drop ; )
-	xyimg >r
+	xyimg >a
 	2dup 3 << + 2 << 'YVector1 + @
 	255 clamp0max
-	dup 8 << or dup 8 << or r> ! ;
+	dup 8 << or dup 8 << or a! ;
 
 :modo10 | a -- a
 	dcY 'dcCoef !
@@ -539,7 +547,7 @@
 	$ffc2 =? ( drop JPGGetImageAttr ; ) | progresive not work!!
 	$ffc4 =? ( drop JPGGetHuffTables ; )
 	$ffdb =? ( drop PGGetQuantTables ; )
-	$ffdd =? ( drop readNumber 'Restart ! ; )
+	$ffdd =? ( drop readNumber 'restart ! ; )
 	$ffda =? ( drop JPGGetSOS 0 ; )
 	$fffe =? ( drop readComm ; )
 	$ffe0 >=? ( $ffef <=? ( drop readComm ; ) )
@@ -557,5 +565,5 @@
 	here >a
 	imgcols imgrows 12 << or a!+	| size
 	a> emem imgcols imgrows * 2 << dup >r move
-	here r> 8 + 'here +! ;
+	here r> 4 + 'here +! ;
 

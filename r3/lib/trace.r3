@@ -69,4 +69,4 @@
 
 ::waitesp
 	update
-	key >esp< <>? ( drop waitkey ; ) drop ;
+	key >esp< <>? ( drop waitesp ; ) drop ;
