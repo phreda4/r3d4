@@ -1,4 +1,5 @@
 ^r3/lib/sys.r3
+^r3/lib/mem.r3
 ^r3/lib/str.r3
 ^r3/lib/print.r3
 
@@ -70,3 +71,9 @@
 ::waitesp
 	update
 	key >esp< <>? ( drop waitesp ; ) drop ;
+
+::clearlog
+	0 0 "filelog.txt" save ;
+
+::filelog | .. str --
+	sprint count "filelog.txt" append ;

@@ -106,19 +106,15 @@
 
 |--------------------------
 :getcase1
-	swap
 	get8 dup 15 and swap 4 >> * 'SamplesY !
-	get8 'QuantTableY !
-	swap ;
+	get8 'QuantTableY ! ;
 
 :getcase2
-	swap
 	get8 dup 15 and swap 4 >> * 'SamplesCbCr !
-	get8 'QuantTableCbCr !
-	swap ;
+	get8 'QuantTableCbCr ! ;
 
 :getcasen
-	1 - 0? ( getcase1 ; ) getcase2 ;
+	1 =? ( drop getcase1 ; ) drop getcase2 ;
 
 :JPGGetImageAttr | adr -- adr+
 	3 +	| Length of segment
@@ -127,7 +123,7 @@
 	get8	| Number of components
 	( 1? swap
 		get8 getcasen
-		drop swap 1 - ) drop ;
+		swap 1 - ) drop ;
 
 |----------------------------------
 #curnum
