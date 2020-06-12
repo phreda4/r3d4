@@ -5,6 +5,7 @@
 |MEM $ffff
 
 ^r3/lib/gui.r3
+^r3/lib/xfb.r3
 ^r3/lib/rand.r3
 
 #SAND_COL $EECD83
@@ -51,8 +52,9 @@
 	dup @ 1? ( 3drop ; ) drop ! ;
 
 :boxtype | -- c
-	a> sw 1 + 2 << - >b
-	b@+ b@+ or b@+ or sw 3 - 2 << b+
+	a> sw 1 + 2 << - 
+	vframe sw 2 << + <? ( ; )
+	>b b@+ b@+ or b@+ or sw 3 - 2 << b+
 	b@+ or 4 b+ b@+ or sw 3 - 2 << b+
 	b@+ or b@+ or b@+ or
 	;
@@ -117,6 +119,14 @@
 		hliner sw 2 << 4 - neg a+
 		2 - ) drop ;
 
+
+:run
+	updatesand
+	key
+	>esp< =? ( exit )
+	drop
+	;
+
 #mat
 
 :drawmat
@@ -129,8 +139,14 @@
   ;
 
 :main
-	updatesand
+	xfb>
 	drawmat
+	>xfb
+	home
+	mat 'ink !
+	"### " print
+	$ffffff 'ink !
+	"F1..F9: material | ESP: run/stop | ESC: exit | PEN:draw " print
 	key
 	>esc< =? ( exit )
 	<f1> =? ( SAND_COL 'mat ! )
@@ -141,11 +157,16 @@
 	<f6> =? ( PLANT_COL 'mat ! )
 	<f7> =? ( SPOUT_COL 'mat ! )
 	<f8> =? ( WAX_COL 'mat ! )
+	<f9> =? ( 0 'mat ! )
+	>esp< =? ( xfb> 'run onShow >xfb )
 	drop
+	acursor
 	;
 
 :ini
 	cls
+	inixfb
+	redraw >xfb
 	SAND_COL 'mat !
 	mark ;
 

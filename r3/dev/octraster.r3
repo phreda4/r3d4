@@ -378,14 +378,14 @@
 
 :cullingcalc | x y z node -- x y z node aocull
 	>r
-	0 getn cull1 >r
-	1 getn culln r> and or >r
-	2 getn culln r> and or >r
-	3 getn culln r> and or >r
-	4 getn culln r> and or >r
-	5 getn culln r> and or >r
-	6 getn culln r> and or >r
-	7 getn culln r> and or
+	0 getn cull1 >b
+	1 getn culln b> and or >b
+	2 getn culln b> and or >b
+	3 getn culln b> and or >b
+	4 getn culln b> and or >b
+	5 getn culln b> and or >b
+	6 getn culln b> and or >b
+	7 getn culln b> and or
 	r> swap ;
 
 

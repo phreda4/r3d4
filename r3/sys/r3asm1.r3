@@ -259,18 +259,17 @@
 	stk.RC
 	"shr #1,$0" ,asm .drop ;
 
-:o*>>
-	"cqo" ,ln
-	"imul #1" ,asm
-|	prevalv
-|	64 <? ( "shrd rax,rdx,$0" ,asm ; )
-|	64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
-|	drop
-|	"mov rax,rdx" ,ln ;
-	;
+:v*>>
+	"cqo;imul #1" ,asm
+	vTOS
+	64 <? ( "shrd rax,rdx,$0" ,asm ; )
+	64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
+	drop
+	"mov rax,rdx" ,ln ;
 
 :g*>>
 	stk.AGC freeD
+	TOS $ff and 0? ( drop v*>> ; ) drop
 	"cqo;imul #1;shrd rax,rdx,$0" ,asm
     .2drop ;
 
