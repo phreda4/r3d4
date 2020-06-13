@@ -48,12 +48,10 @@
 	;
 
 :emptycopy | type diff --
-	2 << a> + vframe sw 2 << + <? ( 2drop ; )
-	dup @ 1? ( 3drop ; ) drop ! ;
+	2 << a> + dup @ 1? ( 3drop ; ) drop ! ;
 
 :boxtype | -- c
-	a> sw 1 + 2 << - 
-	vframe sw 2 << + <? ( ; )
+	a> sw 1 + 2 << -
 	>b b@+ b@+ or b@+ or sw 3 - 2 << b+
 	b@+ or 4 b+ b@+ or sw 3 - 2 << b+
 	b@+ or b@+ or b@+ or
@@ -112,9 +110,9 @@
 	sw ( 1? 1 - updatepix -4 a+ ) drop ;
 
 :updatesand
-	sh 3 - 1 or
+	sh 15 -
 	0 over xy>v >a
-	( +?
+	( 15 >?
 		hlined sw 2 << 4 + neg a+
 		hliner sw 2 << 4 - neg a+
 		2 - ) drop ;
@@ -133,8 +131,8 @@
   bpen 0? ( drop ; ) drop
   mat 'ink !
   10 10 xypen
-  swap 5 - sw 15 - min 15 max
-  swap 5 - sh 13 - min 15 max
+  swap 5 - sw 25 - min 15 max
+  swap 5 - sh 25 - min 15 max
   fillrect
   ;
 
@@ -164,8 +162,13 @@
 	;
 
 :ini
-	cls
 	inixfb
+	cls
+
+	| fill borders with walls
+	WALL_COL 'ink ! sw sh 0 0 fillrect
+	0 'ink ! sw 30 - sh 30 - 15 15 fillrect
+
 	redraw >xfb
 	SAND_COL 'mat !
 	mark ;
