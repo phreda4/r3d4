@@ -265,19 +265,6 @@
 ::,celld | nro --
 	dup $f and 2 << 'tiposrm + @ ex ;
 
-::,printstk
-	"; [ " ,s
-	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
-	'PSP NOS <? ( TOS ,cell ) drop
-	" ] " ,s
-	;
-
-::,printstka
-	"; [ " ,s
-	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,print ) drop
-	'PSP NOS <? ( TOS 8 >> "%h " ,print ) drop
-	"] " ,s
-	;
 
 |---------- ASM
 | "add %0,#1" --> add rax,rbx ; TOS,NOS
@@ -323,6 +310,24 @@
 ::stack.cnt | -- cnt
 	NOS 'PSP - 2 >> ;
 
+::,printstk
+	"; [ " ,s
+	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
+	'PSP NOS <? ( TOS ,cell ) drop
+	" ] now:" ,s
+	stacknow ,d
+	" real:" ,s
+	stack.cnt ,d
+	;
+
+::,printstka
+	"; [ " ,s
+	'PSP 8 + ( NOS <=? @+ 8 >> "%h " ,print ) drop
+	'PSP NOS <? ( TOS 8 >> "%h " ,print ) drop
+	"] " ,s
+	;
+
+
 ::stk.push
 	memstk> dup stks> !+ 'stks> !
 	>a
@@ -330,6 +335,9 @@
 	NOS 'PSP - a!+
 	'PSP 8 + ( NOS <=? @+ a!+ ) drop
 	'PSP NOS <? ( TOS a!+ ) drop
+
+	"; PUSHSTK " ,s
+	,printstk ,cr
 	;
 
 ::stk.pop
@@ -340,6 +348,8 @@
 	a@+ 'PSP + 'NOS !
 	'PSP 8 + ( NOS <=? a@+ swap !+ ) drop
 	'PSP NOS <? ( a@+ 'TOS ! ) drop
+	"; POPSTK " ,s
+	,printstk ,cr
 	;
 
 ::stk.drop
@@ -350,6 +360,7 @@
 	'stks> !
 	stks> @
 	'memstk> !
+	"; DROPSTK " ,s ,cr
 	;
 
 
