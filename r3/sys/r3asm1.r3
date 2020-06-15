@@ -262,13 +262,14 @@
 :v*>>
 	"cqo;imul #1" ,asm
 	vTOS
-	64 <? ( "shrd rax,rdx,$0" ,asm ; )
+	64 <? ( drop "shrd rax,rdx,$0" ,asm .2drop ; )
 	64 >? ( "sar rdx," ,s dup 64 - ,d ,cr )
 	drop
-	"mov rax,rdx" ,ln ;
+	"mov rax,rdx" ,ln
+	.2drop ;
 
 :g*>>
-	stk.AGC freeD
+	stk.ARC freeD
 	TOS $ff and 0? ( drop v*>> ; ) drop
 	"cqo;imul #1;shrd rax,rdx,$0" ,asm
     .2drop ;
@@ -496,16 +497,20 @@
 	"call SYSUPDATE" ,ln ;
 :gMSEC
 |	%101 stk.freereg | rax rcx need free
-	"call SYSMSEC" ,ln
+|	"call SYSMSEC" ,ln
+	freeA freeC
+	"invoke GetTickCount" ,asm
 	0 push.reg | rax is the result
 	;
 :gTIME
 |	%101 stk.freereg | rax rcx need free
+	freeA freeC
 	"call SYSTIME" ,ln
 	0 push.reg | rax is the result
 	;
 :gDATE
 |	%101 stk.freereg | rax rcx need free
+	freeA freeC
 	"call SYSDATE" ,ln
 	0 push.reg | rax is the result
 	;
@@ -578,8 +583,8 @@ gFNEXT gSYS
 	,tokenprint ;
 
 :codestep | token --
-	"; " ,s ,tokenprinto 9 ,c ,printstk ,cr
-|	"asm/code.asm" savemem
+|	"; " ,s ,tokenprinto 9 ,c ,printstk ,cr
+|	"asm/code.asm" savememinc
 	$ff and 2 << 'vmc + @ ex ;
 
 
@@ -588,7 +593,4 @@ gFNEXT gSYS
 	1 +
 	stk.start
 	'bcode ( bcode> <?
-		@+
-		codestep
-| "asm/code.asm" savememinc
-		) drop ;
+		@+ codestep ) drop ;
