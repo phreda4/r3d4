@@ -281,23 +281,29 @@
 	;
 
 :g@
+	stk.R
 	"movsxd #0,dword[#0]" ,asm ;
 
 :gC@
+	stk.R
 	"movsx #0,byte[#0]" ,asm ;
 
 :gQ@
+	stk.R
 	"mov #0,qword[#0]" ,asm ;
 
 :g@+
+	stk.R
 	.dupnew
 	"movsxd #0,dword[#1];add #1,4" ,asm ;
 
 :gC@+
+	stk.R
 	.dupnew
 	"movsx #0,byte[#1];add #1,1" ,asm ;
 
 :gQ@+
+	stk.R
 	.dupnew
 	"mov #0,[#1];add #1,8" ,asm ;
 
@@ -583,7 +589,7 @@ gFNEXT gSYS
 	,tokenprint ;
 
 :codestep | token --
-|	"; " ,s ,tokenprinto 9 ,c ,printstk ,cr
+	"; " ,s ,tokenprinto 9 ,c ,printstk ,cr
 |	"asm/code.asm" savememinc
 	$ff and 2 << 'vmc + @ ex ;
 

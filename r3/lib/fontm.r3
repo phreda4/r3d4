@@ -5,9 +5,6 @@
 |   ^r3/fntm/...fuente.rtf
 |
 |	fontm | 'fontm --
-|   fontmcolor | col1 col2 --
-|	fontmcol | col12 --
-|	fontminv | --
 |-------------------------------
 ^r3/lib/gr.r3
 ^r3/lib/print.r3
@@ -15,11 +12,16 @@
 :charsizem | byte -- size
 	drop ccw ;
 
-#palcol $000000 $005500 $00aa00 $00ff00
+:a00 4 a+ ;
+:a01 a@ ink col33% a!+ ;
+:a10 a@ ink col50% a!+ ;
+:a11 ink a!+ ;
+
+#acc a00 a01 a10 a11
 
 :charline | sx n bit --
 	ccw ( 1? 1 -
-		swap dup $3 and 2 << 'palcol + @ a!+
+		swap dup $3 and 2 << 'acc + @ ex
 		2 >> swap ) 2drop ;
 
 :charm | c --
@@ -39,17 +41,3 @@
 	'charm 'charsizem font!
 	calcrowcol ;
 
-::fontmcolor | c1 c2 --
-	'palcol >a
-	over a!+
-	2dup $66 colmix a!+
-	2dup $cc colmix a!+
-	nip a!+ ;
-
-::fontmcol | c12 --
-	dup $f0f0f0 and dup 4 >> or swap $f0f0f and dup 4 << or
-	fontmcolor ;
-
-::fontminv
-	'palcol @+ swap 8 + @ swap
-	fontmcolor ;

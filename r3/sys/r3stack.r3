@@ -46,7 +46,9 @@
 #REGA
 #REGB
 ##TOS 0
-#... * 1024 | for debug!!
+
+|#... * 1024 | for debug!!
+
 ##PSP * 1024
 ##NOS 'PSP
 #RSP * 1024
@@ -821,13 +823,6 @@
     .drop ;
 
 |...............
-
-::stk.R
-	TOS $ff and $5 =? ( drop freeregtos ; ) drop
-	.dupnew
-	"mov #0,#1" ,asm
-	.nip ;
-
 ::stk.G
 	TOS cellG? 0? ( tosg ) drop ;
 
@@ -889,26 +884,18 @@
 	"mov #0,#1;xchg rcx,#0" ,asm
 	TOS 'changereg stackmap-1 drop
 
+
 :needC | cell -- cell
 	$ff and 0? ( ; )
 	maskreg %100 an? ( drop needCU ; ) drop
 	"mov rcx,#0" ,asm
 	$205 'TOS ! ;
 
-::stk.RC
-	cell.fillreg
-	TOS $205 <>? ( needC ) drop
-	NOS @ $ff and 5 =? ( drop ; ) drop
-	.dupnew | x c nr
-	"mov #0,#2" ,asm
-	.swap .rot .drop
-	;
-
-
+|...............
 ::stk.AGC
 	cell.fillreg
 	TOS $205 <>? ( needC ) drop
-	NOS 4 - @ $005 =? ( drop needAU ; ) drop
+	NOS 4 - @ $005 =? ( needAU ) drop
 	NOS @ $005 =? ( drop .rot .rot .swap .rot ; ) drop | "xchg rax,#2" ,asm
 	maskreg %1 an? ( needAU ) drop
 	NOS 4 - dup @
@@ -919,15 +906,60 @@
 ::stk.ARC
 	cell.fillreg
 	TOS $205 <>? ( needC ) drop
-	NOS 4 - @ $005 =? ( drop needAU ; ) drop
-	NOS @ $005 =? ( drop .rot .rot .swap .rot ; ) drop | "xchg rax,#2" ,asm
-	maskreg %1 an? ( needAU ) drop
+|	NOS 4 - @ $005 =? ( needAU ) drop
+	NOS @ $005 =? ( .rot .rot .swap .rot ) drop | "xchg rax,#2" ,asm
+|	maskreg %1 an? ( needAU ) drop
+	NOS @ $ff and
+	";ARC NOS:" ,s dup ,h ,cr
+	
+
+	5 <>? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap ) drop
 	NOS 4 - dup @
 	"mov rax," ,s ,cell ,cr
 	$005 swap !	;
+
+| stk:  a a b -> c a b ..op.. c a'
+|...............
+#regnocopy
+
+:changeR | ndes nreg 'cell -- ndes nreg
+	dup @ pick2 <>? ( 2drop ; ) drop
+	1 'cc !
+	pick2 swap ! ;
+
+:stk.TOSnocpy
+	0 'cc !
+	.dupnew
+ 	TOS NOS @ 'changeR stackmap-2 2drop
+	cc 1? ( "mov #0,#1" ,asm ) drop
+	.drop ;
+
+:stk.NOSnocpy
+	0 'cc !
+	.dupnew
+ 	TOS NOS 4 - @ 'changeR stackmap-3 2drop
+	cc 1? ( "mov #0,#2" ,asm ) drop
+	.drop ;
+
+:stk.NOS-1nocpy
+	0 'cc !
+	.dupnew
+ 	TOS NOS 8 - @ 'changeR stackmap-4 2drop
+	cc 1? ( "mov #0,#3" ,asm ) drop
+	.drop ;
+
+
+::stk.R
+	TOS $ff and 5 <>? ( .dupnew "mov #0,#1" ,asm .nip ) drop
+	stk.TOSnocpy
 	;
 
-
-::stk.DSC
+::stk.RC
+	cell.fillreg
+	TOS $205 <>? ( needC ) drop
+	NOS @ $ff and 5 =? ( drop stk.NOSnocpy ; ) drop
+	.dupnew | x c nr
+	"mov #0,#2" ,asm
+	.swap .rot .drop
+	stk.NOSnocpy
 	;
-

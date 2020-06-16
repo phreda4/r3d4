@@ -5,17 +5,27 @@
 ^r3/lib/mem.r3
 ^r3/lib/gui.r3
 ^r3/lib/print.r3
+^r3/lib/input.r3
 ^r3/lib/sprite.r3
 
 ^r3/lib/fontm.r3
 ^media/fntm/droidsans13.fnt
+
+| ventana de texto
+#xcode 5
+#ycode 1
+#wcode 30
+#hcode 20
+
+#xlinea 0
+#ycursor
+#xcursor
 
 #name * 1024
 
 #pantaini>	| comienzo de pantalla
 #pantafin>	| fin de pantalla
 #prilinea	| primera linea visible
-#cntlinea
 
 #inisel		| inicio seleccion
 #finsel		| fin seleccion
@@ -186,7 +196,7 @@
 	"r3 " ,s 'name ,s ,eol
 	empty here sys drop
 	;
-	
+
 :mkplain
 	savetxt
 	"r3 r3/sys/r3plain.r3" sys drop
@@ -319,7 +329,6 @@
 
 :controlf | -- ;find
 	findmode 1 xor 'findmode !
-|	0 update dro
 |	refreshfoco
 	;
 
@@ -335,16 +344,6 @@
 
 |------ Dibuja codigo
 
-:drawsel | com -- com
-	inisel 0? ( drop ; ) drop
-|	finsel >=? ( ; )
-|	dup ( inisel <? c@+ 13 =? ( 2drop ; ) gemit )
-|	sel>> $88 'ink !
-|	( finsel <? c@+ 13 =? ( 2drop sel<< ; ) gemit )
-|	drop sel<<
-	;
-
-|---------------------------------------
 :lineacom | adr c -- adr++
 	( 13 =? ( drop 1 - ; ) emit c@+ 1? )
 	drop 1 - ;
@@ -357,13 +356,13 @@
 	( $ff and 32 >? emit c@+ )
 	drop 1 - ;
 
-:col_inc $0 $ffff00 fontmcolor ;
-:col_com $0 $555555 fontmcolor ;
-:col_cod $0 $ff0000 fontmcolor ;
-:col_dat $0 $ff00ff fontmcolor ;
-:col_str $0 $ffffff fontmcolor ;
-:col_adr $0 $ffff fontmcolor ;
-:col_nor $0 $ff00 fontmcolor ;
+:col_inc $ffff00 'ink ! ;
+:col_com $666666 'ink ! ;
+:col_cod $ff0000 'ink ! ;
+:col_dat $ff00ff 'ink ! ;
+:col_str $ffffff 'ink ! ;
+:col_adr $ffff 'ink ! ;
+:col_nor $ff00 'ink ! ;
 
 :wordcolor | adr c -- ar..
 	32 =? ( drop sp ; )
@@ -383,28 +382,55 @@
 	( c@+ 1?
 		13 =? ( drop ; )
 		wordcolor
-		) nip ;
+		) drop 1 - ;
+
+|..............................
 
 :linenro | lin -- lin
-	$222222 $aaaaaa fontmcolor
-	dup prilinea + .d 3 .r. emits sp ;
+	$aaaaaa 'ink !
+	dup prilinea + 1 + .d 3 .r. emits sp ;
 
-#ycursor
-#xcursor
+|..............................
+:emitsel
+	13 =? ( drop cr xcode gotox ; )
+	9 =? ( drop gtab ; )
+	noemit ;
 
+#xseli
+#xsele
+
+:drawselect
+	inisel 0? ( drop ; )
+	pantafin> >? ( drop ; )
+	xcode ycode gotoxy
+	ccx 'xseli !
+	pantaini> ( over <? c@+ emitsel ) nip
+
+	xseli ccy cch + dup >r op
+	ccx ccy cch + pline
+	ccx ccy pline sw ccy pline
+	( pantafin> <? finsel <? c@+ emitsel ) drop
+	sw ccy pline ccx ccy pline
+	ccx ccy cch + pline
+	xseli ccy cch + pline
+	xseli r> pline
+	$444444 'ink ! poli
+	;
+
+|..............................
 :emitcur
-	13 =? ( drop cr 1 'ycursor +! 0 'xcursor ! ; )
-	9 =? ( drop gtab 4 'xcursor ! ; )
+	13 =? ( drop 1 'ycursor +! 0 'xcursor ! ; )
+	9 =? ( drop 4 'xcursor +! ; )
 	1 'xcursor +!
 	noemit ;
 
 :drawcursor
 	blink 1? ( drop ; ) drop
-	0 1 gotoxy
 	prilinea 'ycursor ! 0 'xcursor !
-	pantaini>
-	( fuente> <? c@+ emitcur ) drop
-	32 noemit 32 noemit 32 noemit 32 noemit 32 noemit
+	pantaini> ( fuente> <? c@+ emitcur ) drop
+
+	xcode xcursor +
+	ycode prilinea - ycursor + gotoxy
 	ccx ccy xy>v >a
 	cch ( 1? 1 -
 		ccw ( 1? 1 -
@@ -421,14 +447,12 @@
 	drawcursor ;
 
 :drawcode
-	0 1 gotoxy
+	drawselect
 	pantaini>
-	0 ( cntlinea <?
+	0 ( hcode <?
+		0 ycode pick2 + gotoxy
 		linenro
-		swap
-|		drawsel lf
-		codelinecolor 0? ( 2drop $fuente 1 - 'pantafin> ! scroll? ; )
-		cr
+		swap codelinecolor
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
 	scroll? ;
@@ -497,10 +521,17 @@
     drop
 
 	$ffffff 'ink !
-|	'buscapad 'findpad 31 inputexec
+	'buscapad 'findpad 31 inputex
 	;
 
 :controlkey
+	key
+	>ctrl< =? ( controloff )
+
+	<f> =? ( controlf )
+	drop
+
+	5 rows 1 - gotoxy
 	" F-Find" emits
 
 |	'controle 18 ?key " E-Edit" emits | ctrl-E dit
@@ -521,16 +552,18 @@
 |	'controls <dn>
 |	'controloff >ctrl<
 
-|	'findpad
-|	dup c@ 0? ( 2drop ; ) drop
-|	" (%s)" print
-
+	'findpad
+	dup c@ 0? ( 2drop ; ) drop
+	" [%s]" print
 	;
 
 :teclado
+	panelcontrol 1? ( drop controlkey ; ) drop
+
 	char
 	1? ( modo ex ; )
 	drop
+
 	key
 	<back> =? ( kback )
 	<del> =? ( kdel )
@@ -552,6 +585,9 @@
 	<ctrl> =? ( controlon )
 	>ctrl< =? ( controloff )
 
+	<shift> =? ( 1 'mshift ! )
+	>shift< =? ( 0 'mshift ! )
+
 	<f1> =? ( runfile )
 	<f4> =? ( mkplain )
 	<f5> =? ( compile )
@@ -561,9 +597,10 @@
 :barratop
 	home
 	$555555 'ink ! backline
-	$ff $ffffff fontmcolor
-	" r3 " emits
-	$3f $ffffff fontmcolor
+
+	$ffffff 'ink ! sp 'name emits sp
+
+	$5555ff 'ink !
 	" F1-Run" emits
 
 	" F4-Plain" emits
@@ -578,19 +615,18 @@
 :barraestado
 	0 rows 1 - gotoxy
 	$555555 'ink ! backline
-	$7f $ffffff fontmcolor sp
-	'name emits sp
-	$ff $ffffff fontmcolor sp
+
+	$0 'ink ! sp
 	xcursor 1 + .d emits sp
 	ycursor 1 + .d emits sp
 
-	panelcontrol 1? ( drop controlkey ; ) drop
+    $ffffff 'ink !
 	findmode 1? ( drop findmodekey ; ) drop
 	;
 
 
 :editando
-	cls gui guiAll
+	cls gui
 	barratop
 	barraestado
 	'dns 'mos 'ups guiMap |------ mouse
@@ -601,7 +637,7 @@
 
 :editor
 	0 'paper !
-	rows 2 - 'cntlinea !
+	rows 3 - 'hcode !
 	'editando onshow
 	;
 

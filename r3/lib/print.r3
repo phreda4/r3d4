@@ -102,6 +102,7 @@
 
 ::gotoxy | x y --
 	cch * 'ccy !
+::gotox | x --
 	ccw * 'ccx ! ;
 
 ::atxy | x y --

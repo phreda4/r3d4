@@ -149,8 +149,13 @@
 |	allowcr prin
 |	;
 
-|:proinputexe | --
-|	ccx cursori 'ccx !
+:proinputexe | --
+	ccx cursori 'ccx !
+	char
+	1? ( modo ex pick2 ex )
+	drop
+	key
+	drop
 ||	[ key toasc modo ex pick2 ex ; ] <visible>
 ||	[ modo 'lins =? ( 'lover )( 'lins ) 'modo ! drop  ; ] <ins>
 |	[ kback pick2 ex ; ] <back>
@@ -160,16 +165,16 @@
 |	[ padf> 'pad> ! ; ] <end>
 |	'ktab dup <tab> <enter>
 |	'nextfoco <dn> 'prevfoco <up>
-|	;
+	;
 
 |************************************
-|::inputexec | 'vector 'var max  --
-|	gc.push dup makesizew
-|	'proinputexe 'iniinput w/foco
-|	'clickfoco guiBtn
-|	drop ccx w + >r
-|	printx
-|	gc.pop r> 'ccx !
-|	drop
-|	;
+::inputex | 'vector 'var max  --
+	dup ccw *
+	'proinputexe 'iniinput w/foco
+|	'clickfoco onClick
+	drop ccx ccw + >r
+	emits
+	r> 'ccx !
+	drop
+	;
 
