@@ -911,7 +911,7 @@
 |	maskreg %1 an? ( needAU ) drop
 	NOS @ $ff and
 	";ARC NOS:" ,s dup ,h ,cr
-	
+
 
 	5 <>? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap ) drop
 	NOS 4 - dup @

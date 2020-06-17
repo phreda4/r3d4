@@ -5,8 +5,8 @@
 ^r3/lib/print.r3
 ^r3/lib/parse.r3
 
-^./r3parse.r3
-^./r3stack.r3
+^r3/sys/r3parse.r3
+^r3/sys/r3stack.r3
 
 
 ##r3filename * 256

@@ -14,8 +14,10 @@
 | ventana de texto
 #xcode 5
 #ycode 1
-#wcode 30
+#wcode 40
 #hcode 20
+#xseli	| x ini win
+#xsele	| x end win
 
 #xlinea 0
 #ycursor
@@ -329,7 +331,6 @@
 
 :controlf | -- ;find
 	findmode 1 xor 'findmode !
-|	refreshfoco
 	;
 
 |-------------
@@ -343,17 +344,21 @@
 	;
 
 |------ Dibuja codigo
+:emitl
+	emit ccx xsele <? ( drop ; ) drop
+	( c@+ 1? 13 <>? drop ) drop 1 -	| eat line to cr or 0
+	;
 
 :lineacom | adr c -- adr++
-	( 13 =? ( drop 1 - ; ) emit c@+ 1? )
+	( 13 =? ( drop 1 - ; ) emitl c@+ 1? )
 	drop 1 - ;
 
 :palstr | adr c -- adr++
-	( emit c@+ 34 =? ( emit ; ) $ff and 31 >? )
+	( emitl c@+ 34 =? ( emitl ; ) $ff and 31 >? )
 	drop 1 - ;
 
 :npal
-	( $ff and 32 >? emit c@+ )
+	( $ff and 32 >? emitl c@+ )
 	drop 1 - ;
 
 :col_inc $ffff00 'ink ! ;
@@ -367,25 +372,45 @@
 :wordcolor | adr c -- ar..
 	32 =? ( drop sp ; )
 	9 =? ( drop tab ; )
-	$5e =? ( col_inc npal ; )	| $5e ^  Include
+	$5e =? ( col_inc npal ; )		| $5e ^  Include
 	$7c =? ( col_com lineacom ; )	| $7c |	 Comentario
 	$3A =? ( col_cod npal ; )		| $3a :  Definicion
-	$23 =? ( col_dat npal ; )	| $23 #  Variable
-	$22 =? ( col_dat palstr ; )	| $22 "	 Cadena
+	$23 =? ( col_dat npal ; )		| $23 #  Variable
+	$22 =? ( col_str palstr ; )		| $22 "	 Cadena
 	$27 =? ( col_adr npal ; )		| $27 ' Direccion
 |	over 1 - isNro 1? ( drop amarillo npal ; ) drop
 |	over 1 - ?macro 1? ( drop verde npal ; ) drop		| macro
 	col_nor npal ;
 
+:worldcol
+	over c@
+	$5e =? ( drop col_inc ; )	| $5e ^  Include
+	$7c =? ( drop col_com ; )	| $7c |	 Comentario
+	$3A =? ( drop col_cod ; )	| $3a :  Definicion
+	$23 =? ( drop col_dat ; )	| $23 #  Variable
+	$22 =? ( drop col_str ; )	| $22 "	 Cadena
+	$27 =? ( drop col_adr ; )	| $27 ' Direccion
+    drop col_nor
+	;
+
+:xlineacol
+	xlinea worldcol
+	( 1? 1 -
+		swap c@+
+		0? ( drop nip 1 - ; )
+		13 =? ( drop nip 1 - ; )
+		32 =? ( worldcol )
+		drop swap ) drop ;
+
 :codelinecolor | adr -- adr++/0
 	col_nor
+|	xlineacol
 	( c@+ 1?
 		13 =? ( drop ; )
 		wordcolor
 		) drop 1 - ;
 
 |..............................
-
 :linenro | lin -- lin
 	$aaaaaa 'ink !
 	dup prilinea + 1 + .d 3 .r. emits sp ;
@@ -396,21 +421,16 @@
 	9 =? ( drop gtab ; )
 	noemit ;
 
-#xseli
-#xsele
-
 :drawselect
 	inisel 0? ( drop ; )
 	pantafin> >? ( drop ; )
 	xcode ycode gotoxy
-	ccx 'xseli !
 	pantaini> ( over <? c@+ emitsel ) nip
-
 	xseli ccy cch + dup >r op
 	ccx ccy cch + pline
-	ccx ccy pline sw ccy pline
+	ccx ccy pline xsele ccy pline
 	( pantafin> <? finsel <? c@+ emitsel ) drop
-	sw ccy pline ccx ccy pline
+	xsele ccy pline ccx ccy pline
 	ccx ccy cch + pline
 	xseli ccy cch + pline
 	xseli r> pline
@@ -439,13 +459,6 @@
 		sw ccw - 2 << a+
 		) drop ;
 
-:scroll?
-	fuente>
-	( pantafin> >? scrolldw )
-	( pantaini> <? scrollup )
-	drop
-	drawcursor ;
-
 :drawcode
 	drawselect
 	pantaini>
@@ -455,7 +468,11 @@
 		swap codelinecolor
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
-	scroll? ;
+	fuente>
+	( pantafin> >? scrolldw )
+	( pantaini> <? scrollup )
+	drop
+	drawcursor ;
 
 |-------------- panel control
 #panelcontrol
@@ -463,22 +480,12 @@
 :controlon	1 'panelcontrol ! ;
 :controloff 0 'panelcontrol ! ;
 
-:showclip
-	cr
- 	clipboard> clipboard <>? (
-		$ffff 'ink !
-		cr
-		clipboard ( over <? c@+ emit ) drop
-		cr
-		) drop
-	;
-
 |--- sobre pantalla
 :mmemit | adr x xa -- adr x xa
 	rot c@+
 	13 =? ( 0 nip )
 	0? ( drop 1 - rot rot sw + ; )
-	9 =? ( drop swap ccw 2 << + rot swap ; )
+	9 =? ( drop swap 4 + rot swap ; )
 	drop swap ccw + rot swap ;
 
 :cursormouse
@@ -511,46 +518,40 @@
 	0? ( drop ; ) 'fuente> ! ;
 
 :findmodekey
-	$0 'ink !
-	|1 linesfill
-	" > " emits
-
 	key
     <ret> =? ( controlf )
 	>esc< =? ( controlf )
     drop
 
+	10 rows 1 - gotoxy
 	$ffffff 'ink !
+	" > " emits
 	'buscapad 'findpad 31 inputex
 	;
 
 :controlkey
 	key
 	>ctrl< =? ( controloff )
-
 	<f> =? ( controlf )
+	<x> =? ( controlx )
+	<c> =? ( controlc )
+	<v> =? ( controlv )
+
+	<up> =? ( controla )
+	<dn> =? ( controls )
 	drop
 
 	5 rows 1 - gotoxy
-	" F-Find" emits
+	" F-Find X-Cut C-Copy V-Paste" emits
 
 |	'controle 18 ?key " E-Edit" emits | ctrl-E dit
 ||	'controlh 35 ?key " H-Help" emits  | ctrl-H elp
 |	'controlz 44 ?key " Z-Undo" emits
 
-|	'controlx 45 ?key " X-Cut" emits
-|	'controlc 46 ?key " C-Copy" emits
-|	'controlv 47 ?key " V-Paste" emits
-
 ||	'controld 32 ?key " D-Def" emits
 
 ||	'controln 49 ?key " N-New" emits
 ||	'controlm 50 ?key " M-Mode" emits
-|	'controlf 33 ?key " F-Find" emits
-
-|	'controla <up>
-|	'controls <dn>
-|	'controloff >ctrl<
 
 	'findpad
 	dup c@ 0? ( 2drop ; ) drop
@@ -559,6 +560,7 @@
 
 :teclado
 	panelcontrol 1? ( drop controlkey ; ) drop
+	findmode 1? ( drop findmodekey ; ) drop
 
 	char
 	1? ( modo ex ; )
@@ -591,6 +593,9 @@
 	<f1> =? ( runfile )
 	<f4> =? ( mkplain )
 	<f5> =? ( compile )
+
+|	<f6> =? ( 1 'xlinea +! ) | test colx
+|	<f7> =? ( -1 'xlinea +! )
 	drop
 	;
 
@@ -616,12 +621,9 @@
 	0 rows 1 - gotoxy
 	$555555 'ink ! backline
 
-	$0 'ink ! sp
+	$ffffff 'ink ! sp
 	xcursor 1 + .d emits sp
 	ycursor 1 + .d emits sp
-
-    $ffffff 'ink !
-	findmode 1? ( drop findmodekey ; ) drop
 	;
 
 
@@ -638,6 +640,11 @@
 :editor
 	0 'paper !
 	rows 3 - 'hcode !
+	cols 18 - 'wcode !
+	0 'xlinea !
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
+
 	'editando onshow
 	;
 

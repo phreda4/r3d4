@@ -152,29 +152,28 @@
 :proinputexe | --
 	ccx cursori 'ccx !
 	char
-	1? ( modo ex pick2 ex )
+	1? ( dup modo ex pick3 ex )
 	drop
 	key
+	<ins> =? ( chmode )
+	<back> =? ( kback pick3 ex )
+	<del> =? ( kdel pick3 ex )
+	<le> =? ( kizq )
+	<ri> =? ( kder )
+	<home> =? ( padi> 'pad> ! )
+	<end> =? ( padf> 'pad> ! )
+	<tab> =? ( ktab )
 	drop
-||	[ key toasc modo ex pick2 ex ; ] <visible>
-||	[ modo 'lins =? ( 'lover )( 'lins ) 'modo ! drop  ; ] <ins>
-|	[ kback pick2 ex ; ] <back>
-|	[ kdel pick2 ex ; ] <del>
-|	'kder <ri>		'kizq <le>
-|	[ padi> 'pad> ! ; ] <home>
-|	[ padf> 'pad> ! ; ] <end>
-|	'ktab dup <tab> <enter>
-|	'nextfoco <dn> 'prevfoco <up>
 	;
 
 |************************************
 ::inputex | 'vector 'var max  --
-	dup ccw *
+	|dup ccw *
 	'proinputexe 'iniinput w/foco
 |	'clickfoco onClick
-	drop ccx ccw + >r
+	drop |ccx ccw + >r
 	emits
-	r> 'ccx !
+|	r> 'ccx !
 	drop
 	;
 

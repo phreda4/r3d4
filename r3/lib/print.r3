@@ -94,11 +94,18 @@
 	swap count swap -
 	nsp emits ;
 
-::lprint
+::lprint | str --
 	( c@+ 1? $ff and
   		10 =? ( 2drop ; )
 		13 =? ( 2drop ; )
 		emit ) 2drop ;
+
+:ctext
+	13 =? ( drop cr ; ) emit ;
+
+::text | str --
+	( c@+ 1? ctext ) 2drop ;
+
 
 ::gotoxy | x y --
 	cch * 'ccy !

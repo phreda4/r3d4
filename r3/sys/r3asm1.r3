@@ -590,7 +590,7 @@ gFNEXT gSYS
 
 :codestep | token --
 	"; " ,s ,tokenprinto 9 ,c ,printstk ,cr
-|	"asm/code.asm" savememinc
+	"asm/code.asm" savememinc
 	$ff and 2 << 'vmc + @ ex ;
 
 

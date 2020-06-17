@@ -138,8 +138,8 @@
 	'foco ! -1 'foconow ! ;
 
 ::ktab
-	mshift 0? ( drop nextfoco ; ) drop
-	prevfoco ;
+	mshift 1? ( drop prevfoco ; ) drop
+	nextfoco ;
 
 ::clickfoco
 	idf foco =? ( drop ; ) 'foco ! ;
