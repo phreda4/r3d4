@@ -1,10 +1,10 @@
 | main filesystem - PHREDA 2019
 |
 ^r3/lib/print.r3
-^r3/lib/sprite.r3
+^r3/lib/gui.r3
+
 ^r3/lib/mem.r3
 ^r3/lib/str.r3
-^r3/lib/cursor.r3
 
 ^r3/lib/trace.r3
 
@@ -206,12 +206,11 @@
 #filecolor $ff00 $bf00 $bfbfbf $3f00
 
 :colorfile
-    dup getinfo $3 and 2 << 'filecolor + @
-	0 swap fontmcolor ;
+    dup getinfo $3 and 2 << 'filecolor + @ 'ink ! ;
 
 :drawl | nro --
+	actual =? ( $666666 'ink ! backline )
 	colorfile
-	actual =? ( fontminv printfn fontminv ; )
 	printfn ;
 
 :drawtree
@@ -282,7 +281,7 @@
 	"	key >esc< =? ( exit ) drop" ,ln
 	"	;" ,ln ,cr
 	": 'main onshow ;" ,ln
-|	'name 'path "%s/%s" mformat savemem
+|	'name 'path "%s/%s" sprint savemem
 	empty
 	editfile
 	;
@@ -359,16 +358,16 @@
 	drop ;
 
 :header
-	$888888 'ink !
+	$666666 'ink !
 	0 rows 1 - gotoxy backline
-	$888888 $ffffff fontmcolor
+	$ffffff 'ink !
 |	" /" emits 'path emits
 	" " emits 'name emits
-
+	$666666 'ink !
 	0 0 gotoxy backline
-	$0 $ff00 fontmcolor
+	$ff00 'ink !
 	" r3" emits
-	$0 $ff0000 fontmcolor
+	$ff0000 'ink !
 	"d4 " emits
 
 	0 1 gotoxy
