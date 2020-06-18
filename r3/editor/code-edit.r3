@@ -20,6 +20,7 @@
 #xsele	| x end win
 
 #xlinea 0
+#ylinea 0	| primera linea visible
 #ycursor
 #xcursor
 
@@ -27,7 +28,6 @@
 
 #pantaini>	| comienzo de pantalla
 #pantafin>	| fin de pantalla
-#prilinea	| primera linea visible
 
 #inisel		| inicio seleccion
 #finsel		| fin seleccion
@@ -45,7 +45,6 @@
 |----- find text
 #findpad * 64
 #findmode
-
 
 |----- edicion
 :lins  | c --
@@ -108,13 +107,13 @@
 
 :scrollup | 'fuente -- 'fuente
 	pantaini> 1 - <<13 1 - <<13  1 + 'pantaini> !
-	prilinea 1? ( 1 - ) 'prilinea !
+	ylinea 1? ( 1 - ) 'ylinea !
 	selecc ;
 
 :scrolldw
 	pantaini> >>13 2 + 'pantaini> !
 	pantafin> >>13 2 + 'pantafin> !
-	1 'prilinea +!
+	1 'ylinea +!
 	selecc ;
 
 :colcur
@@ -343,24 +342,7 @@
 	| agregar palabra :new  ;
 	;
 
-|------ Dibuja codigo
-:emitl
-	emit ccx xsele <? ( drop ; ) drop
-	( c@+ 1? 13 <>? drop ) drop 1 -	| eat line to cr or 0
-	;
-
-:lineacom | adr c -- adr++
-	( 13 =? ( drop 1 - ; ) emitl c@+ 1? )
-	drop 1 - ;
-
-:palstr | adr c -- adr++
-	( emitl c@+ 34 =? ( emitl ; ) $ff and 31 >? )
-	drop 1 - ;
-
-:npal
-	( $ff and 32 >? emitl c@+ )
-	drop 1 - ;
-
+|------ Color line
 :col_inc $ffff00 'ink ! ;
 :col_com $666666 'ink ! ;
 :col_cod $ff0000 'ink ! ;
@@ -368,63 +350,74 @@
 :col_str $ffffff 'ink ! ;
 :col_adr $ffff 'ink ! ;
 :col_nor $ff00 'ink ! ;
+:col_select $444444 'ink ! ;
 
-:wordcolor | adr c -- ar..
-	32 =? ( drop sp ; )
-	9 =? ( drop tab ; )
-	$5e =? ( col_inc npal ; )		| $5e ^  Include
-	$7c =? ( col_com lineacom ; )	| $7c |	 Comentario
-	$3A =? ( col_cod npal ; )		| $3a :  Definicion
-	$23 =? ( col_dat npal ; )		| $23 #  Variable
-	$22 =? ( col_str palstr ; )		| $22 "	 Cadena
-	$27 =? ( col_adr npal ; )		| $27 ' Direccion
-|	over 1 - isNro 1? ( drop amarillo npal ; ) drop
-|	over 1 - ?macro 1? ( drop verde npal ; ) drop		| macro
-	col_nor npal ;
+#mcolor1
+#mcolor
+#maxline
 
-:worldcol
+:wcolor
+	mcolor 1 =? ( drop ; ) drop	| comentario
+	0 'mcolor !
 	over c@
-	$5e =? ( drop col_inc ; )	| $5e ^  Include
-	$7c =? ( drop col_com ; )	| $7c |	 Comentario
-	$3A =? ( drop col_cod ; )	| $3a :  Definicion
-	$23 =? ( drop col_dat ; )	| $23 #  Variable
-	$22 =? ( drop col_str ; )	| $22 "	 Cadena
-	$27 =? ( drop col_adr ; )	| $27 ' Direccion
+	$5e =? ( drop col_inc ; )				| $5e ^  Include
+	$7c =? ( drop col_com 1 'mcolor ! ; )	| $7c |	 Comentario
+	$3A =? ( drop col_cod ; )				| $3a :  Definicion
+	$23 =? ( drop col_dat ; )				| $23 #  Variable
+	$22 =? ( drop col_str 2 'mcolor ! ; )	| $22 "	 Cadena
+	$27 =? ( drop col_adr ; )				| $27 ' Direccion
     drop col_nor
 	;
 
-:xlineacol
-	xlinea worldcol
-	( 1? 1 -
-		swap c@+
-		0? ( drop nip 1 - ; )
+:strcol
+	mcolor 2 <>? ( drop ; ) drop | string
+	over c@
+	$22 <>? ( 0 'mcolor ! )
+	drop
+	;
+
+:iniline
+	0 'mcolor !
+	0 'maxline !
+	xlinea wcolor
+	( 1? 1 - swap
+		c@+ 0? ( drop nip 1 - ; )
 		13 =? ( drop nip 1 - ; )
-		32 =? ( worldcol )
+		32 =? ( wcolor )
+		$22 =? ( strcol )
 		drop swap ) drop ;
 
-:codelinecolor | adr -- adr++/0
-	col_nor
-|	xlineacol
+:emitl
+	emit ccx xsele <? ( drop ; ) drop
+	( c@+ 1?
+		13 <>? drop ) drop
+	1 -	| eat line to cr or 0
+	1 'maxline !
+	;
+
+:drawline
+	iniline
 	( c@+ 1?
 		13 =? ( drop ; )
-		wordcolor
+		32 =? ( wcolor )
+		emitl
 		) drop 1 - ;
 
 |..............................
 :linenro | lin -- lin
 	$aaaaaa 'ink !
-	dup prilinea + 1 + .d 3 .r. emits sp ;
+	dup ylinea + 1 + .d 3 .r. emits sp ;
 
 |..............................
 :emitsel
-	13 =? ( drop cr xcode gotox ; )
+	13 =? ( drop cr xcode xlinea - gotox ; )
 	9 =? ( drop gtab ; )
 	noemit ;
 
 :drawselect
 	inisel 0? ( drop ; )
 	pantafin> >? ( drop ; )
-	xcode ycode gotoxy
+	xcode xlinea - ycode gotoxy
 	pantaini> ( over <? c@+ emitsel ) nip
 	xseli ccy cch + dup >r op
 	ccx ccy cch + pline
@@ -434,7 +427,7 @@
 	ccx ccy cch + pline
 	xseli ccy cch + pline
 	xseli r> pline
-	$444444 'ink ! poli
+	col_select poli
 	;
 
 |..............................
@@ -445,12 +438,19 @@
 	noemit ;
 
 :drawcursor
-	blink 1? ( drop ; ) drop
-	prilinea 'ycursor ! 0 'xcursor !
+	ylinea 'ycursor ! 0 'xcursor !
 	pantaini> ( fuente> <? c@+ emitcur ) drop
 
-	xcode xcursor +
-	ycode prilinea - ycursor + gotoxy
+	| hscroll
+	xcursor
+	xlinea <? ( dup 'xlinea ! )
+	xlinea wcode + >=? ( dup wcode - 1 + 'xlinea ! )
+	drop
+
+	blink 1? ( drop ; ) drop
+
+	xcode xlinea - xcursor +
+	ycode ylinea - ycursor + gotoxy
 	ccx ccy xy>v >a
 	cch ( 1? 1 -
 		ccw ( 1? 1 -
@@ -459,13 +459,20 @@
 		sw ccw - 2 << a+
 		) drop ;
 
+:overflowline
+	maxline 0? ( drop ; ) drop
+	wcode xcode + gotox
+	$ffffff 'ink ! "." print
+	;
 :drawcode
 	drawselect
 	pantaini>
 	0 ( hcode <?
 		0 ycode pick2 + gotoxy
 		linenro
-		swap codelinecolor
+		xcode gotox
+		swap drawline
+		overflowline
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
 	fuente>
@@ -594,8 +601,8 @@
 	<f4> =? ( mkplain )
 	<f5> =? ( compile )
 
-|	<f6> =? ( 1 'xlinea +! ) | test colx
-|	<f7> =? ( -1 'xlinea +! )
+	<f6> =? ( 1 'xlinea +! ) | test colx
+	<f7> =? ( -1 'xlinea +! )
 	drop
 	;
 
@@ -624,6 +631,10 @@
 	$ffffff 'ink ! sp
 	xcursor 1 + .d emits sp
 	ycursor 1 + .d emits sp
+
+	xlinea 1 + .d emits sp
+	ylinea 1 + .d emits sp
+
 	;
 
 
@@ -640,7 +651,7 @@
 :editor
 	0 'paper !
 	rows 3 - 'hcode !
-	cols 18 - 'wcode !
+	cols 8 - 'wcode !
 	0 'xlinea !
 	xcode wcode + gotox ccx 'xsele !
 	xcode gotox ccx 'xseli !
