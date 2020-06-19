@@ -20,6 +20,9 @@
 	switchresy "YRES equ %d" ,print ,cr
 	switchfull "FULL equ %d" ,print ,cr
 	switchmem 10 << "MEMSIZE equ 0x%h" ,print ,cr
+
+	"VEROPT equ 1" ,print ,cr | version OPT
+
 	0 ,c
 	"asm/set.asm"
 	savemem

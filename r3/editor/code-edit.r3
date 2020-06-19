@@ -528,6 +528,7 @@
 	key
     <ret> =? ( controlf )
 	>esc< =? ( controlf )
+
     drop
 
 	10 rows 1 - gotoxy
@@ -546,10 +547,6 @@
 
 	<up> =? ( controla )
 	<dn> =? ( controls )
-	drop
-
-	5 rows 1 - gotoxy
-	" F-Find X-Cut C-Copy V-Paste" emits
 
 |	'controle 18 ?key " E-Edit" emits | ctrl-E dit
 ||	'controlh 35 ?key " H-Help" emits  | ctrl-H elp
@@ -559,6 +556,11 @@
 
 ||	'controln 49 ?key " N-New" emits
 ||	'controlm 50 ?key " M-Mode" emits
+
+	drop
+	$ffffff 'ink !
+	5 rows 1 - gotoxy
+	" F-Find X-Cut C-Copy V-Paste" emits
 
 	'findpad
 	dup c@ 0? ( 2drop ; ) drop
@@ -631,10 +633,6 @@
 	$ffffff 'ink ! sp
 	xcursor 1 + .d emits sp
 	ycursor 1 + .d emits sp
-
-	xlinea 1 + .d emits sp
-	ylinea 1 + .d emits sp
-
 	;
 
 

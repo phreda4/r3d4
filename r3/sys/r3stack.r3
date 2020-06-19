@@ -46,9 +46,6 @@
 #REGA
 #REGB
 ##TOS 0
-
-|#... * 1024 | for debug!!
-
 ##PSP * 1024
 ##NOS 'PSP
 #RSP * 1024
@@ -155,8 +152,9 @@
 ::.A?		NOS @ TOS na? ( drop @ .DROP ; ) drop 4 + .DROP ;
 ::.N?		NOS @ TOS an? ( drop @ .DROP ; ) drop 4 + .DROP ;
 
-::.B?		NOS @ TOS an? ( drop @ .DROP ; ) drop 4 + .DROP ; |****
+::.B?		NOS 4 - @ NOS @ TOS bt? ( drop @ .2DROP ; ) drop 4 + .2DROP ; |****
 
+|--------------------
 ::.>R		4 'RTOS +! TOS RTOS ! .DROP ;
 ::.R>		.DUP RTOS dup @ 'TOS ! 4 - 'RTOS ! ;
 ::.R@		.DUP RTOS @ 'TOS ! ;
@@ -197,7 +195,6 @@
 ::.B+       TOS 'REGB +! .DROP ;
 ::.B@+		.DUP REGB dup 4 + 'REGB ! @ 'TOS ! ;
 ::.B!+		TOS REGB dup 4 + 'REGB ! ! .DROP ;
-
 
 :i@			TOS @ 'TOS ! ;
 :iC@		TOS c@ 'TOS ! ;
@@ -312,6 +309,7 @@
 ::stack.cnt | -- cnt
 	NOS 'PSP - 2 >> ;
 
+|--------- DEBUG
 ::,printstk
 	"; [ " ,s
 	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
@@ -344,6 +342,8 @@
 	,cr
 	;
 
+|--------- DEBUG
+
 ::stk.push
 	memstk> dup stks> !+ 'stks> !
 	>a
@@ -370,8 +370,8 @@
 
 ::stk.drop
 	stks> 4 - 'stks <? (
+		dup "ERROR stk.drop %h" ,print
 		"asm/code.asm" savemem
-		dup "stk.drop %h" slog waitkey
 		)
 	'stks> !
 	stks> @ 'memstk> !
@@ -554,11 +554,9 @@
 
 :stk.cnv | 'adr --
 	cell.fillreg
-
 	@+
 	stacknow over - shiftrbp
 	'stacknow !
-
 	TOS NOS 4 + ! 	| TOS in PSP
 	@+ 2 >>
 |	NOS 'PSP - <>? ( ; )	| diferent size
@@ -570,9 +568,7 @@
 	NOS 4 + @ 'TOS !
 	;
 
-::stk.conv | -- ;****** ojo falta stacknow
-	";>>>conv>>>" ,ln
-
+::stk.conv | --
 	stks> 4 - @ stk.cnv
 	;
 
@@ -600,31 +596,6 @@
 	push.reg ;
 	;
 
-|------- spill reg
-
-:spillhere | cellreg 'stk --
-	4 - | cell
-	NOS over - 2 >> 1 +
-	stacknow stack.cnt - +
-	neg | <- where in stack
-
-	over
-	cell.STK
-
-	2drop
-
-	NOS 4 + @ 'TOS !
-	;
-
-::spill | reg --
-	8 << 5 or | cellr
-	TOS NOS 4 + ! | TOS in PSP
-	'PSP 8 +
-	( NOS 4 + <=?
-		@+ pick2 =? ( drop spillhere ; )
-		drop )
-	2drop ;
-
 |------- ini stack in ; ... [rbp-8] rax
 ::stk.start | deep --
 	IniStack
@@ -642,21 +613,9 @@
 	push.reg ;
 
 ::stk.normal | --
-|	stacknow dup "; stacknow %d " ,print
-|	stack.cnt dup " stackcnt %d " ,print ,cr
-|	- shiftRBP 	| corre ebp a nuevo lugar
 	stack.cnt fillnormal
 	'stacknormal stk.cnv
 	stack.cnt stk.setnormal ;
-
-::stk.gennormal | d u --
-	dup ( 1? 1 - .drop ) drop
-	+
-	0? ( drop ; )
-	1 - ( 1? 1 - dup neg push.stk )
-	push.reg
-	stack.cnt stk.setnormal
-	;
 
 |------------------------------------
 | remove stack constant to register
@@ -910,8 +869,7 @@
 	NOS @ $005 =? ( .rot .rot .swap .rot ) drop | "xchg rax,#2" ,asm
 |	maskreg %1 an? ( needAU ) drop
 	NOS @ $ff and
-	";ARC NOS:" ,s dup ,h ,cr
-
+|	";ARC NOS:" ,s dup ,h ,cr
 
 	5 <>? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap ) drop
 	NOS 4 - dup @
