@@ -218,20 +218,20 @@
 	"imul #1,#0" ,asm .drop ;
 
 :g/
-	stk.AR freeD
+	stk.AR
 	"cqo;idiv #0" ,asm .drop ;
 
 :g*/
-	stk.AGR freeD
+	stk.ARR
 	"cqo;imul #1;idiv #0" ,asm .2drop ;
 
 :g/MOD
-	stk.AR freeD
+	stk.AR
 	"cqo;idiv #0" ,asm
 	;
 
 :gMOD
-	stk.AR freeD
+	stk.AR
 	"cqo;idiv #0" ,asm .drop
 	;
 
@@ -269,13 +269,13 @@
 	.2drop ;
 
 :g*>>
-	stk.ARC freeD
+	stk.ARC2RAC
 	TOS $ff and 0? ( drop v*>> ; ) drop
 	"cqo;imul #1;shrd rax,rdx,$0" ,asm
     .2drop ;
 
 :g<</
-	stk.ARC freeD
+	stk.ARC
     "cqo;shld rdx,rax,$0;shl rax,$0;idiv #1" ,asm
 	.2drop
 	;
@@ -308,40 +308,40 @@
 	"mov #0,[#1];add #1,8" ,asm ;
 
 :g!
-	stk.GG
+	stk.R
 	"mov dword[#0],*1" ,asm
 	.2DROP ;
 
 :gC!
-	stk.GG
+	stk.R
 	"mov byte[#0],$1" ,asm .2DROP ;
 
 :gQ!
-	stk.GG
+	stk.R
 	"mov [#0],#1" ,asm .2DROP ;
 
 :g!+
-	stk.GR
+	stk.R
 	"mov dword[#0],*1;add #0,4" ,asm .NIP ;
 
 :gC!+
-	stk.GR
+	stk.R
 	"mov byte[#0],$1;add #0,1" ,asm .NIP ;
 
 :gQ!+
-	stk.GR
+	stk.R
 	"mov [#0],#1;add #0,8" ,asm .NIP ;
 
 :g+!
-	stk.GG
+	stk.R
 	"add dword[#0],*1" ,asm .2DROP ;
 
 :gC+!
-	stk.GG
+	stk.R
 	"add byte[#0],$1" ,asm .2DROP ;
 
 :gQ+!
-	stk.GG
+	stk.R
 	"add [#0],#1" ,asm .2DROP ;
 
 :g>A
@@ -360,6 +360,7 @@
 	"mov dword[rsi],*0" ,asm .drop ;
 
 :gA+
+	stk.G
 	"add rsi,#0" ,asm .drop ;
 
 :gA@+
@@ -386,6 +387,7 @@
 	"mov dword[rdi],*0" ,asm .drop ;
 
 :gB+
+	stk.G
 	"add rdi,#0" ,asm .drop ;
 
 :gB@+
@@ -502,21 +504,19 @@
 :gREDRAW
 	"call SYSUPDATE" ,ln ;
 :gMSEC
-|	%101 stk.freereg | rax rcx need free
 |	"call SYSMSEC" ,ln
-	freeA freeC
+
+	%101 stk.freereg  | rax rcx need free
 	"invoke GetTickCount" ,asm
 	0 push.reg | rax is the result
 	;
 :gTIME
-|	%101 stk.freereg | rax rcx need free
-	freeA freeC
+	%101 stk.freereg | rax rcx need free
 	"call SYSTIME" ,ln
 	0 push.reg | rax is the result
 	;
 :gDATE
-|	%101 stk.freereg | rax rcx need free
-	freeA freeC
+	%101 stk.freereg | rax rcx need free
 	"call SYSDATE" ,ln
 	0 push.reg | rax is the result
 	;

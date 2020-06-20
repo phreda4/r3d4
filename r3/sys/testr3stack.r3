@@ -6,22 +6,16 @@
 
 #norm1
 
-:test1
+:test
 	2 stk.2normal
-	0 push.reg
-	0 push.reg
-	5 push.reg
-|	16 push.nro
-
+	2 push.reg
+	3 push.reg
+	1 push.reg
 	,printstk ,cr ,cr
 |--------------------------------
-	stk.ARC
-
+	%101 stk.freereg
+|--------------------------------
 	,printstk ,cr
-|--------------------------------
-|	stk.normal ,cr
-|	,printstk ,cr
-|--------------------------------
 	0 ,c
 	;
 
@@ -30,15 +24,13 @@
 	cls home
 	over "%d" print cr cr
 
-|	mark ,printstk ,eol empty here text cr cr
-|	mark dumpcells, ,eol empty here text cr
-
 	norm1 text
+	cr
+	mark ,printstk ,eol empty here text
+	cr
 
 	key
-|	<f1> =? ( 3 stk.2normal )
-|	<f2> =? ( shuffle )
-|	<f3> =? ( tonorm )
+	<f1> =? ( stk.normal )
 	>esc< =? ( exit )
 	drop ;
 
@@ -47,7 +39,7 @@
 	here 0 over !
 	'norm1 !
 	33
-	test1
+	test
 	'panta onShow
 	;
 

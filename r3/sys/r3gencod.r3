@@ -603,7 +603,7 @@ iFNEXT iSYS
 
 	dicc ( dicc> <?
 		dup gencode
-		"asm/code.asm" savemem |inc
+|		"asm/code.asm" savemem |inc
 		16 + ) drop
 
 	0 ,c

@@ -447,35 +447,11 @@
 	cell.fillreg | search unused reg
 	newreg 8 << 5 or 'TOS ! ;
 
-::.dupNEW-ACD
+::.dupNEWR | maskor --
 	.dup
 	cell.fillreg | search unused reg
-	%1101 maskreg or 'maskreg ! | ni A ni C ni D
+	maskreg or 'maskreg ! | ni A ni C ni D
 	newreg 8 << 5 or 'TOS ! ;
-
-|---- set cell
-:cell.STK | stk 'cell --
-	"mov [rbp" ,s
-	over
-	1? ( 3 << +? ( "+" ,s ) ,d drop )
-	"]," ,s
-	dup @ ,cell
-	swap 8 << 6 or swap !
-	,cr ;
-
-:setSTK | 'cell --
-	NOS over swap - 1 - 2 >>
-	dup 8 << 6 or
-	pick2 @ =? ( 3drop ; ) drop | ya esta en orden
-	swap cell.STK ;
-
-:freeforedx | 'cell --
-	dup @
-	$305 <>? ( 2drop ; ) drop | reg RDX
-	setSTK ;
-
-::freeD
-	'freeforedx stackmap ;
 
 |------- convert to normal ; xxx --> ... [rbp-8] rax
 #stacknormal * 256
@@ -653,6 +629,7 @@
 | $7 ctem   [FREEMEM]
 | $8 anon	anon1
 |---------------
+|	N nro
 |   R register
 |	A rax.reg
 |	C rcx.reg/Value
@@ -675,18 +652,6 @@
 | MOVE	DSC
 | normal
 | normal-1 (ex)
-
-:cellG? | cell -- 0/1
-	$ff and
-	4 =? ( drop 0 ; )
-	6 =? ( drop 0 ; )
-	7 =? ( drop 0 ; )
-	drop 1 ;
-
-:cellR? | cell -- 0/1
-	$ff and
-	5 =? ( drop 1 ; )
-	drop 0 ;
 
 :needreg
 	newreg 8 << 5 or
@@ -748,138 +713,17 @@
 	cc 1? ( "mov #0,rax" ,asm ) drop
 	.drop ;
 
-::freeA
+:freeA
 	0 'cc !
 	.dupnew
  	TOS 'changeA stackmap drop
 	cc 1? ( "mov #0,rax" ,asm ) drop
 	.drop ;
 
-|---------------------
-:changeC | nreg 'cell -- nreg
-	dup @ $205 <>? ( 2drop ; ) drop
-	1 'cc !
-	over swap ! ;
 
-::freeC
-	0 'cc !
-	.dupnew-ACD
- 	TOS 'changeC stackmap drop
-	cc 1? ( "mov #0,rcx" ,asm ) drop
-	.drop ;
-
-|---------------------
-:tosG
-	.dupnew | x c nr
-	"mov #0,#1" ,asm
-	TOS 'changereg stackmap drop
-    .drop ;
-
-:nosG
-	.dupnew | x c nr
-	"mov #0,#2" ,asm
-	TOS 'changereg stackmap-2 drop
-    .drop ;
-
-|...............
-::stk.G
-	TOS cellG? 0? ( tosg ) drop ;
-
-::stk.RG
-	NOS @ $ff and $5 =? ( drop freeregnos ; ) drop
-	.dupnew
-	"mov #0,#2" ,asm
-	.swap .rot .drop ;
-
-::stk.GG
-	TOS cellG? 0? ( tosg ) drop
-	NOS @ cellG? 0? ( nosg ) drop ;
-
-::stk.GR
-	TOS cellR? 0? ( tosg ) drop
-	NOS @ cellG? 0? ( nosg ) drop ;
-
-::stk.RGG
-	NOS 4 - @ $ff and $5 =? ( drop ; ) drop
-	.dupnew
-	"mov #0,#3" ,asm
-	.swap .2swap .nip ;
-
-:needA | cell --
-
-	;
-
-:needR
-	;
-
-::stk.AR
-	cell.fillreg
-	cell.freeD
-	NOS @ $005 <>? ( needA ) drop
-	TOS $ff and $5 <>? ( needR ) drop
-	freeD ;
-
-::stk.AGR
-	cell.fillreg
-	cell.freeD
-	NOS 4 - @ $005 <>? ( needA ) drop
-|	NOS @ du
-
-	freeD ;
-
-:changeC | nreg 'cell -- nreg
-	dup @ $205 <>? ( 2drop ; ) drop
-	over swap ! ;
-
-:needCU
-	.dupnew
-	"mov #0,#1;xchg rcx,#0" ,asm
-	TOS 'changeC stackmap-1 drop
-	.drop
-	$205 'TOS ! ;
-
-:needCU
-	.dupnew
-	"mov #0,#1;xchg rcx,#0" ,asm
-	TOS 'changereg stackmap-1 drop
-
-
-:needC | cell -- cell
-	$ff and 0? ( ; )
-	maskreg %100 an? ( drop needCU ; ) drop
-	"mov rcx,#0" ,asm
-	$205 'TOS ! ;
-
-|...............
-::stk.AGC
-	cell.fillreg
-	TOS $205 <>? ( needC ) drop
-	NOS 4 - @ $005 =? ( needAU ) drop
-	NOS @ $005 =? ( drop .rot .rot .swap .rot ; ) drop | "xchg rax,#2" ,asm
-	maskreg %1 an? ( needAU ) drop
-	NOS 4 - dup @
-	"mov rax," ,s ,cell ,cr
-	$005 swap !	;
-
-
-::stk.ARC
-	cell.fillreg
-	TOS $205 <>? ( needC ) drop
-|	NOS 4 - @ $005 =? ( needAU ) drop
-	NOS @ $005 =? ( .rot .rot .swap .rot ) drop | "xchg rax,#2" ,asm
-|	maskreg %1 an? ( needAU ) drop
-	NOS @ $ff and
-|	";ARC NOS:" ,s dup ,h ,cr
-
-	5 <>? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap ) drop
-	NOS 4 - dup @
-	"mov rax," ,s ,cell ,cr
-	$005 swap !	;
-
+|||||||||||||||||||||||||||||||||||||||||||||||||||
 | stk:  a a b -> c a b ..op.. c a'
 |...............
-#regnocopy
-
 :changeR | ndes nreg 'cell -- ndes nreg
 	dup @ pick2 <>? ( 2drop ; ) drop
 	1 'cc !
@@ -899,25 +743,130 @@
 	cc 1? ( "mov #0,#2" ,asm ) drop
 	.drop ;
 
-:stk.NOS-1nocpy
+:stk.NOS2nocpy
 	0 'cc !
 	.dupnew
  	TOS NOS 8 - @ 'changeR stackmap-4 2drop
 	cc 1? ( "mov #0,#3" ,asm ) drop
 	.drop ;
 
-
-::stk.R
-	TOS $ff and 5 <>? ( .dupnew "mov #0,#1" ,asm .nip ) drop
-	stk.TOSnocpy
+|------------------------
+:needCR
+	"xchg rcx,#0" ,asm
+ 	-1 TOS 'changeR stackmap-1 2drop
+ 	TOS $205 'changeR stackmap-1 2drop
+ 	$205 -1 'changeR stackmap-1 2drop
+	$205 'TOS !
 	;
 
-::stk.RC
-	cell.fillreg
-	TOS $205 <>? ( needC ) drop
-	NOS @ $ff and 5 =? ( drop stk.NOSnocpy ; ) drop
-	.dupnew | x c nr
+:needCU
+	TOS
+	$ff and 5 =? ( drop needCR ; )
+	drop
+	.dupnew
+	"mov #0,#1;xchg rcx,#0" ,asm
+	TOS 'changereg stackmap-1 drop
+	.drop
+	$205 'TOS ! ;
+
+:TOS>CN | --
+	TOS
+	$205 =? ( drop ; )
+	$ff and 0? ( drop ; )
+	drop
+	maskreg %100 an? ( drop needCU ; ) drop
+	"mov rcx,#0" ,asm
+	$205 'TOS ! ;
+
+::freeD
+	.dupnew
+	0 'cc !
+ 	TOS $305 'changeR stackmap 2drop
+	cc 1? ( "mov #0,rdx" ,asm ) drop
+	.drop ;
+
+|--------------------------------------
+|--------------------------------------
+::stk.G
+	TOS $ff and
+	4 =? ( 7 nip )
+	6 =? ( 7 nip )
+	7 =? ( .dupnew "mov #0,#1" ,asm .rot .drop .swap )
+	drop
+	;
+
+::stk.R | ; rxx
+	TOS
+	$ff and 5 =? ( drop stk.TOSnocpy ; ) drop
+	.dupnew
+	"mov #0,#1" ,asm
+	.nip ;
+
+::stk.RC | ; rxx RCX/N
+	TOS>CN
+	NOS @
+	$ff and 5 =? ( drop stk.NOSnocpy ; ) drop
+	.dupnew
 	"mov #0,#2" ,asm
-	.swap .rot .drop
+	.swap .rot .drop ;
+
+::stk.RG | ; rxx ggg
+	NOS @
+	$ff and $5 =? ( drop stk.NOSnocpy ; ) drop
+	.dupnew
+	"mov #0,#2" ,asm
+	.swap .rot .drop ;
+
+::stk.RGG | ; rxx ggg
+	NOS 4 - @
+	$ff and $5 =? ( drop stk.NOS2nocpy ; ) drop
+	.dupnew
+	"mov #0,#3" ,asm
+	.swap .rot .drop ;
+
+::stk.AR | ; RAX rxx
+	cell.fillreg cell.freeD
+	NOS @
+	$005 <>? ( freeA "mov rax,#1" ,asm $005 NOS ! ) drop
 	stk.NOSnocpy
+	TOS $ff and $5 <>? ( freeregtos ) drop
+	freeD
 	;
+
+::stk.ARC2RAC | ..
+	NOS @ $005 =? ( .rot .rot .swap .rot ) drop | RAC->ARC
+
+::stk.ARC | ; RAX rxx RCX/N
+	TOS>CN
+	NOS 4 - @
+	$005 <>? ( freeA "mov rax,#2" ,asm $005 NOS 4 - ! ) drop
+	stk.NOS2nocpy
+	NOS @
+	$ff and 5 <>? ( %1000 .dupnewr "mov #0,#2" ,asm .rot .drop .swap )
+	drop
+	;
+
+::stk.ARR
+	NOS @ $005 =? ( .rot .rot .swap .rot ) drop | RAR->ARR
+	NOS 4 - @
+	$005 <>? ( freeA "mov rax,#2" ,asm $005 NOS 4 - ! ) drop
+	stk.NOS2nocpy
+	NOS @
+	$ff and 5 <>? ( %1000 .dupnewr "mov #0,#2" ,asm .rot .drop .swap )
+	drop
+	TOS
+	$ff and 5 <>? ( %1000 .dupnewr "mov #0,#1" ,asm .rot .drop .swap )
+	drop
+	;
+
+:freereg | nroreg mask -- nroreg mask
+	pick2 .dupnewr
+	0 'cc !
+ 	TOS pick2 8 << 5 or 'changeR stackmap-1 2drop
+	cc 1? ( pick2 push.reg "mov #1,#0" ,asm .drop ) drop
+	.drop ;
+
+::stk.freereg | mask --
+	0 over ( 1?
+		1 an? ( freereg )
+		1 >> swap 1 + swap ) 3drop ;
