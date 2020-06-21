@@ -314,10 +314,7 @@
 	"; [ " ,s
 	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
 	'PSP NOS <? ( TOS ,cell ) drop
-	" ] now:" ,s
-	stacknow ,d
-	" real:" ,s
-	stack.cnt ,d
+	" ]n:" ,s stacknow ,d " r:" ,s stack.cnt ,d
 	;
 
 ::,printstka
@@ -343,7 +340,6 @@
 	;
 
 |--------- DEBUG
-
 ::stk.push
 	memstk> dup stks> !+ 'stks> !
 	>a
@@ -538,14 +534,15 @@
 |	NOS 'PSP - <>? ( ; )	| diferent size
 	'PSP 8 + >a
 	( 1? swap
-		@+ a@+
-		cellcpy 		| to from
+		@+ a@+ cellcpy 		| to from
 		swap 1 - ) 2drop
 	NOS 4 + @ 'TOS !
 	;
 
 ::stk.conv | --
+|	";>> CONV >>" ,s ,printstk ,cr
 	stks> 4 - @ stk.cnv
+|	";<< CONV <<" ,s ,printstk ,cr
 	;
 
 ::IniStack
@@ -610,14 +607,6 @@
 	'allreg stackmap
 	;
 
-|..........................
-:change | cell@ reg 'cell -- 'cell reg
-	pick2 over @ <>? ( 2drop ; ) drop
-	over swap ! ;
-
-:changeCellAll | cell@ reg -- cell@ reg
-	'change stackmap ;
-
 |--------------------------------
 | $0 nro	33
 | $1 cte    RESX
@@ -653,26 +642,11 @@
 | normal
 | normal-1 (ex)
 
-:needreg
-	newreg 8 << 5 or
-	"mov " ,s dup ,cell "," ,s over @ ,cell ,cr
-	swap ! ;
 
 :needvar32
 	newreg 8 << 5 or
 	"movsxd " ,s dup ,cell "," ,s over @ ,cell ,cr
 	swap ! ;
-
-:needmem32
-	dup 8 >> 1 >? ( drop needvar32 ; ) drop
-	needreg ;
-
-:needreg | 'cell
-	dup @ $ff and
-	4 =? ( drop needvar32 ; )
-	7 =? ( drop needmem32 ; )
-	drop
-	needreg ;
 
 #cc
 |...............
@@ -680,13 +654,6 @@
 	dup @ NOS 4 - @ <>? ( 2drop ; ) drop
 	1 'cc !
 	over swap ! ;
-
-:freeregnos
-	0 'cc !
-	.dupnew
- 	TOS 'changereg stackmap-3 drop
-	cc 1? ( "mov #0,#2" ,asm ) drop
-	.drop ;
 
 :changeregt | nreg 'cell -- nreg
 	dup @ NOS @ <>? ( 2drop ; ) drop
@@ -705,13 +672,6 @@
 	dup @ $005 <>? ( 2drop ; ) drop
 	1 'cc !
 	over swap ! ;
-
-:needAU
-	0 'cc !
-	.dupnew
- 	TOS 'changeA stackmap-4 drop
-	cc 1? ( "mov #0,rax" ,asm ) drop
-	.drop ;
 
 :freeA
 	0 'cc !
@@ -791,7 +751,16 @@
 	TOS $ff and
 	4 =? ( 7 nip )
 	6 =? ( 7 nip )
-	7 =? ( .dupnew "mov #0,#1" ,asm .rot .drop .swap )
+	7 =? ( .dupnew "mov #0,#1" ,asm .nip )
+	drop
+	;
+
+::stk.GG | ; for store
+	stk.G
+	NOS @ $ff and
+	4 =? ( 7 nip )
+	6 =? ( 7 nip )
+	7 =? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap )
 	drop
 	;
 
@@ -817,12 +786,21 @@
 	"mov #0,#2" ,asm
 	.swap .rot .drop ;
 
+::stk.GR | ; ggg rxx
+	stk.R
+	NOS @ $ff and
+	4 =? ( 7 nip )
+	6 =? ( 7 nip )
+	7 =? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap )
+	drop
+	;
+
 ::stk.RGG | ; rxx ggg
 	NOS 4 - @
 	$ff and $5 =? ( drop stk.NOS2nocpy ; ) drop
 	.dupnew
 	"mov #0,#3" ,asm
-	.swap .rot .drop ;
+	.2swap nip .rot .swap ;
 
 ::stk.AR | ; RAX rxx
 	cell.fillreg cell.freeD
@@ -855,7 +833,7 @@
 	$ff and 5 <>? ( %1000 .dupnewr "mov #0,#2" ,asm .rot .drop .swap )
 	drop
 	TOS
-	$ff and 5 <>? ( %1000 .dupnewr "mov #0,#1" ,asm .rot .drop .swap )
+	$ff and 5 <>? ( %1000 .dupnewr "mov #0,#1" ,asm .nip )
 	drop
 	;
 

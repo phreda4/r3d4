@@ -51,7 +51,8 @@
 	"%l" sprint
 |	dup slog
 
-	load here =? ( drop 0 "File not found" dup 'error ! slog ; ) | no existe
+|	load here =? ( drop 0 "File not found" dup 'error ! slog ; ) | no existe
+	load here =? ( drop 0 "File not found" 'error ! ; ) | no existe
 	here
 	0 rot c!+ 'here !
 	;

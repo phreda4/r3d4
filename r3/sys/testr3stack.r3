@@ -6,14 +6,27 @@
 
 #norm1
 
+|;>> qword[rbp-4*8] qword[rbp-3*8] qword[rbp-2*8] qword[rbp-1*8] qword[rbp] rax
+|;   qword[rbp-3*8] rcx qword[rbp] qword[rbp-1*8] qword[rbp-2*8] rbx
+|;<< qword[rbp-3*8] qword[rbp-2*8] qword[rbp-1*8] rbx qword[rbp+1*8] rax
+
 :test
-	2 stk.2normal
-	2 push.reg
-	3 push.reg
-	1 push.reg
-	,printstk ,cr ,cr
+	6 stk.2normal
+	,printstk ,cr
 |--------------------------------
-	%101 stk.freereg
+
+	.4drop
+	.2drop
+	-3 PUSH.STK
+	3 push.reg
+	0 push.stk
+	-1 PUSH.STK
+	-2 PUSH.STK
+	1 push.reg
+
+	stk.push
+
+	stk.conv ,cr
 |--------------------------------
 	,printstk ,cr
 	0 ,c

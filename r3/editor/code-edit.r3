@@ -42,9 +42,16 @@
 #undobuffer |'undobuffer
 #undobuffer>
 
+#linecomm 	| comentarios de linea
+#linecomm>
+
 |----- find text
 #findpad * 64
 #findmode
+
+|----- scratchpad
+#scratchpad * 1024
+#scratchpad
 
 |----- edicion
 :lins  | c --
@@ -196,6 +203,18 @@
 	mark
 	"r3 " ,s 'name ,s ,eol
 	empty here sys drop
+	;
+
+:debugfile
+	savetxt
+	"r3 r3/sys/r3debug.r3" sys drop
+	| load file info.
+	| generate comm
+	| enable imm
+	rows 7 - 'hcode !
+	cols 20 - 'wcode !
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
 	;
 
 :mkplain
@@ -600,6 +619,8 @@
 	>shift< =? ( 0 'mshift ! )
 
 	<f1> =? ( runfile )
+	<f2> =? ( debugfile )
+
 	<f4> =? ( mkplain )
 	<f5> =? ( compile )
 
@@ -611,11 +632,10 @@
 :barratop
 	home
 	$555555 'ink ! backline
-
 	$ffffff 'ink ! sp 'name emits sp
-
-	$5555ff 'ink !
+	$44ff44 'ink !
 	" F1-Run" emits
+	" F2-Debug" emits
 
 	" F4-Plain" emits
 	" F5-Compile" emits
@@ -636,6 +656,7 @@
 	;
 
 
+|-------------------------------------
 :editando
 	cls gui
 	barratop
@@ -653,7 +674,6 @@
 	0 'xlinea !
 	xcode wcode + gotox ccx 'xsele !
 	xcode gotox ccx 'xseli !
-
 	'editando onshow
 	;
 
@@ -670,6 +690,9 @@
 	dup 'undobuffer !
 	dup 'undobuffer> !
 	$ffff +         	| 64kb
+	dup 'linecomm !
+	dup	'linecomm> !
+	$3fff +				| 4096 linecomm
 	'here  ! | -- FREE
 	mark
 	;

@@ -179,7 +179,7 @@
 	0 'nbloques !
 	0 'codeini !
 	'inc ( inc> <?
-		dup @ "%w" slog
+|		dup @ "%w" slog
 		4 + @+
 		str2token
 		error 1? ( nip ; ) drop
