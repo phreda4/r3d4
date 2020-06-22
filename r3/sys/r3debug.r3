@@ -22,7 +22,7 @@
 	here dup 'src !
 	'r3filename
 	2dup load
-	"load" slog
+|	"load" slog
 	here =? ( 3drop "no src" seterror ; )
 	0 swap c!+ 'here !
 	0 'error !
@@ -30,17 +30,17 @@
 	0 'cntdef !
 	'inc 'inc> !
 	r3fullmode
-	"stage 1" slog
+|	"stage 1" slog
 	swap r3-stage-1
 	error 1? ( seterror ; ) drop
-	"stage 2" slog
+|	"stage 2" slog
 	r3-stage-2
 	1? (  seterror ; ) drop
-	"stage 3" slog
+|	"stage 3" slog
 	r3-stage-3
-	"stage 4" slog
+|	"stage 4" slog
 	r3-stage-4
-	"stage ok" slog
+|	"stage ok" slog
 	"Ok" seterror ;
 
 :savedebug

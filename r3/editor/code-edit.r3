@@ -47,11 +47,11 @@
 
 |----- find text
 #findpad * 64
-#findmode
 
 |----- scratchpad
-#scratchpad * 1024
-#scratchpad
+#inputpad * 1024
+
+#emode 0
 
 |----- edicion
 :lins  | c --
@@ -198,6 +198,30 @@
 	'name savemem
 	empty ;
 
+|----------------------------------
+:mode!edit
+	0 'emode !
+	rows 1 - 'hcode !
+	cols 6 - 'wcode !
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
+	;
+:mode!imm
+	1 'emode !
+	rows 7 - 'hcode !
+	cols 20 - 'wcode !
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
+	;
+:mode!find
+	2 'emode !
+	rows 3 - 'hcode !
+	cols 6 - 'wcode !
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
+	;
+
+|----------------------------------
 :runfile
 	savetxt
 	mark
@@ -208,13 +232,15 @@
 :debugfile
 	savetxt
 	"r3 r3/sys/r3debug.r3" sys drop
+	mark
+	here "mem/debuginfo.db" load
+	0 swap c!
+
+	empty
 	| load file info.
 	| generate comm
 	| enable imm
-	rows 7 - 'hcode !
-	cols 20 - 'wcode !
-	xcode wcode + gotox ccx 'xsele !
-	xcode gotox ccx 'xseli !
+	mode!imm
 	;
 
 :mkplain
@@ -347,10 +373,6 @@
 		dup c@ toupp pick2 =? ( exactw 1? ( setcur ; ) )
 		drop 1 + ) 3drop ;
 
-:controlf | -- ;find
-	findmode 1 xor 'findmode !
-	;
-
 |-------------
 :controld | buscar definicion
 	;
@@ -370,6 +392,7 @@
 :col_adr $ffff 'ink ! ;
 :col_nor $ff00 'ink ! ;
 :col_select $444444 'ink ! ;
+
 
 #mcolor1
 #mcolor
@@ -497,8 +520,7 @@
 	fuente>
 	( pantafin> >? scrolldw )
 	( pantaini> <? scrollup )
-	drop
-	drawcursor ;
+	drop ;
 
 |-------------- panel control
 #panelcontrol
@@ -544,22 +566,24 @@
 	0? ( drop ; ) 'fuente> ! ;
 
 :findmodekey
-	key
-    <ret> =? ( controlf )
-	>esc< =? ( controlf )
+	0 hcode 1 + gotoxy
+	$0000AE 'ink !
+	rows hcode - backlines
 
-    drop
-
-	10 rows 1 - gotoxy
 	$ffffff 'ink !
 	" > " emits
 	'buscapad 'findpad 31 inputex
+
+	key
+    <ret> =? ( mode!edit )
+	>esc< =? ( mode!edit )
+    drop
 	;
 
 :controlkey
 	key
 	>ctrl< =? ( controloff )
-	<f> =? ( controlf )
+	<f> =? ( mode!find )
 	<x> =? ( controlx )
 	<c> =? ( controlc )
 	<v> =? ( controlv )
@@ -570,25 +594,46 @@
 |	'controle 18 ?key " E-Edit" emits | ctrl-E dit
 ||	'controlh 35 ?key " H-Help" emits  | ctrl-H elp
 |	'controlz 44 ?key " Z-Undo" emits
-
 ||	'controld 32 ?key " D-Def" emits
-
 ||	'controln 49 ?key " N-New" emits
 ||	'controlm 50 ?key " M-Mode" emits
 
 	drop
-	$ffffff 'ink !
-	5 rows 1 - gotoxy
-	" F-Find X-Cut C-Copy V-Paste" emits
 
-	'findpad
-	dup c@ 0? ( 2drop ; ) drop
-	" [%s]" print
+|	'findpad
+|	dup c@ 0? ( 2drop ; ) drop
+|	" [%s]" print
 	;
 
-:teclado
+:immmodekey
+
+	xsele cch op
+	wcode hcode 1 + gotoxy
+	xsele ccy pline
+	sw ccy pline
+	sw cch pline
+	$040486 'ink !
+	poli
+
+	0 hcode 1 + gotoxy
+	$0000AE 'ink !
+	rows hcode - backlines
+
+	$ffffff 'ink !
+	" > " emits
+	'inputpad 1024 input
+
+	key
+	>esc< =? ( mode!edit )
+	<f2> =? ( mode!edit )
+	drop
+	;
+
+:editmodekey
 	panelcontrol 1? ( drop controlkey ; ) drop
-	findmode 1? ( drop findmodekey ; ) drop
+
+	drawcursor
+	'dns 'mos 'ups guiMap |------ mouse
 
 	char
 	1? ( modo ex ; )
@@ -631,49 +676,44 @@
 
 :barratop
 	home
-	$555555 'ink ! backline
-	$ffffff 'ink ! sp 'name emits sp
-	$44ff44 'ink !
-	" F1-Run" emits
-	" F2-Debug" emits
-
-	" F4-Plain" emits
-	" F5-Compile" emits
+	$B2B0B2 'ink ! backline
+	$0 'ink ! sp 'name emits sp
+	$af0000 'ink !
+	panelcontrol
+	0? ( " F1-Run F2-Debug F4-Plain F5-Compile" emits )
+	1? ( " F-Find X-Cut C-Copy V-Paste" emits )
+	drop
 
 |------------------------------
-|	'debugrun dup <f2> "2Debug" $fff37b flink sp
 |	'profiler dup <f3> "3Profile" $fff37b flink sp
 |------------------------------
-	;
 
-:barraestado
-	0 rows 1 - gotoxy
-	$555555 'ink ! backline
-
-	$ffffff 'ink ! sp
+	cols 8 - gotox
+	$0 'ink ! sp
 	xcursor 1 + .d emits sp
 	ycursor 1 + .d emits sp
 	;
-
 
 |-------------------------------------
 :editando
 	cls gui
 	barratop
-	barraestado
-	'dns 'mos 'ups guiMap |------ mouse
+
 	drawcode
+
+	emode
+	0? ( editmodekey )
+	1 =? ( immmodekey )
+	2 =? ( findmodekey )
+	drop
+
 	acursor
-	teclado
 	;
 
 :editor
 	0 'paper !
-	rows 3 - 'hcode !
-	cols 8 - 'wcode !
 	0 'xlinea !
-	xcode wcode + gotox ccx 'xsele !
-	xcode gotox ccx 'xseli !
+	mode!edit
 	'editando onshow
 	;
 
@@ -694,6 +734,7 @@
 	dup	'linecomm> !
 	$3fff +				| 4096 linecomm
 	'here  ! | -- FREE
+	0 here !
 	mark
 	;
 
