@@ -10,12 +10,6 @@
 
 #name * 1024
 
-#lerror 0
-#cerror 0
-#serror * 1024
-
-:seterror | str
-	sprint 'serror strcpy ;
 
 ::r3debuginfo | str --
 	r3name
@@ -23,7 +17,7 @@
 	'r3filename
 	2dup load
 |	"load" slog
-	here =? ( 3drop "no src" seterror ; )
+	here =? ( 3drop "no src" 'error ! ; )
 	0 swap c!+ 'here !
 	0 'error !
 	0 'cnttokens !
@@ -32,22 +26,21 @@
 	r3fullmode
 |	"stage 1" slog
 	swap r3-stage-1
-	error 1? ( seterror ; ) drop
+	error 1? ( drop ; ) drop
 |	"stage 2" slog
 	r3-stage-2
-	1? (  seterror ; ) drop
+	1? ( drop ; ) drop
 |	"stage 3" slog
 	r3-stage-3
 |	"stage 4" slog
 	r3-stage-4
 |	"stage ok" slog
-	"Ok" seterror ;
+	"Ok" 'error ! ;
 
 :savedebug
 	mark
-	'serror ,s ,cr
+	error ,s ,cr
 	lerror ,d ,cr
-	cerror ,d ,cr
 	"mem/debuginfo.db" savemem
 	empty
 	;

@@ -152,9 +152,6 @@
 	?word 1? ( .word ; ) drop		| palabra
  	"Word not found" 'error !
 	dup 'lerror !
-| 	dup "%l" slog
-| 	trace
-|	dup "Word %w" 'error !
 	drop 0 ;
 
 :str2token | str --

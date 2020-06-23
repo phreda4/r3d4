@@ -49,7 +49,8 @@
 #findpad * 64
 
 |----- scratchpad
-#inputpad * 1024
+#outpad * 2048
+#inpad * 1024
 
 #emode 0
 
@@ -233,11 +234,10 @@
 	savetxt
 	"r3 r3/sys/r3debug.r3" sys drop
 	mark
-	here "mem/debuginfo.db" load
-	0 swap c!
-
-	empty
 	| load file info.
+	here "mem/debuginfo.db" load 0 swap c!
+	here 'outpad strcpy
+	empty
 	| generate comm
 	| enable imm
 	mode!imm
@@ -396,7 +396,6 @@
 
 #mcolor1
 #mcolor
-#maxline
 
 :wcolor
 	mcolor 1 =? ( drop ; ) drop	| comentario
@@ -420,21 +419,23 @@
 
 :iniline
 	0 'mcolor !
-	0 'maxline !
 	xlinea wcolor
 	( 1? 1 - swap
 		c@+ 0? ( drop nip 1 - ; )
 		13 =? ( drop nip 1 - ; )
+		9 =? ( wcolor )
 		32 =? ( wcolor )
 		$22 =? ( strcol )
 		drop swap ) drop ;
 
 :emitl
+	9 =? ( drop gtab ; ) 
 	emit ccx xsele <? ( drop ; ) drop
 	( c@+ 1?
 		13 <>? drop ) drop
-	1 -	| eat line to cr or 0
-	1 'maxline !
+	1 -						| eat line to cr or 0
+	wcode xcode + gotox
+	$ffffff 'ink ! "." print
 	;
 
 :drawline
@@ -501,11 +502,6 @@
 		sw ccw - 2 << a+
 		) drop ;
 
-:overflowline
-	maxline 0? ( drop ; ) drop
-	wcode xcode + gotox
-	$ffffff 'ink ! "." print
-	;
 :drawcode
 	drawselect
 	pantaini>
@@ -514,7 +510,6 @@
 		linenro
 		xcode gotox
 		swap drawline
-		overflowline
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
 	fuente>
@@ -533,7 +528,7 @@
 	rot c@+
 	13 =? ( 0 nip )
 	0? ( drop 1 - rot rot sw + ; )
-	9 =? ( drop swap 4 + rot swap ; )
+	9 =? ( drop swap ccw 2 << + rot swap ; ) | 4*ccw is tab
 	drop swap ccw + rot swap ;
 
 :cursormouse
@@ -577,6 +572,9 @@
 	key
     <ret> =? ( mode!edit )
 	>esc< =? ( mode!edit )
+
+	<up> =? ( controla )
+	<dn> =? ( controls )
     drop
 	;
 
@@ -587,9 +585,6 @@
 	<x> =? ( controlx )
 	<c> =? ( controlc )
 	<v> =? ( controlv )
-
-	<up> =? ( controla )
-	<dn> =? ( controls )
 
 |	'controle 18 ?key " E-Edit" emits | ctrl-E dit
 ||	'controlh 35 ?key " H-Help" emits  | ctrl-H elp
@@ -606,7 +601,6 @@
 	;
 
 :immmodekey
-
 	xsele cch op
 	wcode hcode 1 + gotoxy
 	xsele ccy pline
@@ -620,8 +614,9 @@
 	rows hcode - backlines
 
 	$ffffff 'ink !
+	'outpad text cr
 	" > " emits
-	'inputpad 1024 input
+	'inpad 1024 input
 
 	key
 	>esc< =? ( mode!edit )
