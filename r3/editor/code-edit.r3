@@ -6,6 +6,7 @@
 ^r3/lib/gui.r3
 ^r3/lib/print.r3
 ^r3/lib/input.r3
+^r3/lib/parse.r3
 ^r3/lib/sprite.r3
 
 ^r3/lib/fontm.r3
@@ -52,6 +53,8 @@
 #outpad * 2048
 #inpad * 1024
 
+#lerror 0
+#cerror 0
 #emode 0
 
 |----- edicion
@@ -200,27 +203,32 @@
 	empty ;
 
 |----------------------------------
+:calcselect
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
+	;
+
 :mode!edit
 	0 'emode !
 	rows 1 - 'hcode !
 	cols 6 - 'wcode !
-	xcode wcode + gotox ccx 'xsele !
-	xcode gotox ccx 'xseli !
-	;
+	calcselect ;
 :mode!imm
 	1 'emode !
 	rows 7 - 'hcode !
 	cols 20 - 'wcode !
-	xcode wcode + gotox ccx 'xsele !
-	xcode gotox ccx 'xseli !
-	;
+	calcselect ;
 :mode!find
 	2 'emode !
 	rows 3 - 'hcode !
 	cols 6 - 'wcode !
-	xcode wcode + gotox ccx 'xsele !
-	xcode gotox ccx 'xseli !
-	;
+	calcselect ;
+:mode!error
+	3 'emode !
+	rows 3 - 'hcode !
+	cols 6 - 'wcode !
+	calcselect ;
+
 
 |----------------------------------
 :runfile
@@ -230,14 +238,29 @@
 	empty here sys drop
 	;
 
+:linetocursor | -- ines
+	0 fuente ( fuente> <? c@+
+		13 =? ( rot 1 + rot rot ) drop ) drop ;
+
 :debugfile
 	savetxt
 	"r3 r3/sys/r3debug.r3" sys drop
 	mark
 	| load file info.
 	here "mem/debuginfo.db" load 0 swap c!
-	here 'outpad strcpy
+	here >>cr trim str>nro 'cerror ! drop
 	empty
+
+	cerror 1? ( drop
+		fuente cerror + 'fuente> !
+        linetocursor 'lerror !
+		here >>cr 0 swap c!
+		fuente> lerror 1 + here
+		" %s in line %d%. %w " sprint 'outpad strcpy
+		mode!error
+		; ) drop
+
+	here 'outpad strcpy	| que hay
 	| generate comm
 	| enable imm
 	mode!imm
@@ -429,11 +452,9 @@
 		drop swap ) drop ;
 
 :emitl
-	9 =? ( drop gtab ; ) 
+	9 =? ( drop gtab ; )
 	emit ccx xsele <? ( drop ; ) drop
-	( c@+ 1?
-		13 <>? drop ) drop
-	1 -						| eat line to cr or 0
+	( c@+ 1? 13 <>? drop ) drop 1 -		| eat line to cr or 0
 	wcode xcode + gotox
 	$ffffff 'ink ! "." print
 	;
@@ -501,6 +522,7 @@
 			) drop
 		sw ccw - 2 << a+
 		) drop ;
+
 
 :drawcode
 	drawselect
@@ -624,6 +646,7 @@
 	drop
 	;
 
+
 :editmodekey
 	panelcontrol 1? ( drop controlkey ; ) drop
 
@@ -669,6 +692,16 @@
 	drop
 	;
 
+:errmodekey
+	0 hcode 1 + gotoxy
+	$860000 'ink !
+	rows hcode - backlines
+
+	$ffffff 'ink !
+	'outpad text
+	editmodekey
+	;
+
 :barratop
 	home
 	$B2B0B2 'ink ! backline
@@ -682,7 +715,6 @@
 |------------------------------
 |	'profiler dup <f3> "3Profile" $fff37b flink sp
 |------------------------------
-
 	cols 8 - gotox
 	$0 'ink ! sp
 	xcursor 1 + .d emits sp
@@ -693,13 +725,13 @@
 :editando
 	cls gui
 	barratop
-
 	drawcode
 
 	emode
 	0? ( editmodekey )
 	1 =? ( immmodekey )
 	2 =? ( findmodekey )
+	3 =? ( errmodekey )
 	drop
 
 	acursor

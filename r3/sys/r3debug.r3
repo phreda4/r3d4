@@ -37,10 +37,16 @@
 |	"stage ok" slog
 	"Ok" 'error ! ;
 
+:no10place | adr
+	lerror 0? ( ; )
+	0 src ( pick2 <? c@+
+		10 <>? ( rot 1 + rot rot )
+		drop ) drop nip ;
+
 :savedebug
 	mark
 	error ,s ,cr
-	lerror ,d ,cr
+	no10place ,d ,cr
 	"mem/debuginfo.db" savemem
 	empty
 	;

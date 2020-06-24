@@ -34,13 +34,16 @@
 	;
 
 :inidef
-	nivel 1? ( 2drop "error" 'error ! 0 ; ) drop
+	nivel 1? ( drop
+		'lerror !
+		"missing )" 'error !
+		0 ; ) drop
 	codeini 1? ( callen ) drop
 	code> 'codeini !
 	;
 
 :.def
-	inidef
+	inidef 0? ( ; )
 	0 'flag !
 	1 + dup c@
 	33 <? ( code> '<<boot ! )
@@ -50,7 +53,7 @@
     >>sp ;
 
 :.var
-	inidef
+	inidef 0? ( ; )
 	1 'flag !
 	1 + dup c@
 	$23 =? ( swap 1 + swap 3 'flag ! ) | ##
@@ -144,7 +147,7 @@
 		dup ?base 0 >=? ( .base ; ) drop
 		1 + ?word 1? ( .adr ; ) drop
 		"Addr not exist" 'error !
-		dup 'lerror !
+		dup 1 - 'lerror !
 		drop 0 ; )
 	drop
 	dup isNro 1? ( drop .nro ; ) drop		| numero

@@ -49,10 +49,10 @@
 |	'r3path "%s/%l" sprint
 
 	"%l" sprint
-|	dup slog
-
-|	load here =? ( drop 0 "File not found" dup 'error ! slog ; ) | no existe
-	load here =? ( drop 0 "File not found" 'error ! ; ) | no existe
+	load here =? ( drop
+		over 'lerror !
+		"File not found" 'error !
+		0 ; ) | no existe
 	here
 	0 rot c!+ 'here !
 	;

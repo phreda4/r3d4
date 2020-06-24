@@ -379,3 +379,23 @@
 		"%w %h %h %h" slog
 		16 +
 		) drop ;
+
+|------------- FILE
+::savedicc
+	mark
+	dicc> dicc - 3 >> ,d
+	dicc ( dicc> <?
+		@+ , @+ , @+ , @+ ,
+		) drop
+	"mem/dicc.db" savemem
+	empty
+	;
+
+::savecode
+	mark
+	<<boot src - ,
+	here src code> over - cmove
+	code> over - 'here +!
+	"mem/code.db" savemem
+	empty
+	;
