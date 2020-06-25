@@ -2,7 +2,7 @@
 | PHREDA 2019
 |
 | Uso:
-| 320 200 miniscren | set screen resolution (virtual)
+| 320 200 miniscreen | set screen resolution (virtual)
 |
 | show.. minidraw | draw upper left screen in all screen
 |

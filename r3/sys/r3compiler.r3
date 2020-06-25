@@ -64,6 +64,20 @@
 	r3-gendata
 	;
 
+:no10place | adr
+	lerror 0? ( ; )
+	0 src ( pick2 <? c@+
+		10 <>? ( rot 1 + rot rot )
+		drop ) drop nip ;
+
+:savedebug
+	mark
+	error ,s ,cr
+	no10place ,d ,cr
+	"mem/debuginfo.db" savemem
+	empty
+	;
+
 : mark
 	'name "mem/main.mem" load drop
 
@@ -74,6 +88,8 @@
 	redraw
 
 	'name r3c
+
+	error 1? ( drop savedebug ; ) drop
 
     "asm\fasm.exe asm\r3fasm.asm" sys
 

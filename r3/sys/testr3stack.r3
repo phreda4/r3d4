@@ -6,9 +6,9 @@
 
 #norm1
 
-|;>> qword[rbp-4*8] qword[rbp-3*8] qword[rbp-2*8] qword[rbp-1*8] qword[rbp] rax
-|;   qword[rbp-3*8] rcx qword[rbp] qword[rbp-1*8] qword[rbp-2*8] rbx
-|;<< qword[rbp-3*8] qword[rbp-2*8] qword[rbp-1*8] rbx qword[rbp+1*8] rax
+|;>> qword[rbp-4*8] qword[rbp-3*8] qword[rbp-2*8] qword[rbp-1*8] qword[rbp]     rax
+|;   qword[rbp-3*8] rcx            qword[rbp]     qword[rbp-1*8] qword[rbp-2*8] rbx
+|;<< qword[rbp-3*8] qword[rbp-2*8] qword[rbp-1*8] rbx            qword[rbp+1*8] rax
 
 :test
 	6 stk.2normal
@@ -23,12 +23,17 @@
 	-1 PUSH.STK
 	-2 PUSH.STK
 	1 push.reg
-
 	stk.push
+	,printstk ,cr
+|--------------------------------
+
+	stk.normal
+	,printstk ,cr
+|--------------------------------
 
 	stk.conv ,cr
-|--------------------------------
 	,printstk ,cr
+|--------------------------------
 	0 ,c
 	;
 
@@ -48,11 +53,13 @@
 	drop ;
 
 :main
+	mark
 	$ff00 'ink !
 	here 0 over !
 	'norm1 !
 	33
 	test
+	"asm/test.txt" savemem
 	'panta onShow
 	;
 
