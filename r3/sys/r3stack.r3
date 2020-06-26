@@ -241,8 +241,7 @@
 
 :mt6 value "qword[rbp" ,s
 	0? ( drop "]" ,s ; )
-	+? ( "+" ,s ) ,d
-	"*8]" ,s ;
+	+? ( "+" ,s ) ,d "*8]" ,s ;
 
 :mt7 value 'sysconm list2str ,s ;	|--	7 ctem [FREE_MEM]
 :mt8 value "anon" ,s ,h ;			|--	8 anon
@@ -264,6 +263,17 @@
 ::,celld | nro --
 	dup $f and 2 << 'tiposrm + @ ex ;
 
+
+:mt4p value "[w" ,s ,h "]" ,s ;	|--	4 var   [var]
+:mt6p value "[rbp" ,s
+	0? ( drop "]" ,s ; )
+	+? ( "+" ,s ) ,d "]" ,s ;
+
+
+#tiposrmqp mt0 mt1 mt2 mt3 mt4p mt5r mt6p mt7 mt8
+
+::,cellp | val -- : cell print
+	dup $f and 2 << 'tiposrmqp + @ ex ;
 
 |---------- ASM
 | "add %0,#1" --> add rax,rbx ; TOS,NOS
@@ -312,8 +322,8 @@
 |--------- DEBUG
 ::,printstk
 	"; [ " ,s
-	'PSP 8 + ( NOS <=? @+ ,cell ,sp ) drop
-	'PSP NOS <? ( TOS ,cell ) drop
+	'PSP 8 + ( NOS <=? @+ ,cellp ,sp ) drop
+	'PSP NOS <? ( TOS ,cellp ) drop
 	" ]n:" ,s stacknow ,d " r:" ,s stack.cnt ,d
 	;
 
@@ -328,7 +338,7 @@
 :pstk | adr --
 	@+ "sn:" ,s ,d " (" ,s
 	@+ 2 >> ( 1? 1 -
-		swap @+ ,cell ,sp swap ) 2drop
+		swap @+ ,cellp ,sp swap ) 2drop
 	;
 
 ::stk.printstk

@@ -55,5 +55,7 @@
 	'name "mem/main.mem" load drop
 	'name r3debuginfo
 	savedebug
+	savedicc
+	savecode
 	;
 

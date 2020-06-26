@@ -1,0 +1,136 @@
+;	| End of Word
+(  
+)	| Word block to build IF and WHILE
+[
+]	| Word block to build nameless definitions
+EX	| a -- ;Run a word through your address
+0?	| a -- a 	;
+1?	| a -- a 	;Zero and non-zero conditionals
++?	| a -- a 	;
+-?	| a -- a 	;Conditional positive and negative
+<?	| a b -- a 	;
+>?	| a b -- a 	;Comparison conditions
+=?	| a b -- a 	;
+>=?	| a b -- a 	;Comparison conditions
+<=?	| a b -- a 	;
+<>?	| a b -- a 	;Comparison conditions
+AN?	| a b -- a 	;
+NA?	| a b -- a 	;Logical conditioners AND and NOT AND
+BT?	| a b c -- a	;Conditional between
+DUP	| a -- a a
+DROP	| a --
+OVER	| a b -- a b a
+PICK2	| a b c -- a b c a
+PICK3	| a b c d -- a b c d a
+PICK4	| a b c d e -- a b c d e a
+SWAP	| a b -- b a
+NIP	| a b -- b
+ROT	| a b c -- b c a
+2DUP	| a b -- a b a b
+2DROP	| a b --
+3DROP	| a b c --
+4DROP	| a b c d --
+2OVER	| a b c d -- a b c d a b
+2SWAP	| a b c d -- c d a b
+>R	| a --		; r: -- a
+R>	| -- a 		; r: a --
+R@	| -- a 		; r: a -- a
+AND	| a b -- c
+OR	| a b -- c
+XOR	| a b -- c
+NOT	| a -- b
++	| a b -- c
+-	| a b -- c
+*	| a b -- c
+/	| a b -- c
+<<	| a b -- c
+>>	| a b -- c
+>>>	| a b -- c
+MOD	| a b -- c
+/MOD	| a b -- c d
+*/	| a b c -- d
+*>>	| a b c -- d
+<</	| a b c -- d
+NEG	| a -- b
+ABS	| a -- b
+SQRT	| a -- b
+CLZ	| a -- b
+@	| a -- [a]
+C@	| a -- b[a]
+Q@	| a -- q[a]
+@+	| a -- b [a]
+C@+	| a -- b b[a]
+Q@+	| a -- b q[a]
+!	| a b --
+C!	| a b --
+Q!	| a b --
+!+	| a b -- c
+C!+	| a b -- c
+Q!+	| a b -- c
++!	| a b --
+C+!	| a b --
+Q+!	| a b --
+>A	| a --
+A>	| -- a
+A@	| -- a
+A!	| a --
+A+	| a --
+A@+	| -- a
+A!+	| a --
+>B	| a --
+B>      | -- a
+B@	| -- a
+B!	| a --
+B+      | a --
+B@+     | -- a
+B!+     | a --
+MOVE	| dst src cnt --
+MOVE>	| dst src cnt --
+FILL	| dst fill cnt --
+CMOVE	| dst src cnt --
+CMOVE>	| dst src cnt --
+CFILL	| dst fill cnt --
+QMOVE	| dst src cnt --
+QMOVE>	| dst src cnt --
+QFILL	| dst fill cnt --
+UPDATE	| --
+REDRAW	| --
+MEM	| -- a
+SW	| -- a
+SH	| -- a
+VFRAME	| -- a
+XYPEN	| -- a b
+BPEN	| -- a
+KEY	| -- a
+CHAR	| -- a
+MSEC	| -- a
+TIME	| -- a
+DATE	| -- a
+LOAD	| m "filename" -- lm
+SAVE	| m cnt "filename" --	; 0 deletefile
+APPEND	| m cnt "filename" --
+FFIRST	| a -- b
+FNEXT	| a -- b
+SYS	| "sys" --
+INK	| -- color
+'INK	| -- 'ink
+ALPHA	| a --
+OPX		| -- opx
+OPY		| -- opy
+OP	| x y --
+LINE	| x y --
+CURVE	| x y x y --
+CURVE3	| x y x y x y --
+PLINE	| x y --
+PCURVE	| x y x y --
+PCURVE3	| x y x y x y --
+POLI
+VIDEO	| "file" w h --  ; 0 close video
+VIDEOSHOW	| w h -- v
+VIDEOSIZE	| w h --
+SLOAD	| "" -- s
+SFREE	| s --
+SPLAY	| s --	; 0 stop sound
+MLOAD	| "" -- m
+MFREE	| m --
+MPLAY	| m --	; 0 stop music
