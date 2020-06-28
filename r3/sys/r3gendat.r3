@@ -95,8 +95,8 @@
 	;
 
 :gendata | adr --
-	dup 8 + @ 1 na? ( 2drop ; )	| data
-	$8 an? ( 2drop ; ) 			| cte!!
+	dup 8 + @ 1 nand? ( 2drop ; )	| data
+	$8 and? ( 2drop ; ) 			| cte!!
 	12 >> $fff and 0? ( 2drop ; )	| no calls
 	drop
 
@@ -128,7 +128,7 @@
 	,cr ;
 
 :gendatastr | adr --
-	dup 8 + @ 1 an? ( 2drop ; )	 | code
+	dup 8 + @ 1 and? ( 2drop ; )	 | code
 	12 >> $fff and 0? ( 2drop ; )	 | no calls
 	drop
 

@@ -70,7 +70,7 @@
 	rot 1? ( 1 - ) $ffff and
 	dup 1 << + 1 <<	| 6*
 	dup 16 >> 	| vshH
-	1 na? ( $ffff rot - swap ) | vsfH
+	1 nand? ( $ffff rot - swap ) | vsfH
 	>r $ffff and	| vsf
 	1.0 pick2 - pick3 16 *>> | vsfm
 	>r
@@ -176,7 +176,7 @@
 ::light4 | color ligth -- color
 	dup 8 << or dup 8 << or
 	swap 4 >> $f0f0f and +
-	$f0 an? ( $f or ) $f000 an? ( $f00 or ) $f00000 an? ( $f0000 or )
+	$f0 and? ( $f or ) $f000 and? ( $f00 or ) $f00000 and? ( $f0000 or )
 	$f0f0f and dup 4 << or ;
 
 | 8bits shadow,light color

@@ -51,7 +51,7 @@ EX	| Run a word through your address
 <? >?	| Comparison conditions
 =? >=? 	| Comparison conditions
 <=? <>?	| Comparison conditions
-AN? NA?	| Logical conditioners AND and NOT AND
+AND? NAND?	| Logical conditioners AND and NOT AND
 BT?	| Conditional between
 ```
 
@@ -185,12 +185,12 @@ CHAR	| -- a
 MSEC	| -- a
 TIME	| -- a
 DATE	| -- a
-LOAD	| a b c --
-SAVE	| a b c --
-APPEND	| a b c --
+LOAD	| m "filename" -- lm
+SAVE	| m cnt "filename" --
+APPEND	| m cnt "filename" --
 FFIRST	| a -- b
 FNEXT	| a -- b
-SYS	| a --
+SYS	| "sys" --
 ```
 
 ## Prefixes in words

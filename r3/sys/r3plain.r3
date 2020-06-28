@@ -12,15 +12,15 @@
 
 :genword | adr --
 	dup 8 + @
-|	$8 an? ( 2drop ; ) 		| cte!!
-	$fff000 na? ( 2drop ; )	| no calls
+|	$8 and? ( 2drop ; ) 		| cte!!
+	$fff000 nand? ( 2drop ; )	| no calls
 	1 and ":#" + c@ ,c
 	dicc> 16 - <? ( dup adr>dicname ,s )
 |	dup @ " | %w" ,print ,cr | debug plain
 	adr>toklen
 	( 1? 1 - swap
 		@+ ,sp ,tokenprintn
-|		$7c na? ( ,cr )
+|		$7c nand? ( ,cr )
 		swap ) 2drop
 	,cr ;
 

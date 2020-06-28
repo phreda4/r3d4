@@ -116,7 +116,7 @@
 	2swap clip | adr h x y
 	wi hi or -? ( drop 4drop ; ) drop
 	xy>v >a
-	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	$2000000 and? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	22 >> $c and 'odraw + @ ex ;
 
 
@@ -208,7 +208,7 @@
 	wi hi or -? ( 4drop ; ) drop
 	xy>v >a
 	4 - @+
-	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	$2000000 and? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	22 >> $c and 'sdraw + @ ex ;
 
 ::spritescale | x y scale 'img --
@@ -331,7 +331,7 @@
 	@+
 	dup $fff and 'wb !
 	dup 12 >> $fff and 'hb !
-	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	$2000000 and? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	22 >> $c and 'rdraw + @ ex ;
 
 |-------
@@ -371,7 +371,7 @@
 
 
 :mem2spr | n adr ex -- adr' ex
-	$2000000 an? ( rot wb hb * * rot + swap ; )
+	$2000000 and? ( rot wb hb * * rot + swap ; )
 	rot wb hb * 2 << * rot + swap ;
 
 ::ssprite | n x y 'spr  --
@@ -382,7 +382,7 @@
 	2swap clip | adr h x y
 	wi hi or -? ( drop 4drop ; ) drop
 	xy>v >a
-	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	$2000000 and? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	mem2spr
 	22 >> $c and 'odraw + @ ex ;
 
@@ -395,7 +395,7 @@
 	wi hi or -? ( 4drop ; ) drop
 	xy>v >a
 	4 - @+
-	$2000000 an? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
+	$2000000 and? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	mem2spr
 	22 >> $c and 'sdraw + @ ex ;
 

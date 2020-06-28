@@ -18,7 +18,7 @@
 
 :3dop project3d op ;
 :3dline project3d line ;
-:3dpoint project3d msec 6 >> $7 and 4 an? ( $7 xor ) 1 + fcircle ;
+:3dpoint project3d msec 6 >> $7 and 4 and? ( $7 xor ) 1 + fcircle ;
 
 :grillaxy
 	-50.0 ( 50.0 <=?

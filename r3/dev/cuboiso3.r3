@@ -158,7 +158,7 @@
 
 :addchild | bm 0 mask -- bm ch mask
 	1 over <<
-	pick3 na? ( drop ; ) drop
+	pick3 nand? ( drop ; ) drop
 	swap 4 << over $8 or or swap ;
 
 :fillchild | bitmask -- norden

@@ -55,8 +55,8 @@
 2 -1 0 3	|>=? ab -- a
 2 -1 0 3	|<=? ab -- a
 2 -1 0 3	|<>? ab -- a
-2 -1 0 3	|AN?  ab -- a
-2 -1 0 3	|NA? ab -- a
+2 -1 0 3	|and?  ab -- a
+2 -1 0 3	|nand? ab -- a
 3 -2 0 3	|BTW? abc -- a
 
 1  1 0 0	|DUP    a -- aa
@@ -195,7 +195,7 @@
 :es??
 	dup 4 - @
 	8 >> 3 << blok + @
-	$10000000 na? ( drop ; ) drop
+	$10000000 nand? ( drop ; ) drop
 	dropvar
 	pushvar
 	;
@@ -216,7 +216,7 @@
 	pick2 =? ( drop $20 flags or 'flags ! ; ) | es recursiva?
     dup dic>inf @
 
-	$100 an? ( flags $400 or 'flags ! )
+	$100 and? ( flags $400 or 'flags ! )
 
 	24 >> 1 + 'nivel !
 
@@ -281,7 +281,7 @@
 |	dup 8 >> $1 and " i" + c@ ,c	| /inline
 
 :inlinemark | word inf flags -- word inf flags
-	%1111100 an? ( ; )
+	%1111100 and? ( ; )
 	pick2 dic>len@ MAXINLINE >? ( drop ; ) drop
 	$100 or ;
 
@@ -369,8 +369,8 @@
 :setvars | nro -- nro
 	dup dic>len@ decodeinfov nip
 	24 << over dic>inf dup @ rot or
-|	$f000004 na? ( $8 or )	| solo nros??
-	$4 na? ( $8 or )
+|	$f000004 nand? ( $8 or )	| solo nros??
+	$4 nand? ( $8 or )
 	swap !
 
 	deltaS over dic>mov dup @ rot or swap !	| stack mov of vectors in var
@@ -390,7 +390,7 @@
 
 |	dup dic>adr @ "::%w" slog
 
-	dup dic>inf @ 1 an? ( drop analisisvar ; ) drop
+	dup dic>inf @ 1 and? ( drop analisisvar ; ) drop
 	analisiscode
 	;
 

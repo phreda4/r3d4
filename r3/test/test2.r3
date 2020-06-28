@@ -9,12 +9,12 @@
 
 :clzl
 	0 swap
-	$ffffffff00000000 na? ( 32 << swap 32 + swap )
-	$ffff000000000000 na? ( 16 << swap 16 + swap )
-	$ff00000000000000 na? ( 8 << swap 8 + swap )
-	$f000000000000000 na? ( 4 << swap 4 + swap )
-	$c000000000000000 na? ( 2 << swap 2 + swap )
-	$8000000000000000 na? ( swap 1 + swap )
+	$ffffffff00000000 nand? ( 32 << swap 32 + swap )
+	$ffff000000000000 nand? ( 16 << swap 16 + swap )
+	$ff00000000000000 nand? ( 8 << swap 8 + swap )
+	$f000000000000000 nand? ( 4 << swap 4 + swap )
+	$c000000000000000 nand? ( 2 << swap 2 + swap )
+	$8000000000000000 nand? ( swap 1 + swap )
 	drop ;
 
 #vv 10

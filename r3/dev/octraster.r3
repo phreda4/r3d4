@@ -59,7 +59,7 @@
 
 :addchild | bm 0 mask -- bm ch mask
 	1 over <<
-	pick3 na? ( drop ; ) drop
+	pick3 nand? ( drop ; ) drop
 	swap 4 << over $8 or or swap ;
 
 :fillchild | bitmask -- norden
@@ -95,7 +95,7 @@
 	pick2 a@+ - pick2 a@+ - pick2 a@ - ;
 
 :getn  | x y z n -- x y z x1 y1 z1
-	%100 an? ( getnn ; )
+	%100 and? ( getnn ; )
 	2 << dup 1 << + 48 - isovec> + >a | 12*
 	pick2 a@+ + pick2 a@+ + pick2 a@ + ;
 
@@ -139,7 +139,7 @@
 	;
 
 :sumac | x y z node bitm nro -- x y z node bitm xn yn zn
-	%100 an? ( restac ; )
+	%100 and? ( restac ; )
 	2 << dup 1 << + isovec> + >a | 12*
 	pick4 a@+ + pick4 a@+ + pick4 a@ +
 	48 'isovec> +!
@@ -336,7 +336,7 @@
 
 |---------------- search iso ratio
 :viewrentry | x y z node bm norden -- x y z node
-	1 over << pick2 na? ( 2drop ; )
+	1 over << pick2 nand? ( 2drop ; )
 	child-oct
 :viewr | x y z node --
 	calco 'nminz !
@@ -391,12 +391,12 @@
 
 |----------------------
 :vieworetry | x y z node bm norden -- x y z node
-	1 over << pick2 na? ( 2drop ; )
+	1 over << pick2 nand? ( 2drop ; )
 	child-oct
 :viewo | x y z node --
 	cullingcalc
 	0? ( drop viewr ; )
-	$ff00 na? ( nip 4drop vec- ; )
+	$ff00 nand? ( nip 4drop vec- ; )
 	drop
 	$pixels >=? ( viewr ; ) |veco ex ; )
 	calco swap >r

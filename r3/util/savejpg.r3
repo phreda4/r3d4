@@ -176,7 +176,7 @@ $f9 $fa
 :writeBits | (bs:BitString):void
 	dup 16 >>
 	( 1? 1 - swap
-		1 pick2 << an? ( 1 bytepos << 'bytenew +! )
+		1 pick2 << and? ( 1 bytepos << 'bytenew +! )
 		bytepos case0 'bytepos !
 		swap ) 2drop ;
 

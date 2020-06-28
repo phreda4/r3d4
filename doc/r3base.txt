@@ -14,8 +14,8 @@ EX	| a -- ;Run a word through your address
 >=?	| a b -- a 	;Comparison conditions
 <=?	| a b -- a 	;
 <>?	| a b -- a 	;Comparison conditions
-AN?	| a b -- a 	;
-NA?	| a b -- a 	;Logical conditioners AND and NOT AND
+AND?	| a b -- a 	;
+NAND?	| a b -- a 	;Logical conditioners AND and NOT AND
 BT?	| a b c -- a	;Conditional between
 DUP	| a -- a a
 DROP	| a --

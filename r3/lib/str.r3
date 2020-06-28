@@ -40,10 +40,10 @@
 	dup >a
 	0 ( a@+ dup $01010101 -
 		swap not and
-		$80808080 na? drop 4 + )
-	$80 an? ( drop ; )
-	$8000 an? ( drop 1 + ; )
-	$800000 an? ( drop 2 + ; )
+		$80808080 nand? drop 4 + )
+	$80 and? ( drop ; )
+	$8000 and? ( drop 1 + ; )
+	$800000 and? ( drop 2 + ; )
 	drop 3 + ;
 
 ::= | s1 s2 -- 1/0

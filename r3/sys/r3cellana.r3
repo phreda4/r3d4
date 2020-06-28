@@ -357,21 +357,21 @@ iSYS
 | $40 dir code
 | $80 copia de A
 :cflags
-	$1 an? ( " >W" ,s )
-	$2 an? ( " W>" ,s )
-	$4 an? ( " >C" ,s )
-	$8 an? ( " C>" ,s )
-	$10 an? ( " V" ,s )
-	$20 an? ( " 'D" ,s )
-	$40 an? ( " 'C" ,s )
-	$80 an? ( " CPY" ,s )
-	$100 an? ( " EXE" ,s )
-	$800 an? ( " U" ,s )
+	$1 and? ( " >W" ,s )
+	$2 and? ( " W>" ,s )
+	$4 and? ( " >C" ,s )
+	$8 and? ( " C>" ,s )
+	$10 and? ( " V" ,s )
+	$20 and? ( " 'D" ,s )
+	$40 and? ( " 'C" ,s )
+	$80 and? ( " CPY" ,s )
+	$100 and? ( " EXE" ,s )
+	$800 and? ( " U" ,s )
 
-	$1000 an? ( " A" ,s )
-	$2000 an? ( " C" ,s )
-	$4000 an? ( " SI" ,s )
-	$8000 an? ( " DI" ,s )
+	$1000 and? ( " A" ,s )
+	$2000 and? ( " C" ,s )
+	$4000 and? ( " SI" ,s )
+	$8000 and? ( " DI" ,s )
 	drop ;
 
 :cconst

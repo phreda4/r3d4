@@ -69,7 +69,7 @@
 	oztransform "%f" print cr
 
 	$1186
-	%1111110 an? ( "no" print cr )
+	%1111110 and? ( "no" print cr )
 	drop
 
 	key

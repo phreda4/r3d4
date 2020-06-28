@@ -29,9 +29,9 @@
 	411769 + *.u ;
 
 ::cos | v -- r
-	$8000 + $8000 na? ( sinp ; ) sinp neg ;
+	$8000 + $8000 nand? ( sinp ; ) sinp neg ;
 ::sin | v -- r
-	$4000 + $8000 na? ( sinp ; ) sinp neg ;
+	$4000 + $8000 nand? ( sinp ; ) sinp neg ;
 
 ::tan | v -- f
 	$4000 +
@@ -156,15 +156,15 @@
 	ex1 ex2 ex3 ex4 ex5 ex6
 	ex7 ex8 ex9 exa exb
 	swap
-	$100 an? ( swap dup 8 >> + swap )
-	$80 an? ( swap dup 9 >> + swap )
-	$40 an? ( swap dup 10 >> + swap )
-	$20 an? ( swap dup 11 >> + swap )
-	$10 an? ( swap dup 12 >> + swap )
-	$8 an? ( swap dup 13 >> + swap )
-	$4 an? ( swap dup 14 >> + swap )
-	$2 an? ( swap dup 15 >> + swap )
-	$1 an? ( swap dup 16 >> + swap )
+	$100 and? ( swap dup 8 >> + swap )
+	$80 and? ( swap dup 9 >> + swap )
+	$40 and? ( swap dup 10 >> + swap )
+	$20 and? ( swap dup 11 >> + swap )
+	$10 and? ( swap dup 12 >> + swap )
+	$8 and? ( swap dup 13 >> + swap )
+	$4 and? ( swap dup 14 >> + swap )
+	$2 and? ( swap dup 15 >> + swap )
+	$1 and? ( swap dup 16 >> + swap )
 	drop ;
 
 ::exp. | x --  r
@@ -186,7 +186,7 @@
 ::pow | base exp -- r
 	1 swap | base r exp
 	( 1?
-		1 an? ( >r over * r> )
+		1 and? ( >r over * r> )
 		1 >> rot dup * rot rot )
 	drop nip
 	;

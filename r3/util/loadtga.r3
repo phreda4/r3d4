@@ -48,7 +48,7 @@
 		swap ) drop ;
 
 :trun
-	$80 an? ( runlen24 ; )
+	$80 and? ( runlen24 ; )
 	norun24 ;
 
 :ReadTGA24bitsRLE
@@ -72,7 +72,7 @@
 		swap ) drop ;
 
 :trun
-	$80 an? ( runlen32 ; )
+	$80 and? ( runlen32 ; )
 	norun32 ;
 
 :ReadTGA32bitsRLE

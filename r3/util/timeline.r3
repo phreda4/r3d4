@@ -83,7 +83,7 @@
 
 |-------------------- FILLBOX
 :drawbox | adr --
-	>b b@+ 1 an? ( drop ; ) 8 >> 'ink !
+	>b b@+ 1 and? ( drop ; ) 8 >> 'ink !
 	b@+ xy2 b@+ xy2
 	fillbox ;
 
@@ -97,7 +97,7 @@
 
 |-------------------- SPRITE
 :drawsprite | adr --
-	>b b@+ 1 an? ( drop ; ) drop
+	>b b@+ 1 and? ( drop ; ) drop
 	b@+ dup 48 << 48 >> swap 16 >>
 	b@+ dup 48 << 48 >> pick3 - swap 16 >> pick2 -
 	b@+ spritesize
@@ -114,7 +114,7 @@
 
 |-------------------- SPRITE NO SCALE
 :drawspriteo | adr --
-	>b b@+ 1 an? ( drop ; ) drop
+	>b b@+ 1 and? ( drop ; ) drop
 	b@+ dup 48 << 48 >> swap 16 >>
 	b@+ drop 
 	b@+ sprite
@@ -131,7 +131,7 @@
 
 |-------------------- TEXTBOX
 :drawtbox | adr --
-	@+ 1 an? ( 2drop ; ) 8 >> 'ink !
+	@+ 1 and? ( 2drop ; ) 8 >> 'ink !
 	@+ dup 48 << 48 >> 'tx1 ! 16 >> 'ty1 !
 	@+ dup 48 << 48 >> 'tx2 ! 16 >> 'ty2 !
 	@+ int2pad
@@ -164,7 +164,7 @@
 
 |-------------------- VIDEO
 :drawvideo
-	@+ 1 an? ( 2drop ; ) drop
+	@+ 1 and? ( 2drop ; ) drop
 	>a
 	a@+ a@+ videoshow a!
 	;

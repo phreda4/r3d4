@@ -14,11 +14,11 @@
 	robotoregular 160 fontr!
 	msec
 	dup 5 << $1ffff and
-	$10000 an? ( $1ffff xor )
+	$10000 and? ( $1ffff xor )
 	Bac_In sw 1 >> *. sw 3 >> +
 	'ccx !
 	4 << $1ffff and
-	$10000 an? ( $1ffff xor )
+	$10000 and? ( $1ffff xor )
 	Bac_InOut sh 1 >> *. sh 3 >> +
 	'ccy !
 	$ff0000 'ink !

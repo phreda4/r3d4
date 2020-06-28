@@ -4,7 +4,7 @@
 ^r3/lib/gr.r3
 
 :set1pix
-	1 an? ( ink@ a!+ ; ) 4 a+ ;
+	1 and? ( ink@ a!+ ; ) 4 a+ ;
 
 ::drawico | c --
 	ccx ccy xy>v >a

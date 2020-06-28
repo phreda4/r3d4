@@ -54,7 +54,7 @@
 
 
 :datacode
-	dup dic>inf @ 1 an? ( drop rdata ; )
+	dup dic>inf @ 1 and? ( drop rdata ; )
 	drop rcode ;
 
 ::r3-stage-3 | --

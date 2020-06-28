@@ -58,7 +58,7 @@
 	3 << sw 3 << swap - 2 << a+ ;
 
 :p.
-	1 an? ( px8 ; ) px+ ;
+	1 and? ( px8 ; ) px+ ;
 
 ::drawzico
 	>b b@+ dup $ff and swap 8 >> $ff and

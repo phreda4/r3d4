@@ -48,12 +48,12 @@
 | CLZ don't wrk on 64 bits!
 :clzl
 	0 swap
-	$ffffffff00000000 na? ( 32 << swap 32 + swap )
-	$ffff000000000000 na? ( 16 << swap 16 + swap )
-	$ff00000000000000 na? ( 8 << swap 8 + swap )
-	$f000000000000000 na? ( 4 << swap 4 + swap )
-	$c000000000000000 na? ( 2 << swap 2 + swap )
-	$8000000000000000 na? ( swap 1 + swap )
+	$ffffffff00000000 nand? ( 32 << swap 32 + swap )
+	$ffff000000000000 nand? ( 16 << swap 16 + swap )
+	$ff00000000000000 nand? ( 8 << swap 8 + swap )
+	$f000000000000000 nand? ( 4 << swap 4 + swap )
+	$c000000000000000 nand? ( 2 << swap 2 + swap )
+	$8000000000000000 nand? ( swap 1 + swap )
 	drop ;
 
 |--------------------------
@@ -111,7 +111,7 @@
 :ivar
 	getval
 	dup dic>inf @
-	$8 an? ( drop icte ; ) drop | inline VAR
+	$8 and? ( drop icte ; ) drop | inline VAR
 	push.var
 	2code!+ ;
 
@@ -240,8 +240,8 @@
 
 :*nro
 	vTOS
-	dup 1 - na? ( *pot ; )
-	dup 1 + na? ( *pot-1 ; )
+	dup 1 - nand? ( *pot ; )
+	dup 1 + nand? ( *pot-1 ; )
 	drop
 	2code!+ .drop ;
 
@@ -272,7 +272,7 @@
 :/nro
 	code<<
 	vTOS
-	dup 1 - an? ( /cte ; )
+	dup 1 - and? ( /cte ; )
 	2 =? ( drop /cte2 ; )
 	TKdup code!+ | dup
 	63 cte!+
@@ -324,7 +324,7 @@
 :/MODnro
 	code<<
 	vTOS
-	dup 1 - an? ( /MODcte ; )
+	dup 1 - and? ( /MODcte ; )
 	swap
     TKdup code!+ 	| dup
 	TKdup code!+	| dup
@@ -390,7 +390,7 @@
 :MODnro
     code<<
 	vTOS
-	dup 1 - an? ( modcte ; )
+	dup 1 - and? ( modcte ; )
 	TKdup code!+ 	| dup 31
 	63 cte!+
 	TK>> code!+ 	| >>
@@ -488,7 +488,7 @@
 
 :iwor
 	getval
-	dup dic>inf @ $100 an? ( drop inlinew ; ) drop
+	dup dic>inf @ $100 and? ( drop inlinew ; ) drop
 
 	dic>du
 	dup ( 1? 1 - .drop ) drop
@@ -526,7 +526,7 @@ iFNEXT iSYS
 
 :multientry | w adr len -- w adr len
 	pick2 8 + @ | now word
-	$81 an? ( drop ; ) drop | no multientry
+	$81 and? ( drop ; ) drop | no multientry
 	pick2 16 + | next word
 	dup 8 + @ 12 >> $fff and 0? ( 2drop ; ) drop | no calls
 	nip
@@ -538,8 +538,8 @@ iFNEXT iSYS
 |-----------------------------
 :gencode | adr --
 	dup 8 + @
-	1 an? ( 2drop ; )	| code
-	$100 an? ( over 16 + dicc> <? ( 3drop ; ) drop ) | inline
+	1 and? ( 2drop ; )	| code
+	$100 and? ( over 16 + dicc> <? ( 3drop ; ) drop ) | inline
 	12 >> $fff and 0? ( 2drop ; )	| no calls
 	drop
 	codeini

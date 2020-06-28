@@ -112,7 +112,7 @@
 	;
 
 :blocks
-	flag 1 an? ( drop ; ) drop
+	flag 1 and? ( drop ; ) drop
 	1 =? ( blockIn ; )	| (
 	2 =? ( blockOut ; )	| )
 	3 =? ( anonIn ; )	| [
@@ -164,7 +164,7 @@
 
 :contword | dicc -- dicc
 	dup 8 + @
-	$81 an? ( drop ; ) | code sin ;
+	$81 and? ( drop ; ) | code sin ;
 	drop
 	dup 28 + @ $fffff000 and
 	over 12 + +!

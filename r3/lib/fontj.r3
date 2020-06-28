@@ -133,7 +133,7 @@
 %........ %...1.1.. %..1.1... %........ %........ %........ %........ %........ ) | ~
 
 :scanl
-  an? ( ink a!+ ; )
+  and? ( ink a!+ ; )
   4 a+ ;
 
 ::char8j | c --
@@ -154,7 +154,7 @@
 
 |----------------------------
 :scanline2 | val mask -- val mask
-	over na? ( 8 a+ ; )
+	over nand? ( 8 a+ ; )
 	ink dup dup a!+ a!+
 	sw 2 - 2 << a+
 	dup a!+ a!+
@@ -170,7 +170,7 @@
 
 |----------------------------
 :scanline3 |
-	an? ( ink dup a!+ dup a!+ a!+ ; )
+	and? ( ink dup a!+ dup a!+ a!+ ; )
 	12 a+ ;
 
 ::char8j3 | c --
@@ -186,7 +186,7 @@
 
 |----------------------------
 :scanline4 |
-	an? ( ink dup 2dup a!+ a!+ a!+ a!+ ; )
+	and? ( ink dup 2dup a!+ a!+ a!+ a!+ ; )
 	16 a+ ;
 
 ::char8j4 | c --

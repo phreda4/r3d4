@@ -203,7 +203,7 @@
 
 :dot
 	dup herel +
-	%100 an? ( drop 4 a+ ; ) drop
+	%100 and? ( drop 4 a+ ; ) drop
 	a@ not a!+ ;
 
 :dotvline | x y1 y2 --

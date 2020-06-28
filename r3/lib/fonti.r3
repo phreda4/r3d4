@@ -263,7 +263,7 @@
 )
 
 :setpix | val mask -- val
-	na? ( 4 a+ ; )
+	nand? ( 4 a+ ; )
 	ink a!+ ;
 
 ::char8i | c --
@@ -284,7 +284,7 @@
 |---------------- ICON
 
 :px
-	1 an? ( ink a!+ ; ) 4 a+ ;
+	1 and? ( ink a!+ ; ) 4 a+ ;
 
 ::drawico | c --
 	ccx ccy xy>v >a
@@ -299,7 +299,7 @@
 	drop ;
 
 :pxc
-	1 an? ( b> a!+ ; ) 4 a+ ;
+	1 and? ( b> a!+ ; ) 4 a+ ;
 
 ::drawcico | c color --
 	>b
@@ -315,7 +315,7 @@
 	drop ;
 
 :pxi
-	1 na? ( ink a!+ ; ) 4 a+ ;
+	1 nand? ( ink a!+ ; ) 4 a+ ;
 
 ::drawnico | c --
 	ccx ccy xy>v >a
