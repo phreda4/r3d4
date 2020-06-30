@@ -4,7 +4,6 @@
 ^r3/lib/gr.r3
 ^r3/lib/3d.r3
 
-##paltex
 |--------- formato vesprite
 #yp #xp
 

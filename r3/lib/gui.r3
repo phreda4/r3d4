@@ -125,6 +125,12 @@
 	xypen whin 1? ( 2drop ex ; ) drop nip ex ;
 
 
+::waitms | ms --
+	redraw
+	msec +
+	( msec >? update )
+	drop ;
+
 |---------------------------------------------------
 | manejo de foco (teclado)
 
