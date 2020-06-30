@@ -54,10 +54,10 @@
 
 :doreset |( -- )
 	0 'leftscore ! 0 'rightscore !
-	0 dup 'leftbaty ! 'rightbaty !
 :resetball
+	0 'leftbaty ! 0 'rightbaty !
 	0 'ballx ! 0 'bally !
-	0.02 'balldx !
+	0.01 'balldx !
 	0.02 rand $10000 and? ( drop neg dup ) drop 'balldy !
 	0 'score !
 	;
@@ -124,8 +124,8 @@
 	>esc< =? ( exit )
 	>esp< =? ( doreset )
 
-	<a> =? ( 0.06 'ldir ! )
-	<z> =? ( -0.06 'ldir ! )
+	<a> =? ( -0.06 'ldir ! )
+	<z> =? ( 0.06 'ldir ! )
 	<a> $1000 or =? ( 0 'ldir ! )
 	<z> $1000 or =? ( 0 'ldir ! )
 	<dn> =? ( 0.06 'rdir ! )

@@ -6,6 +6,7 @@
 ^r3/lib/xfb.r3
 ^r3/lib/rand.r3
 ^r3/lib/gui.r3
+^r3/util/clock.r3
 
 :randop
 	rand sw mod abs
@@ -33,6 +34,8 @@
 	key
 	>esc< =? ( exit )
 	drop
+	90 100 100 clocksize
+	clockexp
 	acursor ;
 
 

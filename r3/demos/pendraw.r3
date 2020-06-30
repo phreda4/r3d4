@@ -1,4 +1,5 @@
-| Example 5 DRAW in Canvas
+| Simplest Pen Draw
+| PHREDA 2020
 
 ^r3/lib/gr.r3
 ^r3/lib/rand.r3
