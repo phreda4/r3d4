@@ -34,8 +34,7 @@
 	key
 	>esc< =? ( exit )
 	drop
-	90 100 100 clocksize
-	clockexp
+	90 100 100 clockexp
 	acursor ;
 
 

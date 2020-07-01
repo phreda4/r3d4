@@ -3,11 +3,9 @@
 |-----------------------
 ^r3/util/polygr.r3
 
+#xc #yc #ss
 
-#xc #yc
-#ss
-
-::clocksize | s xc yc --
+:clocksize | s xc yc --
 	'yc ! 'xc ! 'ss ! ;
 
 |--------- reloj
@@ -16,7 +14,8 @@
 	xc pick2 3 >> - yc pick2 3 >> + op
 	xc rot + yc rot - line ;
 
-::clock | --
+::clock | s xc yc --
+	clocksize
 	$ffffff 'ink !
 	ss
 	0 ( 1.0 <?
@@ -27,9 +26,15 @@
 		0.0834 + ) drop
 	4 - >r
 	time | -- h(8)m(8)s(8)
-	dup 16 >> $ff0000 'ink ! 1.0 12 */ r@ 1 >> aguja
-	dup 8 >> $ff00 'ink ! 1.0 60 */ r@ dup 2 >> - aguja
-	$ff and $ffffff 'ink ! 1.0 60 */ r> aguja ;
+	$ff0000 'ink !
+	dup 16 >> $ff and 
+	1.0 12 */ r@ 1 >> aguja
+	$ff00 'ink !
+	dup 8 >> $ff and
+	1.0 60 */ r@ dup 2 >> - aguja
+	$ffffff 'ink !
+	$ff and
+	1.0 60 */ r> aguja ;
 
 
 ::agujaex | ang largo --
@@ -44,7 +49,8 @@
 		) drop
 	poli ;
 
-::clockexp
+::clockexp | s xc yc --
+	clocksize
 	ss
 	$0 'ink ! 8 + circle
 	$ffffff 'ink ! 16 - circle
@@ -55,7 +61,13 @@
 		0.0834 + ) drop
 	8 - >r
 	time | -- h(8)m(8)s(8)
-	dup 16 >> 4 linegr! 60 * over + 1.0 720 */ r@ 1 >> agujaex
-	dup 8 >> $ff and 3 linegr! 60 * over + 1.0 3600 */ r@ dup 2 >> - agujaex
-	$ff and 2 linegr! $ff0000 'ink ! 1.0 60 */ r> 32 - agujaex ;
+	4 linegr!
+	dup 16 >> $ff and
+	1.0 12 */ r@ 1 >>  agujaex
+	3 linegr!
+	dup 8 >> $ff and
+	1.0 60 */ r@ dup 2 >> - agujaex
+	$ff0000 'ink ! 2 linegr!
+	$ff and
+	1.0 60 */ r> agujaex ;
 
