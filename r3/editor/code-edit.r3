@@ -416,28 +416,30 @@
 :col_nor $ff00 'ink ! ;
 :col_select $444444 'ink ! ;
 
-
-#mcolor1
 #mcolor
 
 :wcolor
-	mcolor 1 =? ( drop ; ) drop	| comentario
-	0 'mcolor !
+	mcolor 1? ( drop ; ) drop
 	over c@
 	$5e =? ( drop col_inc ; )				| $5e ^  Include
 	$7c =? ( drop col_com 1 'mcolor ! ; )	| $7c |	 Comentario
 	$3A =? ( drop col_cod ; )				| $3a :  Definicion
 	$23 =? ( drop col_dat ; )				| $23 #  Variable
-	$22 =? ( drop col_str 2 'mcolor ! ; )	| $22 "	 Cadena
 	$27 =? ( drop col_adr ; )				| $27 ' Direccion
     drop col_nor
 	;
 
+| "" logic
 :strcol
-	mcolor 2 <>? ( drop ; ) drop | string
-	over c@
-	$22 <>? ( 0 'mcolor ! )
+	mcolor
+	0? ( drop col_str 2 'mcolor ! ; )
+	1 =? ( drop ; )
 	drop
+	over c@ $22 <>? ( drop
+		mcolor 3 =? ( drop 2 'mcolor ! ; )
+		drop 0 'mcolor ! ; ) drop
+	mcolor 2 =? ( drop 3 'mcolor ! ; ) drop
+	2 'mcolor !
 	;
 
 :iniline
@@ -463,7 +465,9 @@
 	iniline
 	( c@+ 1?
 		13 =? ( drop ; )
+		9 =? ( wcolor )
 		32 =? ( wcolor )
+		$22 =? ( strcol )
 		emitl
 		) drop 1 - ;
 
