@@ -116,20 +116,13 @@
 	'ccy ! 'ccx ! ;
 
 |--- fill back
+
 ::backprint | "" -- ""
-	swprint | cnt
-	ccx ccy 2dup cch + op pline
-	ccx over + ccy op ccx + ccy cch + pline
-	poli ;
+	swprint cch ccx ccy fillrect ;
 
 ::backline | --
-	0 ccy 2dup cch + op pline
-	sw ccy 2dup cch + op pline
-	poli ;
+	sw cch 0 ccy fillrect ;
 
 ::backlines | cnt --
-	cch * >r
-	0 ccy 2dup r@ + op pline
-	sw ccy 2dup r> + op pline
-	poli ;
+	sw swap cch * 0 ccy fillrect ;
 

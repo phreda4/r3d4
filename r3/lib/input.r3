@@ -1,8 +1,8 @@
+| Input words
+| PHREDA
+|-----------------------
 ^r3/lib/print.r3
 ^r3/lib/gui.r3
-
-^r3/lib/trace.r3
-
 
 |--- Edita linea
 #cmax
@@ -67,23 +67,9 @@
 	padi> ( pad> =? ( drop cursor ; ) c@+ 1?
 		noemit ) 2drop ;
 
-:cursorm
-	blink 1? ( drop ; ) drop
-	padi> ( pad> =? ( drop cursor ; ) c@+ 1?
-		|allowcrx
-		noemit ) 2drop ;
-
-::pcursor | adr -- adr
-	pad> <>? ( ; )
-	blink 1? ( drop ; ) drop
-	ccx 1 - ccy 2dup op cch + pline
-	dup c@ emitsize 1 +
-	ccx + ccy 2dup cch + op pline
-	;
-
 |----- ALFANUMERICO
 :iniinput | 'var max IDF -- 'var max IDF
-	over 'cmax !
+	pick2 1 - 'cmax !
 	pick3 dup 'padi> !
 	( c@+ 1? drop ) drop 1 -
 	dup 'pad> ! 'padf> !
@@ -97,20 +83,14 @@
 :proinputa | --
 	ccx cursori 'ccx !
 	char 1? ( modo ex ; ) drop
-
 	key
 	<ins> =? ( chmode )
-
-	<le> =? ( kizq )
-	<ri> =? ( kder )
-	<back> =? ( kback )
-	<del> =? ( kdel )
-	<home> =? ( padi> 'pad> ! )
-	<end> =? ( padf> 'pad> ! )
+	<le> =? ( kizq ) <ri> =? ( kder )
+	<back> =? ( kback ) <del> =? ( kdel )
+	<home> =? ( padi> 'pad> ! ) <end> =? ( padf> 'pad> ! )
 	<tab> =? ( ktab )
-|	'nextfoco <dn>
-|	'prevfoco <up>
-
+	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
+|	<dn> =? ( nextfoco ) <up> =? ( prevfoco )
 	drop
 	;
 
@@ -119,8 +99,7 @@
 ::input | 'var max --
 	'proinputa 'iniinput w/foco
 |	'clickfoco onClick
-	drop
-	emits ;
+	drop emits ;
 
 
 |************************************
@@ -158,22 +137,22 @@
 	<ins> =? ( chmode )
 	<back> =? ( kback pick3 ex )
 	<del> =? ( kdel pick3 ex )
-	<le> =? ( kizq )
-	<ri> =? ( kder )
-	<home> =? ( padi> 'pad> ! )
-	<end> =? ( padf> 'pad> ! )
+	<le> =? ( kizq ) <ri> =? ( kder )
+	<home> =? ( padi> 'pad> ! ) <end> =? ( padf> 'pad> ! )
 	<tab> =? ( ktab )
+	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
 	drop
 	;
 
 |************************************
 ::inputex | 'vector 'var max  --
-	|dup ccw *
 	'proinputexe 'iniinput w/foco
 |	'clickfoco onClick
-	drop |ccx ccw + >r
-	emits
-|	r> 'ccx !
-	drop
-	;
+	drop emits
+	drop ;
 
+
+::inputdump
+	cmax "cmax:%d" print cr
+	padi> pad> padf> "%h %h %h" print cr
+	;

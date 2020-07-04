@@ -153,8 +153,6 @@
 ::clickfoco1
 	idf 1 + 'foco ! -1 'foconow ! ;
 
-|::exit
-|	-1 '.exit !
 ::refreshfoco
 	-1 'foconow ! 0 'foco ! ;
 
@@ -162,7 +160,7 @@
 	idf 1 +
 	foco 0? ( drop dup dup 'foco ! ) | quitar?
 	<>? ( 'idf ! 2drop ; )
-	foconow <>? ( dup 'foconow ! swap ex 'idf ! ex ; )
+	foconow <>? ( dup 'foconow ! swap ex 'idf ! drop ; )
 	nip 'idf ! ex ;
 
 ::focovoid | --

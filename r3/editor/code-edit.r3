@@ -587,9 +587,10 @@
 	0? ( drop ; ) 'fuente> ! ;
 
 :findmodekey
+	drawcursor
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
-	rows hcode - backlines
+	rows hcode - 1 - backlines
 
 	$ffffff 'ink !
 	" > " emits
@@ -598,19 +599,21 @@
 	key
     <ret> =? ( mode!edit )
 	>esc< =? ( mode!edit )
-
-	<up> =? ( controla )
-	<dn> =? ( controls )
+	>ctrl< =? ( controloff )
     drop
 	;
 
 :controlkey
+	drawcursor
 	key
 	>ctrl< =? ( controloff )
 	<f> =? ( mode!find )
 	<x> =? ( controlx )
 	<c> =? ( controlc )
 	<v> =? ( controlv )
+
+	<up> =? ( controla )
+	<dn> =? ( controls )
 
 |	'controle 18 ?key " E-Edit" emits | ctrl-E dit
 ||	'controlh 35 ?key " H-Help" emits  | ctrl-H elp
@@ -620,10 +623,6 @@
 ||	'controlm 50 ?key " M-Mode" emits
 
 	drop
-
-|	'findpad
-|	dup c@ 0? ( 2drop ; ) drop
-|	" [%s]" print
 	;
 
 :immmodekey
@@ -664,14 +663,10 @@
 	key
 	<back> =? ( kback )
 	<del> =? ( kdel )
-	<up> =? ( karriba )
-	<dn> =? ( kabajo )
-	<ri> =? ( kder )
-	<le> =? ( kizq )
-	<home> =? ( khome )
-	<end> =? ( kend )
-	<pgup> =? ( kpgup )
-	<pgdn> =? ( kpgdn )
+	<up> =? ( karriba ) <dn> =? ( kabajo )
+	<ri> =? ( kder ) <le> =? ( kizq )
+	<home> =? ( khome ) <end> =? ( kend )
+	<pgup> =? ( kpgup ) <pgdn> =? ( kpgdn )
 	<ins> =? (  modo
 				'lins =? ( drop 'lover 'modo ! ; )
 				drop 'lins 'modo ! )
@@ -679,20 +674,14 @@
 	<tab> =? (  9 modo ex )
 	>esc< =? ( exit )
 
-	<ctrl> =? ( controlon )
-	>ctrl< =? ( controloff )
-
-	<shift> =? ( 1 'mshift ! )
-	>shift< =? ( 0 'mshift ! )
+	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
+	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
 
 	<f1> =? ( runfile )
 	<f2> =? ( debugfile )
-
+|	<f3> =? ( profiler )
 	<f4> =? ( mkplain )
 	<f5> =? ( compile )
-
-	<f6> =? ( 1 'xlinea +! ) | test colx
-	<f7> =? ( -1 'xlinea +! )
 	drop
 	;
 
@@ -706,19 +695,44 @@
 	editmodekey
 	;
 
+:btnf | "" "fx" --
+	sp
+	$ff0000 'ink ! backprint
+	$ffffff 'ink ! emits
+	0 'ink ! emits
+	;
+
+
+:barraf | F+
+	"Run" "F1" btnf
+	"Debug" "F2" btnf
+|	"Profile" "F3" btnf
+	"Plain" "F4" btnf
+	"Compile" "F5" btnf ;
+
+:barrac | control+
+	"Cut" "X" btnf
+	"opy" "C" btnf
+	"Paste" "V" btnf
+	"ind" "F" btnf
+	'findpad
+	dup c@ 0? ( 2drop ; ) drop
+	$ffffff 'ink !
+	" [%s]" print ;
+
+:printpanel
+	panelcontrol
+	0? ( drop barraf ; ) drop
+	barrac ;
+
+
 :barratop
 	home
 	$B2B0B2 'ink ! backline
 	$0 'ink ! sp 'name emits sp
 	$af0000 'ink !
-	panelcontrol
-	0? ( " F1-Run F2-Debug F4-Plain F5-Compile" emits )
-	1? ( " F-Find X-Cut C-Copy V-Paste" emits )
-	drop
+	printpanel
 
-|------------------------------
-|	'profiler dup <f3> "3Profile" $fff37b flink sp
-|------------------------------
 	cols 8 - gotox
 	$0 'ink ! sp
 	xcursor 1 + .d emits sp
@@ -730,14 +744,12 @@
 	cls gui
 	barratop
 	drawcode
-
 	emode
 	0? ( editmodekey )
 	1 =? ( immmodekey )
 	2 =? ( findmodekey )
 	3 =? ( errmodekey )
 	drop
-
 	acursor
 	;
 

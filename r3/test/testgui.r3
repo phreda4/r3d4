@@ -19,28 +19,36 @@
 	drop
 	;
 
-#pad * 128
+#pad * 32
 #pad2 * 64
 #pad3 * 16
 
+#cv 0
+
+:vec
+	1 'cv +!
+	;
+
 :main
 	cls home gui
-	
+	$ff00 'ink !
 	guidump
+	inputdump
 
 	cr
+	$ffffff 'ink !
 	"key: " print k .h print cr
 	"char: " print c .h print cr
 
 	"tx1:" print cr
-	'pad 127 input cr
+	'pad 32 input cr
 
-	
 	"tx2:" print cr
 	'pad2 64 input cr
 
-
-    'pad3 16 input cr
+	"tx3:" print cr
+    'vec 'pad3 16 inputex cr
+	cv "%d" print cr
 
 	200 300 100 100 guibox
 

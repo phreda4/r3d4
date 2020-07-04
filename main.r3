@@ -1,7 +1,9 @@
-| main filesystem - PHREDA 2019
-|
-^r3/lib/print.r3
+| main filesystem
+| PHREDA 2019
+|------------------------
+
 ^r3/lib/gui.r3
+^r3/lib/input.r3
 
 ^r3/lib/mem.r3
 ^r3/lib/str.r3
@@ -11,6 +13,7 @@
 ^r3/lib/fontm.r3
 ^media/fntm/droidsans13.fnt
 
+#reset 0
 #path * 1024
 #name * 1024
 
@@ -172,7 +175,7 @@
 :traverse | adr -- adrname
 	dup next/ 0? ( drop ; )
 	( dup next/ 1?
-		swap 
+		swap
 		actual getactual 'actual !
 		expande
 		) drop ;
@@ -187,8 +190,9 @@
 	actual getactual nip
 	pagina linesv + 1 - >=? ( dup linesv - 1 + 'pagina ! )
 	'actual !
-
-	setactual ;
+	drop
+	setactual
+	;
 
 :savem
     'path 'name strcpy
@@ -198,6 +202,7 @@
 
 |--------------------------------
 :printfn | n
+	sp
 	dup getlvl 1 << nsp
 	dup getinfo $3 and "+- ." + c@ emit
 	sp getname emits sp
@@ -208,12 +213,18 @@
 :colorfile
     dup getinfo $3 and 2 << 'filecolor + @ 'ink ! ;
 
+:backcursor
+	$444444 'ink !
+	sw 1 >> cch 0 ccy fillrect
+	;
+
 :drawl | nro --
-	actual =? ( $666666 'ink ! backline )
+	actual =? ( backcursor )
 	colorfile
 	printfn ;
 
 :drawtree
+	0 1 gotoxy
 	0 ( linesv <?
 		dup pagina +
 		nfiles  >=? ( 2drop ; )
@@ -252,27 +263,25 @@
 
 	'name 1024 "mem/main.mem" save
 
-	mark
-	"r3 r3/editor/code-edit.r3" ,s ,eol
-	empty here
-	sys drop
+	"r3 r3/editor/code-edit.r3" sys drop
 	;
 
 #nfile
 
 :newfile
 	1 'nfile !
+	0 'name !
 	;
 
 :remaddtxt | --
-|	'name ".r3" =pos 1? ( drop ; ) drop
-|	".r3" swap strcat
+	'name ".r3" =pos 1? ( drop ; ) drop
+	".r3" swap strcat
 	;
 
 :createfile
-	0 'nfile !
 	remaddtxt
-|	savem
+	'name 'path "%s/%s" sprint 'name strcpy
+
 	mark
 	"^r3/lib/gui.r3" ,ln ,cr
 	":main" ,ln
@@ -281,9 +290,16 @@
 	"	key >esc< =? ( exit ) drop" ,ln
 	"	;" ,ln ,cr
 	": 'main onshow ;" ,ln
-|	'name 'path "%s/%s" sprint savemem
+	'name savemem
 	empty
-	editfile
+
+	'name 1024 "mem/main.mem" save
+	'name 1024 "mem/menu.mem" save
+
+	"r3 r3/editor/code-edit.r3" sys drop
+
+	rebuild
+	loadm
 	;
 
 |--------------------------------
@@ -340,6 +356,13 @@
 
 
 |---------------------------------
+:enter
+	nfile 0? ( drop fenter ; ) drop
+	0 'nfile !
+	'name c@ 0? ( drop setactual ; ) drop
+	createfile
+	;
+
 :teclado
 	key
 	>esc< =? ( exit )
@@ -349,7 +372,7 @@
 	<pgdn> =? ( fpgdn )
 	<home> =? ( fhome )
 	<end> =? ( fend )
-	<ret> =? ( fenter )
+	<ret> =? ( enter )
 
 	<f1> =? ( fenter )
 	<f2> =? ( editfile )
@@ -357,24 +380,38 @@
 
 	drop ;
 
+:pfilename
+	nfile 0? ( drop 'path emits "/" emits 'name emits ; ) drop
+	'path emits "/" emits
+	'name 32 input ;
+
+:btnf | "" "fx" --
+	sp
+	$ff0000 'ink ! backprint
+	$ffffff 'ink ! emits
+	$ffff 'ink ! emits
+	;
+
 :header
-	$666666 'ink !
-	0 rows 1 - gotoxy backline
+	$444444 'ink !
+	0 rows 2 - gotoxy 2 backlines
 	$ffffff 'ink !
-|	" /" emits 'path emits
-	" " emits 'name emits
-	$666666 'ink !
+	" " emits
+	pfilename
+	0 rows 1 - gotoxy
+	"Run " "F1" btnf
+	"Edit " "F2" btnf
+	"New " "F3" btnf
+
+	$444444 'ink !
 	0 0 gotoxy backline
 	$ff00 'ink !
-	" r3" emits
-	$ff0000 'ink !
-	"d4 " emits
-
-	0 1 gotoxy
+	" r3 " emits
+	$ffffff 'ink !
 	;
 
 :inicio
-	cls home
+	cls home gui
 	header
 	drawtree
 	teclado
@@ -384,8 +421,7 @@
 |---------------------------------
 :main
 	'fontdroidsans13 fontm
-	rows 2 - 'linesv !
-
+	rows 3 - 'linesv !
 	rebuild
 	loadm
 	'inicio onshow
