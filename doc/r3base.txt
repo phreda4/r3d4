@@ -1,22 +1,22 @@
-;	| End of Word
-(  
-)	| Word block to build IF and WHILE
-[
-]	| Word block to build nameless definitions
-EX	| a -- ;Run a word through your address
-0?	| a -- a 	;
-1?	| a -- a 	;Zero and non-zero conditionals
-+?	| a -- a 	;
--?	| a -- a 	;Conditional positive and negative
-<?	| a b -- a 	;
->?	| a b -- a 	;Comparison conditions
-=?	| a b -- a 	;
->=?	| a b -- a 	;Comparison conditions
-<=?	| a b -- a 	;
-<>?	| a b -- a 	;Comparison conditions
-AND?	| a b -- a 	;
-NAND?	| a b -- a 	;Logical conditioners AND and NOT AND
-BT?	| a b c -- a	;Conditional between
+;	| ; End of Word
+(	| ; Start block to build IF and WHILE
+)	| ; End block to build IF and WHILE
+[	| ; Start nameless definition
+]	| ; End nameless definitions
+EX	| v --	; Run a word through your address
+0?	| a -- a 	; is TOS=Zero? conditional
+1?	| a -- a 	; is TOS<>Zero? conditional
++?	| a -- a 	; is TOS>=0?
+-?	| a -- a 	; is TOS<0?
+<?	| a b -- a 	; is a<b? remove TOS
+>?	| a b -- a 	; is a>b? remove TOS
+=?	| a b -- a 	; is a=b? remove TOS
+>=?	| a b -- a 	; is a>=b? remove TOS
+<=?	| a b -- a 	; is a<=b? remove TOS
+<>?	| a b -- a 	; is a<>b? remove TOS
+AND?	| a b -- c 	; is a AND b? remove TOS
+NAND?	| a b -- c 	; is a NAND b? remove TOS
+BT?	| a b c -- a	; is a<=b<=c? remove TOS
 DUP	| a -- a a
 DROP	| a --
 OVER	| a b -- a b a
@@ -70,61 +70,61 @@ Q!+	| a b -- c
 +!	| a b --
 C+!	| a b --
 Q+!	| a b --
->A	| a --
-A>	| -- a
+>A	| a --	; load register A
+A>	| -- a	; push register A
 A@	| -- a
 A!	| a --
 A+	| a --
 A@+	| -- a
 A!+	| a --
->B	| a --
-B>      | -- a
+>B	| a --	; load register B
+B>	| -- a	; push register B
 B@	| -- a
 B!	| a --
-B+      | a --
-B@+     | -- a
-B!+     | a --
-MOVE	| dst src cnt --
-MOVE>	| dst src cnt --
-FILL	| dst fill cnt --
-CMOVE	| dst src cnt --
-CMOVE>	| dst src cnt --
-CFILL	| dst fill cnt --
-QMOVE	| dst src cnt --
-QMOVE>	| dst src cnt --
-QFILL	| dst fill cnt --
-UPDATE	| --
-REDRAW	| --
-MEM	| -- a
-SW	| -- a
-SH	| -- a
-VFRAME	| -- a
-XYPEN	| -- a b
-BPEN	| -- a
-KEY	| -- a
-CHAR	| -- a
-MSEC	| -- a
-TIME	| -- a
-DATE	| -- a
-LOAD	| m "filename" -- lm
-SAVE	| m cnt "filename" --	; 0 deletefile
-APPEND	| m cnt "filename" --
-FFIRST	| a -- b
-FNEXT	| a -- b
-SYS	| "sys" --
-INK	| -- color
-'INK	| -- 'ink
-ALPHA	| a --
-OPX		| -- opx
-OPY		| -- opy
-OP	| x y --
-LINE	| x y --
-CURVE	| x y x y --
-CURVE3	| x y x y x y --
-PLINE	| x y --
-PCURVE	| x y x y --
-PCURVE3	| x y x y x y --
-POLI
+B+	| a --
+B@+	| -- a
+B!+	| a --
+MOVE	| dst src cnt --	; copy from SRC to DST, CNT dword
+MOVE>	| dst src cnt --	; copy from SRC to DST, CNT dword in reverse
+FILL	| dst val cnt --	; fill from DST, CNT dword with VAL
+CMOVE	| dst src cnt --	; copy from SRC to DST, CNT bytes
+CMOVE>	| dst src cnt --	; copy from SRC to DST, CNT bytes in reverse
+CFILL	| dst val cnt --	; fill from DST, CNT bytes with VAL
+QMOVE	| dst src cnt --	; copy from SRC to DST, CNT qwords
+QMOVE>	| dst src cnt --	; copy from SRC to DST, CNT qwords in reverse
+QFILL	| dst val cnt --	; fill from DST, CNT qwords with VAL
+UPDATE	| --	; update SO events
+REDRAW	| --	; refresh graphic buffer
+MEM	| -- a	; start memory free
+SW	| -- a	; screen width
+SH	| -- a	; screen height
+VFRAME	| -- a	; frame buffer adress
+XYPEN	| -- x y ; position of mouse or pen
+BPEN	| -- a	; key state of mouse or pen
+KEY	| -- a	; key code
+CHAR	| -- a	; character ascii code
+MSEC	| -- a	; milisecond of system
+TIME	| -- a	; hour(8bits):min(8bits):sec(8bits)
+DATE	| -- a	; year(16bits):month(8bits):day(8bits)
+LOAD	| m "filename" -- lm	; load file to m, return last adress is lm
+SAVE	| m cnt "filename" --	; save file from m, cnt bytes, m=0 deletefile
+APPEND	| m cnt "filename" --	; append file from m, cnt bytes, m=0 deletefile
+FFIRST	| "" -- s	; get first struct of folder ""
+FNEXT	| a -- s	; next struct or 0 to end
+SYS	| "sys" --	; call SO to run program
+INK	| -- color	; value of color
+'INK	| -- 'ink ; adress of color to set
+ALPHA	| a --	; set alpha value
+OPX		| -- opx	; last x point
+OPY		| -- opy	; last y point
+OP	| x y --	; set last point
+LINE	| x y --	; lineto
+CURVE	| x y x y --	; curve cuadratic bezier
+CURVE3	| x y x y x y --	; curve qubic bezier
+PLINE	| x y --	; lineto polygon
+PCURVE	| x y x y --	; curve cuadratic bezier polygon
+PCURVE3	| x y x y x y --	; curve qubic bezier polygon
+POLI	| --	; fill polygon
 VIDEO	| "file" w h --  ; 0 close video
 VIDEOSHOW	| w h -- v
 VIDEOSIZE	| w h --

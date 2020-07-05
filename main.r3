@@ -244,25 +244,16 @@
 	getinfo $7 and
 	2 <? ( drop ; )
 	drop
-
-	mark
-|	"r3 " ,s 'path ,s "/" ,s ,s ,eol
-	"r3v " ,s 'path ,s "/" ,s ,s ,eol
-	empty here
-	sys drop
+|	'path "r3 ""%s/%s""" sprint sys drop
+	'path "r3v ""%s/%s""" sprint sys drop
 	;
 
 
 :editfile
 	actual -? ( drop ; )
 	getinfo $3 and 2 <>? ( drop ; ) drop
-
-    'path 'name strcpy
-	"/" 'name strcat
-	actual getname 'name strcat
-
+	actual getname 'path "%s/%s" sprint 'name strcpy
 	'name 1024 "mem/main.mem" save
-
 	"r3 r3/editor/code-edit.r3" sys drop
 	;
 

@@ -1,13 +1,12 @@
 |------------------------------
-| gui.e3 - PHREDA
+| gui.r3 - PHREDA
 | Immediate mode gui for r3
 |------------------------------
 ^r3/lib/sys.r3
+^r3/lib/print.r3
 ^r3/lib/sprite.r3
 ^r3/lib/cursor.r3
 ^r3/util/polygr.r3
-
-^r3/lib/trace.r3
 
 |--- state
 ##hot	| activo actual
