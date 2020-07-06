@@ -284,13 +284,17 @@
 	cmove
 	;
 
+:realdel
+	fuente>
+	inisel <? ( drop ; )
+	finsel <=? ( drop inisel 'fuente> ! ; )
+	finsel inisel - over swap - 'fuente> ! 
+	drop ;
+
 :borrasel
 	inisel finsel $fuente finsel - 4 + cmove
 	finsel inisel - neg '$fuente +!
-
-|	fuente>
-|	inisel >=? ( finsel <=? ( inisel 'fuente> ! )( finsel inisel - over swap - 'fuente> ! ) )  drop
-
+	realdel
 	0 dup 'inisel ! 'finsel ! ;
 
 :kdel

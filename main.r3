@@ -372,7 +372,12 @@
 	drop ;
 
 :pfilename
-	nfile 0? ( drop 'path emits "/" emits 'name emits ; ) drop
+	nfile 0? ( drop
+		$444444 'ink ! 0 rows 2 - gotoxy backline
+		$ffffff 'ink ! " " emits
+		'path emits "/" emits 'name emits ; ) drop
+	$006600 'ink ! 0 rows 2 - gotoxy 2 backlines
+	$ffffff 'ink ! " " emits
 	'path emits "/" emits
 	'name 32 input ;
 
@@ -384,12 +389,9 @@
 	;
 
 :header
-	$444444 'ink !
-	0 rows 2 - gotoxy 2 backlines
-	$ffffff 'ink !
-	" " emits
 	pfilename
 	0 rows 1 - gotoxy
+	$444444 'ink ! backline
 	"Run " "F1" btnf
 	"Edit " "F2" btnf
 	"New " "F3" btnf
