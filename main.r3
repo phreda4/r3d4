@@ -31,10 +31,14 @@
 
 |--------------------------------
 :FNAME | adr -- adrname
-	44 + ;
+|WIN| 44 +
+|LIN| 19 +
+	;
 
 :FDIR? | adr -- 1/0
-	@ 4 >> 1 and ;
+|WIN| @ 4 >>
+|LIN| 18 + c@ 2 >>
+	1 and ;
 
 :FINFO | adr -- adr info
 	dup FDIR? 0? ( 2 + ; ) drop 0 ;
@@ -244,8 +248,12 @@
 	getinfo $7 and
 	2 <? ( drop ; )
 	drop
-|	'path "r3 ""%s/%s""" sprint sys drop
-	'path "r3v ""%s/%s""" sprint sys drop
+
+	'path
+|	"r3 ""%s/%s"""
+|WIN|	"r3v ""%s/%s"""
+|LIN|	"./r3lin ""%s/%s"""
+	sprint sys
 	;
 
 
@@ -254,7 +262,9 @@
 	getinfo $3 and 2 <>? ( drop ; ) drop
 	actual getname 'path "%s/%s" sprint 'name strcpy
 	'name 1024 "mem/main.mem" save
-	"r3 r3/editor/code-edit.r3" sys drop
+|WIN| "r3 r3/editor/code-edit.r3"
+|LIN| "./r3lin r3/editor/code-edit.r3"
+	 sys
 	;
 
 #nfile
@@ -287,7 +297,9 @@
 	'name 1024 "mem/main.mem" save
 	'name 1024 "mem/menu.mem" save
 
-	"r3 r3/editor/code-edit.r3" sys drop
+|WIN| "r3 r3/editor/code-edit.r3"
+|LIN| "./r3lin r3/editor/code-edit.r3"
+	sys
 
 	rebuild
 	loadm

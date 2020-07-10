@@ -234,8 +234,10 @@
 :runfile
 	savetxt
 	mark
-	"r3 " ,s 'name ,s ,eol
-	empty here sys drop
+|WIN|	"r3 "
+|LIN|	"./r3lin "
+	,s 'name ,s ,eol
+	empty here sys
 	;
 
 :linetocursor | -- ines
@@ -244,7 +246,9 @@
 
 :debugfile
 	savetxt
-	"r3 r3/sys/r3debug.r3" sys drop
+|WIN|	"r3 r3/sys/r3debug.r3"
+|LIN|	"./r3lin r3/sys/r3debug.r3"
+	sys
 	mark
 	| load file info.
 	here "mem/debuginfo.db" load 0 swap c!
@@ -268,12 +272,16 @@
 
 :mkplain
 	savetxt
-	"r3 r3/sys/r3plain.r3" sys drop
+|WIN| "r3 r3/sys/r3plain.r3"
+|LIN| "./r3lin r3/sys/r3plain.r3"
+	sys
 	;
 
 :compile
 	savetxt
-	"r3 r3/sys/r3compiler.r3" sys drop
+|WIN| "r3 r3/sys/r3compiler.r3"
+|LIN| "./r3lin r3/sys/r3compiler.r3"
+	sys
 	;
 
 |-------------------------------------------
