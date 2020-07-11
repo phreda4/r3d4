@@ -125,12 +125,15 @@ PLINE	| x y --	; lineto polygon
 PCURVE	| x y x y --	; curve cuadratic bezier polygon
 PCURVE3	| x y x y x y --	; curve qubic bezier polygon
 POLI	| --	; fill polygon
-VIDEO	| "file" w h --  ; 0 close video
-VIDEOSHOW	| w h -- v
-VIDEOSIZE	| w h --
 SLOAD	| "" -- s
 SFREE	| s --
 SPLAY	| s --	; 0 stop sound
 MLOAD	| "" -- m
 MFREE	| m --
 MPLAY	| m --	; 0 stop music
+
+only in r4v
+
+VIDEO	| "file" w h --  ; 0 close video
+VIDEOSHOW	| w h -- v
+VIDEOSIZE	| w h --

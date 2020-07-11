@@ -12,6 +12,8 @@
 ^r3/lib/fontm.r3
 ^media/fntm/droidsans13.fnt
 
+^r3/lib/trace.r3
+
 | ventana de texto
 #xcode 5
 #ycode 1
@@ -648,7 +650,7 @@
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
-	rows hcode - backlines
+	rows hcode - 1 - backlines
 
 	$ffffff 'ink !
 	'outpad text cr
@@ -699,8 +701,8 @@
 
 :errmodekey
 	0 hcode 1 + gotoxy
-	$860000 'ink !
-	rows hcode - backlines
+	$AE0000 'ink !
+	rows hcode - 1 - backlines
 
 	$ffffff 'ink !
 	'outpad text

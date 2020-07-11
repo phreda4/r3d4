@@ -81,6 +81,10 @@
 	;
 
 :fileadd
+	dup FNAME
+	dup ".." = 1? ( 3drop ; ) drop
+	dup "." = 1? ( 3drop ; ) drop
+	drop
 	FINFO nivel 4 << or filen> 'filen - 8 << or
 	files!+
 	FNAME filen> strcpyl 'filen> !
@@ -88,9 +92,7 @@
 
 :reload
 	'path
-	ffirst drop | quita .
-	fnext drop	| quita ..
-	( fnext 1? fileadd ) drop
+	ffirst ( fileadd fnext 1? ) drop
 	files> 'files - 2 >> 'nfiles !
 	;
 
@@ -250,9 +252,9 @@
 	drop
 
 	'path
-|	"r3 ""%s/%s"""
-|WIN|	"r3v ""%s/%s"""
-|LIN|	"./r3lin ""%s/%s"""
+| "r3 ""%s/%s"""
+|WIN| "r3v ""%s/%s"""
+|LIN| "./r3lin ""%s/%s"""
 	sprint sys
 	;
 

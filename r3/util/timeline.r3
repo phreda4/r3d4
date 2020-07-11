@@ -166,7 +166,7 @@
 :drawvideo
 	@+ 1 and? ( 2drop ; ) drop
 	>a
-	a@+ a@+ videoshow a!
+|	a@+ a@+ videoshow a!
 	;
 
 :+video | x y --
