@@ -8,9 +8,8 @@
 ^r3/lib/color.r3
 
 ##paper 0
-##ccx 0 ##ccy 0
-
-##xa 0 ##ya 0
+##xop 0 ##yop 0
+##ccx 0 ##ccy	| cursor for text
 
 ::cls
   vframe paper sw sh * fill ;
@@ -41,8 +40,8 @@
 	( 1? 1 - ink a! sw 2 << a+ ) drop ;
 
 :iline | xd yd --
-  ya =? ( xa hline ; )
-  xa ya
+  yop =? ( xop hline ; )
+  xop yop
   pick2 <? ( 2swap )   | xm ym xM yM
   pick2 - 1 + >r	   | xm ym xM  r:canty
   pick2 - 0? ( drop r> vline ; )
@@ -59,7 +58,7 @@
   2dup iline
 
 ::bop | x y --
-  'ya ! 'xa ! ;
+  'yop ! 'xop ! ;
 
 ::fillrect  | w h x y --
   xy>v >a

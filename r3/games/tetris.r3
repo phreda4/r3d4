@@ -174,12 +174,14 @@
 :juego
 	cls home
 	$ff00 'ink !
-	20 20 atxy
-	"Tetris R3" print cr
+	20 20 atxy "Tetris R3" print
+
+	$444444 'ink !
+	128 70 286 96 fillrect
+	166 326 62 96 fillrect
 
 	$ffffff 'ink !
-	400 100 atxy
-	puntos "%d" print
+	360 100 atxy puntos "%d" print
 
 	dibuja_tablero
 	dibuja_jugador

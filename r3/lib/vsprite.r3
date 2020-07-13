@@ -8,8 +8,8 @@
 #yp #xp
 
 :gc>xy | valor -- xy
-	dup 23 >> xa 9 *>> ccx +
-	swap 41 << 23 >> ya 9 *>> ccy + ;
+	dup 23 >> xp 9 *>> ccx +
+	swap 41 << 23 >> yp 9 *>> ccy + ;
 
 :endp xp $80000000 <>? ( yp pline ; ) drop ;
 :finpoli xp yp pline $80000000 'xp ! poli ;
@@ -39,8 +39,8 @@
 |--------- R vesprite
 #cosa #sina | para rotar
 :r>xy
-	d>xy over sina * over cosa * + 16 >> ya * 14 >> ccy + >r
-	swap cosa * swap sina * - 16 >> xa * 14 >> ccx + r> ;
+	d>xy over sina * over cosa * + 16 >> yp * 14 >> ccy + >r
+	swap cosa * swap sina * - 16 >> xp * 14 >> ccx + r> ;
 
 |-------- poligono
 :a4 endp r>xy 2dup 'yp !+ ! op ;  | punto

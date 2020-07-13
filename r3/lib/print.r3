@@ -61,7 +61,7 @@
 ::gtab
 	ccw 2 << 'ccx +! ;
 
-::swprint | "" -- "" cnt
+::swprint | "" -- "" size
 	0 over ( c@+ 1?
 		$ff and _charsize ex rot + swap ) 2drop ;
 
@@ -74,7 +74,7 @@
 ::emits | "" --
 	( c@+ 1? emit ) 2drop ;
 
-::print | s s "" --
+::print | s..s "" --
 	sprint emits ;
 
 ::printc | "" --

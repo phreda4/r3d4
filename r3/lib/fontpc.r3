@@ -276,5 +276,5 @@
 	sw 6 << 32 - neg a+
 	3drop ;
 
-::size8pc
+::size8pc | c -- s
   8 nip ;

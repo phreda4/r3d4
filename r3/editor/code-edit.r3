@@ -428,6 +428,7 @@
 :col_str $ffffff 'ink ! ;
 :col_adr $ffff 'ink ! ;
 :col_nor $ff00 'ink ! ;
+:col_nro $ffff00 'ink ! ;
 :col_select $444444 'ink ! ;
 
 #mcolor
@@ -440,7 +441,9 @@
 	$3A =? ( drop col_cod ; )				| $3a :  Definicion
 	$23 =? ( drop col_dat ; )				| $23 #  Variable
 	$27 =? ( drop col_adr ; )				| $27 ' Direccion
-    drop col_nor
+    drop
+	over isNro 1? ( drop col_nro ; ) drop
+	col_nor
 	;
 
 | "" logic

@@ -56,7 +56,7 @@
 	over a@ *. a!+ over a@ *. a!+ over a@ *. a!+ swap a@ *. a!+
 	dup a@ *. a!+ dup a@ *. a!+ dup a@ *. a!+ a@ *. a! ;
 
-::mscalei | x y z
+::mscalei | x y z --
 	mat> >a
 	pick2 a@ *. a!+ over a@ *. a!+ dup a@ *. a!+ 4 a+
 	pick2 a@ *. a!+ over a@ *. a!+ dup a@ *. a!+ 4 a+
@@ -311,7 +311,7 @@
 ::proyect2d | x y z -- x y
 	drop oy + swap ox + swap ;
 
-::aspect | --
+::aspect | -- a
 	sw sh 16 <</ ;
 
 |------- vectores

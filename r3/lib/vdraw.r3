@@ -10,7 +10,7 @@
 ::vset! | 'set --
 	'vecs ! ;
 
-::vget! | 'set --
+::vget! | 'get --
 	'vecg ! ;
 
 ::vsize | w h --

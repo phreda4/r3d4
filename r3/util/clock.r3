@@ -37,7 +37,7 @@
 	1.0 60 */ r> aguja ;
 
 
-::agujaex | ang largo --
+:agujaex | ang largo --
 	polar
 	xc pick2 3 >> - yc pick2 3 >> + gop
 	xc rot + yc rot - gline ;

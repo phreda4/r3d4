@@ -1,0 +1,448 @@
+r3 library reference
+^^^^^^^^^^^^^^^^^^^^
+
+take care the libs are in development and is not full reference,
+only the more important, some word are omited.
+empty stack effect is | --
+
+math.r3
+^^^^^^^
+::*.u	| a b -- c ; all positive numbers
+::*.	| a b -- c
+::/.	| a b -- c
+::ceil	| a -- a
+::sign | v -- v s
+::cos | v -- r
+::sin | v -- r
+::tan | v -- f
+::sincos | bangle -- sin cos
+::xy+polar | x y bangle r -- x y
+::ar>xy | xc yc bangle r -- xc yc x y
+::polar | bangle largo -- dx dy
+::polar2 | largo bangle  -- dx dy
+::atan2 | x y -- bangle
+::distfast | dx dy -- dis
+::average | x y -- v
+::min	| a b -- m
+::max	| a b -- m
+::clampmax | v max -- v
+::clampmin | v min -- v
+::clamp0 | v -- v
+::clamp0max | v max -- v
+::between | v min max -- -(out)/+(in)
+::sqrt. | n -- v
+::ln. | x --r
+::exp. | x --  r
+::cubicpulse | c w x -- v ; iñigo Quilez
+::pow | base exp -- r
+::pow. | base exp -- r
+::root. | base root -- r
+::bswap
+::nextpow2 | v -- p2
+::6/ | n -- r
+::6mod | n -- m
+::10/mod | n -- r m
+::100/ | n -- r
+::10/ | n -- r
+::1000000*	| n -- r
+::100000*	| n -- r
+::10000*	| n -- r
+::1000*		| n -- r
+::100*		| n -- r
+::10*		| n -- r
+
+str.r3
+^^^^^^
+::zcopy | destino fuente -- destino' con 0
+::strcat | src des --
+::strcpy | src des --
+::strcpyl | src des -- ndes
+::strcpyln | src des --
+::copynom | sc s1 --
+::copystr | sc s1 --
+::toupp | c -- C
+::tolow | C -- c
+::count | s1 -- s1 cnt
+::= | s1 s2 -- 1/0
+::=w | s1 s2 -- 1/0
+::=pre | s1 s2 -- 1/0
+::=pos | s1 ".pos" -- s1 1/0
+::findstr | adr "texto" -- adr'
+::findstri | adr "texto" -- adr'/0
+::.d | val -- str
+::.b | bin -- str
+::.h | hex -- str
+::.o | oct -- str
+::.f | fix -- str
+::.r. | b nro -- b
+::trim | adr -- adr'
+::trimc | car adr -- adr'
+::trim" | adr -- adr'
+::>>cr | adr -- adr'
+::>>0 | adr -- adr' ; pasa 0
+
+mem.r3
+^^^^^^
+##here
+::mark | --
+::empty | --
+::savemem | "" --
+::savememinc | "" --
+::cpymem | 'destino --
+::appendmem | "" --
+::, | v --
+::,c | v --
+::,q | v --
+::,s | "" --
+::,w | "" --
+::,l | "" --
+::,d | v --
+::,h | v --
+::,b | v --
+::,ln | "" --
+::,cr
+::,eol
+::,sp
+::,nl
+::,print | p p .. "" --
+::sprint | p p .. "" -- adr
+
+rand.r3
+^^^^^^^
+##seed8
+::rand8 | -- r8		; rand 8 bits
+##seed
+::rand | -- r32     ; rand 32 bits
+::rerand | --
+::mrand | -- xx  	; Multiply-with-carry random
+::mseed | seed --	;
+::random | -- r
+::rndseed
+::rnd | -- n		; xorshift
+::rnd128 | -- n		; xorshit128+
+
+color.r3
+^^^^^^^^
+::colavg | a b -- c
+::col50% | c1 c2 -- c
+::col25% | c1 c2 -- c
+::col33%  | c1 c2 -- c
+::colmix | c1 c2 m -- c	; mix color 8 bits
+::diffrgb2 | a b -- v	; color diference
+::rgb2yuv | rgb -- yuv
+::yuv2rgb | yuv -- rgb
+::yuv32 | yuv -- col
+::hsv2rgb | h s v -- rgb32
+::rgb2hsv | argb -- h s v
+::rgb2ycocg | r g b -- y co cg ; YCoCg colorspace (very fast)
+::ycocg2rgb | y co cg -- r g b
+::rgb2ycc | RGB -- y co cg
+::rgb2yuv2 | g b r -- y u v
+::yuv2rgb2 | y u v -- g b r
+::RGB>Gbr | R G B -- G b r
+::Gbr>RGB | G b r -- R G B
+::RGB2YCoCg24 | r g b -- Y co cg
+::YCoCg242RGB | Y co cg -- r g b
+::shadow4 | color shadow -- color	; 4bits shadow,light color
+::light4 | color ligth -- color
+::shadow8 | color shadow -- color	; 8bits shadow,light color
+::light8 | color ligth -- color
+::blend2 | c1 c2 i -- c				; blend c1 and c2 in 2 bits
+
+gr.r3
+^^^^^
+##paper
+##xop
+##yop
+##ccx
+##ccy
+::cls
+::xy>v | x y -- adr
+::pset | x y --
+::psetc | c x y --
+::pget | x y -- c
+::bline | x y --
+::bop | x y --
+::fillrect  | w h x y --
+::bellipse | x y rx ry --
+::bellipseb | x y rx ry --
+::floodfill | c x y --
+::fillbox | x1 y1 x2 y2 --
+::rectbox | x1 y1 x2 y2 --
+::box.inv | w h x y --
+::box.mix50 | w h x y --
+::box.noise | w h x y --
+::box.dot | x1 y1 x2 y2 --
+
+parse.r3
+^^^^^^^^
+::str$>nro | adr -- adr' nro
+::str%>nro | adr -- adr' nro
+::str>nro | adr -- adr' nro ;1234 $12f %101 -12
+::?sint | adr -- adr' nro
+::?numero | str -- 0 / str' nro 1
+::?fnumero | str -- 0/ str' fix 1		; b
+::str>fix | adr -- adr' fix
+::getnro | adr -- adr' nro
+::str>fnro | adr -- adr fnro
+::getfenro | adr -- adr fnro
+::isHex |adr -- 1/0	; is Hex number?
+::isBin | adr -- 1/0 ; is Bin number?
+::isNro | adr - 1/0 ; is Number?
+
+sys.r3
+^^^^^^
+::onshow | 'word --		; execute 'word until EXIT is called
+::exit					; EXIT from ONSHOW
+::waitesc				; wait for key ESC.
+::getpath | str -- str 	; extrat path from string, keep in path var
+::blink | -- 0/1		; get blink signal (msec based)
+
+fonti.r3
+^^^^^^^^
+##rom8x12
+::char8i | c --
+::size8i | -- s
+::drawico | c --
+::drawcico | c color --
+::drawnico | c --
+
+fontj.r3
+^^^^^^^^
+::char8j | c --
+::size8j | c -- s
+::char8j2 | c --
+::size8j2 | c -- s
+::char8j3 | c --
+::size8j3 | c -- s
+::char8j4 | c --
+::size8j4 | c -- s
+
+fontm.r3
+^^^^^^^^
+::fontm | 'fontm --
+
+fontpc.r3
+^^^^^^^^^
+##font8x16
+::char8pc | c --
+::size8pc | c -- s
+
+fontr.r3
+^^^^^^^^
+##fycc
+##fxcc
+::fontrw | c -- wsize
+::fontr! | rom size --
+::remit | 'rf --
+::rpos	| x y --
+::rsize | w h --
+::remitr | adr ang --
+::fontradr | c -- 'rf
+::fontrprint | 'ev "" --
+::remit3d | 'rf --
+
+print.r3
+^^^^^^^^
+##rows						; rows from current font
+##cols						; cols from current font
+##cch						; heigth from current font
+##ccw						; width from current font
+::font! | 'vemit 'vsize --	; set font with vectors for emit and size
+::fonti						; set font to internal default
+::noemit | c --				; adjust cursor like c is emit, but no print
+::emit | c --				; emit char c in cursor
+::sp						; emit space
+::nsp | cnt --				; emit cnt spaces
+::cr						; return from line
+::lf						; line feed
+::tab						; tab
+::gtab						; tab withou emit sp
+::swprint | "" -- "" size	; get size in pixels of string
+::emitsize | c -- size		; get size in pixels of character c
+::home						; set cursor to home
+::emits | "" --				; print string without % resolve (no cr)
+::print | s..s "" --		; print string with % resolve (no cr)
+::printc | "" --			; print center
+::printr | "" --			; print rigth
+::cntprint | "" cnt --		; print only cnt chars
+::cntprintr | "" cnt --		; print only cnt chars in rigth
+::lprint | str --			; print until cr
+::text | str --				; printe string with cr
+::gotoxy | x y --			; set cursor in this character place
+::gotox | x --				; set column
+::atxy | x y --				; set cursor in this pixel place
+::backprint | "" -- ""		; fill backgroud pixel for a string
+::backline | --				; fill backgroud pixel for a line
+::backlines | cnt --		; fill backgroud pixel for cnt lines
+
+gui.r3
+^^^^^^
+##xr1
+##yr1
+##xr2
+##yr2
+::whin | x y -- -1/0
+::guiAll
+::guiBox | x1 y1 w h --
+::guiRect | x1 y1 x2 y2 --
+::guiFill
+::guiBorde
+::gui
+::onClick | 'click --
+::onMove | 'move --
+::onDnMove | 'dn 'move --
+::onDnMoveA | 'dn 'move -- | si apreto adentro.. mueve siempre
+::guiMap | 'dn 'move 'up --
+::guiDraw | 'move 'up --
+::guiEmpty | --		; si toca esta zona no hay interaccion
+::guiI | 'vector --
+::guiO | 'vector --
+::guiIO | 'vi 'vo --
+::waitms | ms --
+::nextfoco
+::prevfoco
+::setfoco | nro --
+
+input.r3
+^^^^^^^^
+::input | 'var max --
+::inputex | 'vector 'var max  --
+
+btn.r3
+^^^^^^
+::btnt | 'event "texto" --
+::link | 'event "txt" --
+::ibtn | 'event 'ico --
+::btnfpx | 'event px py --
+
+3d.r3
+^^^^^
+::matini
+::mpush
+::mpop
+::nmpop | n --
+::mtrans | x y z -- ; post
+::mtransi | x y z -- ; pre
+::mscale | x y z -- ; post
+::mscalei | x y z -- ; pre
+::mrotx | x -- ; post
+::mrotxi | x -- ; pre
+::mroty | y  --	; post
+::mrotyi | y -- ; pre
+::mrotz | z -- ; post
+::mrotzi | z -- ; pre
+::matinv
+::transform | x y z -- x y z
+::transformr | x y z -- x y z
+::ztransform | x y z -- z
+::oztransform | -- z
+::oxyztransform | -- x y z
+::2dmode | --
+::3dmode | fov --
+::Omode | --
+::o3dmode | w h --
+::p3d | x y z -- x y
+::p3dz | x y z -- x y z
+::p3di | x y z -- z y x
+::p3ditest | x y z -- z y x
+::p3dizb | x y z -- z y x
+::p3dcz | z -- 1/z
+::p3d1 | x y z -- x y
+::p3di1 | x y z -- z y x
+::project3d | x y z -- u v
+::project3dz | x y z -- z x y
+::invproject3d | x y z -- x y
+::projectdim | x y z -- u v
+::project | x y z -- u v
+::projectv | x y z -- u v
+::aspect | -- a
+::normInt2Fix | x y z -- xf yf zf
+::normFix | x y z -- x y z
+::v3len | v1 -- l
+::v3nor | v1 --
+::v3ddot | v1 v2 -- r ; r=v1.v2
+::v3vec | v1 v2 -- ; v1=v1 x v2
+::v3- | v1 v2 -- ; v1=v1-v2
+::v3+ | v1 v2 -- ; v1=v1+v2
+::v3* | v1 s -- ; v1=v1*s
+::v3= | v1 v2 --
+
+sprite.r3
+^^^^^^^^^
+::sprite | x y 'spr  --
+::spritesize | x y w h 'img --
+::spritescale | x y scale 'img --
+::rsprite | x y r 'bmr --
+::spr.alpha | 'bmr --
+::spr.wh | 'spr -- w h
+::tileSheet | w h 'sprite -- ssprite
+::ssprite | n x y 'spr  --
+::sspritesize | n x y w h 'img --
+::sspritescale | n x y scale 'img --
+
+vsprite.r3
+^^^^^^^^^^
+::vesprite | 'rf --
+::rvesprite | adr ang --
+::3dvesprite | adr --
+
+vdraw.r3
+^^^^^^^^
+::vset! | 'set --
+::vget! | 'get --
+::vsize | w h --
+::vop | x y  --
+::vline | x y --
+::vfill | c x y --
+::vrect | x1 y1 x2 y2 --
+::vellipse | rx ry x y --
+::vellipseb | rx ry x y --
+
+cursor.r3
+^^^^^^^^^
+::acursor
+::xcursor
+
+xfb.r3
+^^^^^^
+##XFB
+::iniXFB
+::XFB>
+::>XFB
+
+jul.r3
+^^^^^^
+::date2jul | d m y -- jul ; day month year -> juliandate
+::jul2date | jul -- d m y ; juliandate -> day month year
+::date2day | d m y - num ; day month year -> day of the week as an integer (0:monday, 6:sunday)
+::jul2day | d m y -- num ; juliandate -> day of the week as an integer (0:monday, 6:sunday)
+::date2daystr | d m y -- dw ; day month year -> day of the week as a (pointer to) string
+::jul2daystr  | jul -- dw ; juliandate -> day of the week as a (pointer to) string
+
+zbuffer.r3
+^^^^^^^^^^
+##zb
+##zbw 
+##zbh
+::zb.adr | x y -- a
+::zb@ | x y -- zc
+::zbo! | zc x y --
+::zb.clear
+::zb.ini | w h --
+::zdraw | x y --
+::zdrawz | x y --
+
+^trace.r3
+^^^^^^^^^
+::trace | --
+::dumpc | adr --
+::dumpb | adr --
+::dumpd | adr --
+::dumpf | adr --
+::slog | ... --
+::waitkey
+::waitesp
+::clearlog
+::filelog | .. str --
+

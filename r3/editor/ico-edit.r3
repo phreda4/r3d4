@@ -33,7 +33,7 @@
 :existname? | "" -- "" 1/0
 	'indexn
 	cntvar ( 1?
-		pick2 pick2 =s 1? ( nip nip ; )
+		pick2 pick2 = 1? ( nip nip ; )
 		drop swap 32 + swap 1 - ) nip ;
 
 :freename | -- ""

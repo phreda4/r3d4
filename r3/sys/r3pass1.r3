@@ -39,7 +39,7 @@
 |----------- includes
 :ininc? | str -- str adr/0
 	'inc ( inc> <?
-		@+ pick2 =s 1? ( drop ; ) drop
+		@+ pick2 = 1? ( drop ; ) drop
 		4 + ) drop 0 ;
 
 :load.inc | str -- str new ; incluye codigo

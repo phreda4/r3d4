@@ -29,10 +29,6 @@
 	pick2 8 >> $ff and pick2 8 >> $ff and - abs + | a b a2
 	rot $ff and rot $ff and - abs + ;
 
-|--- promedio de color
-::colavg | a b -- c
-	2dup xor $fefefefe and 1 >> >r or r> - ;
-
 | yuv <-> rgb
 |-----------------------------
 ::rgb2yuv | rgb -- yuv

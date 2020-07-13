@@ -1,5 +1,5 @@
 |--------------------
-| BTN.TXT PHREDA 2010
+| btn.r3 PHREDA 2010
 |--------------------
 ^r3/lib/gui.r3
 ^r3/lib/trace.r3
@@ -56,7 +56,7 @@
 	r> 'ink !
 	;
 
-::link | acc "txt" --
+::link | 'event "txt" --
 	ccw 2 >> 'ccx +!
 	print2gc
 	ccw 2 >> 'xr2 +!
@@ -72,7 +72,7 @@
 	;
 
 
-::ibtn | acc 'ico --
+::ibtn | 'event 'ico --
 	ccx ccy pick2 @
 	dup $ff and 6 +
 	swap 8 >> $ff and 6 +

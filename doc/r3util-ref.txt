@@ -1,0 +1,202 @@
+r3 utility reference
+^^^^^^^^^^^^^^^^^^^^
+
+arr8.r3
+^^^^^^^
+::p.ini | cantidad list --
+::p.clear | list --
+::p!+ | 'act list -- adr
+::p! | list -- adr
+::p.draw | list --
+::p.drawo | list --
+::p.nro | nro list -- adr
+::p.last | nro list -- adr
+::p.cnt | list -- cnt
+::p.cpy | adr 'list --
+::p.del | adr list --
+::p.mapv | 'vector list --
+::p.mapd | 'vector list --
+::p.mapi | 'vector fin ini list --
+::p.deli | fin ini list --
+
+arr16.r3
+^^^^^^^^
+::p.ini | cantidad list --
+::p.clear | list --
+::p.cnt | list -- cnt
+::p.nro | nro list -- adr
+::p!+ | 'act list -- adr
+::p! | list -- adr
+::p.draw | list --
+::p.del | adr list --
+::p.mapv | 'vector list --
+::p.mapd | 'vector list --
+::p.map2 | 'vec 'list ---
+
+miniscr.r3
+^^^^^^^^^^'
+::miniscreen | w h --
+::minidraw
+::minixy | x y -- mx my
+
+polygr.r3
+^^^^^^^^^
+::linegr!	| grosor --
+::linegr	| -- grosor
+::lineg2! | grosor --
+::linegg! | grosor --
+::gcursor | x y g --
+::glineg |x y x y g--
+::gop | x y --
+::gline | x y --
+::gcp | x y --
+::gcurve | xy --
+::polygr.do | desde hasta --
+::polygr.map | vec --
+::fcircleg | x y g --
+::circleg
+
+clock.r3
+^^^^^^^^
+::clock | s xc yc --
+::clockexp | s xc yc --
+
+dbtxt.r3
+^^^^^^^^
+::loadnfile | "" -- filename
+::getfolderimg | 'list  "path" --
+::listimg | hash 'list -- img
+::loaddb-i | "filename" --
+::dbfld | nro -- string
+::loaddb | "filename" -- 'db
+::getdbrow | id 'db -- 'row
+::findbrow | hash 'db -- 'row/0
+::getdbfld | nro 'row -- 'fld ; "|^" limit
+::cpydbfld | 'fld 'str --
+
+dlgcolor.r3
+^^^^^^^^^^^
+##color $ffffff
+::color! | color --
+::dlgColor
+::dlgColorIni
+
+sort.r3
+^^^^^^^
+::shellsort | len lista -- ; lista es valor-dato
+::shellsort2 | len lista -- ; lista es dato-valor
+::sortstr | len lista -- ; lista es pstr-valor
+
+sortradix.r3
+^^^^^^^^^^^^
+::radixsort | cnt '2array --
+
+..........
+loadbmp.r3
+loadpng.r3
+loadjpg.r3 (bug inside!)
+loadtga.r3
+loadimg.r3
+^^^^^^^^^^
+::loadimg | filename -- img
+
+savejpg.r3
+^^^^^^^^^^
+::savejpg | "" w h q --
+
+penner.r3
+^^^^^^^^^
+::Quad_In	| v -- v
+::Quad_Out  | v -- v
+::Quad_InOut | v -- v
+::Cub_In	| v -- v
+::Cub_Out	| v -- v
+::Cub_InOut	| v -- v
+::Quar_In	| v -- v
+::Quar_Out	| v -- v
+::Quar_InOut	| v -- v
+::Quin_In	| v -- v
+::Quin_Out	| v -- v
+::Quin_InOut	| v -- v
+::Sin_In	| v -- v
+::Sin_Out	| v -- v
+::Sin_InOut	| v -- v
+::Exp_In	| v -- v
+::Exp_Out	| v -- v
+::Exp_InOut	| v -- v
+::Cir_In	| v -- v
+::Cir_Out	| v -- v
+::Cir_InOut	| v -- v
+::Ela_In	| v -- v
+::Ela_Out	| v -- v
+::Ela_InOut	| v -- v
+::Bac_In	| v -- v
+::Bac_Out	| v -- v
+::Bac_InOut	| v -- v
+::Bou_Out	| v -- v
+::Bou_In	| v -- v
+::Bou_InOut	| v -- v
+::ease | t nro -- t'
+::catmullRom | p0 p1 p2 p3 t -- v
+
+textbox.r3
+^^^^^^^^^^
+##padx
+##pady
+##padl
+##tx1 
+##ty1 
+##tx2 
+##ty2
+::box! | x1 y1 x2 y2 --
+::boxpad! | x y l --
+::boxfill | --
+::boxborder | g --
+::textbox | str n --
+::textboxvec | vec --
+::textboxemit
+
+textfont.r3
+^^^^^^^^^^^
+::nfont! | nro size --
+::fxfont! | fx aux --
+
+timeline.r3
+^^^^^^^^^^^
+##screen 0 0
+##fx 0 0
+##fxp 0 0
+::timeline.start
+::timeline.clear
+::+restart | tiempo --
+::xy2 | int -- x y
+::2xy | x y -- int
+::+box | x1 y1 x2 y2 color --
+::+sprite | spr x1 y1 x2 y2 --
+::+spriteo | spr x1 y1 x2 y2 --
+::+textbox | "" fx/font/size pad x1 y1 x2 y2 col --
+::+sound | sonido inicio --
+::+event | exec inicio --
+::+fx.on | sec --
+::+fx.off | sec --
+::+fx.lin | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.QuaIn | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.QuaOut | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.QuaIO | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.SinI | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.SinO | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.SinIO | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.ExpIn | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.ExpOut | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.ExpIO | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.ElaIn | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.ElaOut | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.ElaIO | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.BacIn | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.BacOut | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.BacIO | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.BouOut | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.BouIn | xy1 xy2 xy1f xy2f duracion inicio --
+::+fx.BouIO | xy1 xy2 xy1f xy2f duracion inicio --
+::timeline.draw
+::timeline.inimem
