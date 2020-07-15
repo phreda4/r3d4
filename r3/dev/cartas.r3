@@ -9,7 +9,7 @@ svg26 svg27 svg28 svg29 svg30 svg31 svg32 svg33 svg34 svg35 svg36 svg37 svg38
 svg39 svg40 svg41 svg42 svg43 svg44 svg45 svg46 svg47 svg48 svg49 svg50 svg51
 
 :drawcarta | nro --
-	2 << 'dibs + @ 3dvesprite ;
+	2 << 'dibs + @ 3dvsprite ;
 
 #mazo * 208
 

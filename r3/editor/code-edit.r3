@@ -421,7 +421,7 @@
 	;
 
 |------ Color line
-:col_inc $ffff00 'ink ! ;
+:col_inc $ff7f00 'ink ! ;
 :col_com $666666 'ink ! ;
 :col_cod $ff0000 'ink ! ;
 :col_dat $ff00ff 'ink ! ;

@@ -4,12 +4,27 @@
 ^r3/lib/gr.r3
 ^r3/lib/3d.r3
 
-|--------- formato vesprite
+|--------- formato vsprite
 #yp #xp
 
-:gc>xy | valor -- xy
-	dup 23 >> xp 9 *>> ccx +
-	swap 41 << 23 >> yp 9 *>> ccy + ;
+##vsx ##vsy
+##vsw ##vsh
+
+::vspos | x y --
+	'vsy ! 'vsx ! ;
+
+::vsize | w h --
+	'vsh ! 'vsw ! ;
+
+| fuente vectorial en 32bits | 14 - 14 - 4
+| 0000 0000 0000 00 | 00 0000 0000 0000 | 0000
+| x					y			      control
+
+::gc>xy | v -- x y
+	dup 18 >> vsw 14 *>> vsx + swap 46 << 50 >> vsh 14 *>> vsy + ;
+
+::xy>gc | x y -- v
+	vsy - vsh 14 <</ $3fff and 4 << swap vsx - vsw 14 <</ $3fff and 18 << or ;
 
 :endp xp $80000000 <>? ( yp pline ; ) drop ;
 :finpoli xp yp pline $80000000 'xp ! poli ;
@@ -32,15 +47,15 @@
 
 #jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
-::vesprite | 'rf --
+::vsprite | 'rf --
 	$80000000 'xp !
 	( @+ 1? dup $f and 2 << 'jves + @ ex ) 2drop ;
 
-|--------- R vesprite
+|--------- R vsprite
 #cosa #sina | para rotar
 :r>xy
-	d>xy over sina * over cosa * + 16 >> yp * 14 >> ccy + >r
-	swap cosa * swap sina * - 16 >> xp * 14 >> ccx + r> ;
+	d>xy over sina * over cosa * + 16 >> vsh * 14 >> vsy + >r
+	swap cosa * swap sina * - 16 >> vsw * 14 >> vsx + r> ;
 
 |-------- poligono
 :a4 endp r>xy 2dup 'yp !+ ! op ;  | punto
@@ -55,12 +70,12 @@
 
 #jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
-::rvesprite | adr ang --
+::rvsprite | adr ang --
 	dup cos 'cosa ! sin 'sina !
 	$80000000 'xp !
 	( @+ 1? dup $f and 2 << 'jves + @ ex ) 2drop ;
 
-|--------- 3d vesprite
+|--------- 3d vsprite
 | 3 << porque usa 14 bits a 17 bits queda 1.0
 :3d>xy
 	dup 18 >> 3 << swap 46 << 50 >> 3 << 0 project3d ;
@@ -78,7 +93,7 @@
 
 #jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
-::3dvesprite | adr --
+::3dvsprite | adr --
 	$80000000 'xp !
 	( @+ 1? dup $f and 2 << 'jves + @ ex ) 2drop ;
 

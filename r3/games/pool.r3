@@ -81,7 +81,7 @@
 	b> @
 
 |	8 << $c or 'cball !  | COLOR
-|	'sball 3dvesprite
+|	'sball 3dvsprite
 
 	'ink ! drawcube
 

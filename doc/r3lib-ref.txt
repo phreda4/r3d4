@@ -383,9 +383,15 @@ sprite.r3
 
 vsprite.r3
 ^^^^^^^^^^
-::vesprite | 'rf --
-::rvesprite | adr ang --
-::3dvesprite | adr --
+##vsx
+##vsy
+##vsw
+##vsh
+::vspos | x y --
+::vsize | w h --
+::vsprite | 'rf --
+::rvsprite | adr ang --
+::3dvsprite | adr --
 
 vdraw.r3
 ^^^^^^^^

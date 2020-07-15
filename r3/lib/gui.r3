@@ -130,6 +130,12 @@
 	( msec >? update )
 	drop ;
 
+##col-prim $337ab7
+##col-succ $5cb85c
+##col-info $5bc0de
+##col-warn $f0ad4e
+##col-dang $d9534f
+
 |---------------------------------------------------
 | manejo de foco (teclado)
 

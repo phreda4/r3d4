@@ -51,7 +51,7 @@
 :dobne | BNE <aa
   flag-z 1? ( reg-pc >rom cs@ 1 + reg-pc+ 3 cycle+ ; ) 1 reg-pc+ 3 cycle+ ;
 :6502emu | cycles --
-  ( cycle over <? drop
+  ( cycle >=?
     reg-pc >rom c@ 1 reg-pc+
     $4C =? ( dojmp )
 	$A5 =? ( dolda )
@@ -64,18 +64,18 @@
     $E6 =? ( doinc )
 	$A0 =? ( doldy )
     $A2 =? ( doldx )
-	drop ) 2drop ;
+	drop ) drop ;
 
 #testcode (
-  $A9 $00   | start: LDA #0
-  $85 $08   |        STA 08
-  $A2 $0A   |        LDX #10
-  $A0 $0A   | loop1: LDY #10
-  $E6 $08   | loop2: INC 08
-  $88      |        DEY
-  $D0 $FB   |        BNE loop2
-  $CA      |        DEX
-  $D0 $F6   |        BNE loop1
+  $A9 $00	| start: LDA #0
+  $85 $08	|        STA 08
+  $A2 $0A	|        LDX #10
+  $A0 $0A	| loop1: LDY #10
+  $E6 $08	| loop2: INC 08
+  $88		|        DEY
+  $D0 $FB	|        BNE loop2
+  $CA		|        DEX
+  $D0 $F6	|        BNE loop1
   $4C $00 $80  |   JMP start
 )
 
