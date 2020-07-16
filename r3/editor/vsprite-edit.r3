@@ -1033,7 +1033,8 @@
 	'dnsel 'movsel 'upsel guiMap
 	xmin ymin xmax ymax
 	pick3 1 + pick3 1 + pick3 1 + pick3 1 +
-	blanco rectbox negro rectbox
+	blanco rectbox
+	negro rectbox
 	;
 
 
@@ -1216,46 +1217,9 @@
 
 	acursor ;
 
-|--- symplify poly
-:lef	| last equal first
-	;
-:cef	| control point equal first
-	;
-:cel	| control point equal last
-	;
-:pil	| point in line
-	;
-
-:t0 ;
-
-:t4	| OP
-	po pick2 'po !
-	-1 =? ( drop  ; )
-	|lef
-	;
-:t5 | LINE
-	| pil
-	;
-:t6 | CURVE
-	| cef
-	;
-
-:t7	| CURVE3
-	| cef cel
-	;
-:tc ;
-
-#ts t0 t0 t0 t0 t4 t5 t6 t7 t4 t5 t6 t7 tc tc tc tc
-
-
-:simplify
-	-1 'po !
-	ves dup ( @+ 1?
-		dup $f and 2 << 'ts + @ ex
-		rot !+ swap ) 3drop ;
-
-:vmem
+:inimem
 	mark
+	$454545 'paper !
 	dlgColorIni
 	iniXFB
 	here dup 'ves ! dup 'ves> ! 0 swap !
@@ -1263,10 +1227,8 @@
 	vistall
 	;
 
-: $aaaaaa 'paper !
-	vmem
+:	inimem
 	ves "mem/notepad.vsp" load 0 swap !
-|	simplify
 	ves ( @+ 1? drop ) swap 4 - 'ves> !
 	buildtra
 	'main onshow
