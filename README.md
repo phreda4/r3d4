@@ -2,7 +2,7 @@
 
 r3 is a concatenative language of the forth family, more precisely it takes elements of the ColorForth, the colors that have the words internally are encoded by a prefix, in r3 this prefix is explicit.
 
-This repository have the windows and linux version.
+This repository have the windows (r3.exe) and linux version (r3lin)
 
 For linux remember "chmod +x ./r3lin" for make executable the file.
 

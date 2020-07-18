@@ -252,8 +252,7 @@
 	drop
 
 	'path
-| "r3 ""%s/%s"""
-|WIN| "r3v ""%s/%s"""
+|WIN| "r3 ""%s/%s"""
 |LIN| "./r3lin ""%s/%s"""
 	sprint sys
 	;
