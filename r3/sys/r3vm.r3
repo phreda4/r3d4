@@ -65,12 +65,9 @@
 |--- IF
 :i(				| 11
 	level+
-	nlevel "_li%h:" ,ln
 	;
 
 :i)				| 12
-	wlevel 1? ( nlevel "jmp _li%h" ,ln ) drop
-	nlevel "_lo%h:" ,ln
 	level-
 	;
 |--- REP
@@ -81,181 +78,93 @@
 :iEX			| 15
 	.EX ;
 
-:i0?
-	next(
-	"or #0,#0" ,asm
-	nlevel "jnz _lo%h" ,ln
-	;
-
-:i1?
-	next(
-	"or #0,#0" ,asm
-	nlevel "jz _lo%h" ,ln
-	;
-
-:i+?
-	next(
-	"or #0,#0" ,asm
-	nlevel "js _lo%h" ,ln
-	;
-
-:i-?
-	next(
-	"or #0,#0" ,asm
-	nlevel "jns _lo%h" ,ln
-	;
-
-:i<?
-	next(
-	"cmp #1,#0" ,asm
-	nlevel "jge _lo%h" ,ln
-	;
-
-:i>?
-	next(
-	"cmp #1,#0" ,asm
-	nlevel "jle _lo%h" ,ln
-	;
-
-:i=?
-	next(
-	"cmp #1,#0" ,asm
-	nlevel "jne _lo%h" ,ln
-	;
-
-:i>=?
-	next(
-	"cmp #1,#0" ,asm
-	nlevel "jl _lo%h" ,ln
-	;
-
-:i<=?	| 18
-	next(
-	"cmp #1,#0" ,asm
-	nlevel "jg _lo%h" ,ln
-	;
-
-:i<>?	| 19
-	next(
-	"cmp #1,#0" ,asm
-	nlevel "je _lo%h" ,ln
-	;
-
-:iA?	| 20
-	next(
-	"test #1,#0" ,asm
-	nlevel "jnz _lo%h" ,ln
-	;
-
-:iN?	| 21
-	next(
-	"test #1,#0" ,asm
-	nlevel "jz _lo%h" ,ln
-	;
-
-:iB?    | 22
-	next(
-	| sub nos2,nos
-	| cmp nos,tos-nos
-	"cmp #2,#1" ,asm
-	nlevel "jge _lo%h" ,ln
-	;
-
-
-
-:i@
-	;
-
-:iC@
-	;
-
-:iQ@
-	;
-
-:i@+
-	;
-
-:iC@+
-	;
-
-:iQ@+
-	;
-
-:i!
-	;
-:iC!
-	;
-:iQ!
-	;
-
-:i!+
-	;
-
-:iC!+
-	;
-
-:iQ!+
-	;
-
-:i+!
-	;
-
-:iC+!
-	;
-
-:iQ+!
-	;
-
-
+:i0? ;
+:i1? ;
+:i+? ;
+:i-? ;
+:i<? ;
+:i>? ;
+:i=? ;
+:i>=? ;
+:i<=? ;
+:i<>? ;
+:iA? ;
+:iN? ;
+:iB? ;
+:i@  ;
+:iC@ ;
+:iQ@ ;
+:i@+ ;
+:iC@+ ;
+:iQ@+ ;
+:i!   ;
+:iC!  ;
+:iQ!  ;
+:i!+  ;
+:iC!+ ;
+:iQ!+ ;
+:i+!  ;
+:iC+! ;
+:iQ+! ;
 
 :iMOVE
-
 :iMOVE>
-:iFILL
+:iFILL 
 	;
-
 :iCMOVE
 	;
-
 :iCMOVE>
 	;
-
 :iCFILL
 	;
-
 :iDMOVE
 	;
-
 :iDMOVE>
 	;
-
 :iDFILL
 	;
 
 :iUPDATE
 :iREDRAW
 :iMEM
-:iSW 
-:iSH 
+:iSW
+:iSH
 :iFRAMEV
-:iXYPEN 
-:iBPEN 
+:iXYPEN
+:iBPEN
 :iKEY
+
 :iMSEC
-:iTIME 
+:iTIME
 :iDATE
-:iLOAD 
-:iSAVE 
+
+:iLOAD
+:iSAVE
 :iAPPEND
-:iFFIRST 
-:iFNEXT
-	;
 
-:iSYSCALL
-:gSYSCALL
+:iFFIRST
+:iFNEXT ;
 
-:iSYSMEM
-:gSYSMEM
+:iSYS ;
+:iLOAD ;
+:iFREE ;
+:iPLAY ;
+:iLOAD ;
+:iMFREE ;
+:iMPLAY ;
+:iINK 
+:i'INK 
+:iALPHA 
+:iOPX 
+:iOPY
+:iOP 
+:iLINE 
+:iCURVE
+:iCURVE3
+:iPLINE 
+:iPCURVE 
+:iPCURVE3 
+:iPOLI
 	;
 
 
@@ -288,8 +197,12 @@ iXYPEN iBPEN iKEY
 iMSEC iTIME iDATE
 iLOAD iSAVE iAPPEND
 iFFIRST iFNEXT
-iSYSCALL iSYSMEM
-
+iSYS
+iLOAD iFREE iPLAY
+iLOAD iMFREE iMPLAY
+iINK i'INK iALPHA iOPX iOPY
+iOP iLINE iCURVE iCURVE3
+iPLINE iPCURVE iPCURVE3 iPOLI
 
 :vmstep
 	$7f and 2 << 'vml + @ exec ;

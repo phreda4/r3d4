@@ -140,25 +140,45 @@
 3 -3 0 0	|QMOVE> abc --
 3 -3 0 0	|QFILL abc --
 
-1 0 0 0		|UPDATE  a -- a
-0 0 0 0		|REDRAW  --
+1 0 0 0		|UPDATE a -- a
+0 0 0 0		|REDRAW --
 0 1 0 0		|MEM	-- a
-0 1 0 0		|SW      -- a
-0 1 0 0		|SH      -- a
-0 1 0 0		|VFRAME  -- a
-0 1 0 0		|XYPEN -- a
-0 1 0 0		|BPEN  -- a
-0 1 0 0		|KEY     -- a
-0 1 0 0		|CHAR     -- a
-0 1 0 0		|MSEC    -- a
-0 1 0 0		|TIME    -- a
-0 1 0 0		|DATE    -- a
+0 1 0 0		|SW     -- a
+0 1 0 0		|SH     -- a
+0 1 0 0		|VFRAME -- a
+0 1 0 0		|XYPEN	-- a
+0 1 0 0		|BPEN	-- a
+0 1 0 0		|KEY    -- a
+0 1 0 0		|CHAR   -- a
+0 1 0 0		|MSEC   -- a
+0 1 0 0		|TIME   -- a
+0 1 0 0		|DATE   -- a
 2 -1 0 0	|LOAD   ab -- c
 3 -3 0 0	|SAVE   abc --
-3 -3 0 0	|APPEND   abc --
-1 0 1 0		|FFIRST   a -- b
-0 1 0 0		|FNEXT     -- a
+3 -3 0 0	|APPEND	abc --
+1 0 1 0		|FFIRST	a -- b
+0 1 0 0		|FNEXT	-- a
 1 -1 0 0	|SYS 	a --
+1 0 0 0		|SLOAD	a -- b
+1 -1 0 0	|SFREE	a --
+1 -1 0 0	|SPLAY	a --
+1 0 0 0		|MLOAD	a -- b
+1 -1 0 0	|MFREE	a --
+1 -1 0 0	|MPLAY	a --
+
+0 1 0 0		|INK
+0 1 0 0		|'INK
+1 -1 0 0	|ALPHA
+0 1 0 0		|OPX
+0 1 0 0		|OPY
+2 -2 0 0	|OP
+2 -2 0 0	|LINE
+4 -4 0 0	|CURVE
+6 -6 0 0	|CURVE3
+2 -2 0 0	|PLINE
+4 -4 0 0	|PCURVE
+6 -6 0 0	|PCURVE3
+0 0 0 0		|POLI
 )
 
 

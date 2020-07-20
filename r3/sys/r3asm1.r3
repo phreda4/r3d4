@@ -532,6 +532,18 @@
 	"call SYSFNEXT" ,ln ;
 :gSYS
 	"call SYSYSTEM" ,ln ;
+:gSLOAD
+	"call SYSSLOAD" ,ln ;
+:gSFREE
+	"call SYSSFREE" ,ln ;
+:gSPLAY
+	"call SYSSPLAY" ,ln ;
+:gMLOAD
+	"call SYSMLOAD" ,ln ;
+:gMFREE
+	"call SYSMFREE" ,ln ;
+:gMPLAY
+	"call SYSMPLAY" ,ln ;
 
 |----------- Number
 :gdec
@@ -580,6 +592,9 @@ gC! gQ! g!+ gC!+ gQ!+ g+! gC+! gQ+! g>A gA> gA@ gA! gA+ gA@+ gA!+ g>B
 gB> gB@ gB! gB+ gB@+ gB!+ gMOVE gMOVE> gFILL gCMOVE gCMOVE> gCFILL gQMOVE gQMOVE> gQFILL gUPDATE
 gREDRAW gMEM gSW gSH gFRAMEV gXYPEN gBPEN gKEY gCHAR gMSEC gTIME gDATE gLOAD gSAVE gAPPEND gFFIRST
 gFNEXT gSYS
+gSLOAD gSFREE gSPLAY
+gMLOAD gMFREE gMPLAY
+
 
 :ctetoken
 	8 >>> 'ctecode + q@ "$" ,s ,h ;

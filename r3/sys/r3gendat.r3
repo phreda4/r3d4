@@ -29,17 +29,20 @@
 
 :stringdd | cuando hay string dentro de otro tipo
 	dtipo 'd3 =? ( drop "," ,s ; ) drop
-	,cr "db " ,s 1 'instr ! ;
+	,cr 'd3 ,s 1 'instr !
+|	'd3 'dtipo !
+	;
 
 :dfin
 	instr 1? ( drop pasoinstr ; ) drop
-	dini 1? ( dtipo ,s drop 0 'dini ! ; )
-	"," ,s drop 0 'dini ! ;
+	dini 0 'dini ! 1? ( drop dtipo ,s ; )
+	drop "," ,s ;
 :dfins
-	dini 0? ( drop stringdd ; ) "db " ,s drop 0 'dini ! ;
+	dini 0? ( drop stringdd ; ) drop
+	'd3 ,s 0 'dini ! ;
 :dfind
 	instr 1? ( drop pasoinstr ; ) drop
-	dini 1? ( "dd " ,s drop 0 'dini ! ; ) "," ,s drop 0 'dini ! ;
+	dini 0 'dini ! 1? ( 'd1 ,s drop ; ) "," ,s drop  ;
 
 :dtipoch
 	dini 1? ( drop ; ) drop
@@ -65,9 +68,8 @@
 		-? ( ,d ; )
 		"$" ,s ,h ;
 
-:,dlits	1 'dcnt +! dfins
-		tok>str
-		stringwith0 ;
+:,dlits	1 'dcnt +!
+		dfins tok>str stringwith0 ;
 
 :,dwor	1 'dcnt +! dfind
 		tok>dicname

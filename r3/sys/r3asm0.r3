@@ -868,6 +868,19 @@
 	"call SYSFNEXT" ,ln ;
 :gSYS
 	"call SYSYSTEM" ,ln ;
+:gSLOAD
+	"call SYSSLOAD" ,ln ;
+:gSFREE
+	"call SYSSFREE" ,ln ;
+:gSPLAY
+	"call SYSSPLAY" ,ln ;
+:gMLOAD
+	"call SYSMLOAD" ,ln ;
+:gMFREE
+	"call SYSMFREE" ,ln ;
+:gMPLAY
+	"call SYSMPLAY" ,ln ;
+
 
 |---------------------------------
 #vmc1
@@ -879,7 +892,7 @@ o/MOD o*/ o*>> o<</ 0 0 0 0 0 o@ oC@ oQ@ o@+ oC@+ oQ@+ o!
 oC! oQ! o!+ oC!+ oQ!+ o+! oC+! oQ+! o>A 0 0 oA! oA+ 0 oA!+ o>B
 0 0 oB! oB+ 0 oB!+ 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0
+0 0 0 0 0 0 0 0
 
 |----------- Number
 :number | value --
@@ -970,7 +983,7 @@ o/MODv o*/v o*>>v o<</v 0 0 0 0 0 o@v oC@v oQ@v o@+v oC@+v oQ@+v o!v
 oC!v oQ!v o!+v oC!+v oQ!+v o+!v oC+!v oQ+!v o>Av 0 0 oA!v oA+v 0 oA!+v o>Bv
 0 0 oB!v oB+v 0 oB!+v 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0
+0 0 0 0 0 0 0 0
 
 :varopt
 	"; OPTV " ,s over @ ,tokenprint ,cr
@@ -997,8 +1010,10 @@ gA? gN? gB? ,DUP ,DROP ,OVER ,PICK2 ,PICK3 ,PICK4 ,SWAP ,NIP ,ROT ,2DUP ,2DROP ,
 g/MOD g*/ g*>> g<</ gNOT gNEG gABS gSQRT gCLZ g@ gC@ gQ@ g@+ gC@+ gQ@+ g!
 gC! gQ! g!+ gC!+ gQ!+ g+! gC+! gQ+! g>A gA> gA@ gA! gA+ gA@+ gA!+ g>B
 gB> gB@ gB! gB+ gB@+ gB!+ gMOVE gMOVE> gFILL gCMOVE gCMOVE> gCFILL gQMOVE gQMOVE> gQFILL gUPDATE
-gREDRAW gMEM gSW gSH gFRAMEV gXYPEN gBPEN gKEY gCHAR gMSEC gTIME gDATE gLOAD gSAVE gAPPEND gFFIRST
-gFNEXT gSYS
+gREDRAW gMEM gSW gSH gFRAMEV gXYPEN gBPEN gKEY gCHAR gMSEC gTIME gDATE gLOAD gSAVE gAPPEND
+gFFIRST gFNEXT gSYS
+gSLOAD gSFREE gSPLAY
+gMLOAD gMFREE gMPLAY
 
 |----------------
 :ctetoken

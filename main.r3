@@ -174,7 +174,9 @@
 :setactual
 	actual dup getlvl makepath
 	actual getinfo 1 >? ( remlastpath ) drop
-	actual getname 'name strcpy
+	actual
+	dup getinfo $3 and 2 <? ( 2drop "" 'name strcpy ; ) drop
+	getname 'name strcpy
 	;
 
 |---------------------

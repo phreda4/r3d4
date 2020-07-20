@@ -178,33 +178,20 @@
 	cellW ;
 :iCLZ
 	cellW ;
-:i<<
-:i>>
-:i>>>
+:i<< :i>> :i>>>
 	endREG cellC cellW ;
-:i*>>
-:i<</
+:i*>> :i<</
 	cellC endREG endREG cellAD cellW ;
 
-:i@
-:iC@
-:iQ@
+:i@ :iC@ :iQ@
 	cellW ;
-:i@+
-:iC@+
-:iQ@+
+:i@+ :iC@+ :iQ@+
 	cellW newreg ;
-:i!
-:iC!
-:iQ!
+:i! :iC! :iQ!
 	endREG endREG  ;
-:i!+
-:iC!+
-:iQ!+
+:i!+ :iC!+ :iQ!+
 	cellW endREG ;
-:i+!
-:iC+!
-:iQ+!
+:i+! :iC+! :iQ+!
 	endREG endREG ;
 :i>A	endReg ;
 :iA>    newReg ;
@@ -228,25 +215,22 @@
 :iFILL :iCFILL :iQFILL
 	cellC endReg cellDI endReg cellSI endReg ;
 
-:iUPDATE :iREDRAW
-	;
-:iMEM
-:iSW :iSH :iFRAMEV
-:iXYPEN :iBPEN :iKEY :iCHAR
-:iMSEC :iTIME :iDATE
-	newReg ;
-:iLOAD
-	endReg ;
+:iUPDATE :iREDRAW ;
+:iMEM newReg ;
+:iSW :iSH :iFRAMEV newReg ;
+:iXYPEN newReg newReg ;
+:iBPEN :iKEY :iCHAR newReg ;
+:iMSEC :iTIME :iDATE newReg ;
+:iLOAD endReg ;
 :iSAVE
-:iAPPEND
-	endReg endReg endReg ;
-:iFFIRST
-	;
-:iFNEXT
-	newReg ;
+:iAPPEND endReg endReg endReg ;
+:iFFIRST endReg newReg ;
+:iFNEXT newReg ;
 
-:iSYS
-	endReg ;
+:iSYS endReg ;
+:iSLOAD :iMLOAD endReg newReg ;
+:iSFREE :iSPLAY :iMFREE :iMPLAY endReg ;
+
 
 :i0? cellr gwhilejmp ;
 :i1? cellr endREG cellr gwhilejmp ;
@@ -254,7 +238,7 @@
 
 #vmc
 0 0 0 0 0 0 0 idec idec idec idec istr iwor ivar idwor idvar
-i; i( i) i[ i] iEX i0? i0? i0? i0? i1? i1? i1? i1? i1? i1? 
+i; i( i) i[ i] iEX i0? i0? i0? i0? i1? i1? i1? i1? i1? i1?
 i1? i1? i2? iDUP iDROP iOVER iPICK2 iPICK3 iPICK4 iSWAP iNIP iROT i2DUP i2DROP i3DROP i4DROP
 i2OVER i2SWAP i>R iR> iR@ iop2a1 iop2a1 iop2a1 iop2a1 iop2a1 iop2a1 i/ i<< i>> i>>> iMOD 
 i/MOD i*/ i*>> i<</ iop1a1 iop1a1 iABS iSQRT iCLZ i@ iC@ iQ@ i@+ iC@+ iQ@+ i! 
@@ -271,6 +255,12 @@ iMSEC iTIME iDATE
 iLOAD iSAVE iAPPEND
 iFFIRST iFNEXT
 iSYS
+iSLOAD iSFREE iSPLAY
+iMLOAD iMFREE iMPLAY
+|"INK" "'INK" "ALPHA" "OPX" "OPY"
+|"OP" "LINE" "CURVE" "CURVE3"
+|"PLINE" "PCURVE" "PCURVE3" "POLI"
+
 
 ::anastep | tok --
 	1 'itok +!

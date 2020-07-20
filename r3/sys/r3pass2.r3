@@ -12,7 +12,8 @@
 	code> !+ 'code> ! ;
 
 :.com
-	"|WIN|" =pre 1? ( drop 5 + ; ) drop | Compila para WINDOWS
+|WIN|	"|WIN|" =pre 1? ( drop 5 + ; ) drop | Compila para WINDOWS
+|LIN|	"|LIN|" =pre 1? ( drop 5 + ; ) drop | Compila para LINUX
 	>>cr
 	;
 

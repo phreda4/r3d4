@@ -9,7 +9,7 @@
 
 ##paper 0
 ##xop 0 ##yop 0
-##ccx 0 ##ccy	| cursor for text
+##ccx 0 ##ccy 0	| cursor for text
 
 ::cls
   vframe paper sw sh * fill ;

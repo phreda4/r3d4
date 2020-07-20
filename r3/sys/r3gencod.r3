@@ -100,13 +100,22 @@
 
 #tcte d1 d1 d1 d1 d2 d3 d3 d3
 
+:emptycte
+	0 7 bt? ( 2 << 'tcte + @ ex code!+ ; )
+	2drop	|
+	0 push.nro
+	0 cte!+
+	"inline 0" slog trace
+	;
+
 :icte | adr word -- adr
 |	"; INLINE CTE" ,ln
 	dic>tok @ |*************   #v1 #v2 ..if v1 is cte then crash!!
 	@ dup dup $ff and 7 -
-	-? ( "inline 0" slog trace ) 7 >? ( "inline 0" slog trace ) | stop!
-	2 << 'tcte + @ ex
-	code!+ ;
+	emptycte ;
+|	-? ( "inline 0" slog trace ) 7 >? ( "inline 0" slog trace ) | stop!
+|	2 << 'tcte + @ ex
+|	code!+ ;
 
 :ivar
 	getval
@@ -462,18 +471,25 @@
 
 :iMSEC :iTIME :iDATE
 	.dup 2code!+ ;
-:iLOAD	| ab -- c
+:iLOAD		| ab -- c
 	.drop 2code!+ ;
-:iSAVE	| abc --
-:iAPPEND	|APPEND   abc --
+:iSAVE		| abc --
+:iAPPEND	| abc --
 	.3drop 2code!+ ;
 
-:iFFIRST	|FFIRST   a -- b
+:iFFIRST	| a -- b
 	2code!+ ;
-:iFNEXT		|FNEXT     -- a
+:iFNEXT		| -- a
 	.dup 2code!+ ;
-:iSYS
+:iSYS		| "" --
 	.drop 2code!+ ;
+
+:iSLOAD 2code!+ ;
+:iSFREE 2code!+ .drop ;
+:iSPLAY 2code!+ .drop ;
+:iMLOAD 2code!+ ;
+:iMFREE 2code!+ .drop ;
+:iMPLAY 2code!+ .drop ;
 
 |----------- inline word
 #tocodeex 0
@@ -503,11 +519,15 @@ i2OVER i2SWAP i>R iR> iR@ iAND iOR iXOR i+ i- i* i/ i<< i>> i>>> iMOD
 i/MOD i*/ i*>> i<</ iNOT iNEG iABS iSQRT iCLZ i@ iC@ iQ@ i@+ iC@+ iQ@+ i!
 iC! iQ! i!+ iC!+ iQ!+ i+! iC+! iQ+! i>A iA> iA@ iA! iA+ iA@+ iA!+ i>B
 iB> iB@ iB! iB+ iB@+ iB!+ iMOVE iMOVE> iFILL iCMOVE iCMOVE> iCFILL iQMOVE iQMOVE> iQFILL iUPDATE
-iREDRAW iMEM iSW iSH iFRAMEV iXYPEN iBPEN iKEY iCHAR iMSEC iTIME iDATE iLOAD iSAVE iAPPEND iFFIRST
-iFNEXT iSYS
-|iINK i'INK iALPHA iOPX iOPY iOP iLINE iCURVE iCURVE3 iPLINE iPCURVE iPCURVE3 iPOLI
-0 0 0 0 0 0 0 0 0 0 0 0 0
-( 0 )
+iREDRAW iMEM iSW iSH iFRAMEV iXYPEN iBPEN iKEY iCHAR iMSEC iTIME iDATE iLOAD iSAVE iAPPEND 
+iFFIRST iFNEXT
+iSYS
+iSLOAD iSFREE iSPLAY
+iMLOAD iMFREE iMPLAY
+|iINK i'INK iALPHA iOPX iOPY
+|iOP iLINE iCURVE iCURVE3
+|iPLINE iPCURVE iPCURVE3 iPOLI
+0
 
 |------------------------------------------
 :tocode | adr token -- adr

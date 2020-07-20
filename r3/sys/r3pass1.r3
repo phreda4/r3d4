@@ -10,8 +10,8 @@
 
 |----------- comments / configuration
 :escom
-	"WIN|" =pre 1? ( drop 4 + ; ) drop | Compila para WINDOWS
-
+|WIN|	"WIN|" =pre 1? ( drop 4 + ; ) drop | Compila para WINDOWS
+|LIN|	"LIN|" =pre 1? ( drop 4 + ; ) drop | Compila para LINUX
 	"FULL" =pre 1? ( drop				| FULL
 		1 'switchfull !
 		>>cr ; ) drop
@@ -39,7 +39,7 @@
 |----------- includes
 :ininc? | str -- str adr/0
 	'inc ( inc> <?
-		@+ pick2 = 1? ( drop ; ) drop
+		@+ pick2 =s 1? ( drop ; ) drop
 		4 + ) drop 0 ;
 
 :load.inc | str -- str new ; incluye codigo
