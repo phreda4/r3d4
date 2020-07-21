@@ -10,6 +10,7 @@ include 'set.asm'
 
 include 'include/win64w.inc'
 include 'sdl2.inc'
+include 'sdl2_mixer.inc'
 
 section '' code readable executable
 
@@ -37,31 +38,34 @@ common
 ;===============================================
 start:
   sub rsp,40
-;  cinvoke SDL_Init,SDL_INIT_AUDIO or SDL_INIT_VIDEO ;****
-  cinvoke SDL_CreateWindow,_title,\
+  invoke SDL_Init,SDL_INIT_AUDIO+SDL_INIT_VIDEO ;****
+  invoke Mix_Init,8 ; mp3
+  invoke Mix_OpenAudio,AUDIO_S16SYS,2,4096
+  invoke SDL_CreateWindow,_title,\
     SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,\
     XRES,YRES,0
   mov [window],eax
   cinvoke SDL_ShowCursor,0
+
 ;  cinvoke SDL_SetWindowFullscreen,[window],SDL_WINDOW_FULLSCREEN
   cinvoke SDL_GetWindowSurface,[window]
   mov rbx,rax
   mov [screen],eax
   mov rdi,[rbx+SDL_Surface.pixels]
   mov [SYSFRAME],rdi
-  cinvoke SDL_StartTextInput
-
   invoke VirtualAlloc,0,MEMSIZE,MEM_COMMIT+MEM_RESERVE,PAGE_READWRITE
   mov [FREE_MEM],rax
-
+  invoke SDL_StartTextInput
   mov rbp,DATASTK
   xor rax,rax
   call INICIO
 
 SYSEND:
-  cinvoke SDL_StopTextInput
-  cinvoke SDL_DestroyWindow,[window]
-  cinvoke SDL_Quit
+  invoke SDL_StopTextInput
+  invoke SDL_DestroyWindow,[window]
+  invoke Mix_CloseAudio
+  invoke Mix_Quit
+  invoke SDL_Quit
   add rsp,40
   ret
 
@@ -86,9 +90,13 @@ SYSUPDATE:
   mov [SYSKEY],eax
   mov [SYSCHAR],eax
   cinvoke SDL_Delay,10
+loopev:
   cinvoke64 SDL_PollEvent,evt
   test eax,eax
-  jz .endr
+  jnz n1
+  pop rbp rax
+  ret
+n1:
   mov eax,[evt.type]
   cmp eax,SDL_KEYDOWN
   je upkeyd
@@ -104,9 +112,7 @@ SYSUPDATE:
   je uptext
   cmp eax,SDL_QUIT
   je SYSEND
-.endr:
-  pop rbp rax
-  ret
+  jmp loopev
 upkeyd: ;key=(evt.key.keysym.sym&0xffff)|evt.key.keysym.sym>>16;break;
   mov eax,[evt.key.keysym.sym]
   and eax,0xffff
@@ -114,8 +120,7 @@ upkeyd: ;key=(evt.key.keysym.sym&0xffff)|evt.key.keysym.sym>>16;break;
   shr ebx,16
   or eax,ebx
   mov [SYSKEY],eax
-  pop rbp rax
-  ret
+  jmp loopev
 upkeyu: ;key=0x1000|(evt.key.keysym.sym&0xffff)|evt.key.keysym.sym>>16;break;
   mov eax,[evt.key.keysym.sym]
   and eax,0xffff
@@ -124,31 +129,26 @@ upkeyu: ;key=0x1000|(evt.key.keysym.sym&0xffff)|evt.key.keysym.sym>>16;break;
   or eax,0x1000
   or eax,ebx
   mov [SYSKEY],eax
-  pop rbp rax
-  ret
+  jmp loopev
 upmobd: ;bm|=evt.button.button;break;
   movzx eax,byte[evt.button.button]
   or [SYSBM],eax
-  pop rbp rax
-  ret
+  jmp loopev
 upmobu: ;bm&=~evt.button.button;break;
   movzx eax,[evt.button.button]
   not eax
   and [SYSBM],eax
-  pop rbp rax
-  ret
+  jmp loopev
 upmomo: ;xm=evt.motion.x;ym=evt.motion.y;break;
   mov eax,[evt.motion.x]
   mov [SYSXM],eax
   mov eax,[evt.motion.y]
   mov [SYSYM],eax
-  pop rbp rax
-  ret
+  jmp loopev
 uptext: ;keychar=*(int*)evt.text.text;break;
   movzx eax,byte[evt.text.text]
   mov [SYSCHAR],eax
-  pop rbp rax
-  ret
+  jmp loopev
 
 ;===============================================
 SYSMSEC: ;  ( -- msec )
@@ -210,70 +210,34 @@ SYSLOAD:
 ;===============================================
 align 16
 SYSSAVE: ; ( 'from cnt "filename" -- )
-  invoke SDL_RWFromFile,rax,"wb+"
+  invoke SDL_RWFromFile,rax,"wb"
   mov [afile],rax
   or rax,rax
   jz .fend
   mov rbx,[rbp]
   mov rsi,[rbp-8]
-  invoke SDL_RWwrite,[afile],rsi,rbx
+  invoke SDL_RWwrite,[afile],rsi,rbx,1
   invoke SDL_RWclose,[afile]
 .fend:
   mov rax,[rbp-8*2]
   sub rbp,8*3
   ret
-
-
-;  invoke CreateFile,rax,GENERIC_WRITE,0,0,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,0
-;  mov [hdir],rax
-;  or rax,rax
-;  jz .saveend
-;  mov rdx,[rbp-8]
-;  mov rcx,[rbp]
-;  invoke WriteFile,[hdir],rdx,rcx,cntr,0
-;  cmp [cntr],rcx
-;  je .saveend
-;  or rax,rax
-;  jz .saveend
-;  invoke CloseHandle,[hdir]
-;.saveend:
-;  sub rbp,24
-;  mov rax,[rbp+8]
-;  ret
 
 ;===============================================
 align 16
 SYSAPPEND: ; ( 'from cnt "filename" -- )
-  invoke SDL_RWFromFile,rax,"wb+"
+  invoke SDL_RWFromFile,rax,"ab"
   mov [afile],rax
   or rax,rax
   jz .fend
   mov rbx,[rbp]
   mov rsi,[rbp-8]
-  invoke SDL_RWwrite,[afile],rsi,rbx
+  invoke SDL_RWwrite,[afile],rsi,rbx ,1
   invoke SDL_RWclose,[afile]
 .fend:
   mov rax,[rbp-8*2]
   sub rbp,8*3
   ret
-
-;;        mov rax,[rsp+8] ;FILE_APPEND_DATA=4
-;  invoke CreateFile,eax,4,0,0,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,0
-;  mov [hdir],rax
-;  or rax,rax
-;  jz .append
-;  mov rdx,[rbp-8]
-;  mov rcx,[rbp]
-;  invoke WriteFile,[hdir],rdx,rcx,cntr,0
-;  cmp [cntr],rcx
-;  je .append
-;  or rax,rax
-;  jz .append
-;  invoke CloseHandle,[hdir]
-;.append:
-;  sub rbp,24
-;  mov rax,[rbp+8]
-;  ret
 
 ;===============================================
 SYSFFIRST: ; ( "path" -- fdd ) ;****** r4 32 bits
@@ -320,49 +284,102 @@ SYSFNEXT: ; ( -- fdd/0) ;****** r4 32 bits
 
 
 ;===============================================
-SYSYSTEM:	;****** r4 32 bits
-	or rax,rax
-	jnz .no0
-	mov rax,[ProcessInfo.hProcess]
-	or rax,rax
-	jz .termp
-	invoke TerminateProcess,eax,0
-	invoke CloseHandle,[ProcessInfo.hThread]
-	invoke CloseHandle,[ProcessInfo.hProcess]
-	xor rax,rax
-    mov [ProcessInfo.hProcess],rax
-.termp:
-	mov eax,-1
-	ret
-.no0:
-	cmp eax,-1
-	jne .non
-	mov rax,[ProcessInfo.hProcess]
-	or rax,rax
-	jz .end
-	invoke WaitForSingleObject,[ProcessInfo.hProcess],0
-	cmp eax,WAIT_TIMEOUT
-	jne .termp
-	xor rax,rax
-	ret
-.non:
+SYSYSTEM:
 	push rax
 	push rdi
 	push rcx
+;	invoke ZeroMemory,StartupInfo,StartupInfo.size
 	xor rax,rax
 	mov edi,StartupInfo
 	mov ecx,17
 	rep stosd
-;	invoke ZeroMemory,StartupInfo,StartupInfo.size
 	mov eax,17*4
 	mov [StartupInfo.cb],eax
 	pop rcx
 	pop rdi
 	pop rax
 	invoke CreateProcess,0,eax,0,0,FALSE, 0x08000000,0,0,StartupInfo,ProcessInfo
-.end:
+	mov rax,[ProcessInfo.hProcess]
+;	invoke WaitForSingleObject,[ProcessInfo.hProcess],INFINITE
 	ret
 
+;===============================================
+;	TOS=(int64_t)Mix_LoadWAV((char *)TOS);
+; #define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
+align 16
+SYSSLOAD:
+	invoke SDL_RWFromFile,rax,"rb" ;  *************
+	invoke Mix_LoadWAV_RW,rax,1
+	ret
+
+;===============================================
+;	TOS=(int64_t)Mix_LoadMUS((char *)TOS);
+align 16
+SYSMLOAD:
+	cinvoke Mix_LoadMUS,rax
+    ret
+
+;===============================================
+;        if (TOS!=0)
+;			Mix_PlayChannel(-1,(Mix_Chunk *)TOS, 0);
+;      else for(int i=0;i<8;i++)
+;			/*if (i!=mix_movie_channel) */Mix_HaltChannel(i);
+align 16
+SYSSPLAY:
+	or rax,rax
+	jz .halt
+	cinvoke Mix_PlayChannelTimed,-1,rax,0,-1
+	jmp .end
+.halt:
+	mov rcx,8
+.lc:
+	sub rcx,1
+	cinvoke Mix_HaltChannel,rcx
+	or rcx,rcx
+	jnz .lc
+.end:
+	mov rax,[rbp-8]
+	sub rbp,8
+	ret
+
+;===============================================
+;        if (TOS!=0)
+;			Mix_PlayMusic((Mix_Music *)TOS, 0);
+;        else
+;			Mix_HaltMusic();
+align 16
+SYSMPLAY:
+	or rax,rax
+	jz .halt
+	cinvoke Mix_PlayMusic,rax,0
+	jmp .end
+.halt:
+	cinvoke Mix_HaltMusic
+.end:
+	mov rax,[rbp-8]
+	sub rbp,8
+	ret
+
+;===============================================
+;    	Mix_FreeChunk((Mix_Chunk *)TOS);
+align 16
+SYSSFREE:
+	cinvoke Mix_FreeChunk,rax
+	mov rax,[rbp-8]
+	sub rbp,8
+	ret
+
+;===============================================
+;    	Mix_FreeMusic((Mix_Music *)TOS);
+align 16
+SYSMFREE:
+	cinvoke Mix_FreeMusic,rax
+	mov rax,[rbp-8]
+	sub rbp,8
+	ret
+
+;-----------------------------------------------
+;-----------------------------------------------
 section '.data' data readable writeable
 
   _title db "r3d",0
@@ -380,15 +397,16 @@ section '.data' data readable writeable
   evt SDL_Event
   fdd WIN32_FIND_DATAA
 
-	ProcessInfo	PROCESS_INFORMATION
-	StartupInfo STARTUPINFO
+  ProcessInfo PROCESS_INFORMATION
+  StartupInfo STARTUPINFO
 
-
+align 16
   SYSXM          dd ?
   SYSYM          dd ?
   SYSBM          dd ?
   SYSKEY         dd ?
   SYSCHAR        dd ?
+align 16
   SYSFRAME       dq ? ;rd XRES*YRES
   FREE_MEM       dq ?
   DATASTK        rq 256
@@ -403,7 +421,9 @@ section '.idata' import readable
 
   library kernel32,'KERNEL32',\
           user32,'USER32',\
-          sdl2,'SDL2'
+          sdl2,'SDL2',\
+          sdl2mixer,'SDL2_mixer'
   include 'include\api\kernel32.inc'
   include 'include\api\user32.inc'
   include 'sdl2_api.inc'
+  include 'sdl2_mixer_api.inc'
