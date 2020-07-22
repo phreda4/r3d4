@@ -1,18 +1,18 @@
 # r3 programming language
 
-r3 is a concatenative language of the forth family, more precisely it takes elements of ColorForth, the colors that have the words internally are encoded by a prefix, in r3 this prefix is explicit.
+r3 is a concatenative language of the forth family, more precisely it takes elements of ColorForth. Word colors are encoded by a prefix: in r3 this prefix is explicit.
 
-This repository has a windows (r3.exe) and a linux version (r3lin)
+This repository has a windows (r3.exe) and a linux version (r3lin). There are first versions for the web (emscripten) and the Raspberry Pi.
 
-Remember "chmod +x ./r3lin" to make the file executable in Linux.
+For Linux, remember the command "chmod +x ./r3lin" to make the file executable.
 
 ## How the language works
 
-WORD is defined as a sequence of letters separated by spaces, there are three exceptions to improve the expressiveness of the language that are seen later
+A WORD is defined as a sequence of letters separated by spaces, there are three exceptions to improve the expressiveness of the language that are seen later.
 
 Each word can be a number or is searched in the DICTIONARY.
 
-If it is a valid number, in decimal, binary (%), hexa ($) or fixed point (0.1) this value is pushed to DATA STACK.
+If it is a valid number, in decimal, binary (%), hexa ($) or fixed point (0.1) its value is pushed to DATA STACK.
 
 Like all FORTH, the DATA STACK is the memory structure used to perform intermediate calculations and pass parameters between words.
 
@@ -136,7 +136,7 @@ Q+!	| a b --
 
 ## Help registers facility
 
-Registers for keep values to traverse memory and read, copy or fill values
+Registers to traverse memory and read, copy or fill values
 
 ```
 >A	| a --
@@ -261,7 +261,7 @@ In: r4 could be constructed as follows
 
 ```
 ...
-1? ( nocero )( zero )
+1? ( notzero )( zero )
 follow
 ```
 
@@ -275,7 +275,7 @@ choice
 follow
 ```
 
-Sometimes it happens that rethinking code logic avoids ELSE without the need to do this factoring. There are also tricks with bit that allow you to avoid conditionals completely but this no longer depends on the language.
+Sometimes it happens that rethinking code logic avoids ELSE without the need to do this factoring. There are also tricks with bit operations that allow you to avoid conditionals completely but this no longer depends on the language.
 
 Another feature to note that it is possible to perform a WHILE with multiple output conditions at different points, I do not know that this construction exists in another language, in fact it emerged when the way to detect the IF and WHILE was defined
 
@@ -289,7 +289,7 @@ Another feature to note that it is possible to perform a WHILE with multiple out
 Does this repetition meet that the byte obtained is not 0 ` 1? ` and that is not 13 ` 13 <>? `, in any of the two conditions the WHILE ends
 
 Another possible construction, that if it is in other FORTH, is the definition that continues in the following.
-For example, define1 sum 3 to the stack while defining2 sum 2.
+For example, define1 adds 3 to the top of the stack while define2 adds 2.
 
 ```
 :define1 | n -- n+3
@@ -300,7 +300,7 @@ For example, define1 sum 3 to the stack while defining2 sum 2.
 
 ## Recursion
 
-The recursion occurs naturally, when the word is defined with ` : ` it appears in the dictionary and it is possible to call it even when this definition is not closed.
+Recursion occurs naturally, when the word is defined with ` : ` it appears in the dictionary and it is possible to call it even when its definition is not closed.
 
 ```
 :fibonacci | n -- f
@@ -310,7 +310,7 @@ The recursion occurs naturally, when the word is defined with ` : ` it appears i
 
 ## Call Optimization
 
-When the last words before a `;` It is a word defined by the programmer, both in the interpreter and in the compiler, this call is translate to JMP or jump and not with a CALL or call with return, this is commonly called TAIL CALL and saves a return in the chain of words called.
+When the last word before a `;` is a word defined by the programmer, both in the interpreter and in the compiler, the call is translated into JMP or jump and not with a CALL or call with return, this is commonly called TAIL CALL and saves a return in the chain of words called.
 
 This feature can convert a recursion into a loop with no callback cost, the following definition has no impact on the return stack.
 
