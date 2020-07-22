@@ -1,12 +1,12 @@
-# r3 programing language
+# r3 programming language
 
-r3 is a concatenative language of the forth family, more precisely it takes elements of the ColorForth, the colors that have the words internally are encoded by a prefix, in r3 this prefix is explicit.
+r3 is a concatenative language of the forth family, more precisely it takes elements of ColorForth, the colors that have the words internally are encoded by a prefix, in r3 this prefix is explicit.
 
-This repository have the windows (r3.exe) and linux version (r3lin)
+This repository has a windows (r3.exe) and a linux version (r3lin)
 
-For linux remember "chmod +x ./r3lin" for make executable the file.
+Remember "chmod +x ./r3lin" to make the file executable in Linux.
 
-## How language work
+## How the language works
 
 WORD is defined as a sequence of letters separated by spaces, there are three exceptions to improve the expressiveness of the language that are seen later
 
