@@ -33,11 +33,13 @@
 :FNAME | adr -- adrname
 |WIN| 44 +
 |LIN| 19 +
+|RPI| 11 +
 	;
 
 :FDIR? | adr -- 1/0
 |WIN| @ 4 >>
 |LIN| 18 + c@ 2 >>
+|RPI| 10 + c@ 2 >>
 	1 and ;
 
 :FINFO | adr -- adr info
@@ -256,6 +258,7 @@
 	'path
 |WIN| "r3 ""%s/%s"""
 |LIN| "./r3lin ""%s/%s"""
+|RPI| "./r3rpi ""%s/%s"""
 	sprint sys
 	;
 
@@ -267,6 +270,7 @@
 	'name 1024 "mem/main.mem" save
 |WIN| "r3 r3/editor/code-edit.r3"
 |LIN| "./r3lin r3/editor/code-edit.r3"
+|RPI| "./r3rpi r3/editor/code-edit.r3"
 	 sys
 	;
 
@@ -302,6 +306,7 @@
 
 |WIN| "r3 r3/editor/code-edit.r3"
 |LIN| "./r3lin r3/editor/code-edit.r3"
+|RPI| "./r3rpi r3/editor/code-edit.r3"
 	sys
 
 	rebuild
