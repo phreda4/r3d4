@@ -4,7 +4,7 @@ r3 is a concatenative language of the forth family, more precisely it takes elem
 
 This repository has a windows (r3.exe) and a linux version (r3lin). There are first versions for the web (emscripten) and the Raspberry Pi.
 
-For Linux, remember the command "chmod +x ./r3lin" to make the file executable.
+For Linux and Raspberry Pi, remember to run "chmod +x" on the executable file.
 
 ## How the language works
 
