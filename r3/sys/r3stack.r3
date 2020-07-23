@@ -308,7 +308,7 @@
 	,cr ;
 
 |-------------------------------------------
-#stacknow
+##stacknow
 
 #stks * 256 		| stack of stack 64 levels
 #stks> 'stks
@@ -485,74 +485,69 @@
 	"add rbp," ,s ,d "*8" ,s ,cr
     'cellRBP stackmap drop ;
 
-:scanuse | to from -- to from here
-	a> ( NOS 4 + <=? @+ | t f 'a c
-		pick3 =? ( drop 4 - ; ) drop
-		) drop 0 ;
+|-------------------
+:reeplace |
+	;
 
-:resolveADR | from -- from'
+:cellregu | cnt to' to from -- cnt to'
+	over a> 4 - !
+	swap
+	"xor " ,s ,cell "," ,s ,cell ,cr
+	;
+
+:cellstku | cnt to' to from -- cnt to'
+	over a> 4 - !
+	swap
+	"xor " ,s ,cell "," ,s ,cell ,cr
+	;
+
+:cellused | cnt to' to from -- cnt to'
+
 	dup $f and
+	5 =? ( drop cellregu ; )
+	6 =? ( drop cellstku ; )
 	drop
+	"error" ,s ,cr
 	;
 
-:cellreguse | to from here --
-	over swap !
-	"xchg " ,s ,cell "," ,s ,cell ,cr
+:cellreg | cnt to' to from -- cnt to'
+	over a> 4 - !
+	swap
+	"mov " ,s ,cell "," ,s ,cell ,cr
 	;
-
-:cellreg | toREG from --
-	scanuse 1? ( cellreguse ; ) drop
+:cellstk | cnt to' to from -- cnt to'
+	over a> 4 - !
 	swap
 	"mov " ,s ,cell "," ,s ,cell ,cr
 	;
 
-:cellstkuse | to from here --
-	over $f and
-	5 =? ( drop cellreguse ; )
+:cellcpy | cnt to' to from -- cnt to'
+	over =? ( 2drop ; )
+	pick3 a>
+	( swap 1? 1 - swap
+		@+ pick4 =? ( 3drop cellused ; )
+		drop ) 2drop
+	dup $f and
+	5 =? ( drop cellreg ; )
+	6 =? ( drop cellstk ; )
 	drop
-	newreg
-	8 << 5 or dup
-	rot !	| to from reg
-	dup
-	"mov " ,s ,cell "," ,s swap ,cell ,cr
-	"xchg " ,s ,cell "," ,s ,cell ,cr
-	;
-
-:cellstk | toSTK from --
-	scanuse 1? ( cellstkuse ; ) drop
-	resolveADR
-	swap
-	"mov " ,s ,cell "," ,s ,cell ,cr
-	;
-
-:cellcpy | to from --
-	over =? ( 2drop ; )	| ya esta
-	over $f and
-    5 =? ( drop cellreg ; )
-    6 =? ( drop cellstk ; )
-    3drop
-    "; error stk dest reg/stk!!" ,ln
+	"error" ,s ,cr
 	;
 
 :stk.cnv | 'adr --
 	cell.fillreg
-	@+
-	stacknow over - shiftrbp
-	'stacknow !
+	@+ stacknow over - shiftrbp 'stacknow !
 	TOS NOS 4 + ! 	| TOS in PSP
-	@+ 2 >>
-|	NOS 'PSP - <>? ( ; )	| diferent size
+	@+ 2 >> |	NOS 'PSP - <>? ( ; )	| diferent size
 	'PSP 8 + >a
-	( 1? swap
+	( 1? 1 - swap
 		@+ a@+ cellcpy 		| to from
-		swap 1 - ) 2drop
+		swap ) 2drop
 	NOS 4 + @ 'TOS !
 	;
 
 ::stk.conv | --
-|	";>> CONV >>" ,s ,printstk ,cr
 	stks> 4 - @ stk.cnv
-|	";<< CONV <<" ,s ,printstk ,cr
 	;
 
 ::IniStack
@@ -597,8 +592,7 @@
 
 ::stk.normal | --
 	stack.cnt fillnormal
-	'stacknormal stk.cnv
-	stack.cnt stk.setnormal ;
+	'stacknormal stk.cnv ;
 
 |------------------------------------
 | remove stack constant to register
