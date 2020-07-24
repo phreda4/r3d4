@@ -2,7 +2,7 @@
 (	| ; Start block to build IF and WHILE
 )	| ; End block to build IF and WHILE
 [	| ; Start nameless definition
-]	| ; End nameless definitions
+]	| -- v	; End nameless definitions
 EX	| v --	; Run a word through your address
 0?	| a -- a 	; is TOS=Zero? conditional
 1?	| a -- a 	; is TOS<>Zero? conditional

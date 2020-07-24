@@ -23,8 +23,10 @@
 	-1 PUSH.STK
 	-2 PUSH.STK
 	1 push.reg
+	-1 'stacknow +!
 	stk.push
 	,printstk ,cr
+
 |--------------------------------
 
 	stk.normal

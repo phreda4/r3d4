@@ -486,24 +486,38 @@
     'cellRBP stackmap drop ;
 
 |-------------------
-:reeplace |
+:reeplaceall | cnt to' to from -- cnt to' to from
+	pick3 a> 			| cnt 'from
+	( swap 1? 1 - swap
+		@+ pick4 =? ( pick3 pick2 4 - ! )
+		drop ) 2drop ;
+
+:needreg | from -- from
+	dup $f and
+	5 =? ( drop ; )
+	drop
+|	cell.fillreg
+	newreg 8 << 5 or	| from reg
+	"mov " ,s dup ,cell "," ,s swap ,cell ,cr
 	;
 
 :cellregu | cnt to' to from -- cnt to'
+	reeplaceall
 	over a> 4 - !
 	swap
 	"xor " ,s ,cell "," ,s ,cell ,cr
 	;
 
 :cellstku | cnt to' to from -- cnt to'
+	needreg
+	reeplaceall
 	over a> 4 - !
 	swap
 	"xor " ,s ,cell "," ,s ,cell ,cr
 	;
 
 :cellused | cnt to' to from -- cnt to'
-
-	dup $f and
+	over $f and
 	5 =? ( drop cellregu ; )
 	6 =? ( drop cellstku ; )
 	drop
@@ -516,6 +530,7 @@
 	"mov " ,s ,cell "," ,s ,cell ,cr
 	;
 :cellstk | cnt to' to from -- cnt to'
+	needreg
 	over a> 4 - !
 	swap
 	"mov " ,s ,cell "," ,s ,cell ,cr
@@ -527,7 +542,7 @@
 	( swap 1? 1 - swap
 		@+ pick4 =? ( 3drop cellused ; )
 		drop ) 2drop
-	dup $f and
+	over $f and
 	5 =? ( drop cellreg ; )
 	6 =? ( drop cellstk ; )
 	drop
@@ -542,6 +557,7 @@
 	'PSP 8 + >a
 	( 1? 1 - swap
 		@+ a@+ cellcpy 		| to from
+|		">>" ,s	,printstk ,cr
 		swap ) 2drop
 	NOS 4 + @ 'TOS !
 	;
@@ -751,6 +767,19 @@
 
 |--------------------------------------
 |--------------------------------------
+:bignumber | 'cell --
+	dup @ $ff and
+	1? ( 2drop ; ) drop
+	dup @ 8 >> 3 << 'stkvalue + q@
+	dup 32 << 32 >>
+	=? ( 2drop ; ) 
+	cell.fillreg | search unused reg
+	newreg 8 << 5 or | 'cell val reg
+	"mov " ,s dup ,cell ",$" ,s swap ,h ,cr
+	swap !
+	;
+
+
 ::stk.G
 	TOS $ff and
 	4 =? ( 7 nip )
@@ -784,6 +813,7 @@
 	.swap .rot .drop ;
 
 ::stk.RG | ; rxx ggg
+	'TOS bignumber
 	NOS @
 	$ff and $5 =? ( drop stk.NOSnocpy ; ) drop
 	.dupnew
