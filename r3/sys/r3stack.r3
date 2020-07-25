@@ -496,7 +496,6 @@
 	dup $f and
 	5 =? ( drop ; )
 	drop
-|	cell.fillreg
 	newreg 8 << 5 or	| from reg
 	"mov " ,s dup ,cell "," ,s swap ,cell ,cr
 	;
@@ -624,6 +623,7 @@
 	;
 
 ::stk.resolve | --
+	cell.fillreg
 	'allreg stackmap
 	;
 
@@ -664,6 +664,7 @@
 
 
 :needvar32
+	cell.fillreg
 	newreg 8 << 5 or
 	"movsxd " ,s dup ,cell "," ,s over @ ,cell ,cr
 	swap ! ;

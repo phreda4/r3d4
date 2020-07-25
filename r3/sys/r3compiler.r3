@@ -46,22 +46,20 @@
 	" pass1" slog
 	nip src |...
 	r3-stage-1
+
 	error 1? ( "ERROR %s" slog lerror "%l" slog ; ) drop
 	cntdef cnttokens "toks:%d def:%d" slog
-	" pass2" slog
-	r3-stage-2
+
+	" pass2" slog r3-stage-2
+
 	1? ( "ERROR %s" slog lerror "%l" slog ; ) drop
 	code> code - 2 >> "..code:%d" slog
-	" pass3" slog
-	r3-stage-3
-	" pass4" slog
-	r3-stage-4
-	" gencode" slog
-	r3-gencode
-	" genset" slog
-	r3-genset
-	" gendata" slog
-	r3-gendata
+
+	" pass3" slog r3-stage-3
+	" pass4" slog r3-stage-4
+	" gencode" slog r3-gencode
+	" genset" slog r3-genset
+	" gendata" slog r3-gendata
 	;
 
 :no10place | adr

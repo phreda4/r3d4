@@ -2,7 +2,7 @@
 | PHREDA 2018
 |
 ^./r3base.r3
-^./r3cellana.r3
+|^./r3cellana.r3
 
 ^./r3asm0.r3
 |^./r3asm1.r3
@@ -578,17 +578,17 @@ iMLOAD iMFREE iMPLAY
 |    ";---------ANA" ,ln |----- cell analisys
 |		"asm/code.asm" savememinc | debug
 
-	dup 12 + @ $f and
-	anaDeepStack
-	'bcode ( bcode> <?
-		@+
+|	dup 12 + @ $f and
+|	anaDeepStack
+|	'bcode ( bcode> <?
+|		@+
 
 |		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
 |		"asm/code.asm" savememinc | debug
 
-		anastep
-		) drop
-    anaend
+|		anastep
+|		) drop
+ |   anaend
 
 |	cellinfo
 
