@@ -1,4 +1,4 @@
-| teris r3
+| tetris r3
 | PHREDA 2020
 |-------------------
 ^r3/lib/gui.r3
@@ -41,7 +41,7 @@
 	   swap 8 >> 4 << 100 +
 	   ;
 
-:draw_block | ( x y -- ) draws one square block
+:draw_block | ( y x -- ) draws one square block
 	2dup op
 	over 15 + over pline
 	over 15 + over 15 + pline
@@ -69,28 +69,26 @@
 :inmask | ( v1 -- v2) look up v1-th value in mask
 	2 << 'mask + @ ;
 
-:j2t | ( v -- )
+:translate_block | ( v -- )
 	inmask playeryx + ;
 
-:j2f | ( v -- )
-	j2t
-	packed2yx
-	draw_block ;
+:draw_player_block | ( v -- )
+		   translate_block packed2yx draw_block ;
 
 :draw_player | ( --- )
 	playercolor 'ink !
-	'player @+ j2f @+ j2f @+ j2f @ j2f ;
+	'player @+ draw_player_block @+ draw_player_block @+ draw_player_block @ draw_player_block ;
 
 :nthcolor | ( n -- color )
 	  2 << 'colors + @ ;
 
-:dpf
-	inmask 15 + packed2yx draw_block ;
+:draw_nextpiece_block | ( v -- )
+		      inmask 15 + packed2yx draw_block ;
 	  
 :draw_nextpiece
 	nextpiece dup nthcolor 'ink !
 	1 - 4 << 'pieces +
-	@+ dpf @+ dpf @+ dpf @ dpf ;
+	@+ draw_nextpiece_block @+ draw_nextpiece_block @+ draw_nextpiece_block @ draw_nextpiece_block ;
 
 :rand1.7 | -- rand1..7
     ( rand dup 16 >> xor $7 and 0? drop ) ;
@@ -105,36 +103,33 @@
 	rand1.7 'nextpiece !
 	;
 
-:coord2f | coord -- realcoord
+:packed2gridptr | coord -- realcoord
 	dup $f and 1 - | x
 	swap 8 >> 10 * +
 	2 << 'grid + ;
 
-:check | pos -- 0/pos
+:block_collision? | pos -- 0/pos
 	$1400 >? ( drop 0 ; )
-	dup coord2f @ 1? ( 2drop 0 ; ) drop
+	dup packed2gridptr @ 1? ( 2drop 0 ; ) drop
 	$ff and
 	0? ( drop 0 ; )
 	10 >? ( drop 0 ; )
 	;
 
-:collision | suma -- sumareal ; 0 there was a collision
+:piece_collision? | suma -- sumareal ; 0 there was a collision
 	'player
-	@+ j2t pick2 + check 0? ( nip nip ; ) drop
-	@+ j2t pick2 + check 0? ( nip nip ; ) drop
-	@+ j2t pick2 + check 0? ( nip nip ; ) drop
-	@ j2t over + check 0? ( nip ; ) drop
+	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
+	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
+	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
+	@ translate_block over + block_collision? 0? ( nip ; ) drop
 	;
 
-:rcollision | ( -- 0/1 ) would there be a collision if I rotated the current piece?
+:piece_rcollision? | ( -- 0/1 ) would there be a collision if I rotated the current piece?
 	'player
-	@+ 2 << 'rotate> + @ j2t check 0? ( nip ; ) drop
-	@+ 2 << 'rotate> + @ j2t check 0? ( nip ; ) drop
-	@+ 2 << 'rotate> + @ j2t check 0? ( nip ; ) drop
-	@ 2 << 'rotate> + @ j2t check ;
-
-:j2tt | ( -- )
-	j2t coord2f playercolor swap ! ;
+	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
+	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
+	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
+	@ 2 << 'rotate> + @ translate_block block_collision? ;
 
 #combo
 #combop 0 40 100 300 1200
@@ -156,22 +151,25 @@
 	combo @ 'points +!
 	;
 
-:fixed
-	'player @+ j2tt @+ j2tt @+ j2tt @ j2tt
+:write_block | ( v -- )
+	translate_block packed2gridptr playercolor swap ! ;
+
+:stopped
+	'player @+ write_block @+ write_block @+ write_block @ write_block
 	testline
 	new_piece
 	;
 
 :logic
-	$100 collision 0? ( drop fixed ; )
+	$100 piece_collision? 0? ( drop stopped ; )
 	'playeryx +!
 	;
 
 :translate
-	collision 'playeryx +! ;
+	piece_collision? 'playeryx +! ;
 
 :rotate
-	rcollision 0? ( drop ; ) drop
+	piece_rcollision? 0? ( drop ; ) drop
 	rotate_piece ;
 
 #ntime
