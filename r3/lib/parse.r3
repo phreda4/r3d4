@@ -26,9 +26,9 @@
 	drop 1 - swap ;
 
 ::str%>nro | adr -- adr' nro
-	0 swap ( c@+ $2f >?
+	0 swap ( c@+ $2e >=?
 		$31 >? ( drop 1 - swap ; )
-		$30 - rot 1 << + swap )
+		$30 - $1 and rot 1 << + swap )
 	drop 1 - swap ;
 
 ::str>nro | adr -- adr' nro ;1234 $12f %101 -12
@@ -152,7 +152,7 @@
 	33 <? ( 2drop 1 ; ) 2drop 0 ;
 
 ::isBin | adr -- 1/0
-	( c@+ $2f >?
+	( c@+ $2e >=?
 		$31 >? ( 2drop 0 ; )
 		drop )
 	33 <? ( 2drop 1 ; ) 2drop 0 ;
