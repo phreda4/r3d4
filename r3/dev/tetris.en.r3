@@ -36,12 +36,12 @@
 #nextpiece 0
 #speed 300
 
-:packed2yx | n -- y x
+:packed2xy | n -- x y
 	   dup $ff and 4 << 50 +
 	   swap 8 >> 4 << 100 +
 	   ;
 
-:draw_block | ( y x -- ) draws one square block
+:draw_block | ( x y -- )
 	2dup op
 	over 15 + over pline
 	over 15 + over 15 + pline
@@ -50,7 +50,7 @@
 
 :visit_block | ( y x -- y x )
 	a@+ 0? ( drop ; ) 'ink !
-	2dup or packed2yx draw_block ;
+	2dup or packed2xy draw_block ;
 
 :draw_grid | ( --- )
 	'grid >a
@@ -60,35 +60,46 @@
 			1 + ) drop
 		$100 + ) drop ;
 
-:rotate_block | ( adr -- v adr  ) compute rotated position of a single block
+:rotate_block | ( adr -- v adr  )
 	dup @ 2 << 'rotate> + @ swap ;
 
-:rotate_piece | ( --- ) rotate the current piece
-	'player rotate_block !+ rotate_block !+ rotate_block !+ rotate_block ! ;
+:rotate_piece | ( --- )
+	'player
+	rotate_block !+
+	rotate_block !+
+	rotate_block !+
+	rotate_block ! ;
 
-:inmask | ( v1 -- v2) look up v1-th value in mask
+:inmask | ( v1 -- v2)
 	2 << 'mask + @ ;
 
 :translate_block | ( v -- )
 	inmask playeryx + ;
 
 :draw_player_block | ( v -- )
-		   translate_block packed2yx draw_block ;
+		   translate_block packed2xy draw_block ;
 
 :draw_player | ( --- )
 	playercolor 'ink !
-	'player @+ draw_player_block @+ draw_player_block @+ draw_player_block @ draw_player_block ;
+	'player
+	@+ draw_player_block
+	@+ draw_player_block
+	@+ draw_player_block
+	@ draw_player_block ;
 
 :nthcolor | ( n -- color )
 	  2 << 'colors + @ ;
 
 :draw_nextpiece_block | ( v -- )
-		      inmask 15 + packed2yx draw_block ;
+		      inmask 15 + packed2xy draw_block ;
 	  
 :draw_nextpiece
 	nextpiece dup nthcolor 'ink !
 	1 - 4 << 'pieces +
-	@+ draw_nextpiece_block @+ draw_nextpiece_block @+ draw_nextpiece_block @ draw_nextpiece_block ;
+	@+ draw_nextpiece_block
+	@+ draw_nextpiece_block
+	@+ draw_nextpiece_block
+	@ draw_nextpiece_block ;
 
 :rand1.7 | -- rand1..7
     ( rand dup 16 >> xor $7 and 0? drop ) ;
@@ -116,7 +127,7 @@
 	10 >? ( drop 0 ; )
 	;
 
-:piece_collision? | suma -- sumareal ; 0 there was a collision
+:piece_collision? | ( v -- v/0 )
 	'player
 	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
 	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
@@ -124,7 +135,7 @@
 	@ translate_block over + block_collision? 0? ( nip ; ) drop
 	;
 
-:piece_rcollision? | ( -- 0/1 ) would there be a collision if I rotated the current piece?
+:piece_rcollision? | ( -- 0/x )
 	'player
 	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
 	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
@@ -155,7 +166,11 @@
 	translate_block packed2gridptr playercolor swap ! ;
 
 :stopped
-	'player @+ write_block @+ write_block @+ write_block @ write_block
+	'player
+	@+ write_block
+	@+ write_block
+	@+ write_block
+	@ write_block
 	testline
 	new_piece
 	;
