@@ -38,19 +38,24 @@
 :drawdigit | n --
 	5 * 'digits + drawd ;
 
+:xy>v | x y -- v
+	sw * + 2 << vframe + ;
+
 :main
 	cls
+
 	msec 7 >>
 
 	dup 10 / 10 mod
-	30 10 xy>v >a
+
+	20 20 xy>v >a
 	drawdigit
 
 	10 mod
-	35 10 xy>v >a
+	xypen xy>v >a
 	drawdigit
 
-	key 27 =? ( exit ) drop
+	key >esc< =? ( exit ) drop
 	;
 
 :

@@ -272,9 +272,12 @@
 		swap c@+
 		$80 ( 1? over setpix 1 >> ) 2drop
 		pick2 a+
-		swap )
-	sw 6 << 32 - neg a+
-	3drop ;
+		swap ) 3drop ;
 
 ::size8pc | c -- s
   8 nip ;
+
+::fontpc
+	8 'ccw ! 16 'cch !
+	'char8pc 'size8pc font!
+	calcrowcol ;

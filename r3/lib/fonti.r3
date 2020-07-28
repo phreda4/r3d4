@@ -274,12 +274,10 @@
 		swap c@+
 		$80 ( 1? over setpix 1 >> ) 2drop
 		pick2 a+
-		swap )
-	sw 2 << dup 1 << + 2 << 32 - neg a+
-	3drop ;
+		swap ) 3drop ;
 
 ::size8i | -- s
-  8 nip ;
+	8 nip ;
 
 |---------------- ICON
 
