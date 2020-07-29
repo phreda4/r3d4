@@ -114,14 +114,14 @@
 	rand1.7 'nextpiece !
 	;
 
-:packed2gridptr | coord -- realcoord
+:packed2grid | coord -- realcoord
 	dup $f and 1 - | x
 	swap 8 >> 10 * +
 	2 << 'grid + ;
 
 :block_collision? | pos -- 0/pos
 	$1400 >? ( drop 0 ; )
-	dup packed2gridptr @ 1? ( 2drop 0 ; ) drop
+	dup packed2grid @ 1? ( 2drop 0 ; ) drop
 	$ff and
 	0? ( drop 0 ; )
 	10 >? ( drop 0 ; )
@@ -132,15 +132,18 @@
 	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
 	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
 	@+ translate_block pick2 + block_collision? 0? ( nip nip ; ) drop
-	@ translate_block over + block_collision? 0? ( nip ; ) drop
+	@  translate_block over  + block_collision? 0? ( nip ; ) drop
 	;
+
+:rotate_block | ( --- )
+	      2 << 'rotate> + @ ;
 
 :piece_rcollision? | ( -- 0/x )
 	'player
-	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
-	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
-	@+ 2 << 'rotate> + @ translate_block block_collision? 0? ( nip ; ) drop
-	@ 2 << 'rotate> + @ translate_block block_collision? ;
+	@+ rotate_block translate_block block_collision? 0? ( nip ; ) drop
+	@+ rotate_block translate_block block_collision? 0? ( nip ; ) drop
+	@+ rotate_block translate_block block_collision? 0? ( nip ; ) drop
+	@  rotate_block translate_block block_collision? ;
 
 #combo
 #combop 0 40 100 300 1200
@@ -163,9 +166,9 @@
 	;
 
 :write_block | ( v -- )
-	translate_block packed2gridptr playercolor swap ! ;
+	translate_block packed2grid playercolor swap ! ;
 
-:stopped
+:blocked
 	'player
 	@+ write_block
 	@+ write_block
@@ -176,7 +179,7 @@
 	;
 
 :logic
-	$100 piece_collision? 0? ( drop stopped ; )
+	$100 piece_collision? 0? ( drop blocked ; )
 	'playeryx +!
 	;
 
