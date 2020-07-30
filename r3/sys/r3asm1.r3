@@ -402,7 +402,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rsi,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
-
+|.................... RDI RSI RCX
 	"rep movsd" ,ln
 	.3DROP ;
 
@@ -410,6 +410,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rsi,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RSI RCX
 	"lea rsi,[rsi+rcx*4-4]" ,ln
 	"lea rdi,[rdi+rcx*4-4]" ,ln
 	"std" ,ln
@@ -421,6 +422,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rax,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RAX RCX
 	"rep stosd" ,ln
 	.3DROP ;
 
@@ -428,6 +430,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rsi,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RSI RCX
 	"rep movsb" ,ln
 	.3DROP ;
 
@@ -435,6 +438,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rsi,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RSI RCX
 	"lea rsi,[rsi+rcx-1]" ,ln
 	"lea rdi,[rdi+rcx-1]" ,ln
 	"std" ,ln
@@ -446,6 +450,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rax,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RAX RCX
 	"rep stosb" ,ln
 	.3DROP ;
 
@@ -453,6 +458,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rsi,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RSI RCX
 	"rep movsq" ,ln
 	.3DROP ;
 
@@ -460,6 +466,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rsi,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RSI RCX
 	"lea rsi,[rsi+rcx*8-8]" ,ln
 	"lea rdi,[rdi+rcx*8-8]" ,ln
 	"std" ,ln
@@ -471,6 +478,7 @@
 	"mov rcx,rax" ,ln
 	"movsxd rax,dword[rbp]" ,ln
 	"movsxd rdi,dword[rbp-8]" ,ln
+|.................... RDI RAX RCX
 	"rep stosq" ,ln
 	.3DROP ;
 
@@ -485,13 +493,10 @@
 	1 PUSH.CTEM ;
 :gXYPEN
 	2 PUSH.CTEM
-|	.dupnew "mov *0,#1" ,asm .nip
 	3 PUSH.CTEM
-|	.dupnew "mov *0,#1" ,asm .nip
 	;
 :gBPEN
 	4 PUSH.CTEM
-|	.dupnew "mov *0,#1" ,asm .nip
 	;
 :gKEY
 	5 PUSH.CTEM

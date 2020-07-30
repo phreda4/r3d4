@@ -257,11 +257,11 @@
 ::,cellb | nro --
 	dup $f and 2 << 'tiposrmb + @ ex ;
 
-::,cellw | nro --
-	dup $f and 2 << 'tiposrmw + @ ex ;
-
 ::,celld | nro --
 	dup $f and 2 << 'tiposrm + @ ex ;
+
+::,cellw | nro --
+	dup $f and 2 << 'tiposrmw + @ ex ;
 
 
 :mt4p value "[w" ,s ,h "]" ,s ;	|--	4 var   [var]
@@ -276,8 +276,15 @@
 	dup $f and 2 << 'tiposrmqp + @ ex ;
 
 |---------- ASM
-| "add %0,#1" --> add rax,rbx ; TOS,NOS
-|
+| "add #1,#0" --> add rax,rbx
+| "add #1,#0" --> add eax,dword[w1] ... change rax>>eax because dword[]
+
+:,cstackd | adr -- adr
+	c@+
+	$30 -
+	0? ( drop TOS ,celld ; )
+	1 - 2 << NOS swap - @ ,celld ;
+
 :,cstack | adr -- adr
 	c@+
 	$30 -
@@ -290,12 +297,6 @@
 	0? ( drop TOS ,cellb ; )
 	1 - 2 << NOS swap - @ ,cellb ;
 
-:,cstackd | adr -- adr
-	c@+
-	$30 -
-	0? ( drop TOS ,celld ; )
-	1 - 2 << NOS swap - @ ,celld ;
-
 :,car
 	$23 =? ( drop ,cstack ; ) | # qword reg
 	$24 =? ( drop ,cstackb ; ) | $ byte reg
@@ -306,6 +307,7 @@
 ::,asm | str --
 	( c@+ 1? ,car ) 2drop
 	,cr ;
+
 
 |-------------------------------------------
 ##stacknow
@@ -348,8 +350,8 @@
 		,cr ) drop
 	,cr
 	;
-
 |--------- DEBUG
+
 ::stk.push
 	memstk> dup stks> !+ 'stks> !
 	>a
@@ -773,12 +775,13 @@
 	1? ( 2drop ; ) drop
 	dup @ 8 >> 3 << 'stkvalue + q@
 	dup 32 << 32 >>
-	=? ( 2drop ; ) 
+	=? ( 2drop ; )
 	cell.fillreg | search unused reg
 	newreg 8 << 5 or | 'cell val reg
 	"mov " ,s dup ,cell ",$" ,s swap ,h ,cr
 	swap !
 	;
+
 
 
 ::stk.G
@@ -883,3 +886,46 @@
 	0 over ( 1?
 		1 and? ( freereg )
 		1 >> swap 1 + swap ) 3drop ;
+
+| type cell------
+| I $0 nro	33
+| I $1 cte	RESX
+| I $2 str	s01
+| I $3 wrd	w32
+| M $4[wrd]	dword[w33]
+| R $5 reg	rax rbx
+| M $6 stk	[rbp] [rbp+8] ...
+| M $7 ctem	[FREEMEM] dword[penx]
+| I $8 anon	anon1
+|---------------
+| R 	rax
+| I/R	33 rax
+| M/R   [w1] rax
+|
+
+:cell2reg | 'cell --
+	newreg 8 << 5 or | 'cell reg
+	"mov " ,s dup ,cell "," ,s over ,cell ,cr
+	swap !
+	;
+
+::cellR	| 'cell -- ; only register
+	dup @ $ff and
+	5 =? ( 2drop ; )
+	drop
+	cell2reg ;
+
+::cellI | 'cell -- ; imm or register
+	dup @ $ff and
+	4 <? ( 2drop ; )
+	5 =? ( 2drop ; )
+	7 >? ( 2drop ; )
+	drop
+    cell2reg ;
+
+::cellM | 'cell -- ; mem or register
+	dup @ $ff and
+	4 7 bt? ( 2drop ; )
+	drop
+    cell2reg ;
+

@@ -5,9 +5,9 @@
 ^r3/lib/btn.r3
 ^r3/lib/input.r3
 
-##path * 1024
-##ext * 32
-##filename * 1024
+#path * 1024
+#filename * 1024
+#ext * 32
 
 #xdlg 0 #ydlg 0
 #wdlg 0 #hdlg 0
@@ -121,7 +121,8 @@
 	'filenow ! ;
 
 :setfile
-	filenow 3 << files + @ 'filename strcpy ;
+	filenow 3 << files + @ 'filename strcpy 
+	exit ;
 
 :backfolder
 	'path ( c@+ 1? drop ) drop 1 -
@@ -148,7 +149,7 @@
 	<up> =? ( lineup )
 	<dn> =? ( linedn )
 	<ret> =? ( linenter )
-	>esc< =? ( exit )
+	>esc< =? ( "" 'filename strcpy exit )
 	drop ;
 
 :dlgback
@@ -191,13 +192,16 @@
 	xdlg 8 + ydlg cch 2 << + 3 + atxy
 	'filename emits
 	teclado
+	acursor
 	;
 
-::dlgFileLoad
+::dlgFileLoad | -- fn/0
 	dlgFileIni
 |	"hola" 'filename strcpy
 	'fileload onshow
 	dlgFileEnd
+	'filename c@ 0? ( ; ) drop
+	'filename 'path "%s/%s" sprint
 	;
 
 |----------------------
@@ -207,13 +211,16 @@
 	xdlg 8 + ydlg cch 2 << + 3 + atxy
 	'filename 64 input
 	teclado
+	acursor
 	;
 
-::dlgFileSave
+::dlgFileSave | -- fn/0
 	dlgFileIni
 |	"que" 'filename strcpy
 	'filesave onshow
 	dlgFileEnd
+	'filename c@ 0? ( ; ) drop
+	'filename 'path "%s/%s" sprint
 	;
 
 

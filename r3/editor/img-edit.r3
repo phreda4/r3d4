@@ -10,6 +10,7 @@
 
 ^r3/util/loadimg.r3
 ^r3/util/dlgcolor.r3
+^r3/util/dlgfile.r3
 
 ^r3/lib/trace.r3
 
@@ -141,9 +142,15 @@
 	<dn> =? ( 1 zoom << 'yi +! )
 	<le> =? ( 1 zoom << neg 'xi +! )
 	<ri> =? ( 1 zoom << 'xi +! )
-	<f1> =? ( 1 'modo +! )
+
+|	<f1> =? ( 1 'modo +! )
 	>esc< =? ( exit )
 	drop
+	;
+
+:loadfile
+	dlgFileLoad 0? ( drop ; )
+	loadImg 0? ( drop ; )
 	;
 
 |-----------------------------
@@ -167,7 +174,7 @@
 	sp [ 1 'zoom ! ; ] "x2" btnt
 	sp [ 2 'zoom ! ; ] "x4" btnt
 	sp [ 3 'zoom ! ; ] "x8" btnt
-
+	sp 'loadfile "load" btnt
 	toolbar
 	dlgColor
 
@@ -203,6 +210,7 @@
 	mark
 	here 'imagen !
 	320 240 canvassize
+	"media/" dlgSetPath
 	;
 
 :   inimem
