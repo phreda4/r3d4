@@ -5,7 +5,6 @@
 ^r3/lib/sprite.r3
 
 ^r3/util/loadimg.r3
-^r3/util/fastblur.r3
 
 #ima1
 #ima2
@@ -25,7 +24,6 @@
 	cls home
 	0 0 ima2 sprite
 	xypen ima1 sprite
-	sw sh 5 blur
 	300 50 ima3 sprite
 	teclado
 	;
