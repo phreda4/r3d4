@@ -2,11 +2,10 @@
 | PHREDA 2020
 | blur | w h r --
 |--------------------
+
 |MEM $ffff
 ^r3/lib/gui.r3
 ^r3/lib/fontj.r3
-^r3/lib/trace.r3
-
 
 #wb
 #hb
@@ -69,19 +68,11 @@
 		rad 2 << a+
 		) drop ;
 
-
-:wk
-	key <f1> =? ( exit ) drop ;
-
-::waitkey
-	'wk onshow ;
-
 :vrgb!
 	sumR invrad * $ff0000 and
 	sumG invrad 8 *>> $ff00 and or
 	sumB invrad 16 *>> $ff and or
-	b!
-	wb 2 << b+
+	b! wb 2 << b+
 	;
 
 :blurVPass | -- ; A=src B=dst
@@ -92,7 +83,7 @@
 		rad 1 + ( 1? 1 -
 			a@ +rgb
 			wb 2 << a+ ) drop
-		|..... left border
+		|..... top border
 		rad ( 1? 1 -
 			vrgb!
 			a@ pick2 -+rgb
@@ -105,7 +96,7 @@
 			a@ over @ -+rgb
 			wb 2 << dup a+ +
 			swap ) 2drop
-		|..... right border
+		|..... bottom border
 		a> wb 2 << - @
 		rad 3 << 4 + wb * neg a+
 		rad ( 1? 1 -

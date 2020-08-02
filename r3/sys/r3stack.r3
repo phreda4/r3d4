@@ -251,14 +251,17 @@
 #tiposrmw mt0 mt1 mt2 mt3 mt4 mt5w mt6 mt7 mt8
 #tiposrmq mt0 mt1 mt2 mt3 mt4 mt5r mt6 mt7 mt8
 
+#needword 0
+
+::,celld | nro --
+	dup $f and 2 << 'tiposrm + @ ex ;
+
 ::,cell | val --
+	needword 1? ( drop ,celld ; ) drop
 	dup $f and 2 << 'tiposrmq + @ ex ;
 
 ::,cellb | nro --
 	dup $f and 2 << 'tiposrmb + @ ex ;
-
-::,celld | nro --
-	dup $f and 2 << 'tiposrm + @ ex ;
 
 ::,cellw | nro --
 	dup $f and 2 << 'tiposrmw + @ ex ;
@@ -306,7 +309,15 @@
 
 ::,asm | str --
 	( c@+ 1? ,car ) 2drop
-	,cr ;
+	,cr
+	0 'needword ! ;
+
+::cell?dword | 'cell --
+	$fff and
+	$207 $607 bt? ( 1 'needword ! )
+	$f and
+	4 =? ( 1 'needword ! )
+	drop ;
 
 
 |-------------------------------------------
@@ -782,8 +793,6 @@
 	swap !
 	;
 
-
-
 ::stk.G
 	TOS $ff and
 	4 =? ( 7 nip )
@@ -791,22 +800,6 @@
 	7 =? ( .dupnew "mov #0,#1" ,asm .nip )
 	drop
 	;
-
-::stk.GG | ; for store
-	stk.G
-	NOS @ $ff and
-	4 =? ( 7 nip )
-	6 =? ( 7 nip )
-	7 =? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap )
-	drop
-	;
-
-::stk.R | ; rxx
-	TOS
-	$ff and 5 =? ( drop stk.TOSnocpy ; ) drop
-	.dupnew
-	"mov #0,#1" ,asm
-	.nip ;
 
 ::stk.RC | ; rxx RCX/N
 	TOS>CN
@@ -816,29 +809,15 @@
 	"mov #0,#2" ,asm
 	.swap .rot .drop ;
 
-::stk.RG | ; rxx ggg
-	'TOS bignumber
-	NOS @
-	$ff and $5 =? ( drop stk.NOSnocpy ; ) drop
-	.dupnew
-	"mov #0,#2" ,asm
-	.swap .rot .drop ;
 
 ::stk.GR | ; ggg rxx
-	stk.R
+|	stk.R
 	NOS @ $ff and
 	4 =? ( 7 nip )
 	6 =? ( 7 nip )
 	7 =? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap )
 	drop
 	;
-
-::stk.RGG | ; rxx ggg
-	NOS 4 - @
-	$ff and $5 =? ( drop stk.NOS2nocpy ; ) drop
-	.dupnew
-	"mov #0,#3" ,asm
-	.2swap nip .rot .swap ;
 
 ::stk.AR | ; RAX rxx
 	cell.fillreg cell.freeD
@@ -921,11 +900,16 @@
 	5 =? ( 2drop ; )
 	7 >? ( 2drop ; )
 	drop
+	dup cell?dword
     cell2reg ;
 
 ::cellM | 'cell -- ; mem or register
 	dup @ $ff and
 	4 7 bt? ( 2drop ; )
 	drop
+	dup cell?dword
     cell2reg ;
+
+::cellA | 'cell -- ; all but see dword
+	cell?dword ;
 

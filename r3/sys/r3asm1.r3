@@ -88,6 +88,7 @@
 	;
 
 :gEX
+	'TOS cellR
 	"mov rcx,#0" ,asm .drop
 	stk.normal	| normalize
 
@@ -98,75 +99,85 @@
 	"jmp rcx" ,ln ;
 
 :g0?
-	stk.R
+	'TOS cellR
 	"or #0,#0" ,asm
 	?? "jnz _o%h" ,print ,cr ;
 
 :g1?
-	stk.R
+	'TOS cellR
 	"or #0,#0" ,asm
 	?? "jz _o%h" ,print ,cr ;
 
 :g+?
-	stk.R
+	'TOS cellR
 	"or #0,#0" ,asm
 	?? "js _o%h" ,print ,cr ;
 
 :g-?
-	stk.R
+	'TOS cellR
 	"or #0,#0" ,asm
 	?? "jns _o%h" ,print ,cr ;
 
 :g<?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jge _o%h" ,print ,cr ;
 
 :g>?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jle _o%h" ,print ,cr ;
 
 :g=?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jne _o%h" ,print ,cr ;
 
 :g>=?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jl _o%h" ,print ,cr ;
 
 :g<=?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"cmp #1,#0" ,asm
 	.drop
 	?? "jg _o%h" ,print ,cr ;
 
 :g<>?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"cmp #1,#0" ,asm
 	.drop
 	?? "je _o%h" ,print ,cr ;
 
 :gA?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"test #1,#0" ,asm
 	.drop
 	?? "jz _o%h" ,print ,cr ;
 
 :gN?
-	stk.RG
+	'TOS cellA
+	NOS cellR
 	"test #1,#0" ,asm
 	.drop
 	?? "jnz _o%h" ,print ,cr ;
 
 :gB?
-	stk.RGG
+	NOS 4 - cellR
+	NOS cellA
+	TOS cellA
 	"cmp #2,#0" ,asm
 	?? "jge _o%h" ,print ,cr
 	"cmp #2,#1" ,asm
@@ -186,35 +197,41 @@
 
 
 :gAND
-	stk.RG
+	NOS cellR
+	'TOS cellA
 	"and #1,#0" ,asm .drop ;
 
 :gOR
-	stk.RG
+	NOS cellR
+	'TOS cellA
 	"or #1,#0" ,asm .drop ;
 
 :gXOR
-	stk.RG
+	NOS cellR
+	'TOS cellA
 	"xor #1,#0" ,asm .drop ;
 
 :gNOT
-	stk.R
+	'TOS cellR
 	"not #0" ,asm ;
 
 :gNEG
-	stk.R
+	'TOS cellR
 	"neg #0" ,asm ;
 
 :g+
-	stk.RG
+	NOS cellR
+	'TOS cellA
 	"add #1,#0" ,asm .drop ;
 
 :g-
-	stk.RG
+	NOS cellR
+	'TOS cellA
 	"sub #1,#0" ,asm .drop ;
 
 :g*
-	stk.RG
+	NOS cellR
+	'TOS cellA
 	"imul #1,#0" ,asm .drop ;
 
 :g/
@@ -236,15 +253,15 @@
 	;
 
 :gABS
-	stk.R freeD
+	'TOS cellR freeD
 	"mov rdx,#0;sar rdx,63;add #0,rdx;xor #0,rdx" ,asm ;
 
 :gSQRT
-	stk.R
+	'TOS cellR
 	"cvtsi2sd xmm0,#0;sqrtsd xmm0,xmm0;cvtsd2si #0,xmm0" ,asm ;
 
 :gCLZ
-	stk.R
+	'TOS cellR
 	"bsr #0,#0;xor #0,63" ,asm ;
 
 :g<<
@@ -281,43 +298,46 @@
 	;
 
 :g@
-	stk.R
+	'TOS cellI
 	"movsxd #0,dword[#0]" ,asm ;
 
 :gC@
-	stk.R
+	'TOS cellI
 	"movsx #0,byte[#0]" ,asm ;
 
 :gQ@
-	stk.R
+	'TOS cellI
 	"mov #0,qword[#0]" ,asm ;
 
 :g@+
-	stk.R
+	'TOS cellR
 	.dupnew
 	"movsxd #0,dword[#1];add #1,4" ,asm ;
 
 :gC@+
-	stk.R
+	'TOS cellR
 	.dupnew
 	"movsx #0,byte[#1];add #1,1" ,asm ;
 
 :gQ@+
-	stk.R
+	'TOS cellR
 	.dupnew
 	"mov #0,[#1];add #1,8" ,asm ;
 
 :g!
-	stk.GG
+	'TOS cellI
+	NOS cellI
 	"mov dword[#0],*1" ,asm
 	.2DROP ;
 
 :gC!
-	stk.GG
+	'TOS cellI
+	NOS cellI
 	"mov byte[#0],$1" ,asm .2DROP ;
 
 :gQ!
-	stk.GG
+	'TOS cellI
+	NOS cellI
 	"mov [#0],#1" ,asm .2DROP ;
 
 :g!+
@@ -561,7 +581,6 @@
 |----------- adress string
 :gstr
 	dup 4 - @ 8 >>> PUSH.STR ;
-
 
 |----------- adress word
 :gdwor
