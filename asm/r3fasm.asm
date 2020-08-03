@@ -14,27 +14,6 @@ include 'sdl2_mixer.inc'
 
 section '' code readable executable
 
-; from LocoDelAssembly in fasm forum
-macro cinvoke64 name, [args]{
-common
-   PUSH RSP             ;save current RSP position on the stack
-   PUSH qword [RSP]     ;keep another copy of that on the stack
-   ADD RSP,8
-   AND SPL,0F0h         ;adjust RSP to align the stack if not already there
-   cinvoke name, args
-   POP RSP              ;restore RSP to its original value
-}
-
-macro invoke64 name, [args]{
-common
-   PUSH RSP             ;save current RSP position on the stack
-   PUSH qword [RSP]     ;keep another copy of that on the stack
-   ADD RSP,8
-   AND SPL,0F0h         ;adjust RSP to align the stack if not already there
-   invoke name, args
-   POP RSP              ;restore RSP to its original value
-}
-
 ;===============================================
 start:
   sub rsp,40
@@ -45,10 +24,10 @@ start:
     SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,\
     XRES,YRES,0
   mov [window],eax
-  cinvoke SDL_ShowCursor,0
+  invoke SDL_ShowCursor,0
 
 ;  cinvoke SDL_SetWindowFullscreen,[window],SDL_WINDOW_FULLSCREEN
-  cinvoke SDL_GetWindowSurface,[window]
+  invoke SDL_GetWindowSurface,[window]
   mov rbx,rax
   mov [screen],eax
   mov rdi,[rbx+SDL_Surface.pixels]
@@ -78,7 +57,7 @@ include 'code.asm'
 align 16
 SYSREDRAW:
   push rax rbp   ; c d r8 r9
-  cinvoke SDL_UpdateWindowSurface,[window]
+  invoke SDL_UpdateWindowSurface,[window]
   pop rbp rax
   ret
 
@@ -89,9 +68,9 @@ SYSUPDATE:
   xor eax,eax
   mov [SYSKEY],eax
   mov [SYSCHAR],eax
-  cinvoke SDL_Delay,10
+  invoke SDL_Delay,10
 loopev:
-  cinvoke64 SDL_PollEvent,evt
+  invoke SDL_PollEvent,evt
   test eax,eax
   jnz n1
   pop rbp rax
@@ -159,7 +138,6 @@ SYSMSEC: ;  ( -- msec )
   ret
 
 ;===============================================
-align 16
 SYSTIME: ;  ( -- hms )
   add rbp,8
   mov [rbp],rax
@@ -174,7 +152,6 @@ SYSTIME: ;  ( -- hms )
   ret
 
 ;===============================================
-align 16
 SYSDATE: ;  ( -- ymd )
   add rbp,8
   mov [rbp],rax
@@ -189,7 +166,6 @@ SYSDATE: ;  ( -- ymd )
   ret
 
 ;===============================================
-align 16
 SYSLOAD:
   invoke SDL_RWFromFile,rax,"rb"
   mov [afile],rax
@@ -208,7 +184,6 @@ SYSLOAD:
   ret
 
 ;===============================================
-align 16
 SYSSAVE: ; ( 'from cnt "filename" -- )
   invoke SDL_RWFromFile,rax,"wb"
   mov [afile],rax
@@ -224,7 +199,6 @@ SYSSAVE: ; ( 'from cnt "filename" -- )
   ret
 
 ;===============================================
-align 16
 SYSAPPEND: ; ( 'from cnt "filename" -- )
   invoke SDL_RWFromFile,rax,"ab"
   mov [afile],rax
@@ -306,17 +280,15 @@ SYSYSTEM:
 ;===============================================
 ;	TOS=(int64_t)Mix_LoadWAV((char *)TOS);
 ; #define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
-align 16
 SYSSLOAD:
-	invoke SDL_RWFromFile,rax,"rb" ;  *************
+	invoke SDL_RWFromFile,rax,"rb"
 	invoke Mix_LoadWAV_RW,rax,1
 	ret
 
 ;===============================================
 ;	TOS=(int64_t)Mix_LoadMUS((char *)TOS);
-align 16
 SYSMLOAD:
-	cinvoke Mix_LoadMUS,rax
+	invoke Mix_LoadMUS,rax
     ret
 
 ;===============================================
@@ -324,17 +296,16 @@ SYSMLOAD:
 ;			Mix_PlayChannel(-1,(Mix_Chunk *)TOS, 0);
 ;      else for(int i=0;i<8;i++)
 ;			/*if (i!=mix_movie_channel) */Mix_HaltChannel(i);
-align 16
 SYSSPLAY:
 	or rax,rax
 	jz .halt
-	cinvoke Mix_PlayChannelTimed,-1,rax,0,-1
+	invoke Mix_PlayChannelTimed,-1,rax,0,-1
 	jmp .end
 .halt:
 	mov rcx,8
 .lc:
 	sub rcx,1
-	cinvoke Mix_HaltChannel,rcx
+	invoke Mix_HaltChannel,rcx
 	or rcx,rcx
 	jnz .lc
 .end:
@@ -347,14 +318,13 @@ SYSSPLAY:
 ;			Mix_PlayMusic((Mix_Music *)TOS, 0);
 ;        else
 ;			Mix_HaltMusic();
-align 16
 SYSMPLAY:
 	or rax,rax
 	jz .halt
-	cinvoke Mix_PlayMusic,rax,0
+	invoke Mix_PlayMusic,rax,0
 	jmp .end
 .halt:
-	cinvoke Mix_HaltMusic
+	invoke Mix_HaltMusic
 .end:
 	mov rax,[rbp-8]
 	sub rbp,8
@@ -362,18 +332,16 @@ SYSMPLAY:
 
 ;===============================================
 ;    	Mix_FreeChunk((Mix_Chunk *)TOS);
-align 16
 SYSSFREE:
-	cinvoke Mix_FreeChunk,rax
+	invoke Mix_FreeChunk,rax
 	mov rax,[rbp-8]
 	sub rbp,8
 	ret
 
 ;===============================================
 ;    	Mix_FreeMusic((Mix_Music *)TOS);
-align 16
 SYSMFREE:
-	cinvoke Mix_FreeMusic,rax
+	invoke Mix_FreeMusic,rax
 	mov rax,[rbp-8]
 	sub rbp,8
 	ret

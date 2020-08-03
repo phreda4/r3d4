@@ -341,27 +341,33 @@
 	"mov [#0],#1" ,asm .2DROP ;
 
 :g!+
-	stk.GR
+	'TOS cellR
+	NOS cellA
 	"mov dword[#0],*1;add #0,4" ,asm .NIP ;
 
 :gC!+
-	stk.GR
+	'TOS cellR
+	NOS cellA
 	"mov byte[#0],$1;add #0,1" ,asm .NIP ;
 
 :gQ!+
-	stk.GR
+	'TOS cellR
+	NOS cellA
 	"mov [#0],#1;add #0,8" ,asm .NIP ;
 
 :g+!
-	stk.GR
+	'TOS cellR
+	NOS cellA
 	"add dword[#0],*1" ,asm .2DROP ;
 
 :gC+!
-	stk.GR
+	'TOS cellR
+	NOS cellA
 	"add byte[#0],$1" ,asm .2DROP ;
 
 :gQ+!
-	stk.GR
+	'TOS cellR
+	NOS cellA
 	"add [#0],#1" ,asm .2DROP ;
 
 :g>A
@@ -376,11 +382,11 @@
 	"movsxd #0,dword[rsi]" ,asm ;
 
 :gA!
-	stk.G
+	'TOS cellI
 	"mov dword[rsi],*0" ,asm .drop ;
 
 :gA+
-	stk.G
+	'TOS cellI
 	"add rsi,#0" ,asm .drop ;
 
 :gA@+
@@ -388,7 +394,7 @@
 	"movsxd #0,dword[rsi];add rsi,4" ,asm ;
 
 :gA!+
-	stk.G
+	'TOS cellI
 	"mov dword[rsi],*0;add rsi,4" ,asm .drop ;
 
 :g>B
@@ -403,11 +409,11 @@
 	"movsxd #0,dword[rdi]" ,asm ;
 
 :gB!
-	stk.G
+	'TOS cellI
 	"mov dword[rdi],*0" ,asm .drop ;
 
 :gB+
-	stk.G
+	'TOS cellI
 	"add rdi,#0" ,asm .drop ;
 
 :gB@+
@@ -415,7 +421,7 @@
 	"movsxd #0,dword[rdi];add rdi,4" ,asm ;
 
 :gB!+
-	stk.G
+	'TOS cellI
 	"mov dword[rdi],*0;add rdi,4" ,asm .drop ;
 
 :gMOVE

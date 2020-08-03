@@ -575,8 +575,8 @@
 	;
 
 ::stk.conv | --
-	stks> 4 - @ stk.cnv
-	;
+	"; CONV " ,s ,cr
+	stks> 4 - @ stk.cnv ;
 
 ::IniStack
 	'PSP 'NOS !
@@ -793,14 +793,6 @@
 	swap !
 	;
 
-::stk.G
-	TOS $ff and
-	4 =? ( 7 nip )
-	6 =? ( 7 nip )
-	7 =? ( .dupnew "mov #0,#1" ,asm .nip )
-	drop
-	;
-
 ::stk.RC | ; rxx RCX/N
 	TOS>CN
 	NOS @
@@ -809,15 +801,6 @@
 	"mov #0,#2" ,asm
 	.swap .rot .drop ;
 
-
-::stk.GR | ; ggg rxx
-|	stk.R
-	NOS @ $ff and
-	4 =? ( 7 nip )
-	6 =? ( 7 nip )
-	7 =? ( .dupnew "mov #0,#2" ,asm .rot .drop .swap )
-	drop
-	;
 
 ::stk.AR | ; RAX rxx
 	cell.fillreg cell.freeD
