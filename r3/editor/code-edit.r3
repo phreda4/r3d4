@@ -215,11 +215,13 @@
 	rows 1 - 'hcode !
 	cols 6 - 'wcode !
 	calcselect ;
+
 :mode!imm
 	1 'emode !
 	rows 7 - 'hcode !
 	cols 20 - 'wcode !
 	calcselect ;
+
 :mode!find
 	2 'emode !
 	rows 3 - 'hcode !
@@ -266,10 +268,10 @@
 		mode!error
 		; ) drop
 
-	here 'outpad strcpy	| que hay
+|	here 'outpad strcpy	| que hay
 	| generate comm
 	| enable imm
-	mode!imm
+|	mode!imm
 	;
 
 :mkplain
