@@ -177,3 +177,10 @@
 ::>>0 | adr -- adr' ; pasa 0
 	( c@+ 1? drop ) drop ;
 
+::only13 | adr -- ; remove 10..reeplace winth 13
+	dup
+	( c@+ 1?
+		13 =? ( over c@	10 =? ( rot 1 + rot rot ) drop )
+		10 =? ( drop c@+ 13 <>? ( drop 1 - 13 ) )
+		rot c!+ swap ) nip
+	swap c! ;

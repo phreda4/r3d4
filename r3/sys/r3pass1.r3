@@ -53,7 +53,8 @@
 		over 'lerror !
 		"File not found" 'error !
 		0 ; ) | no existe
-	here
+	here 
+	dup only13 			| for see in debug
 	0 rot c!+ 'here !
 	;
 

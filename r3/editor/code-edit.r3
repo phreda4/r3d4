@@ -179,22 +179,15 @@
 		1 - kabajo ) drop
 	selecc ;
 
+
 |------------------------------------------------
 :loadtxt | -- cargar texto
-	mark
-	here 'name getpath
+	fuente 'name getpath
 	load 0 swap c!
 
-	|-- queda solo cr al fin de linea
+	fuente only13 	|-- queda solo cr al fin de linea
 	fuente dup 'pantaini> !
-	here ( c@+ 1?
-		13 =? ( over c@
-				10 =? ( rot 1 + rot rot ) drop )
-		10 =? ( drop c@+ 13 <>? ( drop 1 - 13 ) )
-		rot c!+ swap ) 2drop '$fuente !
-	0lin
-
-	empty
+	count + '$fuente !
 	;
 
 :savetxt
