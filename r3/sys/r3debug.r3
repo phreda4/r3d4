@@ -8,6 +8,8 @@
 ^./r3pass3.r3
 ^./r3pass4.r3
 
+^./r3vm.r3
+
 ^r3/lib/print.r3
 ^r3/lib/input.r3
 ^r3/lib/fontm.r3
@@ -67,7 +69,7 @@
 	|savedicc savecode
 	;
 
-
+#emode
 |------ MEMORY VIEW
 #actworld 0
 #iniworld 0
@@ -221,15 +223,14 @@
 		swap drawline
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
+ 	;
+
+:setcodecursor
 	fuente>
 	( pantafin> >? scrolldw )
 	( pantaini> <? scrollup )
 	drop ;
 
-:calcselect
-	xcode wcode + gotox ccx 'xsele !
-	xcode gotox ccx 'xseli !
-	;
 
 
 :setsource | src --
@@ -239,22 +240,10 @@
 	count + '$fuente !
 	;
 
-|----- scratchpad
-#outpad * 2048
-#inpad * 1024
-
-:console
-	0 hcode 1 + gotoxy
-	$0000AE 'ink !
-	rows hcode - 1 - backlines
-
-	$ffffff 'ink !
-	'outpad text cr
-	" > " emits
-	'inpad 1024 input
+:gotosrc
 	;
 
-|------ MAIN
+|---------------------------------
 :btnf | "" "fx" --
 	sp
 	$ff0000 'ink ! backprint
@@ -275,6 +264,40 @@
 	'namenow printr
 	;
 
+|----- scratchpad
+#outpad * 2048
+#inpad * 1024
+
+:console
+	xsele cch op
+	wcode hcode 1 + gotoxy
+	xsele ccy pline
+	sw ccy pline
+	sw cch pline
+	$040486 'ink !
+	poli
+
+
+	0 hcode 1 + gotoxy
+	$0000AE 'ink !
+	rows hcode - 1 - backlines
+
+	$ffffff 'ink !
+	'outpad text cr
+	" > " emits
+	'inpad 1024 input
+
+	0 rows 1 - gotoxy
+	"Play2C" "F1" btnf
+	"Step" "F2" btnf
+	"StepN" "F3" btnf
+	"BREAK" "F4" btnf
+	"VIEW" "F6" btnf
+
+	;
+
+|------ MODES
+
 #srcview 0
 
 :srcnow | nro --
@@ -284,32 +307,67 @@
 	@ setsource
 	;
 
-:teclado
+
+:calcselect
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
+	;
+
+:mode!imm
+	0 'emode !
+	rows 7 - 'hcode !
+	cols 25 - 'wcode !
+	calcselect ;
+
+:modeimm
+	drawcode
+	console
 	key
 	>esc< =? ( exit )
+	<f1> =? ( fuente> breakpoint playvm gotosrc )
+	<f2> =? ( stepvm gotosrc )
+	<f3> =? ( stepvmn gotosrc )
+	<f4> =? (  fuente> breakpoint )
+|	<f6> =? ( viewscreen )
+|	<tab> =? ( mode 1+ $3 and 'mode ! )
 
+	drop
+	;
+
+|-------------------------------
+:mode!view
+	1 'emode !
+	rows 2 - 'hcode !
+	cols 6 - 'wcode !
+	calcselect ;
+
+:modeview
+	memorymap
+
+	key
+	>esc< =? ( exit )
 	<f1> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
-
 |	<f2> =? ( )
 |	<f3> =? ( )
 |	<f4> =? ( )
-
 |	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
 |	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
-
 	drop
-
 	;
+
+
+|------ MAIN
+
 
 :debugmain
 	cls gui
 	barratop
 
-	drawcode
-|	memorymap
+	emode
+	0? ( modeimm )
+	1 =? ( modeview )
+	drop
 
-	console
-	teclado
 	acursor ;
 
 : mark
@@ -323,6 +381,8 @@
 	calcselect
 	'name 'namenow strcpy
 	src setsource
+
+	mode!imm
 
 	'debugmain onshow
 	;

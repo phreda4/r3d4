@@ -1,214 +1,274 @@
 | VM r3
-| PHREDA 2018
+| PHREDA 2020
 |-------------
 ^./r3base.r3
-
-#niv* 1024
-#niv> 'niv
-#nniv 0
-
-:level+
-	nniv niv> !+ 'niv> ! 1 'nniv +! ;
-:level-
-	-4 'niv> +! ;
-:nlevel	| -- nl
-	niv> 4 - @ $ffffff and 	;
-:wlevel	| -- wl
-	niv> 4 - @ 24 >> ;
-
-:getcte
-	;
-:strmem
-	0
-	;
+^./r3stack.r3
 
 |----------------------
 
-:i0 :i: :i:: :i# :i: :i| :i^	;
-:g0 :g: :g:: :g# :g: :g| :g^    ;
+::PUSH.CTE	| ncte --
+	.DUP 8 << 1 or 'TOS ! ;
+::PUSH.STR	| vstr --
+	.DUP 8 << 2 or 'TOS ! ;
+::PUSH.WRD	| vwor --
+	.DUP 8 << 3 or 'TOS ! ;
+::PUSH.VAR	| var --
+	.DUP 8 << 4 or 'TOS ! ;
+::PUSH.REG	| reg --
+	.DUP 8 << 5 or 'TOS ! ;
+::PUSH.STK	| stk --
+	.DUP 8 << 6 or 'TOS ! ;
+::PUSH.CTEM	| ncte --
+	.DUP 8 << 7 or 'TOS ! ;
+::PUSH.ANO	| anon --
+	.DUP 8 << 8 or 'TOS ! ;
 
-:idec								|07
-	dup 16 << 23 >> .PUSHD 8 0>> ;
-
-:ihex								|08 | rest bits
-	7 0>> .PUSHD 0 ;
-
-:ibin								|09 | rest bits neg
-	7 0>> neg .PUSHD 0 ;
-
-:ifix								|0A | cte
-	7 0>> getcte .PUSHD 0 ;
-
-:istr								|0B	| nstr
-	7 0>> strmem + .PUSHD 0 ;
-
-:iwor								|c
-	7 0>> .PUSHD 0 ;
-
-:ivar								|d
-	.PUSHD
+:.dec
+:.hex
+:.dec
+:.dec
+:.str
+:.wor
+:.var
+:.dwor
+:.dvar
 	;
 
-:idwor								|e
-	7 0>> .PUSHD 0 ;
+|-- Internas
+:.LIT		.DUP dup @ 'TOS ! 4 + ;
+:.ADR		.DUP dup @ @ 'TOS ! 4 + ;
 
-:idvar								|f
-	7 0>> .PUSHD 0 ;
+:.;		RTOS @ nip -4 'RTOS +! ;
 
+:.CALL		4 'RTOS +! dup 4 + RTOS ! @ ;
+:.JMP		@ ;
 
-:next(
+:.(
+:.)
+:.[
+:.]
+	;
+|-- exec
+:.EX		TOS .DROP 4 'RTOS +! swap RTOS ! ;
+
+|-- condicionales
+:.0?		TOS 1? ( drop @ ; ) drop 4 + ;
+:.1?		TOS 0?  ( drop @ ; ) drop 4 + ;
+:.+?		TOS -?  ( drop @ ; ) drop 4 + ;
+:.-?		TOS $80000000 nand? ( drop @ ; ) drop 4 + ;
+
+:.=?		NOS @ TOS <>? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.<?		NOS @ TOS >=? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.>?		NOS @ TOS <=? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.<=?		NOS @ TOS >? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.>=?		NOS @ TOS <? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.<>?		NOS @ TOS =? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.A?		NOS @ TOS nand? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.N?		NOS @ TOS and? ( drop @ .DROP ; ) drop 4 + .DROP ;
+
+:.B?		NOS 4 - @ NOS @ TOS bt? ( drop @ .2DROP ; ) drop 4 + .2DROP ; |****
+
+|--------------------
+:.>R		4 'RTOS +! TOS RTOS ! .DROP ;
+:.R>		.DUP RTOS dup @ 'TOS ! 4 - 'RTOS ! ;
+:.R@		.DUP RTOS @ 'TOS ! ;
+
+:.AND		vNOS vTOS and .2DROP PUSH.NRO ;
+:.OR		vNOS vTOS or .2DROP PUSH.NRO ;
+:.XOR		vNOS vTOS xor .2DROP PUSH.NRO ;
+:.NOT		vTOS not .DROP PUSH.NRO ;
+:.+		vNOS vTOS + .2DROP PUSH.NRO ;
+:.-		vNOS vTOS - .2DROP PUSH.NRO ;
+:.*		vNOS vTOS * .2DROP PUSH.NRO ;
+:./		vNOS vTOS / .2DROP PUSH.NRO ;
+:.*/		vPK2 vNOS vTOS */ .3DROP PUSH.NRO ;
+:.*>>		vPK2 vNOS vTOS *>> .3DROP PUSH.NRO ;
+:.<</		vPK2 vNOS vTOS <</ .3DROP PUSH.NRO ;
+:./MOD		vNOS vTOS /mod swap .2DROP PUSH.NRO PUSH.NRO ;
+:.MOD		vNOS vTOS mod .2DROP PUSH.NRO ;
+:.ABS		vTOS abs .DROP PUSH.NRO ;
+:.NEG		vTOS neg .DROP PUSH.NRO ;
+:.CLZ		vTOS clz .DROP PUSH.NRO ;
+:.SQRT		vTOS sqrt .DROP PUSH.NRO ;
+:.<<		vNOS vTOS << .2DROP PUSH.NRO ;
+:.>>		vNOS vTOS >> .2DROP PUSH.NRO ;
+:.>>>		vNOS vTOS >>> .2DROP PUSH.NRO ;
+
+:.>A		TOS 'REGA ! .DROP ;
+:.A>		.DUP REGA 'TOS ! ;
+:.A@		.DUP REGA @ 'TOS ! ;
+:.A!		TOS REGA ! .DROP ;
+:.A+       TOS 'REGA +! .DROP ;
+:.A@+		.DUP REGA dup 4 + 'REGA ! @ 'TOS ! ;
+:.A!+		TOS REGA dup 4 + 'REGA ! ! .DROP ;
+
+:.>B		TOS 'REGB ! .DROP ;
+:.B>		.DUP REGB 'TOS ! ;
+:.B@		.DUP REGB @ 'TOS ! ;
+:.B!		TOS REGB ! .DROP ;
+:.B+       TOS 'REGB +! .DROP ;
+:.B@+		.DUP REGB dup 4 + 'REGB ! @ 'TOS ! ;
+:.B!+		TOS REGB dup 4 + 'REGB ! ! .DROP ;
+
+:.@			TOS @ 'TOS ! ;
+:.C@		TOS c@ 'TOS ! ;
+:.Q@		TOS q@ 'TOS ! ;
+:.!			NOS @ TOS ! .NIP .DROP ;
+:.C!		NOS @ TOS c! .NIP .DROP ;
+:.Q!		NOS @ TOS q! .NIP .DROP ;
+:.+!		NOS @ TOS +! .NIP .DROP ;
+:.C+!		NOS @ TOS c+! .NIP .DROP ;
+:.Q+!		NOS @ TOS q+! .NIP .DROP ;
+:.@+		.DUP 4 NOS +! TOS @ 'TOS ! ;
+:.!+		NOS @ TOS ! .NIP 4 'TOS +! ;
+:.C@+		.DUP 1 NOS +! TOS c@ 'TOS ! ;
+:.C!+		NOS @ TOS c! .NIP 1 'TOS +! ;
+:.Q@+		.DUP 2 NOS +! TOS q@ 'TOS ! ;
+:.Q!+		NOS @ TOS q! .NIP 2 'TOS +! ;
+
+:.MOVE
+:.MOVE>
+:.FILL
+	;
+:.CMOVE
+	;
+:.CMOVE>
+	;
+:.CFILL
+	;
+:.QMOVE
+	;
+:.QMOVE>
+	;
+:.QFILL
 	;
 
-:i; 							| 10
-	2drop .popIP 0 ;
+:.UPDATE
+:.REDRAW
+:.MEM
+:.SW
+:.SH
+:.FRAMEV
+:.XYPEN
+:.BPEN
+:.KEY
+:.CHAR
 
-|--- IF
-:i(				| 11
-	level+
+:.MSEC
+:.TIME
+:.DATE
+
+:.LOAD
+:.SAVE
+:.APPEND
+
+:.FFIRST
+:.FNEXT ;
+
+:.SYS ;
+:.SLOAD ;
+:.SFREE ;
+:.SPLAY ;
+:.MLOAD ;
+:.MFREE ;
+:.MPLAY ;
+:.INK
+:.'INK
+:.ALPHA
+:.OPX
+:.OPY
+:.OP
+:.LINE
+:.CURVE
+:.CURVE3
+:.PLINE
+:.PCURVE
+:.PCURVE3
+:.POLI	;
+
+
+#vmc
+0 0 0 0 0 0 0 | i0 i: i:: i# i: i| i^		| 0 1 2 3 4 5 6
+.dec .hex .dec .dec .str .wor .var .dwor .dvar
+.; .( .) .[ .] .EX .0? .1? .+? .-? .<? .>? .=? .>=? .<=? .<>?
+.A? .N? .B? .DUP .DROP .OVER .PICK2 .PICK3 .PICK4 .SWAP .NIP .ROT .2DUP .2DROP .3DROP .4DROP
+.2OVER .2SWAP .>R .R> .R@ .AND .OR .XOR .+ .- .* ./ .<< .>> .>>> .MOD
+./MOD .*/ .*>> .<</ .NOT .NEG .ABS .SQRT .CLZ .@ .C@ .Q@ .@+ .C@+ .Q@+ .!
+.C! .Q! .!+ .C!+ .Q!+ .+! .C+! .Q+! .>A .A> .A@ .A! .A+ .A@+ .A!+ .>B
+.B> .B@ .B! .B+ .B@+ .B!+ .MOVE .MOVE> .FILL .CMOVE .CMOVE> .CFILL .QMOVE .QMOVE> .QFILL .UPDATE
+.REDRAW .MEM .SW .SH .FRAMEV .XYPEN .BPEN .KEY .CHAR .MSEC .TIME .DATE .LOAD .SAVE .APPEND
+.FFIRST .FNEXT
+.SYS
+.SLOAD .SFREE .SPLAY
+.MLOAD .MFREE .MPLAY
+.INK .'INK .ALPHA .OPX .OPY
+.OP .LINE .CURVE .CURVE3
+.PLINE .PCURVE .PCURVE3 .POLI
+0
+
+|-------------------------------
+| palabras de interaccion
+|-------------------------------
+##<<ip	| ip
+##<<bp	| breakpoint
+##code<
+
+::breakpoint | src --
+|	memsrc ( @+ pick2 <? )( drop ) drop
+|	4 - memsrc - code< +
+	'<<bp ! ;
+
+:**emu
+	;
+:emu**
 	;
 
-:i)				| 12
-	level-
-	;
-|--- REP
-:i[				| 13
-:i]             | 14
-	;
-
-:iEX			| 15
-	.EX ;
-
-:i0? ;
-:i1? ;
-:i+? ;
-:i-? ;
-:i<? ;
-:i>? ;
-:i=? ;
-:i>=? ;
-:i<=? ;
-:i<>? ;
-:iA? ;
-:iN? ;
-:iB? ;
-:i@  ;
-:iC@ ;
-:iQ@ ;
-:i@+ ;
-:iC@+ ;
-:iQ@+ ;
-:i!   ;
-:iC!  ;
-:iQ!  ;
-:i!+  ;
-:iC!+ ;
-:iQ!+ ;
-:i+!  ;
-:iC+! ;
-:iQ+! ;
-
-:iMOVE
-:iMOVE>
-:iFILL 
-	;
-:iCMOVE
-	;
-:iCMOVE>
-	;
-:iCFILL
-	;
-:iDMOVE
-	;
-:iDMOVE>
-	;
-:iDFILL
+::resetvm | --
+	'PSP 'NOS !
+	'RSP 'RTOS !
+	0 'TOS !
+	<<boot '<<ip !
 	;
 
-:iUPDATE
-:iREDRAW
-:iMEM
-:iSW
-:iSH
-:iFRAMEV
-:iXYPEN
-:iBPEN
-:iKEY
-
-:iMSEC
-:iTIME
-:iDATE
-
-:iLOAD
-:iSAVE
-:iAPPEND
-
-:iFFIRST
-:iFNEXT ;
-
-:iSYS ;
-:iLOAD ;
-:iFREE ;
-:iPLAY ;
-:iLOAD ;
-:iMFREE ;
-:iMPLAY ;
-:iINK 
-:i'INK 
-:iALPHA 
-:iOPX 
-:iOPY
-:iOP 
-:iLINE 
-:iCURVE
-:iCURVE3
-:iPLINE 
-:iPCURVE 
-:iPCURVE3 
-:iPOLI
+::stepvm | --
+	<<ip 0? ( drop ; )
+:stepvmi
+	**emu
+	(	@+ dup $ff and
+		21 >? ( nip )
+		2 << 'vmc + @ ex
+		code< <=? ) | corte?
+	'<<ip !
+	emu**
 	;
 
+::stepvmn | --
+	<<ip 0? ( drop ; )
+	dup @ $ff and $c <>? ( drop stepvmi ; ) drop
+	**emu
+	dup 4 + swap
+	( over <>?
+		@+ dup $ff and
+		21 >? ( nip )
+		2 << 'vmc + @ ex
+		1? ( '<<ip ! drop emu** ; )
+		) nip
+	'<<ip !
+	emu** ;
 
-#vml
-i0 i: i:: i# i: i| i^		| 0 1 2 3 4 5 6
-idec ihex ibin ifix istr    | 7 8 9 a b
-iwor ivar idwor idvar		| c d e f
-i; i( i) i[ i] iEX
-i0? i1? i+? i-? i<? i>? i=? i>=? i<=? i<>? iA? iN? iB?
-.DUP .DROP .OVER .PICK2 .PICK3 .PICK4 .SWAP .NIP
-.ROT .2DUP .2DROP .3DROP .4DROP .2OVER .2SWAP
-.>R .R> .R@
-.AND .OR .XOR .NOT .NEG
-.+ .- .* ./ .*/
-./MOD .MOD .ABS .SQRT .CLZ
-.<< .>> .>>> .*>> .<</
-i@ iC@ iQ@ i@+ iC@+ iQ@+
-i! iC! iQ! i!+ iC!+ iQ!+
-i+! iC+! iQ+!
-.>A .A> .A@ .A! .A+ .A@+ .A!+
-.>B .B> .B@ .B! .B+ .B@+ .B!+
-iMOVE iMOVE> iFILL
-iCMOVE iCMOVE> iCFILL
-iDMOVE iDMOVE> iDFILL
-iUPDATE
-iREDRAW
-iMEM
-iSW iSH iFRAMEV
-iXYPEN iBPEN iKEY
-iMSEC iTIME iDATE
-iLOAD iSAVE iAPPEND
-iFFIRST iFNEXT
-iSYS
-iLOAD iFREE iPLAY
-iLOAD iMFREE iMPLAY
-iINK i'INK iALPHA iOPX iOPY
-iOP iLINE iCURVE iCURVE3
-iPLINE iPCURVE iPCURVE3 iPOLI
+::playvm | --
+	<<ip 0? ( drop ; )
+	**emu
+	( <<bp <>?
+		@+ dup $ff and
+		21 >? ( nip )
+		2 << 'vmc + @ ex
+		1? )
+	'<<ip !
+	emu** ;
 
-:vmstep
-	$7f and 2 << 'vml + @ exec ;
+::tokenexec | token --
+	dup $ff and
+	21 >? ( nip )
+	2 << 'vmc + @ ex ;
 
-::vmrun | adr --
-	( @+ 1?
-		( dup vmstep 8 0>> 1? ) drop
-		0? ( drop ; )
-		) 2drop ;

@@ -7,7 +7,6 @@
 ^r3/lib/print.r3
 ^r3/lib/input.r3
 ^r3/lib/parse.r3
-^r3/lib/sprite.r3
 
 ^r3/lib/fontm.r3
 ^media/fntm/droidsans13.fnt
@@ -53,7 +52,6 @@
 
 |----- scratchpad
 #outpad * 2048
-#inpad * 1024
 
 #lerror 0
 #cerror 0
@@ -208,13 +206,6 @@
 	rows 1 - 'hcode !
 	cols 6 - 'wcode !
 	calcselect ;
-
-:mode!imm
-	1 'emode !
-	rows 7 - 'hcode !
-	cols 20 - 'wcode !
-	calcselect ;
-
 :mode!find
 	2 'emode !
 	rows 3 - 'hcode !
@@ -222,7 +213,7 @@
 	calcselect ;
 :mode!error
 	3 'emode !
-	rows 3 - 'hcode !
+	rows 4 - 'hcode !
 	cols 6 - 'wcode !
 	calcselect ;
 
@@ -247,24 +238,19 @@
 |LIN|	"./r3lin r3/sys/r3debug.r3"
 	sys
 	mark
-	| load file info.
+|... load file info.
 	here "mem/debuginfo.db" load 0 swap c!
 	here >>cr trim str>nro 'cerror ! drop
 	empty
 
-	cerror 1? ( drop
-		fuente cerror + 'fuente> !
-        linetocursor 'lerror !
-		here >>cr 0 swap c!
-		fuente> lerror 1 + here
-		" %s in line %d%. %w " sprint 'outpad strcpy
-		mode!error
-		; ) drop
-
-|	here 'outpad strcpy	| que hay
-	| generate comm
-	| enable imm
-|	mode!imm
+	cerror 0? ( drop ; ) drop
+|... enter error mode
+	fuente cerror + 'fuente> !
+	linetocursor 'lerror !
+	here >>cr 0 swap c!
+	fuente> lerror 1 + here
+	" %s in line %d%. %w " sprint 'outpad strcpy
+	mode!error
 	;
 
 :mkplain
@@ -637,30 +623,6 @@
 	drop
 	;
 
-:immmodekey
-	xsele cch op
-	wcode hcode 1 + gotoxy
-	xsele ccy pline
-	sw ccy pline
-	sw cch pline
-	$040486 'ink !
-	poli
-
-	0 hcode 1 + gotoxy
-	$0000AE 'ink !
-	rows hcode - 1 - backlines
-
-	$ffffff 'ink !
-	'outpad text cr
-	" > " emits
-	'inpad 1024 input
-
-	key
-	>esc< =? ( mode!edit )
-	<f2> =? ( mode!edit )
-	drop
-	;
-
 
 :editmodekey
 	panelcontrol 1? ( drop controlkey ; ) drop
@@ -737,7 +699,6 @@
 	0? ( drop barraf ; ) drop
 	barrac ;
 
-
 :barratop
 	home
 	$B2B0B2 'ink ! backline
@@ -758,7 +719,7 @@
 	drawcode
 	emode
 	0? ( editmodekey )
-	1 =? ( immmodekey )
+|	1 =? ( immmodekey )
 	2 =? ( findmodekey )
 	3 =? ( errmodekey )
 	drop

@@ -43,12 +43,12 @@
 
 
 |--- Pilas
-#REGA
-#REGB
+##REGA
+##REGB
 ##TOS 0
 ##PSP * 1024
 ##NOS 'PSP
-#RSP * 1024
+##RSP * 1024
 ##RTOS 'RSP
 
 | format cell
@@ -127,34 +127,6 @@
 ::.LIT		.DUP dup @ 'TOS ! 4 + ;
 ::.ADR		.DUP dup @ @ 'TOS ! 4 + ;
 
-::.;		RTOS @ nip -4 'RTOS +! ;
-::.CALL		4 'RTOS +! dup 4 + RTOS ! @ ;
-::.JMP		@ ;
-
-|-- exec
-::.EX		TOS .DROP 4 'RTOS +! swap RTOS ! ;
-
-::.popIP	| -- val
-	RTOS dup @ swap 4 - RSP max 'RTOS ! ;
-
-|-- condicionales
-::.0?		TOS 1? ( drop @ ; ) drop 4 + ;
-::.1?		TOS 0?  ( drop @ ; ) drop 4 + ;
-::.+?		TOS -?  ( drop @ ; ) drop 4 + ;
-::.-?		TOS $80000000 nand? ( drop @ ; ) drop 4 + ;
-
-::.=?		NOS @ TOS <>? ( drop @ .DROP ; ) drop 4 + .DROP ;
-::.<?		NOS @ TOS >=? ( drop @ .DROP ; ) drop 4 + .DROP ;
-::.>?		NOS @ TOS <=? ( drop @ .DROP ; ) drop 4 + .DROP ;
-::.<=?		NOS @ TOS >? ( drop @ .DROP ; ) drop 4 + .DROP ;
-::.>=?		NOS @ TOS <? ( drop @ .DROP ; ) drop 4 + .DROP ;
-::.<>?		NOS @ TOS =? ( drop @ .DROP ; ) drop 4 + .DROP ;
-::.A?		NOS @ TOS nand? ( drop @ .DROP ; ) drop 4 + .DROP ;
-::.N?		NOS @ TOS and? ( drop @ .DROP ; ) drop 4 + .DROP ;
-
-::.B?		NOS 4 - @ NOS @ TOS bt? ( drop @ .2DROP ; ) drop 4 + .2DROP ; |****
-
-|--------------------
 ::.>R		4 'RTOS +! TOS RTOS ! .DROP ;
 ::.R>		.DUP RTOS dup @ 'TOS ! 4 - 'RTOS ! ;
 ::.R@		.DUP RTOS @ 'TOS ! ;
@@ -179,38 +151,6 @@
 ::.<<		vNOS vTOS << .2DROP PUSH.NRO ;
 ::.>>		vNOS vTOS >> .2DROP PUSH.NRO ;
 ::.>>>		vNOS vTOS >>> .2DROP PUSH.NRO ;
-
-::.>A		TOS 'REGA ! .DROP ;
-::.A>		.DUP REGA 'TOS ! ;
-::.A@		.DUP REGA @ 'TOS ! ;
-::.A!		TOS REGA ! .DROP ;
-::.A+       TOS 'REGA +! .DROP ;
-::.A@+		.DUP REGA dup 4 + 'REGA ! @ 'TOS ! ;
-::.A!+		TOS REGA dup 4 + 'REGA ! ! .DROP ;
-
-::.>B		TOS 'REGB ! .DROP ;
-::.B>		.DUP REGB 'TOS ! ;
-::.B@		.DUP REGB @ 'TOS ! ;
-::.B!		TOS REGB ! .DROP ;
-::.B+       TOS 'REGB +! .DROP ;
-::.B@+		.DUP REGB dup 4 + 'REGB ! @ 'TOS ! ;
-::.B!+		TOS REGB dup 4 + 'REGB ! ! .DROP ;
-
-:i@			TOS @ 'TOS ! ;
-:iC@		TOS c@ 'TOS ! ;
-:iD@		TOS q@ 'TOS ! ;
-:i!			NOS @ TOS ! .NIP .DROP ;
-:iC!		NOS @ TOS c! .NIP .DROP ;
-:iQ!		NOS @ TOS q! .NIP .DROP ;
-:i+!		NOS @ TOS +! .NIP .DROP ;
-:iC+!		NOS @ TOS c+! .NIP .DROP ;
-:iQ+!		NOS @ TOS q+! .NIP .DROP ;
-:i@+		.DUP 4 NOS +! TOS @ 'TOS ! ;
-:i!+		NOS @ TOS ! .NIP 4 'TOS +! ;
-:iC@+		.DUP 1 NOS +! TOS c@ 'TOS ! ;
-:iC!+		NOS @ TOS c! .NIP 1 'TOS +! ;
-:iQ@+		.DUP 2 NOS +! TOS q@ 'TOS ! ;
-:iQ!+		NOS @ TOS q! .NIP 2 'TOS +! ;
 
 |-------- constantes del sistema
 #syscons "XRES" "YRES"
