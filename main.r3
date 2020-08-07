@@ -34,12 +34,14 @@
 |WIN| 44 +
 |LIN| 19 +
 |RPI| 11 +
+|MAC| 21 +               | when _DARWIN_FEATURE_64_BIT_INODE is set !
 	;
 
 :FDIR? | adr -- 1/0
 |WIN| @ 4 >>
 |LIN| 18 + c@ 2 >>
 |RPI| 10 + c@ 2 >>
+|MAC| 20 + c@ 2 >>       | when _DARWIN_FEATURE_64_BIT_INODE is set !
 	1 and ;
 
 :FINFO | adr -- adr info
@@ -259,6 +261,7 @@
 |WIN| "r3 ""%s/%s"""
 |LIN| "./r3lin ""%s/%s"""
 |RPI| "./r3rpi ""%s/%s"""
+|MAC| "./r3mac %s/%s"
 	sprint sys
 	;
 
@@ -271,6 +274,7 @@
 |WIN| "r3 r3/editor/code-edit.r3"
 |LIN| "./r3lin r3/editor/code-edit.r3"
 |RPI| "./r3rpi r3/editor/code-edit.r3"
+|MAC| "./r3mac r3/editor/code-edit.r3"
 	 sys
 	;
 
@@ -307,6 +311,7 @@
 |WIN| "r3 r3/editor/code-edit.r3"
 |LIN| "./r3lin r3/editor/code-edit.r3"
 |RPI| "./r3rpi r3/editor/code-edit.r3"
+|MAC| "./r3mac r3/editor/code-edit.r3"
 	sys
 
 	rebuild
