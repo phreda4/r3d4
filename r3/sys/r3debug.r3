@@ -256,7 +256,7 @@
 	$B2B0B2 'ink ! backline
 	$0 'ink !
 	" D3bug " emits
-	"DICC" "F1" btnf
+	"PLAY/VIEW" "TAB" btnf
 	"INSPECT" "F2" btnf
 	"MEMORY" "F3" btnf
 	"RUN" "F4" btnf
@@ -319,6 +319,14 @@
 	cols 25 - 'wcode !
 	calcselect ;
 
+:mode!view
+	1 'emode !
+	rows 2 - 'hcode !
+	cols 6 - 'wcode !
+	calcselect ;
+
+|-------------------------------
+
 :modeimm
 	drawcode
 	console
@@ -329,29 +337,28 @@
 	<f3> =? ( stepvmn gotosrc )
 	<f4> =? (  fuente> breakpoint )
 |	<f6> =? ( viewscreen )
-|	<tab> =? ( mode 1+ $3 and 'mode ! )
-
+	<tab> =? ( mode!view )
 	drop
 	;
-
-|-------------------------------
-:mode!view
-	1 'emode !
-	rows 2 - 'hcode !
-	cols 6 - 'wcode !
-	calcselect ;
 
 :modeview
 	memorymap
 
+	0 hcode 1 + gotoxy
+	$0000AE 'ink !
+	rows hcode - 1 - backlines
+	0 rows 1 - gotoxy
+	"Search" "F3" btnf
+
 	key
 	>esc< =? ( exit )
 	<f1> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
-|	<f2> =? ( )
 |	<f3> =? ( )
 |	<f4> =? ( )
 |	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
 |	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
+	<tab> =? ( mode!imm )
+
 	drop
 	;
 

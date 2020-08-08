@@ -200,3 +200,7 @@ timeline.r3
 ::+fx.BouIO | xy1 xy2 xy1f xy2f duracion inicio --
 ::timeline.draw
 ::timeline.inimem
+
+fastblur.r3
+^^^^^^^^^^^
+::blur | w h radio -- ; blur screen (screen only for now), radio in pixels
