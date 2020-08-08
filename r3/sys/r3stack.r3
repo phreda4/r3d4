@@ -43,8 +43,6 @@
 
 
 |--- Pilas
-##REGA
-##REGB
 ##TOS 0
 ##PSP * 1024
 ##NOS 'PSP
@@ -69,14 +67,18 @@
 
 |-------------------------------
 | store value in stack
-#stkvalue * 1024
+#stkvalue * 1024  | 128 of 64bits
 #stkvalue# 0
 
 :newval | -- newval
-	stkvalue# dup 1 + 'stkvalue# ! ;
+	stkvalue# dup 1 + $7f and 'stkvalue# ! ;
 
-::PUSH.NRO	| nro --
+::PUSH.NRO | nro --
 	.DUP
+	newval dup 8 << 0 or 'TOS !
+	3 << 'stkvalue + q! ;
+
+::TOS.NRO! | nro --
 	newval dup 8 << 0 or 'TOS !
 	3 << 'stkvalue + q! ;
 
@@ -102,8 +104,14 @@
 	TOS NOS @ 'TOS ! -4 'NOS +! ;
 
 ::vTOS	TOS 8 >> 3 << 'stkvalue + q@ ;
+::aTOS	TOS 8 >> 3 << 'stkvalue + ;
 ::vNOS	NOS @ 8 >> 3 << 'stkvalue + q@ ;
+::aNOS	NOS @ 8 >> 3 << 'stkvalue + ;
+
 ::vPK2	NOS 4 - @ 8 >> 3 << 'stkvalue + q@ ;
+::vPK3	NOS 8 - @ 8 >> 3 << 'stkvalue + q@ ;
+::vPK4	NOS 12 - @ 8 >> 3 << 'stkvalue + q@ ;
+::vPK5	NOS 16 - @ 8 >> 3 << 'stkvalue + q@ ;
 
 ::.OVER     .DUP NOS 4 - @ 'TOS ! ;
 ::.PICK2    .DUP NOS 8 - @ 'TOS ! ;
@@ -118,6 +126,8 @@
 ::.2DROP    NOS 4 - @ 'TOS ! -8 'NOS +! ;
 ::.3DROP    NOS 8 - @ 'TOS ! -12 'NOS +! ;
 ::.4DROP    NOS 12 - @ 'TOS ! -16 'NOS +! ;
+
+::.6DROP    NOS 20 - @ 'TOS ! -16 'NOS +! ;
 
 ::.SWAP     NOS @ TOS NOS ! 'TOS ! ;
 ::.ROT      TOS NOS 4 - @ 'TOS ! NOS @ NOS 4 - !+ ! ;

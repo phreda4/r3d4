@@ -188,8 +188,10 @@
 
 |..............................
 :linenro | lin -- lin
+	dup ylinea +
+	ycursor =? ( $222222 'ink ! backline )
 	$aaaaaa 'ink !
-	dup ylinea + 1 + .d 3 .r. emits sp ;
+	 1 + .d 3 .r. emits sp ;
 
 :<<13 | a -- a
 	( fuente >=?
@@ -204,6 +206,11 @@
 		drop 1 + )
 	drop $fuente 2 - ;
 
+:khome
+	fuente> 1 - <<13 1 + 'fuente> ! ;
+:kend
+	fuente> >>13  1 + 'fuente> ! ;
+
 :scrollup | 'fuente -- 'fuente
 	pantaini> 1 - <<13 1 - <<13  1 + 'pantaini> !
 	ylinea 1? ( 1 - ) 'ylinea ! ;
@@ -212,6 +219,82 @@
 	pantaini> >>13 2 + 'pantaini> !
 	pantafin> >>13 2 + 'pantafin> !
 	1 'ylinea +! ;
+
+:colcur
+	fuente> 1 - <<13 swap - ;
+
+:karriba
+	fuente> fuente =? ( drop ; )
+	dup 1 - <<13		| cur inili
+	swap over - swap	| cnt cur
+	dup 1 - <<13			| cnt cur cura
+	swap over - 		| cnt cura cur-cura
+	rot min + fuente max
+	'fuente> !
+	;
+
+:kabajo
+	fuente> $fuente >=? ( drop ; )
+	dup 1 - <<13 | cur inilinea
+	over swap - swap | cnt cursor
+	>>13 1 +    | cnt cura
+	dup 1 + >>13 1 + 	| cnt cura curb
+	over -
+	rot min +
+	'fuente> !
+	;
+
+:kder
+	fuente> $fuente <? ( 1 + 'fuente> ! ; ) drop ;
+
+:kizq
+	fuente> fuente >? ( 1 - 'fuente> ! ; ) drop ;
+
+:kpgup
+	20 ( 1? 1 - karriba ) drop ;
+
+:kpgdn
+	20 ( 1? 1 - kabajo ) drop ;
+
+|..............................
+:emitcur
+	13 =? ( drop 1 'ycursor +! 0 'xcursor ! ; )
+	9 =? ( drop 4 'xcursor +! ; )
+	1 'xcursor +!
+	noemit ;
+
+:cursorpos
+	ylinea 'ycursor ! 0 'xcursor !
+	pantaini> ( fuente> <? c@+ emitcur ) drop
+	xcursor
+	xlinea <? ( dup 'xlinea ! )
+	xlinea wcode + >=? ( dup wcode - 1 + 'xlinea ! )
+	drop ;
+
+:drawcursor
+	cursorpos
+	blink 1? ( drop ; ) drop
+	xcode xlinea - xcursor +
+	ycode ylinea - ycursor + gotoxy
+	ccx ccy xy>v >a
+	cch ( 1? 1 -
+		ccw ( 1? 1 -
+			a@ not a!+
+			) drop
+		sw ccw - 2 << a+
+		) drop ;
+
+:drawcursorfix
+	cursorpos
+	xcode xlinea - xcursor +
+	ycode ylinea - ycursor + gotoxy
+	ccx ccy xy>v >a
+	cch ( 1? 1 -
+		ccw ( 1? 1 -
+			a@ not a!+
+			) drop
+		sw ccw - 2 << a+
+		) drop ;
 
 |..............................
 :drawcode
@@ -223,15 +306,10 @@
 		swap drawline
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
- 	;
-
-:setcodecursor
 	fuente>
 	( pantafin> >? scrolldw )
 	( pantaini> <? scrollup )
 	drop ;
-
-
 
 :setsource | src --
 	dup 'pantaini> !
@@ -325,10 +403,35 @@
 	cols 6 - 'wcode !
 	calcselect ;
 
+:mode!src
+	2 'emode !
+	rows 2 - 'hcode !
+	cols 6 - 'wcode !
+	calcselect ;
+
 |-------------------------------
+
+:modesrc
+	drawcode
+	drawcursor
+
+	key
+	<up> =? ( karriba ) <dn> =? ( kabajo )
+	<ri> =? ( kder ) <le> =? ( kizq )
+	<home> =? ( khome ) <end> =? ( kend )
+	<pgup> =? ( kpgup ) <pgdn> =? ( kpgdn )
+	>esc< =? ( exit )
+
+	<tab> =? ( mode!view )
+
+|	<f1> =? ( runfile )
+	drop
+	;
 
 :modeimm
 	drawcode
+	drawcursorfix
+
 	console
 	key
 	>esc< =? ( exit )
@@ -337,7 +440,7 @@
 	<f3> =? ( stepvmn gotosrc )
 	<f4> =? (  fuente> breakpoint )
 |	<f6> =? ( viewscreen )
-	<tab> =? ( mode!view )
+	<tab> =? ( mode!src )
 	drop
 	;
 
@@ -357,7 +460,9 @@
 |	<f4> =? ( )
 |	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
 |	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
+
 	<tab> =? ( mode!imm )
+
 
 	drop
 	;
@@ -371,8 +476,9 @@
 	barratop
 
 	emode
-	0? ( modeimm )
+	0 =? ( modeimm )
 	1 =? ( modeview )
+	2 =? ( modesrc )
 	drop
 
 	acursor ;
@@ -383,7 +489,9 @@
 	error 1? ( drop exitonerror ; ) drop
 	emptyerror
 	'name "mem/main.mem" load drop
+
 	'fontdroidsans13 fontm
+|	fonti
 
 	calcselect
 	'name 'namenow strcpy
