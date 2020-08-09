@@ -29,6 +29,9 @@
 #playerdir 0
 #UP 0 #DN 1 #RI 2 #LE 3
 
+#movex  0  0  1 -1
+#movey -1  1  0  0
+
 #FLOOR 0 #WALL 1 #BOX 2 #BOXGOAL 3 #GOAL 4
 
 |  -- Format of the compressed levels ( RLE style )
@@ -54,6 +57,10 @@
 #NMAPS 63
 
 #nboxes 0
+
+| storing played moves
+#moves * 1000
+#curmove 0
 
 #maploaded 0 #curmap 0
 #maps 'lvlaz  'lvlbz  'lvlcz
@@ -213,34 +220,58 @@
 
 :setdir 'playerdir ! ;
 
-:lookup UP setdir ;
-:lookdn DN setdir ;
-:lookri RI setdir ;
-:lookle LE setdir ;
-
 :adjustplayer playertrans 'playery ! 'playerx ! ;
 
-:trymove 2dup movelogic 1? ( drop adjustplayer ; ) 3drop ;
+:trymove | ( dir dx dy -- )
+	 2dup movelogic 1? ( drop adjustplayer 'moves curmove + c! 1 'curmove +! ; )
+	 4drop ;
 
-:tryri  1  0 trymove ;
-:tryle -1  0 trymove ;
-:tryup  0 -1 trymove ;
-:trydn  0  1 trymove ;
+:getdxdy | ( dir -- dx dy )
+	 dup
+	 2 << 'movex + @
+	 swap
+	 2 << 'movey + @
+	 ;
+	 
+:try | ( dir -- )
+     dup setdir
+     dup getdxdy
+     trymove ;
+
+:trymove2 | ( dir dx dy -- )
+	  2dup movelogic 1? ( drop adjustplayer ; ) 4drop ;
+
+:undo! | ( dir -- )
+       dup setdir
+       getdxdy
+       trymove2 ;
+
+:resetp -1 dup 'px ! 'py ! ;
+
+:loadcurmap 'maps curmap 4 * + @ mapdecomp calcscale resetp ;
+
+:undo | ( -- )
+      curmove 0? ( drop ; ) drop | nothing has been played yet
+      loadcurmap cls drawmap
+      | run moves from 0 to (curmove-1)
+      0 ( curmove 2 - <=?
+      	dup
+	'moves + c@ undo!
+	1 + ) drop
+      curmove 1 - 'curmove !
+      ;
 
 :keyboard key
 	  >esc< =? ( exit )
 	  <pgup> =? ( nextmap )
 	  <pgdn> =? ( prevmap )
-	  <ri> =? ( tryri lookri )
-	  <le> =? ( tryle lookle )
-	  <up> =? ( tryup lookup )
-	  <dn> =? ( trydn lookdn )
+	  <up> =? ( UP try )
+	  <dn> =? ( DN try )
+	  <ri> =? ( RI try )
+	  <le> =? ( LE try )
 	  <f1> =? ( 0 'maploaded ! )
+	  <f2> =? ( undo )
 	  drop ;
-
-:resetp -1 dup 'px ! 'py ! ;
-
-:loadcurmap 'maps curmap 4 * + @ mapdecomp calcscale resetp ;
 
 | - - - - -
 
@@ -327,7 +358,7 @@
 :newmap loadcurmap cls drawmap controlsanim >xfb animation xfb> ;
 
 :game home keyboard
-      maploaded 0? ( newmap ) drop | full screen drawn only once
+      maploaded 0? ( newmap 0 'curmove ! ) drop | full screen drawn only once
       controlsplay
       drawplayer won? ;
 
