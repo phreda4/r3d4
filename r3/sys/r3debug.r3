@@ -11,105 +11,205 @@
 ^./r3vm.r3
 
 ^r3/lib/print.r3
+^r3/lib/btn.r3
 ^r3/lib/input.r3
 ^r3/lib/fontm.r3
 ^media/fntm/droidsans13.fnt
 
 #name * 1024
 #namenow * 256
+#cntinc
 
 ::r3debuginfo | str --
 	r3name
 	here dup 'src !
 	'r3filename
-	2dup load
-|	"load" slog
+	2dup load			|	"load" slog
 	here =? ( 3drop "no src" 'error ! ; )
-
-	src only13
-
-	0 swap c!+ 'here !
+	src only13 0 swap c!+ 'here !
 	0 'error !
 	0 'cnttokens !
 	0 'cntdef !
 	'inc 'inc> !
-	r3fullmode
-|	"stage 1" slog
-	swap r3-stage-1
-	error 1? ( drop ; ) drop
-|	"stage 2" slog
-	r3-stage-2
-	1? ( drop ; ) drop
-|	"stage 3" slog
-	r3-stage-3
-|	"stage 4" slog
-	r3-stage-4
-|	"stage ok" slog
-|	"Ok" 'error !
+	r3fullmode swap	|	"stage 1" slog
+	r3-stage-1 error 1? ( drop ; ) drop	|	"stage 2" slog
+	r3-stage-2 1? ( drop ; ) drop 		|	"stage 3" slog
+	r3-stage-3			|	"stage 4" slog
+	r3-stage-4			|	"stage ok" slog
+	inc> 'inc - 3 >> 'cntinc !
 	;
-
-:no10place | adr
-	lerror 0? ( ; )
-	0 src ( pick2 <? c@+
-		10 <>? ( rot 1 + rot rot )
-		drop ) drop nip ;
 
 :savedebug
 	mark
 	error ,s ,cr
-	no10place ,d ,cr
+	lerror src - ,d ,cr
 	"mem/debuginfo.db" savemem
 	empty ;
 
 :emptyerror
  	0 0	"mem/debuginfo.db" save ;
 
-:exitonerror
-	savedebug
-	|savedicc savecode
-	;
-
+|-----------------------------
 #emode
-|------ MEMORY VIEW
-#actworld 0
-#iniworld 0
 
-:incmap
-	'inc ( inc> <?
-		@+ swap @+
-		rot "%l %h" print cr
-		) drop ;
-
-:memorydic
-	0 ( rows 4 - <?
-		dup 4 << dicc +
-		@+ "%w " print
-		@+ "%h " print
-		@+ "%h " print
-		@ "%h " print
-		cr
-		1 + ) drop
-	;
-
-:memorymap
-	$ff00 'ink !
-	0 1 gotoxy
-	memorydic
-	;
-
-|------ CODE VIEW
 #xcode 5
 #ycode 1
 #wcode 40
 #hcode 25
 
+#xseli	| x ini win
+#xsele	| x end win
+
+|------ MODES
+:calcselect
+	xcode wcode + gotox ccx 'xsele !
+	xcode gotox ccx 'xseli !
+	;
+
+:mode!imm
+	0 'emode !
+	rows 7 - 'hcode !
+	cols 25 - 'wcode !
+	calcselect ;
+
+:mode!view
+	1 'emode !
+	rows 2 - 'hcode !
+	cols 6 - 'wcode !
+	calcselect ;
+
+:mode!src
+	2 'emode !
+	rows 2 - 'hcode !
+	cols 6 - 'wcode !
+	calcselect ;
+
+|------ MEMORY VIEW
+#actword 0
+#iniword 0
+
+:incmap
+	$ffff00 'ink !
+	0 ( cntinc <?
+		30 over 1 + gotoxy
+		dup 3 << 'inc +
+		@+ swap @ swap "%l %h" print
+		1 + ) drop
+	;
+
+|---------
+:printcode
+	$ff0000 'ink !
+	@+ " :%w " print
+	drop ;
+:a
+	4 + @+
+	mark
+	dup 1 >> $1 and "le" + c@ ,c	| export/local
+	dup 2 >> $1 and " '" + c@ ,c	| /adress used
+	dup 3 >> $1 and " r" + c@ ,c	| /rstack mod
+	dup 4 >> $1 and " ;" + c@ ,c	| /multi;
+	dup 5 >> $1 and " R" + c@ ,c	| /recurse
+	dup 6 >> $1 and " [" + c@ ,c	| /anon
+	dup 7 >> $1 and " ." + c@ ,c	| /no ;
+	dup 8 >> $1 and " i" + c@ ,c	| /inline
+|	dup 9 >> $1 and " >" + c@ ,c	| /llama palabras
+	dup 10 >> $1 and " I" + c@ ,c	| /inline adentro
+	dup 12 >> $fff and "| c:%d " ,print
+	24 >> $ff and "n:%d " ,print
+	@ dup 12 >>> "l:%d " ,print
+	,mov ,eol
+	empty
+	$ffffff 'ink !
+	15 gotox
+	here print
+	;
+
+:printdata
+	$ff00ff 'ink !
+	@+ " #%w " print
+	drop ;
+:a
+	4 + @+
+	mark
+	dup 1 >> $1 and "le" + c@ ,c	| export/local
+	dup 2 >> $1 and " '" + c@ ,c	| /adress used
+	dup 3 >> $1 and " c" + c@ ,c	| cte
+
+	dup 12 >> $fff and "| c:%d " ,print
+	" t:" ,s
+	24 >> $f and datatype ,s
+
+	@ dup 12 >>> " l:%d " ,print
+	$fff and " %h " ,print
+	,eol
+	empty
+	$ffffff 'ink !
+	15 gotox
+	here print
+	;
+
+:printword | nro --
+	actword =? ( $222222 'ink ! backline )
+	4 << dicc +
+	dup 8 + @ 1 nand? ( drop printcode ; ) drop
+	printdata ;
+
+:memorydic
+	0 ( hcode <?
+		dup iniword +
+		$888888 'ink !
+		dup 1 + "%d." print
+		printword cr
+		1 + ) drop ;
+
+:+word | d --
+	actword +
+	cntdef 1 - clamp0max
+	iniword <? ( dup 'iniword ! )
+	iniword hcode + >=? ( dup hcode - 1 + 'iniword ! )
+	'actword ! ;
+
+
+:modeview
+	0 1 gotoxy
+	memorydic
+	incmap
+
+	0 hcode 1 + gotoxy
+	$0000AE 'ink !
+	rows hcode - 1 - backlines
+	0 rows 1 - gotoxy
+	"Search" "F3" btnf
+
+	key
+	>esc< =? ( exit )
+	<f1> =? ( mode!imm )
+
+	<up> =? ( -1 +word )
+	<dn> =? ( 1 +word )
+	<home> =? ( cntdef neg +word )
+	<end> =? ( cntdef +word )
+	<pgup> =? ( hcode neg +word ) 
+	<pgdn> =? ( hcode +word )
+
+|	<f1> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
+|	<f3> =? ( )
+|	<f4> =? ( )
+|	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
+|	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
+
+|	<tab> =? ( mode!imm )
+
+	drop
+	;
+
+
+|------ CODE VIEW
 #xlinea 0
 #ylinea 0	| primera linea visible
 #ycursor
 #xcursor
-
-#xseli	| x ini win
-#xsele	| x end win
 
 #pantaini>	| comienzo de pantalla
 #pantafin>	| fin de pantalla
@@ -318,17 +418,19 @@
 	count + '$fuente !
 	;
 
+#srcview 0
+
+:srcnow | nro --
+	inc> 'inc - 4 >> >=? ( drop 'name 'namenow strcpy src setsource ; )
+	4 << 'inc +
+	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
+	@ setsource
+	;
+
 :gotosrc
 	;
 
 |---------------------------------
-:btnf | "" "fx" --
-	sp
-	$ff0000 'ink ! backprint
-	$ffffff 'ink ! emits
-	0 'ink ! emits
-	;
-
 :barratop
 	home
 	$B2B0B2 'ink ! backline
@@ -374,43 +476,8 @@
 
 	;
 
-|------ MODES
-
-#srcview 0
-
-:srcnow | nro --
-	inc> 'inc - 4 >> >=? ( drop 'name 'namenow strcpy src setsource ; )
-	4 << 'inc +
-	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
-	@ setsource
-	;
-
-
-:calcselect
-	xcode wcode + gotox ccx 'xsele !
-	xcode gotox ccx 'xseli !
-	;
-
-:mode!imm
-	0 'emode !
-	rows 7 - 'hcode !
-	cols 25 - 'wcode !
-	calcselect ;
-
-:mode!view
-	1 'emode !
-	rows 2 - 'hcode !
-	cols 6 - 'wcode !
-	calcselect ;
-
-:mode!src
-	2 'emode !
-	rows 2 - 'hcode !
-	cols 6 - 'wcode !
-	calcselect ;
 
 |-------------------------------
-
 :modesrc
 	drawcode
 	drawcursor
@@ -422,9 +489,8 @@
 	<pgup> =? ( kpgup ) <pgdn> =? ( kpgdn )
 	>esc< =? ( exit )
 
-	<tab> =? ( mode!view )
-
-|	<f1> =? ( runfile )
+	<tab> =? ( mode!imm )
+	<f1> =? ( mode!view )
 	drop
 	;
 
@@ -435,42 +501,20 @@
 	console
 	key
 	>esc< =? ( exit )
-	<f1> =? ( fuente> breakpoint playvm gotosrc )
-	<f2> =? ( stepvm gotosrc )
-	<f3> =? ( stepvmn gotosrc )
-	<f4> =? (  fuente> breakpoint )
+
+	<f2> =? ( fuente> breakpoint playvm gotosrc )
+	<f3> =? ( stepvm gotosrc )
+	<f4> =? ( stepvmn gotosrc )
+	<f5> =? (  fuente> breakpoint )
 |	<f6> =? ( viewscreen )
+
 	<tab> =? ( mode!src )
-	drop
-	;
-
-:modeview
-	memorymap
-
-	0 hcode 1 + gotoxy
-	$0000AE 'ink !
-	rows hcode - 1 - backlines
-	0 rows 1 - gotoxy
-	"Search" "F3" btnf
-
-	key
-	>esc< =? ( exit )
-	<f1> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
-|	<f3> =? ( )
-|	<f4> =? ( )
-|	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
-|	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
-
-	<tab> =? ( mode!imm )
-
-
+	<f1> =? ( mode!view )
 	drop
 	;
 
 
 |------ MAIN
-
-
 :debugmain
 	cls gui
 	barratop
@@ -483,10 +527,11 @@
 
 	acursor ;
 
+
 : mark
 	'name "mem/main.mem" load drop
 	'name r3debuginfo
-	error 1? ( drop exitonerror ; ) drop
+	error 1? ( drop savedebug ; ) drop
 	emptyerror
 	'name "mem/main.mem" load drop
 

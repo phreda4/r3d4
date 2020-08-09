@@ -90,3 +90,10 @@
 	btnsimple
 	onClick
 	;
+
+::btnf | "" "fx" --
+	sp
+	$ff0000 'ink ! backprint
+	$ffffff 'ink ! emits
+	0 'ink ! emits
+	;

@@ -241,8 +241,8 @@
 :,ncar | n car -- car
 	( swap 1? 1 - swap dup ,c 1 + ) drop ;
 
-:,mov | mov --
-	"[ " ,s
+::,mov | mov --
+	"( " ,s
 	97 >r	| 'a'
 	dup $f and
 	dup r> ,ncar >r
@@ -250,7 +250,7 @@
 	swap 55 << 59 >> + | deltaD
 	-? ( ,d r> drop " ]" ,s ; ) | error en analisis!!
 	r> ,ncar drop
-	" ]" ,s ;
+	" )" ,s ;
 
 :,movx | mov --
 	dup
@@ -287,7 +287,7 @@
 
 #datastr "val" "ddat" "dcod" "str" "lval" "lddat" "ldcod" "lstr" "multi" "buff"
 
-:datatype | nro -- str
+::datatype | nro -- str
 	'datastr swap ( 0 <>? 1 - swap >>0 swap ) drop ;
 
 ::,datainfo | nro --
