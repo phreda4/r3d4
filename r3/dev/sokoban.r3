@@ -222,15 +222,19 @@
 
 :adjustplayer playertrans 'playery ! 'playerx ! ;
 
+#undoing? 0
+
+:savemove | ( dir -- )
+	  undoing? 0? ( drop 'moves curmove + c! 1 'curmove +! ; )
+	  2drop ;
+	  
 :trymove | ( dir dx dy -- )
-	 2dup movelogic 1? ( drop adjustplayer 'moves curmove + c! 1 'curmove +! ; )
+	 2dup movelogic 1? ( drop adjustplayer savemove ; )
 	 4drop ;
 
 :getdxdy | ( dir -- dx dy )
-	 dup
-	 2 << 'movex + @
-	 swap
-	 2 << 'movey + @
+	 dup 2 << 'movex + @
+	 swap 2 << 'movey + @
 	 ;
 	 
 :try | ( dir -- )
@@ -238,27 +242,20 @@
      dup getdxdy
      trymove ;
 
-:trymove2 | ( dir dx dy -- )
-	  2dup movelogic 1? ( drop adjustplayer ; ) 4drop ;
-
-:undo! | ( dir -- )
-       dup setdir
-       getdxdy
-       trymove2 ;
-
 :resetp -1 dup 'px ! 'py ! ;
 
 :loadcurmap 'maps curmap 4 * + @ mapdecomp calcscale resetp ;
 
 :undo | ( -- )
       curmove 0? ( drop ; ) drop | nothing has been played yet
+      1 'undoing? !
       loadcurmap cls drawmap
-      | run moves from 0 to (curmove-1)
+      | run moves from 0 to (curmove-2)
       0 ( curmove 2 - <=?
-      	dup
-	'moves + c@ undo!
+      	dup 'moves + c@ try
 	1 + ) drop
       curmove 1 - 'curmove !
+      0 'undoing? !
       ;
 
 :keyboard key
