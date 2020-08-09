@@ -311,20 +311,6 @@
 	       incframedt
 	       1 - ) drop ;
 
-:screen key
-	>esc< =? ( exit )
-	>esp< =? ( exit )
-	<pgup> =? ( nextmap exit )
-	<pgdn> =? ( prevmap exit )
-	drop
-	xfb>
-	dt 'framedt !
-	archivoblackregular fontsize fontr!
-	buildmsg drawletters
-	incdt ;
-
-:animation 'screen onshow ;
-
 :black 0 'ink ! ;
 
 :white $ffffff 'ink ! ;
@@ -348,9 +334,24 @@
 	      "ESC: Exit - " print
 	      "Cursor: Move Character - " print
 	      "F1: Restart Level - " print
+	      "F2: Undo last move - " print
 	      "PGUP: Next Level - " print
 	      "PGDN: Previous Level - " print
 	      ;
+
+:selectmap key
+	   >esc< =? ( exit )
+           >esp< =? ( exit )
+	   <pgup> =? ( nextmap loadcurmap cls drawmap controlsanim >xfb )
+	   <pgdn> =? ( prevmap loadcurmap cls drawmap controlsanim >xfb )
+	   drop
+	   xfb>
+	   dt 'framedt !
+	   archivoblackregular fontsize fontr!
+	   buildmsg drawletters
+	   incdt ;
+
+:animation 'selectmap onshow ;
 
 :newmap loadcurmap cls drawmap controlsanim >xfb animation xfb> ;
 
