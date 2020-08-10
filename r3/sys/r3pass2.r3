@@ -158,7 +158,7 @@
 	dup 'lerror !
 	drop 0 ;
 
-:str2token | str --
+::str2token | str --
 	'sst sst> !
 	( wrd2token 1? ) drop
 	;

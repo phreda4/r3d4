@@ -347,6 +347,11 @@
 	2 << 'ltok + @ ex ;
 
 |--------------------
+:col_str $ffffff 'ink ! ;
+:col_adr $ffff 'ink ! ;
+:col_nor $ff00 'ink ! ;
+:col_nro $ffff00 'ink ! ;
+
 :val 8 >>> ;
 
 :valstr
@@ -356,16 +361,16 @@
 		emit )
 	2drop ;
 
-:tn val src + "%w" print ;
-:ts """" emits valstr """" emits ;
-:tw val dic>adr @ "%w" print ;
-:taw val dic>adr @ "'%w" print ;
+:tn col_nro val src + "%w" print ;
+:ts col_str """" emits valstr """" emits ;
+:tw col_nor val dic>adr @ "%w" print ;
+:taw col_adr val dic>adr @ "'%w" print ;
 
 #ltok 0 0 0 0 0 0 0 tn tn tn tn ts tw tw taw taw
 
 ::tokenprint | nro --
 	dup $ff and
-	15 >? ( 16 - r3basename emits drop ; )
+	15 >? ( 16 - r3basename col_nor emits drop ; )
 	2 << 'ltok + @ ex
 	;
 

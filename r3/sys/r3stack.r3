@@ -41,7 +41,6 @@
 	code!+
 	q!+ 'ctecode> ! ;
 
-
 |--- Pilas
 ##TOS 0
 ##PSP * 1024
@@ -62,9 +61,6 @@
 | $7 [cte]	[FREEMEM]
 | $8 anon
 
-|--Pila
-::.DUP		4 'NOS +! TOS NOS ! ;
-
 |-------------------------------
 | store value in stack
 #stkvalue * 1024  | 128 of 64bits
@@ -72,6 +68,8 @@
 
 :newval | -- newval
 	stkvalue# dup 1 + $7f and 'stkvalue# ! ;
+
+::.DUP		4 'NOS +! TOS NOS ! ;
 
 ::PUSH.NRO | nro --
 	.DUP
@@ -102,6 +100,8 @@
 
 ::.POP | -- nro
 	TOS NOS @ 'TOS ! -4 'NOS +! ;
+
+::STKval	8 >> 3 << 'stkvalue + q@ ;
 
 ::vTOS	TOS 8 >> 3 << 'stkvalue + q@ ;
 ::aTOS	TOS 8 >> 3 << 'stkvalue + ;

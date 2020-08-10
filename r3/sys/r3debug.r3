@@ -88,6 +88,10 @@
 #actword 0
 #iniword 0
 
+#initok
+#cnttok
+#nowtok
+
 :incmap
 	$ffff00 'ink !
 	0 ( cntinc <?
@@ -97,69 +101,49 @@
 		1 + ) drop
 	;
 
+:wordanalysis
+	actword dic>toklen
+	'cnttok !
+	'initok !
+	0 'nowtok !
+	;
+
+:token | n
+	cnttok >=? ( drop ; )
+	2 << initok +
+	@ tokenprint
+	;
+
+:wordmap
+	0 ( hcode <?
+		cnttok <?
+		30 over 1 + gotoxy
+		dup token
+		1 +
+		) drop ;
+
 |---------
 :printcode
 	$ff0000 'ink !
 	@+ " :%w " print
 	drop ;
-:a
-	4 + @+
-	mark
-	dup 1 >> $1 and "le" + c@ ,c	| export/local
-	dup 2 >> $1 and " '" + c@ ,c	| /adress used
-	dup 3 >> $1 and " r" + c@ ,c	| /rstack mod
-	dup 4 >> $1 and " ;" + c@ ,c	| /multi;
-	dup 5 >> $1 and " R" + c@ ,c	| /recurse
-	dup 6 >> $1 and " [" + c@ ,c	| /anon
-	dup 7 >> $1 and " ." + c@ ,c	| /no ;
-	dup 8 >> $1 and " i" + c@ ,c	| /inline
-|	dup 9 >> $1 and " >" + c@ ,c	| /llama palabras
-	dup 10 >> $1 and " I" + c@ ,c	| /inline adentro
-	dup 12 >> $fff and "| c:%d " ,print
-	24 >> $ff and "n:%d " ,print
-	@ dup 12 >>> "l:%d " ,print
-	,mov ,eol
-	empty
-	$ffffff 'ink !
-	15 gotox
-	here print
-	;
 
 :printdata
 	$ff00ff 'ink !
 	@+ " #%w " print
 	drop ;
-:a
-	4 + @+
-	mark
-	dup 1 >> $1 and "le" + c@ ,c	| export/local
-	dup 2 >> $1 and " '" + c@ ,c	| /adress used
-	dup 3 >> $1 and " c" + c@ ,c	| cte
-
-	dup 12 >> $fff and "| c:%d " ,print
-	" t:" ,s
-	24 >> $f and datatype ,s
-
-	@ dup 12 >>> " l:%d " ,print
-	$fff and " %h " ,print
-	,eol
-	empty
-	$ffffff 'ink !
-	15 gotox
-	here print
-	;
 
 :printword | nro --
 	actword =? ( $222222 'ink ! backline )
+	$888888 'ink !
+	dup 1 + "%d." print
 	4 << dicc +
 	dup 8 + @ 1 nand? ( drop printcode ; ) drop
 	printdata ;
 
-:memorydic
+:dicmap
 	0 ( hcode <?
 		dup iniword +
-		$888888 'ink !
-		dup 1 + "%d." print
 		printword cr
 		1 + ) drop ;
 
@@ -173,8 +157,9 @@
 
 :modeview
 	0 1 gotoxy
-	memorydic
-	incmap
+	dicmap
+|	incmap
+	wordmap
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -190,9 +175,10 @@
 	<dn> =? ( 1 +word )
 	<home> =? ( cntdef neg +word )
 	<end> =? ( cntdef +word )
-	<pgup> =? ( hcode neg +word ) 
+	<pgup> =? ( hcode neg +word )
 	<pgdn> =? ( hcode +word )
 
+	<ret> =? ( wordanalysis )
 |	<f1> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
 |	<f3> =? ( )
 |	<f4> =? ( )
@@ -414,8 +400,8 @@
 :setsource | src --
 	dup 'pantaini> !
 	dup 'fuente !
-	dup 'fuente> !
-	count + '$fuente !
+	count + dup '$fuente !
+	2 - 'fuente> !
 	;
 
 #srcview 0
@@ -447,6 +433,41 @@
 |----- scratchpad
 #outpad * 2048
 #inpad * 1024
+#bakcode>
+#baksrc
+
+:markcode
+	code> 'bakcode> !
+	src 'baksrc !
+	mark ;
+:emptycode
+	empty
+	bakcode> 'code> !
+	baksrc 'src !
+	;
+
+:execerr
+	'outpad strcpy
+	emptycode
+	refreshfoco
+	;
+
+:execimm
+	markcode
+	0 'error !
+	here 'code> !
+	'inpad dup 'src !
+	str2token
+
+	error 1? ( execerr ; ) drop
+
+	here ( code> <? @+ tokenexec ) drop
+
+	emptycode
+	0 'inpad !
+	"Ok" 'outpad strcpy
+	refreshfoco
+	;
 
 :console
 	xsele cch op
@@ -457,15 +478,17 @@
 	$040486 'ink !
 	poli
 
-
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
 	rows hcode - 1 - backlines
 
+	$ff00 'ink !
+	'outpad sp text cr
 	$ffffff 'ink !
-	'outpad text cr
 	" > " emits
-	'inpad 1024 input
+	'inpad 1024 input cr
+	$ffff00 'ink !
+	stackprintvm
 
 	0 rows 1 - gotoxy
 	"Play2C" "F1" btnf
@@ -490,7 +513,7 @@
 	>esc< =? ( exit )
 
 	<tab> =? ( mode!imm )
-	<f1> =? ( mode!view )
+	<f1> =? ( mode!view 0 +word )
 	drop
 	;
 
@@ -501,6 +524,7 @@
 	console
 	key
 	>esc< =? ( exit )
+	<ret> =? ( execimm )
 
 	<f2> =? ( fuente> breakpoint playvm gotosrc )
 	<f3> =? ( stepvm gotosrc )
@@ -509,7 +533,7 @@
 |	<f6> =? ( viewscreen )
 
 	<tab> =? ( mode!src )
-	<f1> =? ( mode!view )
+	<f1> =? ( mode!view 0 +word )
 	drop
 	;
 
@@ -543,6 +567,7 @@
 	src setsource
 
 	mode!imm
+	cntdef 1 - 'actword !
 
 	'debugmain onshow
 	;

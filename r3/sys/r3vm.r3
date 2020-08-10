@@ -13,7 +13,7 @@
 #sink
 
 :emu**
-	>xfb 
+	>xfb
 	ink 'sink !
 	opx 'sopx ! opy 'sopy !
 	;
@@ -23,32 +23,40 @@
 	sopx sopy op
 	xfb> ;
 
+::getsrcnro
+	dup ?numero 1? ( drop nip nip ; ) drop
+	str>fnro nip ;
+
+::getcte | a -- a v
+	dup 4 - @ 8 >>> src + getsrcnro ;
+
 :.dec
+	getcte push.nro ;
 :.hex
-:.dec
-:.dec
+	getcte push.nro ; | <<< no hay
+
 :.str
+	;
 :.wor
+	;
 :.var
+	;
 :.dwor
+	;
 :.dvar
 	;
 
-|-- Internas
-:.LIT		.DUP dup @ 'TOS ! 4 + ;
-:.ADR		.DUP dup @ @ 'TOS ! 4 + ;
-
 :.;		RTOS @ nip -4 'RTOS +! ;
 
-:.CALL		4 'RTOS +! dup 4 + RTOS ! @ ;
-:.JMP		@ ;
-
 :.(
+	;
 :.)
+	;
 :.[
+	;
 :.]
 	;
-|-- exec
+
 :.EX	TOS .DROP 4 'RTOS +! swap RTOS ! ;
 
 |-- condicionales
@@ -76,7 +84,7 @@
 :.AND	vNOS vTOS and .2DROP PUSH.NRO ;
 :.OR	vNOS vTOS or .2DROP PUSH.NRO ;
 :.XOR	vNOS vTOS xor .2DROP PUSH.NRO ;
-:.NOT	vTOS not .DROP PUSH.NRO ;
+:.NOT	vTOS not TOS.NRO! ;
 :.+		vNOS vTOS + .2DROP PUSH.NRO ;
 :.-		vNOS vTOS - .2DROP PUSH.NRO ;
 :.*		vNOS vTOS * .2DROP PUSH.NRO ;
@@ -86,10 +94,10 @@
 :.<</	vPK2 vNOS vTOS <</ .3DROP PUSH.NRO ;
 :./MOD	vNOS vTOS /mod swap .2DROP PUSH.NRO PUSH.NRO ;
 :.MOD	vNOS vTOS mod .2DROP PUSH.NRO ;
-:.ABS	vTOS abs .DROP PUSH.NRO ;
-:.NEG	vTOS neg .DROP PUSH.NRO ;
-:.CLZ	vTOS clz .DROP PUSH.NRO ;
-:.SQRT	vTOS sqrt .DROP PUSH.NRO ;
+:.ABS	vTOS abs TOS.NRO! ;
+:.NEG	vTOS neg TOS.NRO! ;
+:.CLZ	vTOS clz TOS.NRO! ;
+:.SQRT	vTOS sqrt TOS.NRO! ;
 :.<<	vNOS vTOS << .2DROP PUSH.NRO ;
 :.>>	vNOS vTOS >> .2DROP PUSH.NRO ;
 :.>>>	vNOS vTOS >>> .2DROP PUSH.NRO ;
@@ -227,9 +235,7 @@
 	<<ip 0? ( drop ; )
 :stepvmi
 	**emu
-	(	@+ dup $ff and
-		21 >? ( nip )
-		2 << 'vmc + @ ex
+	(	@+ $ff and 2 << 'vmc + @ ex
 		code< <=? ) | corte?
 	'<<ip !
 	emu**
@@ -241,9 +247,7 @@
 	**emu
 	dup 4 + swap
 	( over <>?
-		@+ dup $ff and
-		21 >? ( nip )
-		2 << 'vmc + @ ex
+		@+ $ff and 2 << 'vmc + @ ex
 		1? ( '<<ip ! drop emu** ; )
 		) nip
 	'<<ip !
@@ -253,15 +257,24 @@
 	<<ip 0? ( drop ; )
 	**emu
 	( <<bp <>?
-		@+ dup $ff and
-		21 >? ( nip )
-		2 << 'vmc + @ ex
+		@+ $ff and 2 << 'vmc + @ ex
 		1? )
 	'<<ip !
 	emu** ;
 
-::tokenexec | token --
-	dup $ff and
-	21 >? ( nip )
-	2 << 'vmc + @ ex ;
+::tokenexec | adr+ token -- adr+
+	$ff and 2 << 'vmc + @ ex ;
 
+
+::stackprintvm
+	" D) " emits
+	'PSP 8 + ( NOS <=?
+		@+ STKval "%d " print
+		) drop
+	'PSP NOS <? (
+		TOS STKval "%d " print
+		) drop
+	cr
+	" R) " emits
+
+	;
