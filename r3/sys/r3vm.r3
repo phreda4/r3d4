@@ -6,11 +6,14 @@
 
 ^r3/lib/xfb.r3
 
+##<<ip	| ip
+##<<bp	| breakpoint
+##code<
+
 ##REGA 0 0
 ##REGB 0 0
 
-#sopx #sopy
-#sink
+#sopx #sopy #sink
 
 :emu**
 	>xfb
@@ -23,6 +26,7 @@
 	sopx sopy op
 	xfb> ;
 
+|----------
 ::getsrcnro
 	dup ?numero 1? ( drop nip nip ; ) drop
 	str>fnro nip ;
@@ -33,7 +37,12 @@
 :.dec
 	getcte push.nro ;
 :.hex
-	getcte push.nro ; | <<< no hay
+	getcte push.nro ;
+:.bin
+	getcte push.nro ;
+
+:.fix
+	dup 4 - @ 8 >> push.nro ;
 
 :.str
 	;
@@ -48,60 +57,37 @@
 
 :.;		RTOS @ nip -4 'RTOS +! ;
 
-:.(
-	;
-:.)
-	;
-:.[
-	;
-:.]
-	;
-
 :.EX	TOS .DROP 4 'RTOS +! swap RTOS ! ;
 
-|-- condicionales
-:.0?	vTOS 1? ( drop @ ; ) drop 4 + ;
-:.1?	vTOS 0? ( drop @ ; ) drop 4 + ;
-:.+?	vTOS -? ( drop @ ; ) drop 4 + ;
-:.-?	vTOS $80000000 nand? ( drop @ ; ) drop 4 + ;
+|--- COD
+:jmpr | adr' -- adrj
+	dup 4 - @ 8 >> + ;
 
-:.=?	vNOS vTOS <>? ( drop @ .DROP ; ) drop 4 + .DROP ;
-:.<?	vNOS vTOS >=? ( drop @ .DROP ; ) drop 4 + .DROP ;
-:.>?	vNOS vTOS <=? ( drop @ .DROP ; ) drop 4 + .DROP ;
-:.<=?	vNOS vTOS >? ( drop @ .DROP ; ) drop 4 + .DROP ;
-:.>=?	vNOS vTOS <? ( drop @ .DROP ; ) drop 4 + .DROP ;
-:.<>?	vNOS vTOS =? ( drop @ .DROP ; ) drop 4 + .DROP ;
-:.A?	vNOS vTOS nand? ( drop @ .DROP ; ) drop 4 + .DROP ;
-:.N?	vNOS vTOS and? ( drop @ .DROP ; ) drop 4 + .DROP ;
+:.( ;
+:.)		dup 4 - @ 8 >> 0? ( drop ; ) + ;
+:.[		jmpr ;
+:.]		dup 4 - @ 8 >> PUSH.NRO ;
 
-:.B?	vPK2 vNOS vTOS bt? ( drop @ .2DROP ; ) drop 4 + .2DROP ;
+:.0?	vTOS 1? ( drop jmpr ; ) drop ;
+:.1?	vTOS 0? ( drop jmpr ; ) drop ;
+:.+?	vTOS -? ( drop jmpr ; ) drop ;
+:.-?	vTOS +? ( drop jmpr ; ) drop ;
+:.=?	vNOS vTOS <>? ( drop jmpr .DROP ; ) drop .DROP ;
+:.<?	vNOS vTOS >=? ( drop jmpr .DROP ; ) drop .DROP ;
+:.>?	vNOS vTOS <=? ( drop jmpr .DROP ; ) drop .DROP ;
+:.<=?	vNOS vTOS >? ( drop jmpr .DROP ; ) drop .DROP ;
+:.>=?	vNOS vTOS <? ( drop jmpr .DROP ; ) drop .DROP ;
+:.<>?	vNOS vTOS =? ( drop jmpr .DROP ; ) drop .DROP ;
+:.A?	vNOS vTOS nand? ( drop jmpr .DROP ; ) drop .DROP ;
+:.N?	vNOS vTOS and? ( drop jmpr .DROP ; ) drop .DROP ;
+:.B?	vPK2 vNOS vTOS bt? ( drop jmpr .2DROP ; ) drop .2DROP ;
 
-|--------------------
+|--- R
 :.>R	4 'RTOS +! TOS RTOS ! .DROP ;
 :.R>	.DUP RTOS dup @ 'TOS ! 4 - 'RTOS ! ;
 :.R@	.DUP RTOS @ 'TOS ! ;
 
-:.AND	vNOS vTOS and .2DROP PUSH.NRO ;
-:.OR	vNOS vTOS or .2DROP PUSH.NRO ;
-:.XOR	vNOS vTOS xor .2DROP PUSH.NRO ;
-:.NOT	vTOS not TOS.NRO! ;
-:.+		vNOS vTOS + .2DROP PUSH.NRO ;
-:.-		vNOS vTOS - .2DROP PUSH.NRO ;
-:.*		vNOS vTOS * .2DROP PUSH.NRO ;
-:./		vNOS vTOS / .2DROP PUSH.NRO ;
-:.*/	vPK2 vNOS vTOS */ .3DROP PUSH.NRO ;
-:.*>>	vPK2 vNOS vTOS *>> .3DROP PUSH.NRO ;
-:.<</	vPK2 vNOS vTOS <</ .3DROP PUSH.NRO ;
-:./MOD	vNOS vTOS /mod swap .2DROP PUSH.NRO PUSH.NRO ;
-:.MOD	vNOS vTOS mod .2DROP PUSH.NRO ;
-:.ABS	vTOS abs TOS.NRO! ;
-:.NEG	vTOS neg TOS.NRO! ;
-:.CLZ	vTOS clz TOS.NRO! ;
-:.SQRT	vTOS sqrt TOS.NRO! ;
-:.<<	vNOS vTOS << .2DROP PUSH.NRO ;
-:.>>	vNOS vTOS >> .2DROP PUSH.NRO ;
-:.>>>	vNOS vTOS >>> .2DROP PUSH.NRO ;
-
+|--- REGA
 :.>A	vTOS 'REGA q! .DROP ;
 :.A>	REGA PUSH.NRO ;
 :.A@	REGA @ PUSH.NRO ;
@@ -110,6 +96,7 @@
 :.A@+	REGA dup 4 + 'REGA q! @ PUSH.NRO ;
 :.A!+	vTOS REGA dup 4 + 'REGA ! ! .DROP ;
 
+|--- REGB
 :.>B	vTOS 'REGB q! .DROP ;
 :.B>	REGB PUSH.NRO ;
 :.B@	REGB @ PUSH.NRO ;
@@ -146,27 +133,26 @@
 
 :.UPDATE	update ;
 :.REDRAW	redraw ;
-:.MEM	here PUSH.NRO ;
-::.SW	sw 1 >> PUSH.NRO ;
-::.SH	sh 1 >> PUSH.NRO ;
-:.FRAMEV	vframe PUSH.NRO ;
-:.XYPEN	xypen swap PUSH.NRO PUSH.NRO ;
-:.BPEN  bpen PUSH.NRO ;
-:.KEY	key PUSH.NRO ;
-:.CHAR	char PUSH.NRO ;
+:.MEM		here PUSH.NRO ;
+:.SW		sw PUSH.NRO ;
+:.SH		sh PUSH.NRO ;
+:.VFRAME	vframe PUSH.NRO ;
+:.XYPEN		xypen swap PUSH.NRO PUSH.NRO ;
+:.BPEN		bpen PUSH.NRO ;
+:.KEY		key PUSH.NRO ;
+:.CHAR		char PUSH.NRO ;
 
-:.MSEC msec PUSH.NRO ;
-:.TIME time PUSH.NRO ;
-:.DATE date PUSH.NRO ;
+:.MSEC		msec PUSH.NRO ;
+:.TIME		time PUSH.NRO ;
+:.DATE		date PUSH.NRO ;
 
-:.LOAD	vNOS vTOS load .NIP TOS.NRO! ;
-:.SAVE	vPK2 vNOS vTOS save .3DROP ;
-:.APPEND vPK2 vNOS vTOS append .3DROP ;
+:.LOAD		vNOS vTOS load .NIP TOS.NRO! ;
+:.SAVE		vPK2 vNOS vTOS save .3DROP ;
+:.APPEND	vPK2 vNOS vTOS append .3DROP ;
+:.FFIRST	vTOS ffirst TOS.NRO! ;
+:.FNEXT		fnext PUSH.NRO ;
 
-:.FFIRST vTOS ffirst TOS.NRO! ;
-:.FNEXT fnext PUSH.NRO ;
-
-:.SYS vTOS sys .DROP ; | ???
+:.SYS	vTOS sys .DROP ; | ???
 :.SLOAD vTOS sload TOS.NRO! ;
 :.SFREE vTOS sfree .DROP ;
 :.SPLAY vTOS splay .DROP ;
@@ -187,17 +173,16 @@
 :.PCURVE3	vPK5 vPK4 vPK3 vPK2 vNOS vTOS pcurve3 .6DROP ;
 :.POLI	poli ;
 
-
 #vmc
-0 0 0 0 0 0 0 | i0 i: i:: i# i: i| i^		| 0 1 2 3 4 5 6
-.dec .hex .dec .dec .str .wor .var .dwor .dvar
+0 0 0 0 0 0 0
+.dec .hex .bin .fix .str .wor .var .dwor .dvar
 .; .( .) .[ .] .EX .0? .1? .+? .-? .<? .>? .=? .>=? .<=? .<>?
 .A? .N? .B? .DUP .DROP .OVER .PICK2 .PICK3 .PICK4 .SWAP .NIP .ROT .2DUP .2DROP .3DROP .4DROP
 .2OVER .2SWAP .>R .R> .R@ .AND .OR .XOR .+ .- .* ./ .<< .>> .>>> .MOD
 ./MOD .*/ .*>> .<</ .NOT .NEG .ABS .SQRT .CLZ .@ .C@ .Q@ .@+ .C@+ .Q@+ .!
 .C! .Q! .!+ .C!+ .Q!+ .+! .C+! .Q+! .>A .A> .A@ .A! .A+ .A@+ .A!+ .>B
 .B> .B@ .B! .B+ .B@+ .B!+ .MOVE .MOVE> .FILL .CMOVE .CMOVE> .CFILL .QMOVE .QMOVE> .QFILL .UPDATE
-.REDRAW .MEM .SW .SH .FRAMEV .XYPEN .BPEN .KEY .CHAR .MSEC .TIME .DATE .LOAD .SAVE .APPEND
+.REDRAW .MEM .SW .SH .VFRAME .XYPEN .BPEN .KEY .CHAR .MSEC .TIME .DATE .LOAD .SAVE .APPEND
 .FFIRST .FNEXT
 .SYS
 .SLOAD .SFREE .SPLAY
@@ -210,19 +195,11 @@
 |-------------------------------
 | palabras de interaccion
 |-------------------------------
-##<<ip	| ip
-##<<bp	| breakpoint
-##code<
 
 ::breakpoint | src --
 |	memsrc ( @+ pick2 <? )( drop ) drop
 |	4 - memsrc - code< +
 	'<<bp ! ;
-
-:**emu
-	;
-:emu**
-	;
 
 ::resetvm | --
 	'PSP 'NOS !
@@ -276,5 +253,62 @@
 		) drop
 	cr
 	" R) " emits
+	'RSP 4 + ( RTOS <=?
+		@+ STKval "%d " print
+		) drop 	;
+
+|---------- PREPARE CODE FOR RUN
+
+|cdec chex cdec cdec cstr cwor cvar cdwor cdvar |7..15
+|c; c( c) c[ c] cEX |16..21
+|c0? c1? c+? c-? c<? c>? c=? c>=? c<=? c<>? cA? cN? cB? |22..34
+
+:transflit | ; 7..10
+	over 4 - @ 8 >>> | get adr from src
+	src +			| string
+	| dex,hex,bin,fix
+	str>nro nip
+
+	8 << 10 or
+	pick2 4 - !
+	;
+
+
+:transfcond | ; 22..34
+	over 4 - @ 8 >>>
+	;
+
+:transform
+	@+ $ff and
+	7 10 bt? ( transflit )
+	22 34 bt? ( transfcond )
+	drop
+	;
+
+:code2mem | adr -- adr
+	dup 8 + @ 1 and? ( drop ; ) drop	| code only
+	dup adr>toklen
+	( 1? 1 - swap
+		transform
+		swap ) 2drop ;
+
+::code2run
+	dicc ( dicc> <?
+		code2mem
+		16 + ) drop ;
+
+::newcode2run | adr --
+	( code> <?
+		transform
+		) drop ;
+
+|---------- PREPARE DATA FOR RUN
+:var2mem | adr -- adr
+	dup 8 + @ 1 nand? ( drop ; ) drop	| data only
 
 	;
+
+::data2mem
+	dicc ( dicc> <?
+		var2mem
+		16 + ) drop ;

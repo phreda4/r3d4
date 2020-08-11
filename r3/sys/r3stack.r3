@@ -62,13 +62,14 @@
 | $8 anon
 
 |-------------------------------
-| store value in stack
+| store 64bits value in stack
 #stkvalue * 1024  | 128 of 64bits
 #stkvalue# 0
 
 :newval | -- newval
 	stkvalue# dup 1 + $7f and 'stkvalue# ! ;
 
+|-------------------------------
 ::.DUP		4 'NOS +! TOS NOS ! ;
 
 ::PUSH.NRO | nro --
@@ -97,21 +98,20 @@
 ::PUSH.ANO	| anon --
 	.DUP 8 << 8 or 'TOS ! ;
 
-
 ::.POP | -- nro
 	TOS NOS @ 'TOS ! -4 'NOS +! ;
 
 ::STKval	8 >> 3 << 'stkvalue + q@ ;
 
-::vTOS	TOS 8 >> 3 << 'stkvalue + q@ ;
 ::aTOS	TOS 8 >> 3 << 'stkvalue + ;
-::vNOS	NOS @ 8 >> 3 << 'stkvalue + q@ ;
 ::aNOS	NOS @ 8 >> 3 << 'stkvalue + ;
 
-::vPK2	NOS 4 - @ 8 >> 3 << 'stkvalue + q@ ;
-::vPK3	NOS 8 - @ 8 >> 3 << 'stkvalue + q@ ;
-::vPK4	NOS 12 - @ 8 >> 3 << 'stkvalue + q@ ;
-::vPK5	NOS 16 - @ 8 >> 3 << 'stkvalue + q@ ;
+::vTOS	TOS STKval ;
+::vNOS	NOS @ STKval ;
+::vPK2	NOS 4 - @ STKval ;
+::vPK3	NOS 8 - @ STKval ;
+::vPK4	NOS 12 - @ STKval ;
+::vPK5	NOS 16 - @ STKval ;
 
 ::.OVER     .DUP NOS 4 - @ 'TOS ! ;
 ::.PICK2    .DUP NOS 8 - @ 'TOS ! ;
@@ -119,48 +119,41 @@
 ::.PICK4    .DUP NOS 16 - @ 'TOS ! ;
 ::.2DUP     .OVER .OVER ;
 ::.2OVER    .PICK3 .PICK3 ;
-
 ::.DROP		NOS @ 'TOS !	|...
 ::.NIP      -4 'NOS +! ;
 ::.2NIP      -8 'NOS +! ;
 ::.2DROP    NOS 4 - @ 'TOS ! -8 'NOS +! ;
 ::.3DROP    NOS 8 - @ 'TOS ! -12 'NOS +! ;
 ::.4DROP    NOS 12 - @ 'TOS ! -16 'NOS +! ;
-
 ::.6DROP    NOS 20 - @ 'TOS ! -16 'NOS +! ;
-
 ::.SWAP     NOS @ TOS NOS ! 'TOS ! ;
 ::.ROT      TOS NOS 4 - @ 'TOS ! NOS @ NOS 4 - !+ ! ;
 ::.2SWAP    TOS NOS @ NOS 4 - dup 4 - @ NOS ! @ 'TOS !  NOS 8 - !+ ! ;
-
-|-- Internas
-::.LIT		.DUP dup @ 'TOS ! 4 + ;
-::.ADR		.DUP dup @ @ 'TOS ! 4 + ;
 
 ::.>R		4 'RTOS +! TOS RTOS ! .DROP ;
 ::.R>		.DUP RTOS dup @ 'TOS ! 4 - 'RTOS ! ;
 ::.R@		.DUP RTOS @ 'TOS ! ;
 
-::.AND		vNOS vTOS and .2DROP PUSH.NRO ;
-::.OR		vNOS vTOS or .2DROP PUSH.NRO ;
-::.XOR		vNOS vTOS xor .2DROP PUSH.NRO ;
-::.NOT		vTOS not .DROP PUSH.NRO ;
-::.+		vNOS vTOS + .2DROP PUSH.NRO ;
-::.-		vNOS vTOS - .2DROP PUSH.NRO ;
-::.*		vNOS vTOS * .2DROP PUSH.NRO ;
-::./		vNOS vTOS / .2DROP PUSH.NRO ;
-::.*/		vPK2 vNOS vTOS */ .3DROP PUSH.NRO ;
-::.*>>		vPK2 vNOS vTOS *>> .3DROP PUSH.NRO ;
-::.<</		vPK2 vNOS vTOS <</ .3DROP PUSH.NRO ;
+::.AND		vNOS vTOS and .NIP TOS.NRO! ;
+::.OR		vNOS vTOS or .NIP TOS.NRO! ;
+::.XOR		vNOS vTOS xor .NIP TOS.NRO! ;
+::.NOT		vTOS not TOS.NRO! ;
+::.+		vNOS vTOS + .NIP TOS.NRO! ;
+::.-		vNOS vTOS - .NIP TOS.NRO! ;
+::.*		vNOS vTOS * .NIP TOS.NRO! ;
+::./		vNOS vTOS / .NIP TOS.NRO! ;
+::.*/		vPK2 vNOS vTOS */ .2NIP TOS.NRO! ;
+::.*>>		vPK2 vNOS vTOS *>> .2NIP TOS.NRO! ;
+::.<</		vPK2 vNOS vTOS <</ .2NIP TOS.NRO! ;
 ::./MOD		vNOS vTOS /mod swap .2DROP PUSH.NRO PUSH.NRO ;
-::.MOD		vNOS vTOS mod .2DROP PUSH.NRO ;
-::.ABS		vTOS abs .DROP PUSH.NRO ;
-::.NEG		vTOS neg .DROP PUSH.NRO ;
-::.CLZ		vTOS clz .DROP PUSH.NRO ;
-::.SQRT		vTOS sqrt .DROP PUSH.NRO ;
-::.<<		vNOS vTOS << .2DROP PUSH.NRO ;
-::.>>		vNOS vTOS >> .2DROP PUSH.NRO ;
-::.>>>		vNOS vTOS >>> .2DROP PUSH.NRO ;
+::.MOD		vNOS vTOS mod .NIP TOS.NRO! ;
+::.ABS		vTOS abs TOS.NRO! ;
+::.NEG		vTOS neg TOS.NRO! ;
+::.CLZ		vTOS clz TOS.NRO! ;
+::.SQRT		vTOS sqrt TOS.NRO! ;
+::.<<		vNOS vTOS << .NIP TOS.NRO! ;
+::.>>		vNOS vTOS >> .NIP TOS.NRO! ;
+::.>>>		vNOS vTOS >>> .NIP TOS.NRO! ;
 
 |-------- constantes del sistema
 #syscons "XRES" "YRES"

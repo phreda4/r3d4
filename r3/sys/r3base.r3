@@ -366,7 +366,9 @@
 :tw col_nor val dic>adr @ "%w" print ;
 :taw col_adr val dic>adr @ "'%w" print ;
 
-#ltok 0 0 0 0 0 0 0 tn tn tn tn ts tw tw taw taw
+:tnx col_nro 8 >> "%d" print ;
+
+#ltok 0 0 0 0 0 0 0 tn tn tn tnx ts tw tw taw taw
 
 ::tokenprint | nro --
 	dup $ff and

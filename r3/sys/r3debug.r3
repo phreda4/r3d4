@@ -111,13 +111,14 @@
 :token | n
 	cnttok >=? ( drop ; )
 	2 << initok +
-	@ tokenprint
+	$ffffff 'ink !
+	@ dup "%h " print tokenprint
 	;
 
 :wordmap
 	0 ( hcode <?
 		cnttok <?
-		30 over 1 + gotoxy
+		28 over 1 + gotoxy
 		dup token
 		1 +
 		) drop ;
@@ -152,7 +153,8 @@
 	cntdef 1 - clamp0max
 	iniword <? ( dup 'iniword ! )
 	iniword hcode + >=? ( dup hcode - 1 + 'iniword ! )
-	'actword ! ;
+	'actword !
+	wordanalysis ;
 
 
 :modeview
@@ -165,11 +167,13 @@
 	$0000AE 'ink !
 	rows hcode - 1 - backlines
 	0 rows 1 - gotoxy
-	"Search" "F3" btnf
+	"IMM" "F1" btnf
 
 	key
 	>esc< =? ( exit )
 	<f1> =? ( mode!imm )
+
+	<f2> =? ( code2run )
 
 	<up> =? ( -1 +word )
 	<dn> =? ( 1 +word )
@@ -178,13 +182,7 @@
 	<pgup> =? ( hcode neg +word )
 	<pgdn> =? ( hcode +word )
 
-	<ret> =? ( wordanalysis )
 |	<f1> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
-|	<f3> =? ( )
-|	<f4> =? ( )
-|	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
-|	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
-
 |	<tab> =? ( mode!imm )
 
 	drop
@@ -440,6 +438,7 @@
 	code> 'bakcode> !
 	src 'baksrc !
 	mark ;
+
 :emptycode
 	empty
 	bakcode> 'code> !
@@ -460,6 +459,8 @@
 	str2token
 
 	error 1? ( execerr ; ) drop
+
+	here newcode2run
 
 	here ( code> <? @+ tokenexec ) drop
 
