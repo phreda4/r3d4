@@ -535,6 +535,7 @@
 
 	<tab> =? ( mode!src )
 	<f1> =? ( mode!view 0 +word )
+
 	drop
 	;
 
@@ -552,13 +553,42 @@
 
 	acursor ;
 
+|----------- SAVE DEBUG
+:,printword | adr --
+  	adr>toklen
+	( 1? 1 - swap
+		@+ dup dup $ff and swap 8 >> swap "%h %h " ,print
+		,tokenprint ,cr
+		swap ) 2drop ;
 
+:savemap
+	mark
+	"dicc-----------" ,ln
+	dicc ( dicc> <?
+		@+ "%w " ,print
+		@+ "%h " ,print
+		@+ "%h " ,print
+		@+ "%h " ,print ,cr
+		dup 16 - ,printword
+		,cr ) drop
+	"block----------" ,ln
+	blok cntblk ( 1? 1 - swap
+		@+ "%h " ,print
+		@+ "%h " ,print ,cr
+		swap ) 2drop
+
+	"mem/map.txt" savemem
+	empty ;
+
+|--------------------- BOOT
 : mark
 	'name "mem/main.mem" load drop
 	'name r3debuginfo
 	error 1? ( drop savedebug ; ) drop
 	emptyerror
-	'name "mem/main.mem" load drop
+
+	code2run
+	savemap
 
 	'fontdroidsans13 fontm
 |	fonti

@@ -327,7 +327,9 @@
 :tw val dic>adr @ ,w ;
 :taw val dic>adr @ "'" ,s ,w ;
 
-#ltok 0 0 0 0 0 0 0 tn tn tn tn ts tw tw taw taw
+:tnx 8 >> ,d ;
+
+#ltok 0 0 0 0 0 0 0 tn tn tn tnx ts tw tw taw taw
 
 ::,tokenprint | nro --
 	dup $ff and
@@ -339,7 +341,7 @@
 :tw val "w" ,s ,h ;
 :taw val "'w" ,s ,h ;
 
-#ltok 0 0 0 0 0 0 0 tn tn tn tn ts tw tw taw taw
+#ltok 0 0 0 0 0 0 0 tn tn tn tnx ts tw tw taw taw
 
 ::,tokenprintn | nro --
 	dup $ff and

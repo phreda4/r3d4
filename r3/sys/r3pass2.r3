@@ -113,7 +113,7 @@
 	code> code - 2 >>
 	nbloques dup sst!
 	3 << blok + !
-	nbloques 8 << +  | #block in (
+	nbloques 8 << +  | #block in [
 	;
 :anonOut
 	sst@ dup dup
@@ -121,10 +121,8 @@
 	2 << code +		| 2code
 	code> | bl from to
 	dup code - 2 >> pick3 3 << blok + 4 + !
-	2drop
-	3 << blok +
-	$20000000 swap +!	| marca anon
-	8 << +				| #block in )
+	3drop
+	8 << +				| #block in ]
 	;
 
 :blocks
@@ -205,5 +203,4 @@
 	| real length
 	dicc> 16 -
 	( dicc >? 16 - contword ) drop
-|	nbloques 1 + 3 << 'here +!
 	0 ;

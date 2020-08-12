@@ -258,29 +258,63 @@
 		) drop 	;
 
 |---------- PREPARE CODE FOR RUN
-
 |cdec chex cdec cdec cstr cwor cvar cdwor cdvar |7..15
 |c; c( c) c[ c] cEX |16..21
 |c0? c1? c+? c-? c<? c>? c=? c>=? c<=? c<>? cA? cN? cB? |22..34
+|
 
-:transflit | ; 7..10
-	over 4 - @ 8 >>> | get adr from src
-	src +			| string
+:tokvalue | 'adr tok -- 'adr tok value
+	over 4 - @ 8 >>> ;
+
+:transflit | adr' tok -- adr' tok | ; 7..10
+	tokvalue src +			| string in src
+
 	| dex,hex,bin,fix
-	str>nro nip
 
+	str>nro nip
 	8 << 10 or
 	pick2 4 - !
 	;
 
+:blwhile? | -- fl
+	tokvalue 3 << blok + @ $10000000 and ;
 
-:transfcond | ; 22..34
-	over 4 - @ 8 >>>
+:blini | -- end?
+	tokvalue 3 << blok + @ $ffffff and 2 << code + ;
+
+:blend | -- end?
+	tokvalue 3 << blok + 4 + @ 2 << code + ;
+
+:patch! | adr tok value -- adr tok
+	pick2 4 - dup @ $ff and rot or swap !
+
+
+:transfcond | adr' tok -- adr' tok | ; 22..34
+	blend pick2 - 8 << | delta jump
+	patch! ;
+
+:tr( | adr' tok -- adr' tok
 	;
+:tr) | adr' tok -- adr' tok
+	blwhile? 0? ( drop over 4 - dup @ $ff and swap ! ; ) drop
+	blini pick2 - 8 << | delta
+	patch! ;
 
-:transform
+:tr[ | adr' tok -- adr' tok
+	blend pick2 - 8 <<
+	patch! ;
+
+:tr] | adr' tok -- adr' tok
+	blini 8 <<
+	patch! ;
+
+:transform | adr' -- adr'
 	@+ $ff and
 	7 10 bt? ( transflit )
+|	17 =? ( tr( )
+|	18 =? ( tr) )
+	19 =? ( tr[ )
+	20 =? ( tr] )
 	22 34 bt? ( transfcond )
 	drop
 	;
@@ -300,7 +334,7 @@
 ::newcode2run | adr --
 	( code> <?
 		transform
-		) drop ;
+	 	) drop ;
 
 |---------- PREPARE DATA FOR RUN
 :var2mem | adr -- adr

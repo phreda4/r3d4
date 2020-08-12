@@ -33,6 +33,7 @@
 	$3A =? ( 1 'cntdef +! )		| $3a :  Definicion
 	$23 =? ( 1 'cntdef +! )		| $23 #  Variable
 	$28 =? ( 1 'cntblk +! )		| $28 (
+	$5b =? ( 1 'cntblk +! )		| $5b [
 	$22 =? ( drop >>" ; )		| $22 "	 Cadena
 	drop >>sp ;
 
