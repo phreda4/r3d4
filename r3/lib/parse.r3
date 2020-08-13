@@ -145,28 +145,34 @@
 	;
 
 |----- test solo si es numero (sin calcular)
-::isHex |adr -- 1/0
+::isHex |adr -- 3/0
 	( c@+ $2f >?
 		dighex -? ( 2drop 0 ; )
 		drop )
-	33 <? ( 2drop 1 ; ) 2drop 0 ;
+	33 <? ( 2drop 3 ; ) 2drop 0 ;
 
-::isBin | adr -- 1/0
+::isBin | adr -- 2/0
 	( c@+ $2e >=?
 		$31 >? ( 2drop 0 ; )
 		drop )
-	33 <? ( 2drop 1 ; ) 2drop 0 ;
+	33 <? ( 2drop 2 ; ) 2drop 0 ;
 
-::isNro | adr - 1/0
+::isNro | adr - t/0 ; 1-dec 2-bin 3-hex 4-fix
 	c@+
 	$2b =? ( drop c@+ )		| + $2b
 	$2d =? ( drop c@+ )		| - $2d
 	33 <? ( 2drop 0 ; )
 	$24 =? ( drop isHex ; )	| $ hexa $24
 	$25 =? ( drop isBin ; ) | % bin  $25
-	( $2e >=?
-		$2f =? ( 2drop 0 ; ) |  / no es un numero!!
+	( $30 >=?
 		$39 >? ( 2drop 0 ; )
 		drop c@+ )
-	33 <? ( 2drop 1 ; ) 2drop 0 ;
+	$2e =? ( drop c@+
+		( $30 >=?
+			$39 >? ( 2drop 0 ; )
+			drop c@+ )
+		33 <? ( 2drop 4 ; )
+		)
+	33 <? ( 2drop 1 ; )
+	2drop 0 ;
 

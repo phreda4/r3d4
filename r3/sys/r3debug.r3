@@ -433,22 +433,43 @@
 #inpad * 1024
 #bakcode>
 #baksrc
+#bakblk
 
 :markcode
 	code> 'bakcode> !
 	src 'baksrc !
+	nbloques 'bakblk !
 	mark ;
 
 :emptycode
 	empty
 	bakcode> 'code> !
 	baksrc 'src !
+	bakblk 'nbloques !
 	;
 
 :execerr
 	'outpad strcpy
 	emptycode
 	refreshfoco
+	;
+
+:stepdebug
+	0 hcode 1 + gotoxy
+	$0000AE 'ink !
+	rows hcode - 1 - backlines
+
+	$ff00 'ink !
+|	'outpad sp text cr
+	dup "%h" print cr
+
+	$ffffff 'ink !
+	" > " emits
+	'inpad 1024 input cr
+	$ffff00 'ink !
+	stackprintvm
+
+	waitesc
 	;
 
 :execimm
@@ -462,7 +483,11 @@
 
 	here newcode2run
 
-	here ( code> <? @+ tokenexec ) drop
+	$ffffff 'ink !
+	here ( code> <? @+
+|		stepdebug
+		tokenexec
+		) drop
 
 	emptycode
 	0 'inpad !
@@ -558,7 +583,7 @@
   	adr>toklen
 	( 1? 1 - swap
 		@+ dup dup $ff and swap 8 >> swap "%h %h " ,print
-		,tokenprint ,cr
+		,tokenprintc ,cr
 		swap ) 2drop ;
 
 :savemap

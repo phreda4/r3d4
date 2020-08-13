@@ -10,6 +10,14 @@
 ##<<bp	| breakpoint
 ##code<
 
+| dicc transform to
+| src|code|info|mov  << CODE
+| src|<mem>|info|mov << DATA
+
+#memsrc		| mem token>src ; code to src
+#memvars	| mem vars		; real mem vars
+#freemem	| free mem
+
 ##REGA 0 0
 ##REGB 0 0
 
@@ -27,47 +35,35 @@
 	xfb> ;
 
 |----------
-::getsrcnro
-	dup ?numero 1? ( drop nip nip ; ) drop
-	str>fnro nip ;
+:dic>tok
 
-::getcte | a -- a v
-	dup 4 - @ 8 >>> src + getsrcnro ;
+	;
+:dic>mem
 
-:.dec
-	getcte push.nro ;
-:.hex
-	getcte push.nro ;
-:.bin
-	getcte push.nro ;
-
-:.fix
-	dup 4 - @ 8 >> push.nro ;
-
-:.str
-	;
-:.wor
-	;
-:.var
-	;
-:.dwor
-	;
-:.dvar
 	;
 
+:.dec	dup 4 - @ 8 >> push.nro ;
+:.hex   dup 4 - @ 8 >> push.nro ;
+:.bin   dup 4 - @ 8 >> push.nro ;
+:.fix   dup 4 - @ 8 >> push.nro ;
+:.str   dup 4 - @ 8 >> push.str ;
+:.wor	dup 4 - @ 8 >> dic>tok @ 4 'RTOS +! swap RTOS ! ; |***
+:.var   dup 4 - @ 8 >> dic>mem @ push.nro ;
+:.dwor	dup 4 - @ 8 >> push.nro ;
+:.dvar  dup 4 - @ 8 >> push.nro ;
 :.;		RTOS @ nip -4 'RTOS +! ;
 
 :.EX	TOS .DROP 4 'RTOS +! swap RTOS ! ;
 
-|--- COD
 :jmpr | adr' -- adrj
 	dup 4 - @ 8 >> + ;
 
-:.( ;
+:.( 	;
 :.)		dup 4 - @ 8 >> 0? ( drop ; ) + ;
 :.[		jmpr ;
 :.]		dup 4 - @ 8 >> PUSH.NRO ;
 
+|--- COND
 :.0?	vTOS 1? ( drop jmpr ; ) drop ;
 :.1?	vTOS 0? ( drop jmpr ; ) drop ;
 :.+?	vTOS -? ( drop jmpr ; ) drop ;
@@ -133,7 +129,7 @@
 
 :.UPDATE	update ;
 :.REDRAW	redraw ;
-:.MEM		here PUSH.NRO ;
+:.MEM		freemem PUSH.NRO ;
 :.SW		sw PUSH.NRO ;
 :.SH		sh PUSH.NRO ;
 :.VFRAME	vframe PUSH.NRO ;
@@ -174,8 +170,7 @@
 :.POLI	poli ;
 
 #vmc
-0 0 0 0 0 0 0
-.dec .hex .bin .fix .str .wor .var .dwor .dvar
+0 0 0 0 0 0 0 .dec .bin .hex .fix .str .wor .var .dwor .dvar
 .; .( .) .[ .] .EX .0? .1? .+? .-? .<? .>? .=? .>=? .<=? .<>?
 .A? .N? .B? .DUP .DROP .OVER .PICK2 .PICK3 .PICK4 .SWAP .NIP .ROT .2DUP .2DROP .3DROP .4DROP
 .2OVER .2SWAP .>R .R> .R@ .AND .OR .XOR .+ .- .* ./ .<< .>> .>>> .MOD
@@ -242,7 +237,6 @@
 ::tokenexec | adr+ token -- adr+
 	$ff and 2 << 'vmc + @ ex ;
 
-
 ::stackprintvm
 	" D) " emits
 	'PSP 8 + ( NOS <=?
@@ -258,66 +252,56 @@
 		) drop 	;
 
 |---------- PREPARE CODE FOR RUN
-|cdec chex cdec cdec cstr cwor cvar cdwor cdvar |7..15
-|c; c( c) c[ c] cEX |16..21
-|c0? c1? c+? c-? c<? c>? c=? c>=? c<=? c<>? cA? cN? cB? |22..34
-|
-
 :tokvalue | 'adr tok -- 'adr tok value
-	over 4 - @ 8 >>> ;
+	over 4 - @ 8 >> ;
+
+:getsrcnro
+	dup ?numero 1? ( drop nip nip ; ) drop
+	str>fnro nip ;
 
 :transflit | adr' tok -- adr' tok | ; 7..10
-	tokvalue src +			| string in src
-
-	| dex,hex,bin,fix
-
-	str>nro nip
-	8 << 10 or
-	pick2 4 - !
-	;
+	tokvalue src +		| string in src
+	dup isNro 0? ( 1 + ) 6 + | 7-dec,8-bin,9-hex,10-fix ..
+	swap getsrcnro
+	8 << or pick2 4 - ! ;
 
 :blwhile? | -- fl
 	tokvalue 3 << blok + @ $10000000 and ;
 
 :blini | -- end?
-	tokvalue 3 << blok + @ $ffffff and 2 << code + ;
+	tokvalue 3 << blok + @  $fffffff and 2 << code + ;
 
 :blend | -- end?
 	tokvalue 3 << blok + 4 + @ 2 << code + ;
 
 :patch! | adr tok value -- adr tok
-	pick2 4 - dup @ $ff and rot or swap !
-
+	pick2 4 - dup @ $ff and rot or swap ! ;
 
 :transfcond | adr' tok -- adr' tok | ; 22..34
-	blend pick2 - 8 << | delta jump
-	patch! ;
+	blend pick2 - 4 + 8 << patch! ;
 
 :tr( | adr' tok -- adr' tok
-	;
+	0 patch! ;
+
 :tr) | adr' tok -- adr' tok
-	blwhile? 0? ( drop over 4 - dup @ $ff and swap ! ; ) drop
-	blini pick2 - 8 << | delta
-	patch! ;
+	blwhile? 0? ( drop 0 patch! ; ) drop
+	blini pick2 - 4 + 8 << patch! ;
 
 :tr[ | adr' tok -- adr' tok
-	blend pick2 - 8 <<
-	patch! ;
+	blend pick2 - 8 << patch! ;
 
 :tr] | adr' tok -- adr' tok
-	blini 8 <<
-	patch! ;
+	blini 8 << patch! ;
 
 :transform | adr' -- adr'
 	@+ $ff and
 	7 10 bt? ( transflit )
-|	17 =? ( tr( )
-|	18 =? ( tr) )
+	17 =? ( tr( )
+	18 =? ( tr) )
 	19 =? ( tr[ )
 	20 =? ( tr] )
 	22 34 bt? ( transfcond )
-	drop
-	;
+	drop ;
 
 :code2mem | adr -- adr
 	dup 8 + @ 1 and? ( drop ; ) drop	| code only
@@ -336,13 +320,61 @@
 		transform
 	 	) drop ;
 
-|---------- PREPARE DATA FOR RUN
+|------ PREPARE DATA FOR RUN
+#gmem ',
+
+:memlit
+	tokvalue src + getsrcnro gmem ex ;
+
+:resbyte | reserve memory
+	'here +! ;
+
+:memstr | store string
+	;
+
+:memwor
+	;
+
+:memvar
+    ;
+
+:getvarmem
+	@+
+	7 10 bt? ( memlit )
+	11 =? ( memstr ) | str
+	12 =? ( memwor ) | word
+	13 =? ( memvar ) | var
+	14 =? ( memwor ) | dword
+	15 =? ( memvar ) | dvar
+	17 =? ( ',c 'gmem ! )	| (
+	18 =? ( ', 'gmem ! )	| )
+	19 =? ( ',q 'gmem ! )	| [
+	20 =? ( ', 'gmem ! )	| ]
+	58 =? ( 'resbyte 'gmem ! ) | *
+	drop
+	;
+
 :var2mem | adr -- adr
 	dup 8 + @ 1 nand? ( drop ; ) drop	| data only
-
-	;
+	dup adr>toklen
+	here pick3 4 + !	| save mem place
+	', 'gmem ! 			| save dword default
+	0? ( , drop ; )
+	( 1? 1 - swap
+		getvarmem
+		swap ) 2drop ;
 
 ::data2mem
 	dicc ( dicc> <?
 		var2mem
 		16 + ) drop ;
+
+|------ PREPARE 2 RUN
+::vm2run
+	here 'memsrc !
+	code2run
+	code> code - 'here +!
+	here 'memvars !
+	var2mem
+	here 'freemem !
+	;
