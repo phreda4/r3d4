@@ -18,6 +18,8 @@
 #memvars	| mem vars		; real mem vars
 #freemem	| free mem
 
+#srcnow
+
 ##REGA 0 0
 ##REGB 0 0
 
@@ -35,25 +37,19 @@
 	xfb> ;
 
 |----------
-:dic>tok
-
-	;
-:dic>mem
-
-	;
-
 :.dec	dup 4 - @ 8 >> push.nro ;
 :.hex   dup 4 - @ 8 >> push.nro ;
 :.bin   dup 4 - @ 8 >> push.nro ;
 :.fix   dup 4 - @ 8 >> push.nro ;
 :.str   dup 4 - @ 8 >> push.str ;
-:.wor	dup 4 - @ 8 >> dic>tok @ 4 'RTOS +! swap RTOS ! ; |***
-:.var   dup 4 - @ 8 >> dic>mem @ push.nro ;
-:.dwor	dup 4 - @ 8 >> push.nro ;
-:.dvar  dup 4 - @ 8 >> push.nro ;
+:.wor	dup 4 - @ 8 >> dic>tok @ 4 'RTOS +! swap RTOS ! ;
+:.var   dup 4 - @ 8 >> dic>tok @ @ push.nro ;
+:.dwor	dup 4 - @ 8 >> dic>tok @ push.nro ;
+:.dvar  dup 4 - @ 8 >> dic>tok @ push.nro ;
+
 :.;		RTOS @ nip -4 'RTOS +! ;
 
-:.EX	TOS .DROP 4 'RTOS +! swap RTOS ! ;
+:.EX	vTOS .DROP 4 'RTOS +! swap RTOS ! ;
 
 :jmpr | adr' -- adrj
 	dup 4 - @ 8 >> + ;
@@ -102,8 +98,8 @@
 :.B!+	vTOS REGB dup 4 + 'REGB ! ! .DROP ;
 
 :.@		vTOS @ TOS.NRO! ;
-:.C@	TOS c@ TOS.NRO! ;
-:.Q@	TOS q@ TOS.NRO! ;
+:.C@	vTOS c@ TOS.NRO! ;
+:.Q@	vTOS q@ TOS.NRO! ;
 :.!		vNOS vTOS ! .2DROP ;
 :.C!	vNOS vTOS c! .2DROP ;
 :.Q!	vNOS vTOS q! .2DROP ;
@@ -187,69 +183,6 @@
 .PLINE .PCURVE .PCURVE3 .POLI
 0
 
-|-------------------------------
-| palabras de interaccion
-|-------------------------------
-
-::breakpoint | src --
-|	memsrc ( @+ pick2 <? )( drop ) drop
-|	4 - memsrc - code< +
-	'<<bp ! ;
-
-::resetvm | --
-	'PSP 'NOS !
-	'RSP 'RTOS !
-	0 'TOS !
-	<<boot '<<ip !
-	;
-
-::stepvm | --
-	<<ip 0? ( drop ; )
-:stepvmi
-	**emu
-	(	@+ $ff and 2 << 'vmc + @ ex
-		code< <=? ) | corte?
-	'<<ip !
-	emu**
-	;
-
-::stepvmn | --
-	<<ip 0? ( drop ; )
-	dup @ $ff and $c <>? ( drop stepvmi ; ) drop
-	**emu
-	dup 4 + swap
-	( over <>?
-		@+ $ff and 2 << 'vmc + @ ex
-		1? ( '<<ip ! drop emu** ; )
-		) nip
-	'<<ip !
-	emu** ;
-
-::playvm | --
-	<<ip 0? ( drop ; )
-	**emu
-	( <<bp <>?
-		@+ $ff and 2 << 'vmc + @ ex
-		1? )
-	'<<ip !
-	emu** ;
-
-::tokenexec | adr+ token -- adr+
-	$ff and 2 << 'vmc + @ ex ;
-
-::stackprintvm
-	" D) " emits
-	'PSP 8 + ( NOS <=?
-		@+ STKval "%d " print
-		) drop
-	'PSP NOS <? (
-		TOS STKval "%d " print
-		) drop
-	cr
-	" R) " emits
-	'RSP 4 + ( RTOS <=?
-		@+ STKval "%d " print
-		) drop 	;
 
 |---------- PREPARE CODE FOR RUN
 :tokvalue | 'adr tok -- 'adr tok value
@@ -280,8 +213,11 @@
 :transfcond | adr' tok -- adr' tok | ; 22..34
 	blend pick2 - 4 + 8 << patch! ;
 
+:trstr
+	;
+
 :tr( | adr' tok -- adr' tok
-	0 patch! ;
+	0 patch! ;	| not need but..
 
 :tr) | adr' tok -- adr' tok
 	blwhile? 0? ( drop 0 patch! ; ) drop
@@ -293,9 +229,22 @@
 :tr] | adr' tok -- adr' tok
 	blini 8 << patch! ;
 
+:>>next
+	dup c@
+	34 =? ( drop >>" trim ; )
+	drop
+	>>sp trim
+	dup c@
+	$7c =? ( drop >>cr trim ; )
+	drop
+	;
+
 :transform | adr' -- adr'
+	srcnow over code - memsrc + !
+	srcnow >>next 'srcnow !
 	@+ $ff and
 	7 10 bt? ( transflit )
+	11 =? ( trstr ) | str
 	17 =? ( tr( )
 	18 =? ( tr) )
 	19 =? ( tr[ )
@@ -305,6 +254,7 @@
 
 :code2mem | adr -- adr
 	dup 8 + @ 1 and? ( drop ; ) drop	| code only
+	dup @ >>next 'srcnow !
 	dup adr>toklen
 	( 1? 1 - swap
 		transform
@@ -329,23 +279,22 @@
 :resbyte | reserve memory
 	'here +! ;
 
+:valstr
+	( c@+ 1?
+		34 =? ( drop c@+ 34 <>? ( 2drop ; ) )
+		,c ) 2drop ;
+
 :memstr | store string
-	;
+	over 4 - @ 8 >> src + valstr 0 ,c ;
 
 :memwor
-	;
-
-:memvar
-    ;
+	tokvalue dic>tok @ , ;
 
 :getvarmem
-	@+
+	@+ $ff and
 	7 10 bt? ( memlit )
 	11 =? ( memstr ) | str
-	12 =? ( memwor ) | word
-	13 =? ( memvar ) | var
-	14 =? ( memwor ) | dword
-	15 =? ( memvar ) | dvar
+	12 15 bt? ( memwor )
 	17 =? ( ',c 'gmem ! )	| (
 	18 =? ( ', 'gmem ! )	| )
 	19 =? ( ',q 'gmem ! )	| [
@@ -358,8 +307,8 @@
 	dup 8 + @ 1 nand? ( drop ; ) drop	| data only
 	dup adr>toklen
 	here pick3 4 + !	| save mem place
-	', 'gmem ! 			| save dword default
 	0? ( , drop ; )
+	', 'gmem ! 			| save dword default
 	( 1? 1 - swap
 		getvarmem
 		swap ) 2drop ;
@@ -375,6 +324,72 @@
 	code2run
 	code> code - 'here +!
 	here 'memvars !
-	var2mem
+	data2mem
 	here 'freemem !
 	;
+
+::gotosrc
+	<<ip 0? ( ; )
+	code - memsrc + @ ;
+
+|-------------------------------
+| palabras de interaccion
+|-------------------------------
+
+::resetvm | --
+	'PSP 'NOS !
+	'RSP 'RTOS !
+	0 'TOS !
+	0 RTOS !
+	<<boot '<<ip !
+	;
+
+::tokenexec | adr+ token -- adr+
+	$ff and 2 << 'vmc + @ ex ;
+
+::stepvm
+	<<ip 0? ( drop resetvm ; )
+	**emu
+	@+ $ff and 2 << 'vmc + @ ex
+	'<<ip !
+	emu**
+	;
+
+::stepvmn | --
+	<<ip 0? ( drop resetvm ; )
+	dup @ $ff and $c <>? ( 2drop stepvm ; ) drop
+	**emu
+	dup 4 + swap
+	( over <>?
+		@+ $ff and 2 << 'vmc + @ ex
+		1? ) nip
+	'<<ip !
+	emu** ;
+
+::playvm | --
+	<<ip 0? ( drop resetvm ; )
+	**emu
+	( <<bp <>?
+		@+ $ff and 2 << 'vmc + @ ex
+		1? )
+	'<<ip !
+	emu** ;
+
+::stackprintvm
+	" D) " emits
+	'PSP 8 + ( NOS <=?
+		@+ STKval "%d " print
+		) drop
+	'PSP NOS <? (
+		TOS STKval "%d " print
+		) drop
+	cr
+	" R) " emits
+	'RSP 4 +
+	( RTOS <=?
+		@+ "%h " print
+		) drop 	;
+
+::breakpoint | cursor --
+| conver to code..
+	'<<bp  ! ;

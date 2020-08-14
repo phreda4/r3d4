@@ -167,13 +167,14 @@
 	$0000AE 'ink !
 	rows hcode - 1 - backlines
 	0 rows 1 - gotoxy
-	"IMM" "F1" btnf
+	"CODE" "F10" btnf
 
 	key
 	>esc< =? ( exit )
-	<f1> =? ( mode!imm )
 
-	<f2> =? ( code2run )
+|	<f2> =? ( code2run )
+
+	<f10> =? ( mode!imm )
 
 	<up> =? ( -1 +word )
 	<dn> =? ( 1 +word )
@@ -411,8 +412,6 @@
 	@ setsource
 	;
 
-:gotosrc
-	;
 
 |---------------------------------
 :barratop
@@ -483,7 +482,7 @@
 
 	here newcode2run
 
-	$ffffff 'ink !
+|	$ffffff 'ink !
 	here ( code> <? @+
 |		stepdebug
 		tokenexec
@@ -493,6 +492,11 @@
 	0 'inpad !
 	"Ok" 'outpad strcpy
 	refreshfoco
+	;
+
+:showip
+	<<ip 0? ( drop "END" print ; )
+	dup @ "%h (%h)" print
 	;
 
 :console
@@ -509,6 +513,7 @@
 	rows hcode - 1 - backlines
 
 	$ff00 'ink !
+    showip
 	'outpad sp text cr
 	$ffffff 'ink !
 	" > " emits
@@ -522,7 +527,7 @@
 	"StepN" "F3" btnf
 	"BREAK" "F4" btnf
 	"VIEW" "F6" btnf
-
+	"DICC" "F10" btnf
 	;
 
 
@@ -539,8 +544,13 @@
 	>esc< =? ( exit )
 
 	<tab> =? ( mode!imm )
-	<f1> =? ( mode!view 0 +word )
+	<f10> =? ( mode!view 0 +word )
 	drop
+	;
+
+:gotoplace
+	gotosrc 0? ( drop ; )
+	'fuente> !
 	;
 
 :modeimm
@@ -552,14 +562,16 @@
 	>esc< =? ( exit )
 	<ret> =? ( execimm )
 
-	<f2> =? ( fuente> breakpoint playvm gotosrc )
-	<f3> =? ( stepvm gotosrc )
+	<f1> =? ( stepvm gotoplace )
+	<f2> =? ( stepvmn gotoplace )
+
+|	<f2> =? ( fuente> breakpoint playvm gotosrc )
 	<f4> =? ( stepvmn gotosrc )
-	<f5> =? (  fuente> breakpoint )
+	<f5> =? ( fuente> breakpoint )
 |	<f6> =? ( viewscreen )
 
 	<tab> =? ( mode!src )
-	<f1> =? ( mode!view 0 +word )
+	<f10> =? ( mode!view 0 +word )
 
 	drop
 	;
@@ -612,8 +624,9 @@
 	error 1? ( drop savedebug ; ) drop
 	emptyerror
 
-	code2run
-	savemap
+	vm2run
+
+|	savemap
 
 	'fontdroidsans13 fontm
 |	fonti
@@ -624,6 +637,9 @@
 
 	mode!imm
 	cntdef 1 - 'actword !
+
+	resetvm
+	gotoplace
 
 	'debugmain onshow
 	;
