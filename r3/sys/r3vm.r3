@@ -37,6 +37,15 @@
 	xfb> ;
 
 |----------
+:getbig
+	;
+
+:.dec2	dup 4 - @ 8 >> getbig push.nro ;
+:.bin2	dup 4 - @ 8 >> getbig push.nro ;
+:.hex2	dup 4 - @ 8 >> getbig push.nro ;
+:.fix2	dup 4 - @ 8 >> getbig push.nro ;
+:.wor2 4 - @ 8 >> dic>tok @ ; | tail call
+
 :.dec	dup 4 - @ 8 >> push.nro ;
 :.hex   dup 4 - @ 8 >> push.nro ;
 :.bin   dup 4 - @ 8 >> push.nro ;
@@ -166,7 +175,7 @@
 :.POLI	poli ;
 
 #vmc
-0 0 0 0 0 0 0 .dec .bin .hex .fix .str .wor .var .dwor .dvar
+0 .dec2 .bin2 .hex2 .fix2 0 .wor2 .dec .bin .hex .fix .str .wor .var .dwor .dvar
 .; .( .) .[ .] .EX .0? .1? .+? .-? .<? .>? .=? .>=? .<=? .<>?
 .A? .N? .B? .DUP .DROP .OVER .PICK2 .PICK3 .PICK4 .SWAP .NIP .ROT .2DUP .2DROP .3DROP .4DROP
 .2OVER .2SWAP .>R .R> .R@ .AND .OR .XOR .+ .- .* ./ .<< .>> .>>> .MOD
@@ -192,11 +201,6 @@
 	dup ?numero 1? ( drop nip nip ; ) drop
 	str>fnro nip ;
 
-:transflit | adr' tok -- adr' tok | ; 7..10
-	tokvalue src +		| string in src
-	dup isNro 0? ( 1 + ) 6 + | 7-dec,8-bin,9-hex,10-fix ..
-	swap getsrcnro
-	8 << or pick2 4 - ! ;
 
 :blwhile? | -- fl
 	tokvalue 3 << blok + @ $10000000 and ;
@@ -213,7 +217,11 @@
 :transfcond | adr' tok -- adr' tok | ; 22..34
 	blend pick2 - 4 + 8 << patch! ;
 
-:trstr
+
+:trwor
+	over @ $ff and
+	16 <>? ( drop ; ) drop
+	over dup @ $ff not and 6 or swap ! | call tail call
 	;
 
 :tr( | adr' tok -- adr' tok
@@ -239,12 +247,11 @@
 	drop
 	;
 
-:transform | adr' -- adr'
+:transform1 | adr' -- adr'
 	srcnow over code - memsrc + !
 	srcnow >>next 'srcnow !
 	@+ $ff and
-	7 10 bt? ( transflit )
-	11 =? ( trstr ) | str
+	12 =? ( trwor ) | call
 	17 =? ( tr( )
 	18 =? ( tr) )
 	19 =? ( tr[ )
@@ -252,18 +259,53 @@
 	22 34 bt? ( transfcond )
 	drop ;
 
-:code2mem | adr -- adr
+:code2mem1 | adr -- adr
 	dup 8 + @ 1 and? ( drop ; ) drop	| code only
 	dup @ >>next 'srcnow !
 	dup adr>toklen
 	( 1? 1 - swap
-		transform
+		transform1
+		swap ) 2drop ;
+
+:storebig | adr tok type big -- adr' tok
+|..
+	8 << or pick2 4 - !
+	;
+
+:transflit | adr' tok -- adr' tok | ; 7..10
+	tokvalue src +		| string in src
+	dup isNro 0? ( 1 + ) 6 + | 7-dec,8-bin,9-hex,10-fix ..
+	swap getsrcnro
+|	dup 40 << 40 >> <> ? ( storebig ; )
+	8 << or pick2 4 - ! ;
+
+:trstr
+	;
+
+
+:transform2 | adr' -- adr'
+	@+ $ff and
+	7 10 bt? ( transflit )
+	11 =? ( trstr ) | str
+	drop ;
+
+:code2mem2 | adr -- adr
+	dup 8 + @ 1 and? ( drop ; ) drop	| code only
+	dup @ >>next 'srcnow !
+	dup adr>toklen
+	( 1? 1 - swap
+		transform2
 		swap ) 2drop ;
 
 ::code2run
 	dicc ( dicc> <?
-		code2mem
-		16 + ) drop ;
+		code2mem1
+		16 + ) drop
+	dicc ( dicc> <?
+		code2mem2
+		16 + ) drop
+
+	;
 
 ::newcode2run | adr --
 	( code> <?

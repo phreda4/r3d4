@@ -522,11 +522,11 @@
 	stackprintvm
 
 	0 rows 1 - gotoxy
-	"Play2C" "F1" btnf
-	"Step" "F2" btnf
-	"StepN" "F3" btnf
-	"BREAK" "F4" btnf
-	"VIEW" "F6" btnf
+|	"Play2C" "F1" btnf
+	"Step" "F7" btnf
+	"StepN" "F8" btnf
+|	"BREAK" "F4" btnf
+|	"VIEW" "F6" btnf
 	"DICC" "F10" btnf
 	;
 
@@ -562,8 +562,8 @@
 	>esc< =? ( exit )
 	<ret> =? ( execimm )
 
-	<f1> =? ( stepvm gotoplace )
-	<f2> =? ( stepvmn gotoplace )
+	<f7> =? ( stepvm gotoplace )
+	<f8> =? ( stepvmn gotoplace )
 
 |	<f2> =? ( fuente> breakpoint playvm gotosrc )
 	<f4> =? ( stepvmn gotosrc )
