@@ -14,7 +14,7 @@
 ^r3/lib/fontr.r3
 ^r3/util/loadimg.r3
 ^media/rft/archivoblackregular.rft
-^r3/dev/sokoban.levels.r3
+^r3/games/sokoban.levels.r3
 
 | sprites
 #spritesheet
