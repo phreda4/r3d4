@@ -17,6 +17,7 @@
 #memsrc		| mem token>src ; code to src
 #memvars	| mem vars		; real mem vars
 #freemem	| free mem
+#memaux
 
 #srcnow
 
@@ -38,7 +39,7 @@
 
 |----------
 :getbig
-	;
+	blok + q@ ;
 
 :.dec2	dup 4 - @ 8 >> getbig push.nro ;
 :.bin2	dup 4 - @ 8 >> getbig push.nro ;
@@ -50,7 +51,7 @@
 :.hex   dup 4 - @ 8 >> push.nro ;
 :.bin   dup 4 - @ 8 >> push.nro ;
 :.fix   dup 4 - @ 8 >> push.nro ;
-:.str   dup 4 - @ 8 >> push.str ;
+:.str   dup 4 - @ 8 >> blok + push.nro ;
 :.wor	dup 4 - @ 8 >> dic>tok @ 4 'RTOS +! swap RTOS ! ;
 :.var   dup 4 - @ 8 >> dic>tok @ @ push.nro ;
 :.dwor	dup 4 - @ 8 >> dic>tok @ push.nro ;
@@ -201,6 +202,10 @@
 	dup ?numero 1? ( drop nip nip ; ) drop
 	str>fnro nip ;
 
+:valstr
+	( c@+ 1?
+		34 =? ( drop c@+ 34 <>? ( 2drop ; ) )
+		,c ) 2drop ;
 
 :blwhile? | -- fl
 	tokvalue 3 << blok + @ $10000000 and ;
@@ -239,13 +244,15 @@
 
 :>>next
 	dup c@
-	34 =? ( drop >>" trim ; )
+	34 =? ( drop 1 + >>" trim ; )
 	drop
 	>>sp trim
 	dup c@
 	$7c =? ( drop >>cr trim ; )
 	drop
 	;
+
+|---  transform 1 use Block and release
 
 :transform1 | adr' -- adr'
 	srcnow over code - memsrc + !
@@ -267,21 +274,30 @@
 		transform1
 		swap ) 2drop ;
 
+|---  transform 2 need memory
+
 :storebig | adr tok type big -- adr' tok
-|..
-	8 << or pick2 4 - !
+	memaux q!
+	6 -
+	memaux blok - 8 << or pick2 4 - !
+	8 'memaux +!
 	;
 
 :transflit | adr' tok -- adr' tok | ; 7..10
 	tokvalue src +		| string in src
 	dup isNro 0? ( 1 + ) 6 + | 7-dec,8-bin,9-hex,10-fix ..
 	swap getsrcnro
-|	dup 40 << 40 >> <> ? ( storebig ; )
+	dup 40 << 40 >> <>? ( storebig ; )
 	8 << or pick2 4 - ! ;
 
 :trstr
+	mark
+	memaux 'here !
+	over 4 - @ 8 >> src + valstr 0 ,c
+	memaux blok - 8 << 11 or pick2 4 - !
+	here 'memaux !
+	empty
 	;
-
 
 :transform2 | adr' -- adr'
 	@+ $ff and
@@ -297,19 +313,23 @@
 		transform2
 		swap ) 2drop ;
 
+|--------
 ::code2run
 	dicc ( dicc> <?
 		code2mem1
 		16 + ) drop
+	blok 'memaux !
 	dicc ( dicc> <?
 		code2mem2
-		16 + ) drop
-
-	;
+		16 + ) drop	;
 
 ::newcode2run | adr --
 	( code> <?
-		transform
+		transform1
+	 	) drop
+	blok 'memaux !
+	( code> <?
+		transform2
 	 	) drop ;
 
 |------ PREPARE DATA FOR RUN
@@ -320,11 +340,6 @@
 
 :resbyte | reserve memory
 	'here +! ;
-
-:valstr
-	( c@+ 1?
-		34 =? ( drop c@+ 34 <>? ( 2drop ; ) )
-		,c ) 2drop ;
 
 :memstr | store string
 	over 4 - @ 8 >> src + valstr 0 ,c ;
