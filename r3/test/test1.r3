@@ -1,5 +1,7 @@
 | test
 
+^r3/lib/gui.r3
+
 #x 20
 #s "abcde" 
 
@@ -11,5 +13,14 @@
 :test2
 	"hola" ( c@+ 1? swap ) x 1 'x +! x + v ex ;
 
-: 's c@ test1 test2 ;
+:main
+	cls home
+	"hola " print
+	key >esc< =? ( exit ) drop
+	;
+
+: 
+'main onshow
+'s c@ test1 test2 
+;
 
