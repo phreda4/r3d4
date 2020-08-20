@@ -1,10 +1,14 @@
 |DELTA - MC 2020
-|Sprites from Jacob Zinman-Jeanes, below some information included in his package:
-|  --
-|  These sprites were designed by Jacob Zinman-Jeanes (http://jeanes.co) for Gamedevtuts+ (http://gamedev.tutsplus.com/).
+|--
+|Ship sprites from Jacob Zinman-Jeanes:
 |  http://gamedev.tutsplus.com/articles/news/enjoy-these-totally-free-space-based-shoot-em-up-sprites/
-|  --
-|
+|--
+|Explosion sprite from:
+|  http://www.nordenfelt-thegame.com/blog/category/dev-log/page/3/
+|--
+|mp3 files from:
+|  https://github.com/jakesgordon/javascript-delta
+|--
 |MEM 2048
 |SCR 1600 900
 
