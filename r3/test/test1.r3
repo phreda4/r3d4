@@ -19,7 +19,12 @@
 	key >esc< =? ( exit ) drop
 	;
 
-: 
+:
+cls
+$ff 'ink !
+10 10 op
+400 100 line
+ 
 'main onshow
 's c@ test1 test2 
 ;

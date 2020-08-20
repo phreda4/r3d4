@@ -160,8 +160,8 @@
 :modeview
 	0 1 gotoxy
 	dicmap
-|	incmap
-	wordmap
+	incmap
+|	wordmap
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -171,8 +171,6 @@
 
 	key
 	>esc< =? ( exit )
-
-|	<f2> =? ( code2run )
 
 	<f10> =? ( mode!imm )
 
@@ -523,6 +521,7 @@
 
 	0 rows 1 - gotoxy
 |	"Play2C" "F1" btnf
+	"SCR" "F6" btnf
 	"Step" "F7" btnf
 	"StepN" "F8" btnf
 |	"BREAK" "F4" btnf
@@ -553,6 +552,12 @@
 	'fuente> !
 	;
 
+:viewscreen
+	xfb>
+	home " ESC for Exit " $ff 'ink ! backprint $ffffff 'ink ! print
+	redraw
+	waitesc ;
+
 :modeimm
 	drawcode
 	drawcursorfix
@@ -562,13 +567,14 @@
 	>esc< =? ( exit )
 	<ret> =? ( execimm )
 
+	<f6> =? ( viewscreen )
 	<f7> =? ( stepvm gotoplace )
 	<f8> =? ( stepvmn gotoplace )
 
 |	<f2> =? ( fuente> breakpoint playvm gotosrc )
 	<f4> =? ( stepvmn gotosrc )
 	<f5> =? ( fuente> breakpoint )
-|	<f6> =? ( viewscreen )
+
 
 	<tab> =? ( mode!src )
 	<f10> =? ( mode!view 0 +word )

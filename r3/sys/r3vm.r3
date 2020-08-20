@@ -26,16 +26,16 @@
 
 #sopx #sopy #sink
 
+:**emu
+	sink 'ink !
+	sopx sopy op
+	xfb> ;
+
 :emu**
 	>xfb
 	ink 'sink !
 	opx 'sopx ! opy 'sopy !
 	;
-
-:**emu
-	sink 'ink !
-	sopx sopy op
-	xfb> ;
 
 |----------
 :getbig
@@ -154,26 +154,26 @@
 :.FFIRST	vTOS ffirst TOS.NRO! ;
 :.FNEXT		fnext PUSH.NRO ;
 
-:.SYS	vTOS sys .DROP ; | ???
-:.SLOAD vTOS sload TOS.NRO! ;
-:.SFREE vTOS sfree .DROP ;
-:.SPLAY vTOS splay .DROP ;
-:.MLOAD vTOS mload TOS.NRO! ;
-:.MFREE vTOS mfree .DROP ;
-:.MPLAY vTOS mplay .DROP ;
-:.INK	sink PUSH.NRO ;
-:.'INK	'sink PUSH.NRO ;
-:.ALPHA	vTOS alpha .DROP ;
-:.OPX	opx PUSH.NRO ;
-:.OPY	opy PUSH.NRO ;
-:.OP	vNOS vTOS op .2DROP ;
-:.LINE	vNOS vTOS line .2DROP ;
-:.CURVE vPK3 vPK2 vNOS vTOS curve .4DROP ;
+:.SYS		vTOS sys .DROP ; | ???
+:.SLOAD 	vTOS sload TOS.NRO! ;
+:.SFREE 	vTOS sfree .DROP ;
+:.SPLAY 	vTOS splay .DROP ;
+:.MLOAD 	vTOS mload TOS.NRO! ;
+:.MFREE 	vTOS mfree .DROP ;
+:.MPLAY 	vTOS mplay .DROP ;
+:.INK		ink PUSH.NRO ;
+:.'INK		'ink PUSH.NRO ;
+:.ALPHA		vTOS alpha .DROP ;
+:.OPX		opx PUSH.NRO ;
+:.OPY		opy PUSH.NRO ;
+:.OP		vNOS vTOS op .2DROP ;
+:.LINE		vNOS vTOS line .2DROP ;
+:.CURVE 	vPK3 vPK2 vNOS vTOS curve .4DROP ;
 :.CURVE3	vPK5 vPK4 vPK3 vPK2 vNOS vTOS curve3 .6DROP ;
-:.PLINE	vNOS vTOS pline .2DROP ;
-:.PCURVE vPK3 vPK2 vNOS vTOS pcurve .4DROP ;
+:.PLINE		vNOS vTOS pline .2DROP ;
+:.PCURVE 	vPK3 vPK2 vNOS vTOS pcurve .4DROP ;
 :.PCURVE3	vPK5 vPK4 vPK3 vPK2 vNOS vTOS pcurve3 .6DROP ;
-:.POLI	poli ;
+:.POLI		poli ;
 
 #vmc
 0 .dec2 .bin2 .hex2 .fix2 0 .wor2 .dec .bin .hex .fix .str .wor .var .dwor .dvar
@@ -377,6 +377,7 @@
 
 |------ PREPARE 2 RUN
 ::vm2run
+	iniXFB
 	here 'memsrc !
 	code2run
 	code> code - 'here +!
@@ -399,6 +400,9 @@
 	0 'TOS !
 	0 RTOS !
 	<<boot '<<ip !
+	**emu
+	cls
+	emu**
 	;
 
 ::tokenexec | adr+ token -- adr+
