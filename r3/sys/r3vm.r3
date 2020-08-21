@@ -5,6 +5,7 @@
 ^./r3stack.r3
 
 ^r3/lib/xfb.r3
+^r3/util/sort.r3
 
 ##<<ip	| ip
 ##<<bp	| breakpoint
@@ -15,6 +16,7 @@
 | src|<mem>|info|mov << DATA
 
 #memsrc		| mem token>src ; code to src
+##sortinc
 #memvars	| mem vars		; real mem vars
 #freemem	| free mem
 #memaux
@@ -375,18 +377,37 @@
 		var2mem
 		16 + ) drop ;
 
+|------ for locate code
+:sortincludes
+	here 'sortinc !
+	'inc >a
+	0 ( cntinc <?
+		4 a+ a@+ ,
+		dup ,
+		1 + ) drop
+	cntinc 1 + sortinc shellsort ;
+
+::findinclude | adr -- nro
+	sortinc >a
+	0 ( cntinc <?
+		over a@+ <? ( 3drop a@ ; ) drop
+		4 a+
+		1 + ) 2drop
+	a@ ;
+
 |------ PREPARE 2 RUN
 ::vm2run
 	iniXFB
 	here 'memsrc !
 	code2run
 	code> code - 'here +!
+	sortincludes
 	here 'memvars !
 	data2mem
 	here 'freemem !
 	;
 
-::gotosrc
+::gotosrc | -- adr
 	<<ip 0? ( ; )
 	code - memsrc + @ ;
 

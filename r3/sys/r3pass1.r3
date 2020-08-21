@@ -8,6 +8,8 @@
 
 ^./r3base.r3
 
+##cntinc
+
 |----------- comments / configuration
 :escom
 |WIN|	"WIN|" =pre 1? ( drop 4 + ; ) drop | Compila para WINDOWS
@@ -81,5 +83,6 @@
 	480 'switchresy !
 	$fff 'switchmem !
 	includes
+	inc> 'inc - 3 >> 'cntinc !
 	8 'cntblk +! | 8 blocks more for immediate!
 	;

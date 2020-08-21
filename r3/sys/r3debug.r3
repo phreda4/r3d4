@@ -18,7 +18,6 @@
 
 #name * 1024
 #namenow * 256
-#cntinc
 
 ::r3debuginfo | str --
 	r3name
@@ -36,7 +35,6 @@
 	r3-stage-2 1? ( drop ; ) drop 		|	"stage 3" slog
 	r3-stage-3			|	"stage 4" slog
 	r3-stage-4			|	"stage ok" slog
-	inc> 'inc - 3 >> 'cntinc !
 	;
 
 :savedebug
@@ -92,12 +90,16 @@
 #cnttok
 #nowtok
 
+#incnow
+
 :incmap
 	$ffff00 'ink !
 	0 ( cntinc <?
 		30 over 1 + gotoxy
-		dup 3 << 'inc +
-		@+ swap @ swap "%l %h" print
+|		dup 3 << 'inc +
+		dup 3 << sortinc +
+		@+ swap @ swap "%h %h" print
+		incnow =? ( " <" print )
 		1 + ) drop
 	;
 
@@ -162,6 +164,10 @@
 	dicmap
 	incmap
 |	wordmap
+	cr
+	actword dup "%d " print
+	dic>adr @ "%h " print
+	incnow "%d" print
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -172,6 +178,7 @@
 	key
 	>esc< =? ( exit )
 
+	<f1> =? ( actword dic>adr @ findinclude 'incnow ! )
 	<f10> =? ( mode!imm )
 
 	<up> =? ( -1 +word )
@@ -181,7 +188,6 @@
 	<pgup> =? ( hcode neg +word )
 	<pgdn> =? ( hcode +word )
 
-|	<f1> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
 |	<tab> =? ( mode!imm )
 
 	drop
@@ -398,7 +404,8 @@
 	dup 'pantaini> !
 	dup 'fuente !
 	count + dup '$fuente !
-	2 - 'fuente> !
+	drop
+|	2 - 'fuente> !
 	;
 
 #srcview 0
@@ -549,6 +556,10 @@
 
 :gotoplace
 	gotosrc 0? ( drop ; )
+	dup
+    findinclude
+	dup 'srcview !
+	srcnow
 	'fuente> !
 	;
 
@@ -566,6 +577,10 @@
 	key
 	>esc< =? ( exit )
 	<ret> =? ( execimm )
+
+|***
+	<f2> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
+|***
 
 	<f6> =? ( viewscreen )
 	<f7> =? ( stepvm gotoplace )
