@@ -31,8 +31,9 @@
 #ship #shipi 0 #shipn 4
 #enemy #enemyi 0 #enemyn 6
 #explosion #explosioni 0 #explosionn 16
-
-#shoot #explode
+#snd_shoot #snd_explosion
+#curframe 0
+#lastbullet 0
 
 :packstar | ( speed x y - packed )
 	  4 << swap 16 << or or ;
@@ -49,15 +50,6 @@
 :inistars 0 ( nstars <? dup
 	  2 << 'stars + newstar packstar swap !
 	  1 + ) drop ;
-
-:ini rerand
-     inistars
-     mark
-     64 29 "media/img/Spritesheet_64x29.png" loadimg tileSheet 'ship !
-     40 30 "media/img/eSpritesheet_40x30.png" loadimg tileSheet 'enemy !
-     64 64 "media/img/explosion.png" loadimg tileSheet 'explosion !
-     "media/snd/shoot.mp3" sload 'shoot !
-     "media/snd/explode.mp3" sload 'explode ! ;
 
 :keyboard key
 	  >esc< =? ( exit ) 
@@ -87,19 +79,16 @@
 
 :packbullet 12 << or ;
 
-#curframe 0
-#lastbullet 0
-
 :newbullet | ( -- )
 	   xypen 14 + swap 64 + swap
 	   packbullet
 	   'bullets abullets 2 << + !
 	   abullets 1 + 'abullets !
-	   shoot splay
+	   snd_shoot splay
 	   curframe 'lastbullet ! ;
 
 | use ship speed/direction?
-:shoot | ( -- )
+:shootbullet  | ( -- )
        abullets 1 + nbullets =? ( drop ; ) drop
        curframe lastbullet - 5 <? ( drop ; ) drop
        newbullet ;
@@ -114,6 +103,7 @@
 	    swap 4 >> %111111111111 and
 	    ;
 
+
 :drawenemy | ( x y -- )
 	    'stars @ unpackstar
 	    enemyi rot rot enemy ssprite
@@ -122,7 +112,7 @@
 
 :drawexplosion | ( x y -- )
 	       'stars 4 + @ unpackstar
-	       explosioni 0? ( explode splay ) drop
+	       explosioni 0? ( snd_explosion splay ) drop
 	       explosioni rot rot explosion ssprite
 	       drop | drop speed
 	       explosioni 1 + explosionn mod 'explosioni ! ;
@@ -165,9 +155,18 @@
 	    dup 2 << 'bullets + @ unpackbullet drop sw >? ( drop shiftbullets drop ; ) 2drop
 	    1 + ) drop ;
 
+:ini rerand
+     inistars
+     mark
+     64 29 "media/img/Spritesheet_64x29.png" loadimg tileSheet 'ship !
+     40 30 "media/img/eSpritesheet_40x30.png" loadimg tileSheet 'enemy !
+     64 64 "media/img/explosion.png" loadimg tileSheet 'explosion !
+     "media/snd/shoot.mp3" sload 'snd_shoot !
+     "media/snd/explode.mp3" sload 'snd_explosion ! ;
+
 :game cls
       keyboard
-      bpen 1? ( shoot ) drop
+      bpen 1? ( shootbullet ) drop
       printbullets
       drawstars
       drawenemy
@@ -179,3 +178,4 @@
 
 : ini
   'game onshow ;
+ 
