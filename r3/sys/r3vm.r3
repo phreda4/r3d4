@@ -407,7 +407,7 @@
 	here 'freemem !
 	;
 
-::gotosrc | -- adr
+::ip2src | -- adr
 	<<ip 0? ( ; )
 	code - memsrc + @ ;
 

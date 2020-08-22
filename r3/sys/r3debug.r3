@@ -400,23 +400,6 @@
 	( pantaini> <? scrollup )
 	drop ;
 
-:setsource | src --
-	dup 'pantaini> !
-	dup 'fuente !
-	count + dup '$fuente !
-	drop
-|	2 - 'fuente> !
-	;
-
-#srcview 0
-
-:srcnow | nro --
-	inc> 'inc - 4 >> >=? ( drop 'name 'namenow strcpy src setsource ; )
-	4 << 'inc +
-	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
-	@ setsource
-	;
-
 
 |---------------------------------
 :barratop
@@ -554,12 +537,29 @@
 	drop
 	;
 
-:gotoplace
-	gotosrc 0? ( drop ; )
+|------ search code in includes
+#srcview -1
+
+:setsource | src --
+	dup 'pantaini> !
+	dup 'fuente !
+	count + dup '$fuente !
+	drop
+|	2 - 'fuente> !
+	;
+
+:srcnow | nro --
+	srcview =? ( drop ; ) dup 'srcview !
+	inc> 'inc - 4 >> >=? ( drop 'name 'namenow strcpy src setsource ; )
+	4 << 'inc +
+	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
+	@ setsource
+	;
+
+:gotosrc
+	ip2src 0? ( drop ; )
 	dup
-    findinclude
-	dup 'srcview !
-	srcnow
+    findinclude srcnow
 	'fuente> !
 	;
 
@@ -579,12 +579,12 @@
 	<ret> =? ( execimm )
 
 |***
-	<f2> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
+|	<f2> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
 |***
 
 	<f6> =? ( viewscreen )
-	<f7> =? ( stepvm gotoplace )
-	<f8> =? ( stepvmn gotoplace )
+	<f7> =? ( stepvm gotosrc )
+	<f8> =? ( stepvmn gotosrc )
 
 |	<f2> =? ( fuente> breakpoint playvm gotosrc )
 	<f4> =? ( stepvmn gotosrc )
@@ -649,8 +649,8 @@
 
 |	savemap
 
-	'fontdroidsans13 fontm
-|	fonti
+|	'fontdroidsans13 fontm
+	fonti
 
 	calcselect
 	'name 'namenow strcpy
@@ -660,7 +660,7 @@
 	cntdef 1 - 'actword !
 
 	resetvm
-	gotoplace
+	gotosrc
 
 	'debugmain onshow
 	;
