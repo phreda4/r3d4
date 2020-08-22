@@ -10,7 +10,7 @@
 |  https://github.com/jakesgordon/javascript-delta
 |--
 |MEM 2048
-|SCR 1600 900
+|SCR 800 450
 
 ^r3/lib/gui.r3
 ^r3/lib/sys.r3
@@ -35,6 +35,18 @@
 #snd_shoot #snd_explosion
 #curframe 0
 #lastbullet 0
+
+#nen 32     | up to a hundred
+#enx * 400  | (4 * nen) 
+#eny * 400  | 
+#envx * 400 | 
+#envy * 400 | 
+#v1x * 400  | Boids rule 1
+#v1y * 400  | 
+#v2x * 400  | Boids rule 2
+#v2y * 400  | 
+#v3x * 400  | Boids rule 3
+#v3y * 400  | 
 
 :rot- rot rot ; | ( a b c -- c a b )
 
@@ -81,7 +93,10 @@
 
 :printbullets home
 	      abullets "Active %d" print cr 
-	      nbullets "Total  %d" print cr ;
+	      nbullets "Total  %d" print cr
+	      3.4 7.8 + dup "%f" print cr
+	      16 >> "%d" print cr
+	      3.4 7.8 *. "%f" print cr ;
 
 :packbullet 12 << or ;
 
@@ -105,8 +120,7 @@
 :unpackstar | ( packed -- speed x y )
 	    dup %1111 and
 	    swap dup 16 >>
-	    swap 4 >> %111111111111 and
-	    ;
+	    swap 4 >> %111111111111 and ;
 
 :drawenemy | ( x y -- )
 	    'stars @ unpackstar
@@ -128,6 +142,22 @@
 	    0 ( nstars <? dup
 	    'stars nth @ drawstar
 	    1 + ) drop ;
+
+:drawenemies | ( -- )
+	     0 ( nen <? dup
+	     dup
+	     'enx nth @ 16 >>
+	     swap
+	     'eny nth @ 16 >>
+	     enemyi rot- spr_enemy ssprite
+	     1 + ) drop ;
+
+:moveenemies | ( -- )       x' = x + vx          y' = y + vy          BUG BUG
+	     0 ( nen <? dup
+	       dup
+	       2 << dup 'enx + dup @ rot 'envx + @ + swap !
+	       2 << dup 'eny + dup @ rot 'envy + @ + swap !
+	     1 + ) drop ;
 
 :movestar | ( speed x y - speed x' y )
 	   pick2 rot swap - -? ( 3drop rnewstar ; ) swap ;
@@ -159,8 +189,33 @@
 	    dup 'bullets nth @ unpackbullet drop sw >? ( drop shiftbullets drop ; ) 2drop
 	    1 + ) drop ;
 
+:ranenex sw 3 /
+	 rand abs sw 6 / mod +
+	 16 << ;
+
+:raneney sh 3 /
+	 rand abs sh 6 / mod +
+	 16 << ;
+
+:ranenevx 1.25 ;
+
+:ranenevy 1.25 ;
+
+:iniene | ( -- ) Initialize enemy coordinates
+	0 ( nen <? dup
+	2 <<
+	dup
+	'enx + ranenex swap !
+	dup
+	'eny + raneney swap !
+	dup
+	'envx + ranenevx swap !
+	'envy + ranenevy swap !
+	1 + ) drop ;
+
 :ini rerand
      inistars
+     iniene
      mark
      64 29 "media/img/Spritesheet_64x29.png" loadimg tileSheet 'spr_ship !
      40 30 "media/img/eSpritesheet_40x30.png" loadimg tileSheet 'spr_enemy !
@@ -174,6 +229,7 @@
       printbullets
       drawstars
       drawenemy
+      drawenemies moveenemies
       drawexplosion
       xypen drawship
       drawbullets movebullets fixbullets
