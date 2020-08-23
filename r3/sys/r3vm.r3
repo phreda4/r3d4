@@ -326,7 +326,7 @@
 		16 + ) drop	;
 
 ::newcode2run | adr --
-	( code> <?
+	dup ( code> <?
 		transform1
 	 	) drop
 	blok 'memaux !

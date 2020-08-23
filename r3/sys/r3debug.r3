@@ -465,12 +465,10 @@
 	here 'code> !
 	'inpad dup 'src !
 	str2token
-
 	error 1? ( execerr ; ) drop
 
 	here newcode2run
 
-|	$ffffff 'ink !
 	here ( code> <? @+
 |		stepdebug
 		tokenexec
@@ -565,7 +563,9 @@
 
 :viewscreen
 	xfb>
-	home " ESC for Exit " $ff 'ink ! backprint $ffffff 'ink ! print
+	" ESC for Exit " dup 
+	1 1 atxy 0 'ink ! emits
+	0 0 atxy $ffffff 'ink ! emits
 	redraw
 	waitesc ;
 
