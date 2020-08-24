@@ -114,7 +114,9 @@
 	cnttok >=? ( drop ; )
 	2 << initok +
 	$ffffff 'ink !
-	@ dup "%h " print tokenprint
+	@ dup "%h " print
+|	,tokenprintc
+	drop
 	;
 
 :wordmap
@@ -162,12 +164,12 @@
 :modeview
 	0 1 gotoxy
 	dicmap
-	incmap
-|	wordmap
-	cr
-	actword dup "%d " print
-	dic>adr @ "%h " print
-	incnow "%d" print
+|	incmap
+	wordmap
+|	cr
+|	actword dup "%d " print
+|	dic>adr @ "%h " print
+|	incnow "%d" print
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -418,11 +420,13 @@
 |----- scratchpad
 #outpad * 2048
 #inpad * 1024
+#bakip>
 #bakcode>
 #baksrc
 #bakblk
 
 :markcode
+	<<ip 'bakip> !
 	code> 'bakcode> !
 	src 'baksrc !
 	nbloques 'bakblk !
@@ -430,6 +434,7 @@
 
 :emptycode
 	empty
+	bakip> '<<ip !
 	bakcode> 'code> !
 	baksrc 'src !
 	bakblk 'nbloques !
@@ -467,16 +472,17 @@
 	str2token
 	error 1? ( execerr ; ) drop
 
-	here newcode2run
+	here immcode2run
 
 	here ( code> <? @+
-|		stepdebug
 		tokenexec
+|		stepdebug
 		) drop
 
 	emptycode
 	0 'inpad !
 	"Ok" 'outpad strcpy
+
 	refreshfoco
 	;
 

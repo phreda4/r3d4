@@ -335,12 +335,19 @@
 	2 << 'ltok + @ ex ;
 
 |-------------------- print code converted for run
+
 :td 8 >> ,d ;
 :tb "%" ,s 8 >> ,b ;
 :th "$" ,s 8 >> ,h ;
 :tf 8 >> ,f ;
 
-#ltok 0 0 0 0 0 0 0 td tb th tf ts tw tw taw taw
+|*** big version, not done
+:tdb 8 >> ,d ;
+:tbb "%" ,s 8 >> ,b ;
+:thb "$" ,s 8 >> ,h ;
+:tfb 8 >> ,f ;
+
+#ltok 0 tdb tbb thb tfb 0 tw td tb th tf ts tw tw taw taw
 
 ::,tokenprintc
 	dup $ff and

@@ -325,13 +325,25 @@
 		code2mem2
 		16 + ) drop	;
 
-::newcode2run | adr --
-	dup ( code> <?
-		transform1
-	 	) drop
-	blok 'memaux !
+|------- IMM CODE
+:transformimm
+	@+ $ff and
+	7 10 bt? ( transflit )
+	11 =? ( trstr ) | str
+	12 =? ( trwor ) | call
+	17 =? ( tr( )
+	18 =? ( tr) )
+	19 =? ( tr[ )
+	20 =? ( tr] )
+	22 34 bt? ( transfcond )
+	drop ;
+
+::immcode2run | adr --
+
+|	here 'memaux ! |??
+
 	( code> <?
-		transform2
+		transformimm
 	 	) drop ;
 
 |------ PREPARE DATA FOR RUN
