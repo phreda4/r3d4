@@ -99,6 +99,7 @@
 |		dup 3 << 'inc +
 		dup 3 << sortinc +
 		@+ swap @ swap "%h %h" print
+		dup 3 << sortinc + 4 + @ 3 << 'inc + @ " %l" print
 		incnow =? ( " <" print )
 		1 + ) drop
 	;
@@ -164,8 +165,9 @@
 :modeview
 	0 1 gotoxy
 	dicmap
-|	incmap
-	wordmap
+	incmap
+|	wordmap
+
 |	cr
 |	actword dup "%d " print
 |	dic>adr @ "%h " print
@@ -547,9 +549,7 @@
 :setsource | src --
 	dup 'pantaini> !
 	dup 'fuente !
-	count + dup '$fuente !
-	drop
-|	2 - 'fuente> !
+	count + '$fuente !
 	;
 
 :srcnow | nro --
@@ -563,38 +563,49 @@
 :gotosrc
 	ip2src 0? ( drop ; )
 	dup
-    findinclude srcnow
+    findinclude
+	srcnow
 	'fuente> !
 	;
 
 :viewscreen
 	xfb>
-	" ESC for Exit " dup 
+	" ESC for Exit " dup
 	1 1 atxy 0 'ink ! emits
 	0 0 atxy $ffffff 'ink ! emits
 	redraw
 	waitesc ;
+
+#ninclude
 
 :modeimm
 	drawcode
 	drawcursorfix
 
 	console
+	ninclude " %h" $ffffff 'ink ! print
+	srcview " %d" print
+
 	key
 	>esc< =? ( exit )
 	<ret> =? ( execimm )
 
 |***
-|	<f2> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) dup 'srcview ! srcnow )
+|	<f2> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) srcnow )
 |***
+
+|	<f1> =? ( ip2src 0? ( drop ; ) findinclude 'ninclude ! )
+|	<f2> =? ( gotosrc )
+
 
 	<f6> =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
 
 |	<f2> =? ( fuente> breakpoint playvm gotosrc )
-	<f4> =? ( stepvmn gotosrc )
-	<f5> =? ( fuente> breakpoint )
+|	<f4> =? ( stepvmn gotosrc )
+|	<f5> =? ( fuente> breakpoint )
+
 
 
 	<tab> =? ( mode!src )

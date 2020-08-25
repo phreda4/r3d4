@@ -402,10 +402,10 @@
 ::findinclude | adr -- nro
 	sortinc >a
 	0 ( cntinc <?
-		over a@+ <? ( 3drop a@ ; ) drop
+		over a@+ <? ( 3drop a> 8 - @ ; ) drop
 		4 a+
 		1 + ) 2drop
-	a@ ;
+	a> 8 - @ ;
 
 |------ PREPARE 2 RUN
 ::vm2run
