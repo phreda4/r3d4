@@ -22,10 +22,6 @@
 #memaux
 
 #srcnow
-
-##REGA 0 0
-##REGB 0 0
-
 #sopx #sopy #sink
 
 :**emu
@@ -40,8 +36,40 @@
 	;
 
 |----------
+
+##REGA 0 0
+##REGB 0 0
+##TOS 0 0
+##PSP * 1024
+##NOS 'PSP
+##RSP * 1024
+##RTOS 'RSP
+
 :getbig
 	blok + q@ ;
+
+:.DUP
+	8 'NOS +! 'TOS q@ NOS q! ;
+
+:PUSH.NRO | nro --
+	.DUP 'TOS q! ;
+
+:.OVER     .DUP NOS 8 - q@ 'TOS q! ;
+:.PICK2    .DUP NOS 16 - q@ 'TOS q! ;
+:.PICK3    .DUP NOS 24 - q@ 'TOS q! ;
+:.PICK4    .DUP NOS 32 - q@ 'TOS q! ;
+:.2DUP     .OVER .OVER ;
+:.2OVER    .PICK3 .PICK3 ;
+:.DROP		NOS q@ 'TOS q!	|...
+:.NIP		-8 'NOS +! ;
+:.2NIP      -16 'NOS +! ;
+:.2DROP		NOS 8 - q@ 'TOS q! -16 'NOS +! ;
+:.3DROP		NOS 16 - q@ 'TOS q! -24 'NOS +! ;
+:.4DROP		NOS 24 - q@ 'TOS q! -32 'NOS +! ;
+:.6DROP		NOS 40 - q@ 'TOS q! -32 'NOS +! ;
+:.SWAP		NOS q@ 'TOS @ NOS q! 'TOS q! ;
+:.ROT		'TOS q@ NOS 8 - q@ 'TOS q! NOS q@ NOS 8 - q!+ q! ;
+:.2SWAP		'TOS q@ NOS q@ NOS 8 - dup 8 - q@ NOS q! q@ 'TOS q! NOS 16 - q!+ q! ;
 
 :.dec2	dup 4 - @ 8 >> getbig push.nro ;
 :.bin2	dup 4 - @ 8 >> getbig push.nro ;
@@ -54,14 +82,14 @@
 :.bin   dup 4 - @ 8 >> push.nro ;
 :.fix   dup 4 - @ 8 >> push.nro ;
 :.str   dup 4 - @ 8 >> blok + push.nro ;
-:.wor	dup 4 - @ 8 >> dic>tok @ 4 'RTOS +! swap RTOS ! ;
+:.wor	dup 4 - @ 8 >> dic>tok @ 8 'RTOS q+! swap RTOS q! ;
 :.var   dup 4 - @ 8 >> dic>tok @ @ push.nro ;
 :.dwor	dup 4 - @ 8 >> dic>tok @ push.nro ;
 :.dvar  dup 4 - @ 8 >> dic>tok @ push.nro ;
 
-:.;		RTOS @ nip -4 'RTOS +! ;
+:.;		RTOS q@ nip -8 'RTOS +! ;
 
-:.EX	vTOS .DROP 4 'RTOS +! swap RTOS ! ;
+:.EX	'TOS q@ .DROP 8 'RTOS +! swap RTOS q! ;
 
 :jmpr | adr' -- adrj
 	dup 4 - @ 8 >> + ;
@@ -72,68 +100,90 @@
 :.]		dup 4 - @ 8 >> PUSH.NRO ;
 
 |--- COND
-:.0?	vTOS 1? ( drop jmpr ; ) drop ;
-:.1?	vTOS 0? ( drop jmpr ; ) drop ;
-:.+?	vTOS -? ( drop jmpr ; ) drop ;
-:.-?	vTOS +? ( drop jmpr ; ) drop ;
-:.=?	vNOS vTOS <>? ( drop jmpr .DROP ; ) drop .DROP ;
-:.<?	vNOS vTOS >=? ( drop jmpr .DROP ; ) drop .DROP ;
-:.>?	vNOS vTOS <=? ( drop jmpr .DROP ; ) drop .DROP ;
-:.<=?	vNOS vTOS >? ( drop jmpr .DROP ; ) drop .DROP ;
-:.>=?	vNOS vTOS <? ( drop jmpr .DROP ; ) drop .DROP ;
-:.<>?	vNOS vTOS =? ( drop jmpr .DROP ; ) drop .DROP ;
-:.A?	vNOS vTOS nand? ( drop jmpr .DROP ; ) drop .DROP ;
-:.N?	vNOS vTOS and? ( drop jmpr .DROP ; ) drop .DROP ;
-:.B?	vPK2 vNOS vTOS bt? ( drop jmpr .2DROP ; ) drop .2DROP ;
+:.0?	'TOS q@ 1? ( drop jmpr ; ) drop ;
+:.1?	'TOS q@ 0? ( drop jmpr ; ) drop ;
+:.+?	'TOS q@ -? ( drop jmpr ; ) drop ;
+:.-?	'TOS q@ +? ( drop jmpr ; ) drop ;
+:.=?	NOS q@ 'TOS q@ <>? ( drop jmpr .DROP ; ) drop .DROP ;
+:.<?	NOS q@ 'TOS q@ >=? ( drop jmpr .DROP ; ) drop .DROP ;
+:.>?	NOS q@ 'TOS q@ <=? ( drop jmpr .DROP ; ) drop .DROP ;
+:.<=?	NOS q@ 'TOS q@ >? ( drop jmpr .DROP ; ) drop .DROP ;
+:.>=?	NOS q@ 'TOS q@ <? ( drop jmpr .DROP ; ) drop .DROP ;
+:.<>?	NOS q@ 'TOS q@ =? ( drop jmpr .DROP ; ) drop .DROP ;
+:.A?	NOS q@ 'TOS q@ nand? ( drop jmpr .DROP ; ) drop .DROP ;
+:.N?	NOS q@ 'TOS q@ and? ( drop jmpr .DROP ; ) drop .DROP ;
+:.B?	NOS 8 - q@ NOS q@ 'TOS q@ bt? ( drop jmpr .2DROP ; ) drop .2DROP ;
+
+
+:.AND		NOS q@ 'TOS q@ and .NIP 'TOS q! ;
+:.OR		NOS q@ 'TOS q@ or .NIP 'TOS q! ;
+:.XOR		NOS q@ 'TOS q@ xor .NIP 'TOS q! ;
+:.NOT		'TOS q@ not 'TOS q! ;
+:.+			NOS q@ 'TOS q@ + .NIP 'TOS q! ;
+:.-			NOS q@ 'TOS q@ - .NIP 'TOS q! ;
+:.*			NOS q@ 'TOS q@ * .NIP 'TOS q! ;
+:./			NOS q@ 'TOS q@ / .NIP 'TOS q! ;
+:.*/		NOS 8 - q@ NOS q@ 'TOS q@ */ .2NIP 'TOS q! ;
+:.*>>		NOS 8 - q@ NOS q@ 'TOS q@ *>> .2NIP 'TOS q! ;
+:.<</		NOS 8 - q@ NOS q@ 'TOS q@ <</ .2NIP 'TOS q! ;
+:./MOD		NOS q@ 'TOS q@ /mod 'TOS q! NOS q! ;
+:.MOD		NOS q@ 'TOS q@ mod .NIP 'TOS q! ;
+:.ABS		'TOS q@ abs 'TOS q! ;
+:.NEG		'TOS q@ neg 'TOS q! ;
+:.CLZ		'TOS q@ clz 'TOS q! ;
+:.SQRT		'TOS q@ sqrt 'TOS q! ;
+:.<<		NOS q@ 'TOS q@ << .NIP 'TOS q! ;
+:.>>		NOS q@ 'TOS q@ >> .NIP 'TOS q! ;
+:.>>>		NOS q@ 'TOS q@ >>> .NIP 'TOS q! ;
 
 |--- R
-:.>R	4 'RTOS +! TOS RTOS ! .DROP ;
-:.R>	.DUP RTOS dup @ 'TOS ! 4 - 'RTOS ! ;
-:.R@	.DUP RTOS @ 'TOS ! ;
+:.>R	8 'RTOS +! 'TOS q@ RTOS q! .DROP ;
+:.R>	.DUP RTOS dup q@ 'TOS q! 8 - 'RTOS ! ;
+:.R@	.DUP RTOS q@ 'TOS q! ;
 
 |--- REGA
-:.>A	vTOS 'REGA ! .DROP ;
-:.A>	REGA PUSH.NRO ;
+:.>A	'TOS q@ 'REGA q! .DROP ;
+:.A>	'REGA q@ PUSH.NRO ;
 :.A@	REGA @ PUSH.NRO ;
-:.A!	vTOS REGA ! .DROP ;
-:.A+	vTOS 'REGA +! .DROP ;
-:.A@+	REGA dup 4 + 'REGA ! @ PUSH.NRO ;
-:.A!+	vTOS REGA dup 4 + 'REGA ! ! .DROP ;
+:.A!	'TOS q@ REGA ! .DROP ;
+:.A+	'TOS q@ 'REGA q+! .DROP ;
+:.A@+	REGA dup 4 + 'REGA q! @ PUSH.NRO ;
+:.A!+	'TOS q@ REGA dup 4 + 'REGA ! ! .DROP ;
 
 |--- REGB
-:.>B	vTOS 'REGB q! .DROP ;
-:.B>	REGB PUSH.NRO ;
+:.>B	'TOS q@ 'REGB q! .DROP ;
+:.B>	'REGB q@ PUSH.NRO ;
 :.B@	REGB @ PUSH.NRO ;
-:.B!	vTOS REGB ! .DROP ;
-:.B+	vTOS 'REGB q+! .DROP ;
+:.B!	'TOS q@ REGB ! .DROP ;
+:.B+	'TOS q@ 'REGB q+! .DROP ;
 :.B@+	REGB dup 4 + 'REGB q! PUSH.NRO ;
-:.B!+	vTOS REGB dup 4 + 'REGB ! ! .DROP ;
+:.B!+	'TOS q@ REGB dup 4 + 'REGB ! ! .DROP ;
 
-:.@		vTOS @ TOS.NRO! ;
-:.C@	vTOS c@ TOS.NRO! ;
-:.Q@	vTOS q@ TOS.NRO! ;
-:.!		vNOS vTOS ! .2DROP ;
-:.C!	vNOS vTOS c! .2DROP ;
-:.Q!	vNOS vTOS q! .2DROP ;
-:.+!	vNOS vTOS +! .2DROP ;
-:.C+!	vNOS vTOS c+! .2DROP ;
-:.Q+!	vNOS vTOS q+! .2DROP ;
-:.@+	vTOS @ 4 aTOS q+! PUSH.NRO ;
-:.!+	vNOS vTOS ! .NIP 4 aTOS q+! ;
-:.C@+	vTOS c@ 1 aTOS q+! PUSH.NRO ;
-:.C!+	vNOS vTOS c! .NIP 1 aTOS +! ;
-:.Q@+	vTOS q@ 8 aTOS q+! PUSH.NRO ;
-:.Q!+	vNOS vTOS q! .NIP 8 aTOS +! ;
+:.@		'TOS q@ @ 'TOS q! ;
+:.C@	'TOS q@ c@ 'TOS q! ;
+:.Q@	'TOS q@ q@ 'TOS q! ;
+:.!		NOS q@ 'TOS q@ ! .2DROP ;
+:.C!	NOS q@ 'TOS q@ c! .2DROP ;
+:.Q!	NOS q@ 'TOS q@ q! .2DROP ;
+:.+!	NOS q@ 'TOS q@ +! .2DROP ;
+:.C+!	NOS q@ 'TOS q@ c+! .2DROP ;
+:.Q+!	NOS q@ 'TOS q@ q+! .2DROP ;
+:.@+	'TOS q@ @ 4 'TOS q+! PUSH.NRO ;
+:.!+	NOS q@ 'TOS q@ ! .NIP 4 'TOS q+! ;
+:.C@+	'TOS q@ c@ 1 'TOS q+! PUSH.NRO ;
+:.C!+	NOS q@ 'TOS q@ c! .NIP 1 'TOS +! ;
+:.Q@+	'TOS q@ q@ 8 'TOS q+! PUSH.NRO ;
+:.Q!+	NOS q@ 'TOS q@ q! .NIP 8 'TOS +! ;
 
-:.MOVE	vPK2 vNOS vTOS move .3DROP ;
-:.MOVE>	vPK2 vNOS vTOS move> .3DROP ;
-:.FILL	vPK2 vNOS vTOS fill .3DROP ;
-:.CMOVE	vPK2 vNOS vTOS cmove .3DROP ;
-:.CMOVE>	vPK2 vNOS vTOS cmove> .3DROP ;
-:.CFILL	vPK2 vNOS vTOS cfill .3DROP ;
-:.QMOVE	vPK2 vNOS vTOS qmove .3DROP ;
-:.QMOVE>	vPK2 vNOS vTOS qmove> .3DROP ;
-:.QFILL	vPK2 vNOS vTOS qfill .3DROP ;
+:.MOVE		NOS 8 - q@ NOS q@ 'TOS q@ move .3DROP ;
+:.MOVE>		NOS 8 - q@ NOS q@ 'TOS q@ move> .3DROP ;
+:.FILL		NOS 8 - q@ NOS q@ 'TOS q@ fill .3DROP ;
+:.CMOVE		NOS 8 - q@ NOS q@ 'TOS q@ cmove .3DROP ;
+:.CMOVE>	NOS 8 - q@ NOS q@ 'TOS q@ cmove> .3DROP ;
+:.CFILL		NOS 8 - q@ NOS q@ 'TOS q@ cfill .3DROP ;
+:.QMOVE		NOS 8 - q@ NOS q@ 'TOS q@ qmove .3DROP ;
+:.QMOVE>	NOS 8 - q@ NOS q@ 'TOS q@ qmove> .3DROP ;
+:.QFILL		NOS 8 - q@ NOS q@ 'TOS q@ qfill .3DROP ;
 
 :.UPDATE	update ;
 :.REDRAW	redraw ;
@@ -150,31 +200,31 @@
 :.TIME		time PUSH.NRO ;
 :.DATE		date PUSH.NRO ;
 
-:.LOAD		vNOS vTOS load .NIP TOS.NRO! ;
-:.SAVE		vPK2 vNOS vTOS save .3DROP ;
-:.APPEND	vPK2 vNOS vTOS append .3DROP ;
-:.FFIRST	vTOS ffirst TOS.NRO! ;
+:.LOAD		NOS q@ 'TOS q@ load .NIP 'TOS q! ;
+:.SAVE		NOS 8 - q@ NOS q@ 'TOS q@ save .3DROP ;
+:.APPEND	NOS 8 - q@ NOS q@ 'TOS q@ append .3DROP ;
+:.FFIRST	'TOS q@ ffirst 'TOS q! ;
 :.FNEXT		fnext PUSH.NRO ;
 
-:.SYS		vTOS sys .DROP ; | ???
-:.SLOAD 	vTOS sload TOS.NRO! ;
-:.SFREE 	vTOS sfree .DROP ;
-:.SPLAY 	vTOS splay .DROP ;
-:.MLOAD 	vTOS mload TOS.NRO! ;
-:.MFREE 	vTOS mfree .DROP ;
-:.MPLAY 	vTOS mplay .DROP ;
+:.SYS		'TOS q@ sys .DROP ; | ???
+:.SLOAD 	'TOS q@ sload 'TOS q! ;
+:.SFREE 	'TOS q@ sfree .DROP ;
+:.SPLAY 	'TOS q@ splay .DROP ;
+:.MLOAD 	'TOS q@ mload 'TOS q! ;
+:.MFREE 	'TOS q@ mfree .DROP ;
+:.MPLAY 	'TOS q@ mplay .DROP ;
 :.INK		ink PUSH.NRO ;
 :.'INK		'ink PUSH.NRO ;
-:.ALPHA		vTOS alpha .DROP ;
+:.ALPHA		'TOS q@ alpha .DROP ;
 :.OPX		opx PUSH.NRO ;
 :.OPY		opy PUSH.NRO ;
-:.OP		vNOS vTOS op .2DROP ;
-:.LINE		vNOS vTOS line .2DROP ;
-:.CURVE 	vPK3 vPK2 vNOS vTOS curve .4DROP ;
-:.CURVE3	vPK5 vPK4 vPK3 vPK2 vNOS vTOS curve3 .6DROP ;
-:.PLINE		vNOS vTOS pline .2DROP ;
-:.PCURVE 	vPK3 vPK2 vNOS vTOS pcurve .4DROP ;
-:.PCURVE3	vPK5 vPK4 vPK3 vPK2 vNOS vTOS pcurve3 .6DROP ;
+:.OP		NOS q@ 'TOS q@ op .2DROP ;
+:.LINE		NOS q@ 'TOS q@ line .2DROP ;
+:.CURVE 	NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ curve .4DROP ;
+:.CURVE3	NOS 40 - q@ NOS 32 - q@ NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ curve3 .6DROP ;
+:.PLINE		NOS q@ 'TOS q@ pline .2DROP ;
+:.PCURVE 	NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ pcurve .4DROP ;
+:.PCURVE3	NOS 40 - q@ NOS 32 - q@ NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ pcurve3 .6DROP ;
 :.POLI		poli ;
 
 #vmc
@@ -228,7 +278,7 @@
 :trwor
 	over @ $ff and
 	16 <>? ( drop ; ) drop
-	over dup @ $ff not and 6 or swap ! | call tail call
+	over 4 - dup @ $ff not and 6 or swap ! | call tail call
 	;
 
 :tr( | adr' tok -- adr' tok
@@ -471,17 +521,17 @@
 
 ::stackprintvm
 	" D) " emits
-	'PSP 8 + ( NOS <=?
-		@+ STKval "%d " print
+	'PSP 16 + ( NOS <=?
+		q@+ "%d " print
 		) drop
 	'PSP NOS <? (
-		TOS STKval "%d " print
+		'TOS q@ "%d " print
 		) drop
 	cr
 	" R) " emits
-	'RSP 4 +
+	'RSP 8 +
 	( RTOS <=?
-		@+ "%h " print
+		q@+ "%h " print
 		) drop 	;
 
 ::breakpoint | cursor --

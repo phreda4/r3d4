@@ -465,6 +465,7 @@
 	$ffff00 'ink !
 	stackprintvm
 
+
 	waitesc
 	;
 
@@ -491,6 +492,7 @@
 	;
 
 :showip
+	regb rega "RA:%h RB:%h " print
 	<<ip 0? ( drop "END" print ; )
 	dup @ "%h (%h)" print
 	;

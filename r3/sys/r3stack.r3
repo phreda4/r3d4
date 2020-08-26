@@ -74,12 +74,11 @@
 
 ::PUSH.NRO | nro --
 	.DUP
-	newval dup 8 << 0 or 'TOS !
+	newval dup 8 << 'TOS !
 	3 << 'stkvalue + q! ;
 
 ::TOS.NRO! | nro --
-	newval dup 8 << 0 or 'TOS !
-	3 << 'stkvalue + q! ;
+	TOS	8 >> 3 << 'stkvalue + q! ;
 
 ::PUSH.CTE	| ncte --
 	.DUP 8 << 1 or 'TOS ! ;
@@ -101,17 +100,17 @@
 ::.POP | -- nro
 	TOS NOS @ 'TOS ! -4 'NOS +! ;
 
-::STKval	8 >> 3 << 'stkvalue + q@ ;
+:STKval	8 >> 3 << 'stkvalue + q@ ;
 
-::aTOS	TOS 8 >> 3 << 'stkvalue + ;
-::aNOS	NOS @ 8 >> 3 << 'stkvalue + ;
+:aTOS	TOS 8 >> 3 << 'stkvalue + ;
+:aNOS	NOS @ 8 >> 3 << 'stkvalue + ;
 
-::vTOS	TOS STKval ;
-::vNOS	NOS @ STKval ;
-::vPK2	NOS 4 - @ STKval ;
-::vPK3	NOS 8 - @ STKval ;
-::vPK4	NOS 12 - @ STKval ;
-::vPK5	NOS 16 - @ STKval ;
+:vTOS	TOS STKval ;
+:vNOS	NOS @ STKval ;
+:vPK2	NOS 4 - @ STKval ;
+:vPK3	NOS 8 - @ STKval ;
+:vPK4	NOS 12 - @ STKval ;
+:vPK5	NOS 16 - @ STKval ;
 
 ::.OVER     .DUP NOS 4 - @ 'TOS ! ;
 ::.PICK2    .DUP NOS 8 - @ 'TOS ! ;
