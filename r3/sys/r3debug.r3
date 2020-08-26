@@ -96,10 +96,8 @@
 	$ffff00 'ink !
 	0 ( cntinc <?
 		30 over 1 + gotoxy
-|		dup 3 << 'inc +
-		dup 3 << sortinc +
-		@+ swap @ swap "%h %h" print
-		dup 3 << sortinc + 4 + @ 3 << 'inc + @ " %l" print
+		dup "%d " print
+		dup 3 << 'inc + @+ swap @ "%h %l" print
 		incnow =? ( " <" print )
 		1 + ) drop
 	;
@@ -159,7 +157,11 @@
 	iniword <? ( dup 'iniword ! )
 	iniword hcode + >=? ( dup hcode - 1 + 'iniword ! )
 	'actword !
-	wordanalysis ;
+	wordanalysis
+
+	actword dic>adr @ findinclude 'incnow !
+
+	;
 
 
 :modeview
@@ -168,10 +170,10 @@
 	incmap
 |	wordmap
 
-|	cr
-|	actword dup "%d " print
-|	dic>adr @ "%h " print
-|	incnow "%d" print
+	cr
+	actword dup "%d " print
+	dic>adr @ "%h " print
+	incnow "%d" print
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -182,7 +184,7 @@
 	key
 	>esc< =? ( exit )
 
-	<f1> =? ( actword dic>adr @ findinclude 'incnow ! )
+|	<f1> =? ( actword dic>adr @ findinclude 'incnow ! )
 	<f10> =? ( mode!imm )
 
 	<up> =? ( -1 +word )
@@ -420,7 +422,7 @@
 	;
 
 |----- scratchpad
-#outpad * 2048
+#outpad * 1024
 #inpad * 1024
 #bakip>
 #bakcode>
@@ -544,7 +546,7 @@
 	;
 
 |------ search code in includes
-#srcview -1
+#srcview 0
 
 :setsource | src --
 	dup 'pantaini> !
@@ -554,8 +556,7 @@
 
 :srcnow | nro --
 	srcview =? ( drop ; ) dup 'srcview !
-	inc> 'inc - 4 >> >=? ( drop 'name 'namenow strcpy src setsource ; )
-	4 << 'inc +
+	3 << 'inc +
 	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
 	@ setsource
 	;
@@ -591,11 +592,8 @@
 	<ret> =? ( execimm )
 
 |***
-|	<f2> =? ( srcview 1 + inc> 'inc - 4 >> >? ( 0 nip ) srcnow )
+|	<f2> =? ( srcview 1 + cntinc >=? ( 0 nip ) srcnow )
 |***
-
-|	<f1> =? ( ip2src 0? ( drop ; ) findinclude 'ninclude ! )
-|	<f2> =? ( gotosrc )
 
 
 	<f6> =? ( viewscreen )
@@ -605,8 +603,6 @@
 |	<f2> =? ( fuente> breakpoint playvm gotosrc )
 |	<f4> =? ( stepvmn gotosrc )
 |	<f5> =? ( fuente> breakpoint )
-
-
 
 	<tab> =? ( mode!src )
 	<f10> =? ( mode!view 0 +word )

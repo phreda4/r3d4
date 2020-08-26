@@ -92,12 +92,12 @@
 :.R@	.DUP RTOS @ 'TOS ! ;
 
 |--- REGA
-:.>A	vTOS 'REGA q! .DROP ;
+:.>A	vTOS 'REGA ! .DROP ;
 :.A>	REGA PUSH.NRO ;
 :.A@	REGA @ PUSH.NRO ;
 :.A!	vTOS REGA ! .DROP ;
-:.A+	vTOS 'REGA q+! .DROP ;
-:.A@+	REGA dup 4 + 'REGA q! @ PUSH.NRO ;
+:.A+	vTOS 'REGA +! .DROP ;
+:.A@+	REGA dup 4 + 'REGA ! @ PUSH.NRO ;
 :.A!+	vTOS REGA dup 4 + 'REGA ! ! .DROP ;
 
 |--- REGB
@@ -260,7 +260,7 @@
 	srcnow over code - memsrc + !
 	srcnow >>next 'srcnow !
 	@+ $ff and
-	12 =? ( trwor ) | call
+|	12 =? ( trwor ) | call
 	17 =? ( tr( )
 	18 =? ( tr) )
 	19 =? ( tr[ )
@@ -330,7 +330,7 @@
 	@+ $ff and
 	7 10 bt? ( transflit )
 	11 =? ( trstr ) | str
-	12 =? ( trwor ) | call
+|	12 =? ( trwor ) | call
 	17 =? ( tr( )
 	18 =? ( tr) )
 	19 =? ( tr[ )
@@ -405,7 +405,7 @@
 		over a@+ <? ( 3drop a> 8 - @ ; ) drop
 		4 a+
 		1 + ) 2drop
-	a> 8 - @ ;
+	a> 4 - @ ;
 
 |------ PREPARE 2 RUN
 ::vm2run
