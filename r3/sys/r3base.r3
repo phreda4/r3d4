@@ -202,13 +202,20 @@
 ::dic>call@ | nr -- calls
 	dic>inf @ 12 >> $fff and ;
 
+#flagword %10
+
+::allwords
+	$ffffff 'flagword ! ;
+::exportwords
+	%10 'flagword ! ;
+
 ::?word | str -- str dir / str 0
 	dicc> 16 -	|---largo
 	( dicc >=?
 		dup @ pick2			| str ind pal str
 		=s 1? ( drop
 			dup 8 + @
-			%10 and? ( drop ; )
+			flagword and? ( drop ; )
 			drop dicc< >=? ( ; ) dup
 			) drop
 		16 - ) drop
@@ -396,6 +403,26 @@
 	2 << 'ltok + @ ex
 	;
 
+|--------------------
+:td col_nro 8 >> "%d" print ;
+:tb col_nro 8 >> "%%%b" print ;
+:th col_nro 8 >> "$%h" print ;
+:tf col_nro 8 >> "%f" print ;
+
+|*** big version, not done
+:tdb col_nro 8 >> "%d" print ;
+:tbb col_nro 8 >> "%%%b" print ;
+:thb col_nro 8 >> "$%h" print ;
+:tfb col_nro 8 >> "%f" print ;
+
+:ts col_str 8 >> blok + 34 emit emits 34 emit ;
+
+#ltok 0 tdb tbb thb tfb 0 tw td tb th tf ts tw tw taw taw
+
+::tokenprintc
+	dup $ff and
+	15 >? ( 16 - r3basename col_nor emits drop ; )
+	2 << 'ltok + @ ex ;
 
 |------------- DEBUG
 ::debuginc

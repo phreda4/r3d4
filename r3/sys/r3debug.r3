@@ -113,15 +113,16 @@
 	cnttok >=? ( drop ; )
 	2 << initok +
 	$ffffff 'ink !
-	@ dup "%h " print
-|	,tokenprintc
-	drop
+	@ dup
+	tokenprintc
+	35 gotox
+	"%h" print
 	;
 
 :wordmap
 	0 ( hcode <?
 		cnttok <?
-		28 over 1 + gotoxy
+		25 over 1 + gotoxy
 		dup token
 		1 +
 		) drop ;
@@ -167,13 +168,9 @@
 :modeview
 	0 1 gotoxy
 	dicmap
-	incmap
-|	wordmap
+|	incmap
+	wordmap
 
-	cr
-	actword dup "%d " print
-	dic>adr @ "%h " print
-	incnow "%d" print
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -182,9 +179,7 @@
 	"CODE" "F10" btnf
 
 	key
-	>esc< =? ( exit )
-
-|	<f1> =? ( actword dic>adr @ findinclude 'incnow ! )
+	>esc< =? ( mode!imm )
 	<f10> =? ( mode!imm )
 
 	<up> =? ( -1 +word )
@@ -414,9 +409,9 @@
 	$0 'ink !
 	" D3bug " emits
 	"PLAY/VIEW" "TAB" btnf
-	"INSPECT" "F2" btnf
-	"MEMORY" "F3" btnf
-	"RUN" "F4" btnf
+|	"INSPECT" "F2" btnf
+|	"MEMORY" "F3" btnf
+|	"RUN" "F4" btnf
 
 	'namenow printr
 	;
@@ -426,12 +421,14 @@
 #inpad * 1024
 #bakip>
 #bakcode>
+#bakcode
 #baksrc
 #bakblk
 
 :markcode
 	<<ip 'bakip> !
 	code> 'bakcode> !
+	code 'bakcode !
 	src 'baksrc !
 	nbloques 'bakblk !
 	mark ;
@@ -440,6 +437,7 @@
 	empty
 	bakip> '<<ip !
 	bakcode> 'code> !
+	bakcode 'code !
 	baksrc 'src !
 	bakblk 'nbloques !
 	;
@@ -449,6 +447,8 @@
 	emptycode
 	refreshfoco
 	;
+
+|vvv DEBUG  vvv
 
 :stepdebug
 	0 hcode 1 + gotoxy
@@ -463,22 +463,31 @@
 	" > " emits
 	'inpad 1024 input cr
 	$ffff00 'ink !
-	stackprintvm
+	stackprintvm cr
+	regb rega " RA:%h RB:%h " print
+	waitesc ;
 
+:viewimm
+	cls home cr cr cr
+	here ( code> <? @+
+		dup tokenprintc
+		"   %h" print
+		cr
+		) drop
+	waitesc ;
 
-	waitesc
-	;
+|^^^ DEBUG ^^^
 
 :execimm
 	markcode
 	0 'error !
-	here 'code> !
+	here dup 'code ! 'code> !
 	'inpad dup 'src !
+	allwords | see all words (not only exported)
 	str2token
 	error 1? ( execerr ; ) drop
 
 	here immcode2run
-
 	here ( code> <? @+
 		tokenexec
 |		stepdebug
@@ -492,7 +501,6 @@
 	;
 
 :showip
-	regb rega "RA:%h RB:%h " print
 	<<ip 0? ( drop "END" print ; )
 	dup @ "%h (%h)" print
 	;
@@ -517,15 +525,16 @@
 	" > " emits
 	'inpad 1024 input cr
 	$ffff00 'ink !
-	stackprintvm
-
+	stackprintvm cr
+	regb rega " RA:%h RB:%h " print
 	0 rows 1 - gotoxy
-|	"Play2C" "F1" btnf
-	"SCR" "F6" btnf
-	"Step" "F7" btnf
-	"StepN" "F8" btnf
+
+	"PLAY2C" "F1" btnf
+
+	"VIEW" "F6" btnf
+	"STEP" "F7" btnf
+	"STEPN" "F8" btnf
 |	"BREAK" "F4" btnf
-|	"VIEW" "F6" btnf
 	"DICC" "F10" btnf
 	;
 
@@ -584,27 +593,17 @@
 :modeimm
 	drawcode
 	drawcursorfix
-
 	console
-	ninclude " %h" $ffffff 'ink ! print
-	srcview " %d" print
 
 	key
 	>esc< =? ( exit )
 	<ret> =? ( execimm )
 
-|***
-|	<f2> =? ( srcview 1 + cntinc >=? ( 0 nip ) srcnow )
-|***
-
+	<f1> =? ( fuente> breakpoint playvm gotosrc )
 
 	<f6> =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
-
-|	<f2> =? ( fuente> breakpoint playvm gotosrc )
-|	<f4> =? ( stepvmn gotosrc )
-|	<f5> =? ( fuente> breakpoint )
 
 	<tab> =? ( mode!src )
 	<f10> =? ( mode!view 0 +word )
