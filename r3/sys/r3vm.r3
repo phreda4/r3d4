@@ -473,6 +473,26 @@
 	<<ip 0? ( ; )
 	code - memsrc + @ ;
 
+::code2src | code -- src
+	code - memsrc + @ ;
+
+::src2code | src -- code
+	memsrc
+	( @+ ( 0? drop @+ )
+		pick2 <? drop ) drop
+	nip
+	4 - ( dup @ 0? drop 4 - ) drop
+	memsrc - code + ;
+
+::breakpoint | cursor --
+	src2code '<<bp  !
+	;
+
+::dumpmm
+	cls home
+	$ff00 'ink !
+	memsrc dumpd ;
+
 |-------------------------------
 | palabras de interaccion
 |-------------------------------
@@ -534,6 +554,3 @@
 		q@+ "%h " print
 		) drop 	;
 
-::breakpoint | cursor --
-| conver to code..
-	'<<bp  ! ;

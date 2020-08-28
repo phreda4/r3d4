@@ -353,6 +353,7 @@
 	1 'xcursor +!
 	noemit ;
 
+
 :cursorpos
 	ylinea 'ycursor ! 0 'xcursor !
 	pantaini> ( fuente> <? c@+ emitcur ) drop
@@ -378,13 +379,12 @@
 	cursorpos
 	xcode xlinea - xcursor +
 	ycode ylinea - ycursor + gotoxy
-	ccx ccy xy>v >a
-	cch ( 1? 1 -
-		ccw ( 1? 1 -
-			a@ not a!+
-			) drop
-		sw ccw - 2 << a+
-		) drop ;
+	ccx 1 - ccy 1 - over
+	fuente> ( c@+ $ff and 32 >? drop swap ccw + swap ) 2drop	| to end of the word
+	1 + over cch + 1 + | x1 y1 x2 y2
+	blink 1? ( $ffffff or ) 'ink !
+	rectbox
+	;
 
 |..............................
 :drawcode
@@ -503,6 +503,8 @@
 :showip
 	<<ip 0? ( drop "END" print ; )
 	dup @ "%h (%h)" print
+	<<bp 0? ( drop ; )
+	dup @ " %h (%h)" print
 	;
 
 :console
@@ -601,9 +603,12 @@
 
 	<f1> =? ( fuente> breakpoint playvm gotosrc )
 
+|	<f2> =? ( fuente> src2code  )
+
 	<f6> =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
+
 
 	<tab> =? ( mode!src )
 	<f10> =? ( mode!view 0 +word )
