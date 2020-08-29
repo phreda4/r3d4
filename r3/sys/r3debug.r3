@@ -113,11 +113,12 @@
 	cnttok >=? ( drop ; )
 	2 << initok +
 	$ffffff 'ink !
-	@ dup
-	tokenprintc
+	@ 
+	dup tokenprintc
 	35 gotox
-	"%h" print
-	;
+	dup $ff and "%h " print
+	8 >> 0? ( drop ; )
+	"%d" print ;
 
 :wordmap
 	0 ( hcode <?
@@ -671,13 +672,14 @@
 |	'fontdroidsans13 fontm
 	fonti
 
+|	mode!view 0 +word
+
 	calcselect
 	'name 'namenow strcpy
 	src setsource
 
 	mode!imm
 	cntdef 1 - 'actword !
-
 	resetvm
 	gotosrc
 

@@ -342,7 +342,7 @@
 	2 << 'ltok + @ ex ;
 
 |-------------------- print code converted for run
-
+:nil drop 0 ,d ;
 :td 8 >> ,d ;
 :tb "%" ,s 8 >> ,b ;
 :th "$" ,s 8 >> ,h ;
@@ -354,7 +354,7 @@
 :thb "$" ,s 8 >> ,h ;
 :tfb 8 >> ,f ;
 
-#ltok 0 tdb tbb thb tfb 0 tw td tb th tf ts tw tw taw taw
+#ltok nil tdb tbb thb tfb 0 tw td tb th tf ts tw tw taw taw
 
 ::,tokenprintc
 	dup $ff and
@@ -417,7 +417,9 @@
 
 :ts col_str 8 >> blok + 34 emit emits 34 emit ;
 
-#ltok 0 tdb tbb thb tfb 0 tw td tb th tf ts tw tw taw taw
+:nil drop "nil" emits ;
+
+#ltok nil tdb tbb thb tfb 0 tw td tb th tf ts tw tw taw taw
 
 ::tokenprintc
 	dup $ff and

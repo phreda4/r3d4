@@ -172,7 +172,6 @@
 	drop 0 ;
 
 ::str2token | str --
-	0 'nbloques !	| reuse blocks
 	'sst sst> !		| reuse stackblock
 	( wrd2token 1? ) drop
 	;

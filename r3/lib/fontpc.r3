@@ -1,5 +1,6 @@
 | font pc
 ^r3/lib/gr.r3
+^r3/lib/print.r3
 
 ##font8x16 (
  $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0

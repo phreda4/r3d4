@@ -3,8 +3,8 @@
 |-------------------------
 ^r3/lib/mem.r3
 ^r3/lib/rand.r3
-^r3/lib/fontpc.r3
 ^r3/lib/print.r3
+^r3/lib/fontpc.r3
 
 #c.x #c.y
 #c.w #c.h

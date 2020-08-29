@@ -389,7 +389,7 @@
 	drop ;
 
 ::immcode2run | adr --
-
+|	0 'nbloques !	| reuse blocks
 |	here 'memaux ! |??
 
 	( code> <?

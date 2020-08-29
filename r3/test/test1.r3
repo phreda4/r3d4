@@ -2,8 +2,15 @@
 
 ^r3/lib/gui.r3
 
-##x 20
-#s "abcde" 
+#x 20
+#s "abcde"
+
+:fillrect  | w h x y --
+  xy>v >a
+  ( 1? 1 -
+    a> ink pick3 fill
+	sw 2 << a+
+    ) 2drop ;
 
 :test1
 	$ff00ff00ff00ff 10 x +  'x ! 3 ;
@@ -15,17 +22,15 @@
 
 :main
 	cls home
+	$ff00 'ink !
 	"hola " print
+	$ff 'ink !
+	300 100 50 60 fillrect
 	key >esc< =? ( exit ) drop
 	;
 
 :
-cls
-$ff 'ink !
-10 10 op
-400 100 line
- 
+test2
 'main onshow
-'s c@ test1 test2 
 ;
 
