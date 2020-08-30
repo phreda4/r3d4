@@ -224,6 +224,7 @@
 	mark
 |WIN|	"r3 "
 |LIN|	"./r3lin "
+|RPI|	"./r3rpi "
 	,s 'name ,s ,eol
 	empty here sys
 	;
@@ -236,6 +237,7 @@
 	savetxt
 |WIN|	"r3 r3/sys/r3debug.r3"
 |LIN|	"./r3lin r3/sys/r3debug.r3"
+|RPI|	"./r3rpi r3/sys/r3debug.r3"
 	sys
 	mark
 |... load file info.
@@ -257,6 +259,7 @@
 	savetxt
 |WIN| "r3 r3/sys/r3plain.r3"
 |LIN| "./r3lin r3/sys/r3plain.r3"
+|RPI| "./r3rpi r3/sys/r3plain.r3"
 	sys
 	;
 
@@ -264,6 +267,7 @@
 	savetxt
 |WIN| "r3 r3/sys/r3compiler.r3"
 |LIN| "./r3lin r3/sys/r3compiler.r3"
+|RPI| "./r3rpi r3/sys/r3compiler.r3"
 	sys
 	;
 
