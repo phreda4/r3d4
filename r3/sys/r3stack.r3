@@ -105,8 +105,8 @@
 :aTOS	TOS 8 >> 3 << 'stkvalue + ;
 :aNOS	NOS @ 8 >> 3 << 'stkvalue + ;
 
-:vTOS	TOS STKval ;
-:vNOS	NOS @ STKval ;
+::vTOS	TOS STKval ;
+::vNOS	NOS @ STKval ;
 :vPK2	NOS 4 - @ STKval ;
 :vPK3	NOS 8 - @ STKval ;
 :vPK4	NOS 12 - @ STKval ;
@@ -124,7 +124,7 @@
 ::.2DROP    NOS 4 - @ 'TOS ! -8 'NOS +! ;
 ::.3DROP    NOS 8 - @ 'TOS ! -12 'NOS +! ;
 ::.4DROP    NOS 12 - @ 'TOS ! -16 'NOS +! ;
-::.6DROP    NOS 20 - @ 'TOS ! -16 'NOS +! ;
+| ::.6DROP    NOS 20 - @ 'TOS ! -24 'NOS +! ;
 ::.SWAP     NOS @ TOS NOS ! 'TOS ! ;
 ::.ROT      TOS NOS 4 - @ 'TOS ! NOS @ NOS 4 - !+ ! ;
 ::.2SWAP    TOS NOS @ NOS 4 - dup 4 - @ NOS ! @ 'TOS !  NOS 8 - !+ ! ;

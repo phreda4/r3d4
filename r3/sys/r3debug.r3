@@ -1,4 +1,4 @@
-|MEM 8192  | 8MB
+|MEM $ffff  | 64MB
 | r3debug
 | PHREDA 2020
 |------------------

@@ -66,7 +66,7 @@
 :.2DROP		NOS 8 - q@ 'TOS q! -16 'NOS +! ;
 :.3DROP		NOS 16 - q@ 'TOS q! -24 'NOS +! ;
 :.4DROP		NOS 24 - q@ 'TOS q! -32 'NOS +! ;
-:.6DROP		NOS 40 - q@ 'TOS q! -32 'NOS +! ;
+:.6DROP		NOS 40 - q@ 'TOS q! -48 'NOS +! ;
 :.SWAP		NOS q@ 'TOS @ NOS q! 'TOS q! ;
 :.ROT		'TOS q@ NOS 8 - q@ 'TOS q! NOS q@ NOS 8 - q!+ q! ;
 :.2SWAP		'TOS q@ NOS q@ NOS 8 - dup 8 - q@ NOS q! q@ 'TOS q! NOS 16 - q!+ q! ;
@@ -156,7 +156,7 @@
 :.B@	REGB @ PUSH.NRO ;
 :.B!	'TOS q@ REGB ! .DROP ;
 :.B+	'TOS q@ 'REGB q+! .DROP ;
-:.B@+	REGB dup 4 + 'REGB q! PUSH.NRO ;
+:.B@+	REGB dup 4 + 'REGB q! @ PUSH.NRO ;
 :.B!+	'TOS q@ REGB dup 4 + 'REGB ! ! .DROP ;
 
 :.@		'TOS q@ @ 'TOS q! ;
@@ -220,11 +220,11 @@
 :.OPY		opy PUSH.NRO ;
 :.OP		NOS q@ 'TOS q@ op .2DROP ;
 :.LINE		NOS q@ 'TOS q@ line .2DROP ;
-:.CURVE 	NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ curve .4DROP ;
-:.CURVE3	NOS 40 - q@ NOS 32 - q@ NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ curve3 .6DROP ;
+:.CURVE 	NOS 16 - q@ NOS 8 - q@ NOS q@ 'TOS q@ curve .4DROP ;
+:.CURVE3	NOS 32 - q@ NOS 24 - q@ NOS 16 - q@ NOS 8 - q@ NOS q@ 'TOS q@ curve3 .6DROP ;
 :.PLINE		NOS q@ 'TOS q@ pline .2DROP ;
-:.PCURVE 	NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ pcurve .4DROP ;
-:.PCURVE3	NOS 40 - q@ NOS 32 - q@ NOS 24 - q@ NOS 8 - q@ NOS q@ 'TOS q@ pcurve3 .6DROP ;
+:.PCURVE 	NOS 16 - q@ NOS 8 - q@ NOS q@ 'TOS q@ pcurve .4DROP ;
+:.PCURVE3	NOS 32 - q@ NOS 24 - q@ NOS 16 - q@ NOS 8 - q@ NOS q@ 'TOS q@ pcurve3 .6DROP ;
 :.POLI		poli ;
 
 #vmc
