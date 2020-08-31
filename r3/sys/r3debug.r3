@@ -67,7 +67,7 @@
 :mode!imm
 	0 'emode !
 	rows 7 - 'hcode !
-	cols 25 - 'wcode !
+	cols 1 >> 'wcode !
 	calcselect ;
 
 :mode!view
@@ -195,6 +195,30 @@
 	drop
 	;
 
+|------ VARIABLE VIEW
+#varlist * $fff
+#varlistc
+
+:col_var
+	$ff00ff 'ink ! ;
+
+:prevars
+	'varlist >a
+	dicc< ( dicc> <?
+		dup 8 + @ 1 and? ( over dicc - 4 >> a!+ ) drop
+		16 + ) drop
+	a> 'varlist - 2 >>
+	'varlistc ! ;
+
+:showvars
+	0 ( hcode <?
+		varlistc >=? ( drop ; )
+		wcode 6 + over 1 + gotoxy
+		dup 2 << 'varlist + @
+		dup dic>adr @ "%w " col_var print
+		dic>tok @ @ "%d" $ffffff 'ink ! print
+		cr
+		1 + ) drop ;
 
 |------ CODE VIEW
 #xlinea 0
@@ -514,7 +538,7 @@
 	xsele ccy pline
 	sw ccy pline
 	sw cch pline
-	$040486 'ink !
+	$040466 'ink !
 	poli
 
 	0 hcode 1 + gotoxy
@@ -597,6 +621,7 @@
 	drawcode
 	drawcursorfix
 	console
+	showvars
 
 	key
 	>esc< =? ( exit )
@@ -682,6 +707,7 @@
 	cntdef 1 - 'actword !
 	resetvm
 	gotosrc
+	prevars
 
 	'debugmain onshow
 	;

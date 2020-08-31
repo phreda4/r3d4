@@ -197,7 +197,7 @@
 		4 + @+
 		str2token
 		error 1? ( nip ; ) drop
-		dicc> 'dicc< !
+		inc> <? ( dicc> 'dicc< ! ) | main source code mark
 		) drop
 	callen
 	| real length

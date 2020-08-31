@@ -14,6 +14,8 @@
 :escom
 |WIN|	"WIN|" =pre 1? ( drop 4 + ; ) drop | Compila para WINDOWS
 |LIN|	"LIN|" =pre 1? ( drop 4 + ; ) drop | Compila para LINUX
+|MAC|	"MAC|" =pre 1? ( drop 4 + ; ) drop | Compila para MAC
+|RPI|	"RPI|" =pre 1? ( drop 4 + ; ) drop | Compila para RPI
 	"FULL" =pre 1? ( drop				| FULL
 		1 'switchfull !
 		>>cr ; ) drop
