@@ -193,14 +193,22 @@
 ::tok>dicname | nro -- nadr
 	8 >>> "w%h" sprint ;
 
-::dic>toklen | nro -- adr len
-	dic>adr 4 + @+ swap 4 + @ 12 >>> ;
-
-::adr>toklen | adr+4 -- adr len
+::adr>toklen | adr -- adr len
 	4 + @+ swap 4 + @ 12 >>> ;
 
+::adr>toklenreal | adr -- adr len | don't traverse many times the same code
+	dup 8 + @ $80 and? ( drop adr>toklen ; ) drop | $80	1 termina sin ;
+	dup 28 + @ 12 >>> swap
+	adr>toklen rot - ;
+
+::dic>toklen | nro -- adr len
+	dic>adr adr>toklen ;
+
+::dic>toklenreal | adr -- adr len
+	dic>adr adr>toklenreal ;
+
 ::dic>call@ | nr -- calls
-	dic>inf @ 12 >> $fff and ;
+	dic>inf @ 12 >>> $fff and ;
 
 #flagword %10
 

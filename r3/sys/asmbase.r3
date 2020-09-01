@@ -23,7 +23,7 @@
 #ma #mb
 #mex #mey
 
-##ink
+##ink $ff00
 
 ##opx ##opy
 #pxBPP #pyBPP

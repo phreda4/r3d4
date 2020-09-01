@@ -124,17 +124,17 @@
 :.*			NOS q@ 'TOS q@ * .NIP 'TOS q! ;
 :./			NOS q@ 'TOS q@ / .NIP 'TOS q! ;
 :.*/		NOS 8 - q@ NOS q@ 'TOS q@ */ .2NIP 'TOS q! ;
-:.*>>		NOS 8 - q@ NOS q@ 'TOS q@ *>> .2NIP 'TOS q! ;
-:.<</		NOS 8 - q@ NOS q@ 'TOS q@ <</ .2NIP 'TOS q! ;
+:.*>>		NOS 8 - q@ NOS q@ TOS *>> .2NIP 'TOS q! ;  | need LSB (TOS is 32bits)
+:.<</		NOS 8 - q@ NOS q@ TOS <</ .2NIP 'TOS q! ;  | need LSB (TOS is 32bits)
 :./MOD		NOS q@ 'TOS q@ /mod 'TOS q! NOS q! ;
 :.MOD		NOS q@ 'TOS q@ mod .NIP 'TOS q! ;
 :.ABS		'TOS q@ abs 'TOS q! ;
 :.NEG		'TOS q@ neg 'TOS q! ;
 :.CLZ		'TOS q@ clz 'TOS q! ;
 :.SQRT		'TOS q@ sqrt 'TOS q! ;
-:.<<		NOS q@ 'TOS q@ << .NIP 'TOS q! ;
-:.>>		NOS q@ 'TOS q@ >> .NIP 'TOS q! ;
-:.>>>		NOS q@ 'TOS q@ >>> .NIP 'TOS q! ;
+:.<<		NOS q@ TOS << .NIP 'TOS q! ;     | need LSB (TOS is 32bits)
+:.>>		NOS q@ TOS >> .NIP 'TOS q! ;     | need LSB (TOS is 32bits)
+:.>>>		NOS q@ TOS >>> .NIP 'TOS q! ;    | need LSB (TOS is 32bits)
 
 |--- R
 :.>R	8 'RTOS +! 'TOS q@ RTOS q! .DROP ;
@@ -321,7 +321,7 @@
 :code2mem1 | adr -- adr
 	dup 8 + @ 1 and? ( drop ; ) drop	| code only
 	dup @ >>next 'srcnow !
-	dup adr>toklen
+	dup adr>toklenreal
 	( 1? 1 - swap
 		transform1
 		swap ) 2drop ;
@@ -360,7 +360,7 @@
 :code2mem2 | adr -- adr
 	dup 8 + @ 1 and? ( drop ; ) drop	| code only
 	dup @ >>next 'srcnow !
-	dup adr>toklen
+	dup adr>toklenreal
 	( 1? 1 - swap
 		transform2
 		swap ) 2drop ;
@@ -504,6 +504,7 @@
 	0 RTOS !
 	<<boot '<<ip !
 	**emu
+	$ffffff 'ink !
 	cls
 	emu**
 	;

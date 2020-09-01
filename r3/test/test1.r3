@@ -23,14 +23,11 @@
 :main
 	cls home
 	$ff00 'ink !
-	"hola " print
-	$ff 'ink !
-	300 100 50 60 fillrect
+	$7fffffffffffffff "%d" print
 	key >esc< =? ( exit ) drop
 	;
-
 :
-test2
-'main onshow
+
+	'main onshow
 ;
 

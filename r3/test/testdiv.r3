@@ -20,6 +20,7 @@
 	x * y 63 *>>
 	"x y mod->%d " print cr
 
+
 	key
 	>esc< =? ( exit )
 	<up> =? ( -1 'y +! )

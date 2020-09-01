@@ -175,5 +175,7 @@ $ff0000 c.ink
 "r3 " c.print
 $ff00 c.ink
 "programing laguage" c.print c.cr
+$ffffff 'ink !
+
 'test onshow
 ;

@@ -113,7 +113,7 @@
 	cnttok >=? ( drop ; )
 	2 << initok +
 	$ffffff 'ink !
-	@ 
+	@
 	dup tokenprintc
 	35 gotox
 	dup $ff and "%h " print
@@ -601,6 +601,7 @@
 
 :gotosrc
 	ip2src 0? ( drop ; )
+	0 'xlinea !
 	dup
     findinclude
 	srcnow
