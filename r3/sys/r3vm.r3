@@ -389,7 +389,7 @@
 	drop ;
 
 ::immcode2run | adr --
-|	0 'nbloques !	| reuse blocks
+	0 'nbloques !	| reuse blocks
 |	here 'memaux ! |??
 
 	( code> <?
@@ -466,6 +466,8 @@
 	sortincludes
 	here 'memvars !
 	data2mem
+|
+
 	here 'freemem !
 	;
 

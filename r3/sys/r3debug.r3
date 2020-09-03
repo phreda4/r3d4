@@ -426,6 +426,39 @@
 	( pantaini> <? scrollup )
 	drop ;
 
+|------- TAG VIEWS
+| inc/y/x/tipo/info
+
+#taglist * $ffff
+#taglist> 'taglist
+
+:tagdec
+:taghex
+:tagbin
+:tagfix
+:tagmem
+:tagadr
+	;
+:tagip	| ip
+	;
+:tagbp	| breakpoint
+	;
+:taginfo
+	;
+
+
+:drawtags
+	0 ( hcode <?
+		dup ylinea + | ysourcenow
+		drop
+		1 + ) drop ;
+
+:maketags
+	'taglist >a
+	dicc ( dicc> <?
+		dup 8 + @ 1 and? ( over dicc - 4 >> a!+ ) drop
+		16 + ) drop
+	a> 'taglist> ! ;
 
 |---------------------------------
 :barratop
@@ -661,12 +694,20 @@
 :,printword | adr --
   	adr>toklen
 	( 1? 1 - swap
-		@+ dup dup $ff and swap 8 >> swap "%h %h " ,print
+		@+
+		dup $ff and "%h " ,print
+		dup 8 >> 1? ( dup "%h " ,print ) drop
 		,tokenprintc ,cr
 		swap ) 2drop ;
 
 :savemap
 	mark
+	"inc-----------" ,ln
+	'inc ( inc> <?
+		@+ "%w " ,print
+		@+ "%h " ,print ,cr
+		) drop
+
 	"dicc-----------" ,ln
 	dicc ( dicc> <?
 		@+ "%w " ,print
@@ -691,12 +732,12 @@
 	error 1? ( drop savedebug ; ) drop
 	emptyerror
 
+	savemap | save info in file for debug
+
 	vm2run
 
-|	savemap
-
-|	'fontdroidsans13 fontm
-	fonti
+	'fontdroidsans13 fontm
+|	fonti
 
 |	mode!view 0 +word
 
