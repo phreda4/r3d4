@@ -69,18 +69,38 @@
 #dx #dy
 #xp #yp
 
-:floor | -- piso?
+:roof? | -- techo?
+	xp 16 >> yp 16 >> -$8 + gettile ;
+
+:floor? | -- piso?
 	xp 16 >> yp 16 >> $10 + gettile ;
 
-:piso
-	floor 0? ( drop 0.98 'dy +! ; ) drop
-	key
-	<up> =? ( drop -10.0 'dy ! ; )
-	drop
+:wall? | dx -- wall?
+	xp 16 >> + yp 16 >> gettile ;
+
+:jump
+	floor? 0? ( drop
+		0.8 'dy +!
+		roof? 1? ( dy -? ( 0 'dy ! ) drop ) drop
+		; ) drop
 	0 'dy !
-| fit y to map
-	yp $fff00000 and 'yp !
+	yp $fff00000 and 'yp ! | fit y to map
+	key
+	<up> =? ( -10.0 'dy ! )
+	drop
 	;
+
+:goleft
+	$10 wall? 0? ( drop ; ) drop
+	0 'ddx !
+	xp $fff00000 and 'xp !
+	drop 0 ;
+
+:gorigth
+	-$8 wall? 0? ( drop ; ) drop
+	0 'ddx !
+	xp $fff00000 and 'xp !
+	drop 0 ;
 
 :player
 	key
@@ -91,9 +111,12 @@
  	drop
 
     dx ddx 0? ( swap 0.8 *. )
-	+ 3.0 min -3.0 max 'dx !
+	+ 3.0 min -3.0 max
+	+? ( goleft )
+	-? ( gorigth )
+	'dx !
+	jump
 
-	piso
 	dx 'xp +!
 	dy 'yp +!
 	;

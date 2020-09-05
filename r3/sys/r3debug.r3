@@ -428,6 +428,8 @@
 
 |------- TAG VIEWS
 | inc/y/x/tipo/info
+| inc(ff)-x(fff)-y(fff)
+| info-tipo
 
 #taglist * $ffff
 #taglist> 'taglist
@@ -457,6 +459,7 @@
 	'taglist >a
 	dicc ( dicc> <?
 		dup 8 + @ 1 and? ( over dicc - 4 >> a!+ ) drop
+
 		16 + ) drop
 	a> 'taglist> ! ;
 
@@ -749,7 +752,8 @@
 	cntdef 1 - 'actword !
 	resetvm
 	gotosrc
-	prevars
+
+	prevars | add vars to panel
 
 	'debugmain onshow
 	;
