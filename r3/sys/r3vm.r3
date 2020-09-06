@@ -466,8 +466,6 @@
 	sortincludes
 	here 'memvars !
 	data2mem
-|
-
 	here 'freemem !
 	;
 

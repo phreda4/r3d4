@@ -427,35 +427,65 @@
 	drop ;
 
 |------- TAG VIEWS
-| inc/y/x/tipo/info
-| inc(ff)-x(fff)-y(fff)
+| tipo/y/x/ info
+| tipo(ff)-x(fff)-y(fff)
 | info-tipo
 
-#taglist * $ffff
+#taglist * $3fff
 #taglist> 'taglist
 
+
+:tagpos
+	over 12 >> $fff and xlinea - | 5 +
+	over ylinea - gotoxy ;
+
 :tagdec
+	tagpos pick2 @ "%d" $f0f000 bprint ;
 :taghex
+	tagpos pick2 @ "%h" $f0f000 bprint ;
 :tagbin
+	tagpos pick2 @ "%b" $f0f000 bprint ;
 :tagfix
+	tagpos pick2 @ "%f" $f0f000 bprint ;
 :tagmem
+	tagpos pick2 "'%h" $f0f0 bprint ;
 :tagadr
-	;
+	tagpos pick2 "'%h" $f0f0 bprint ;
+
 :tagip	| ip
+	blink 1? ( drop ; ) drop
+	tagpos
+	$ff00 'ink !
+	"_____" print
 	;
 :tagbp	| breakpoint
+	blink 1? ( drop ; ) drop
+	tagpos
+	"<BP>" $f00000 bprint
 	;
-:taginfo
+:taginfo | infoword
+	blink 1? ( drop ; ) drop
+	tagpos
+	"<INFO>" $f0fff bprint
 	;
 
+:tagnull
+	;
+
+#tt tagip tagbp taginfo tagdec taghex tagbin tagfix tagmem tagadr
+tagnull tagnull tagnull tagnull tagnull tagnull tagnull
+
+:drawtag | adr txy y -- adr txy y
+	over 24 >> $f and 2 << 'tt + @ ex ;
 
 :drawtags
-	0 ( hcode <?
-		dup ylinea + | ysourcenow
-		drop
-		1 + ) drop ;
+	'taglist
+	( taglist> <?
+		@+ dup $fff and
+		ylinea dup hcode + bt? ( drawtag )
+		2drop 4 + ) drop ;
 
-:maketags
+:maketags |
 	'taglist >a
 	dicc ( dicc> <?
 		dup 8 + @ 1 and? ( over dicc - 4 >> a!+ ) drop
@@ -469,7 +499,7 @@
 	$B2B0B2 'ink ! backline
 	$0 'ink !
 	" D3bug " emits
-	"PLAY/VIEW" "TAB" btnf
+
 |	"INSPECT" "F2" btnf
 |	"MEMORY" "F3" btnf
 |	"RUN" "F4" btnf
@@ -569,13 +599,13 @@
 	;
 
 :console
-	xsele cch op
-	wcode hcode 1 + gotoxy
-	xsele ccy pline
-	sw ccy pline
-	sw cch pline
-	$040466 'ink !
-	poli
+|	xsele cch op
+|	wcode hcode 1 + gotoxy
+|	xsele ccy pline
+|	sw ccy pline
+|	sw cch pline
+|	$040466 'ink !
+|	poli
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -590,33 +620,6 @@
 	$ffff00 'ink !
 	stackprintvm cr
 	regb rega " RA:%h RB:%h " print
-	0 rows 1 - gotoxy
-
-	"PLAY2C" "F1" btnf
-
-	"VIEW" "F6" btnf
-	"STEP" "F7" btnf
-	"STEPN" "F8" btnf
-|	"BREAK" "F4" btnf
-	"DICC" "F10" btnf
-	;
-
-
-|-------------------------------
-:modesrc
-	drawcode
-	drawcursor
-
-	key
-	<up> =? ( karriba ) <dn> =? ( kabajo )
-	<ri> =? ( kder ) <le> =? ( kizq )
-	<home> =? ( khome ) <end> =? ( kend )
-	<pgup> =? ( kpgup ) <pgdn> =? ( kpgdn )
-	>esc< =? ( exit )
-
-	<tab> =? ( mode!imm )
-	<f10> =? ( mode!view 0 +word )
-	drop
 	;
 
 |------ search code in includes
@@ -628,11 +631,17 @@
 	count + '$fuente !
 	;
 
+:maketags
+	srcview 3 << 'inc + 4 + @
+
+	;
+
 :srcnow | nro --
 	srcview =? ( drop ; ) dup 'srcview !
 	3 << 'inc +
 	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
 	@ setsource
+	maketags
 	;
 
 :gotosrc
@@ -644,27 +653,37 @@
 	'fuente> !
 	;
 
+|-------- view screen
+:waitf6
+	update 
+	key 
+	<f6> =? ( exit ) 
+	drop ;
+
 :viewscreen
-	xfb>
-	" ESC for Exit " dup
-	1 1 atxy 0 'ink ! emits
-	0 0 atxy $ffffff 'ink ! emits
-	redraw
-	waitesc ;
+	xfb> redraw
+	'waitf6 onshow ;
 
-#ninclude
-
-:modeimm
+|-------------------------------
+:modesrc
 	drawcode
-	drawcursorfix
-	console
-	showvars
+	drawcursor
+	drawtags
+
+	0 rows 1 - gotoxy
+	$989898 'ink ! backline
+	"IMM" "TAB" btnf
+	"PLAY2C" "F1" btnf
+	"VIEW" "F6" btnf
+	"STEP" "F7" btnf
+	"STEPN" "F8" btnf
 
 	key
+	<up> =? ( karriba ) <dn> =? ( kabajo )
+	<ri> =? ( kder ) <le> =? ( kizq )
+	<home> =? ( khome ) <end> =? ( kend )
+	<pgup> =? ( kpgup ) <pgdn> =? ( kpgdn )
 	>esc< =? ( exit )
-	<ret> =? ( execimm )
-
-	<f1> =? ( fuente> breakpoint playvm gotosrc )
 
 |	<f2> =? ( fuente> src2code  )
 
@@ -672,8 +691,41 @@
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
 
+	<tab> =? ( mode!imm )
+|	<f10> =? ( mode!view 0 +word )
+	drop
+	;
 
+
+#ninclude
+
+:modeimm
+	drawcode
+|	drawcursorfix
+	console
+	showvars
+
+	0 rows 1 - gotoxy
+	$989898 'ink ! backline
+	"SRC" "TAB" btnf
+
+	"PLAY2C" "F1" btnf
+	"VIEW" "F6" btnf
+	"STEP" "F7" btnf
+	"STEPN" "F8" btnf
+
+	key
+	>esc< =? ( exit )
+	<ret> =? ( execimm )
 	<tab> =? ( mode!src )
+
+	<f1> =? ( fuente> breakpoint playvm gotosrc )
+|	<f2> =? ( fuente> src2code  )
+
+	<f6> =? ( viewscreen )
+	<f7> =? ( stepvm gotosrc )
+	<f8> =? ( stepvmn gotosrc )
+
 	<f10> =? ( mode!view 0 +word )
 
 	drop
@@ -748,7 +800,15 @@
 	'name 'namenow strcpy
 	src setsource
 
-	mode!imm
+|	mode!imm
+	mode!src
+
+|----------- TEST
+	$1 $507f taglist> !+ !+ 'taglist> !
+	$1 $1006081 taglist> !+ !+ 'taglist> !
+	$1 $2006083 taglist> !+ !+ 'taglist> !
+	$1 $300a083 taglist> !+ !+ 'taglist> !
+
 	cntdef 1 - 'actword !
 	resetvm
 	gotosrc

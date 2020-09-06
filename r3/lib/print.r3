@@ -126,3 +126,8 @@
 ::backlines | cnt --
 	sw swap cch * 0 ccy fillrect ;
 
+|--- print with back, 2color is RrGgBg
+
+::bprint | "" 2color --
+	dup 4 >> $f0f0f and over $f0f0f0 and or 'ink ! swap backprint
+	over 4 << $f0f0f0 and rot $f0f0f and or 'ink ! print ;
