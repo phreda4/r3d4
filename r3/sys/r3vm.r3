@@ -16,12 +16,14 @@
 | src|<mem>|info|mov << DATA
 
 #memsrc		| mem token>src ; code to src
+#memixy		| code to inc x y
 ##sortinc
 #memvars	| mem vars		; real mem vars
 #freemem	| free mem
 #memaux
 
 #srcnow
+#incnow
 #sopx #sopy #sink
 
 :**emu
@@ -245,6 +247,40 @@
 .PLINE .PCURVE .PCURVE3 .POLI
 0
 
+|---------- generate include/position in src from tokens
+:>>next
+	dup c@
+	34 =? ( drop 1 + >>" trim ; )
+	drop
+	>>sp trim
+	dup c@
+	$7c =? ( drop >>cr trim ; )
+	drop
+	;
+
+:token2ixy | adr -- adr
+	srcnow over code - memsrc + !
+	srcnow >>next 'srcnow !
+	@+ drop
+	;
+
+:code2ixy | adr -- adr
+
+|		'incnow !
+|	'sopx !
+|	'sopy !
+
+	dup adr>toklenreal
+	dup @ >>next 'srcnow !
+	( 1? 1 - swap
+		token2ixy
+		swap ) 2drop ;
+	;
+
+:generateixy
+	dicc ( dicc> <?
+		code2ixy
+		16 + ) drop ;
 
 |---------- PREPARE CODE FOR RUN
 :tokvalue | 'adr tok -- 'adr tok value
@@ -293,16 +329,6 @@
 
 :tr] | adr' tok -- adr' tok
 	blini 8 << patch! ;
-
-:>>next
-	dup c@
-	34 =? ( drop 1 + >>" trim ; )
-	drop
-	>>sp trim
-	dup c@
-	$7c =? ( drop >>cr trim ; )
-	drop
-	;
 
 |---  transform 1 use Block and release
 
@@ -460,10 +486,11 @@
 |------ PREPARE 2 RUN
 ::vm2run
 	iniXFB
-	here 'memsrc !
-	code2run
-	code> code - 'here +!
 	sortincludes
+	here 'memsrc !
+	here code> code - + 'memixy !
+	code2run
+	code> code - 1 << 'here +!
 	here 'memvars !
 	data2mem
 	here 'freemem !
@@ -476,6 +503,10 @@
 ::code2src | code -- src
 	code - memsrc + @ ;
 
+::code2inc
+	;
+::code2xy
+	;
 ::src2code | src -- code
 	memsrc
 	( @+ ( 0? drop @+ )

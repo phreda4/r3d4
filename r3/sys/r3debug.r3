@@ -437,7 +437,7 @@
 
 :tagpos
 	over 12 >> $fff and xlinea - | 5 +
-	over ylinea - gotoxy ;
+	over ycode + ylinea - gotoxy ;
 
 :tagdec
 	tagpos pick2 @ "%d" $f0f000 bprint ;
@@ -453,18 +453,22 @@
 	tagpos pick2 "'%h" $f0f0 bprint ;
 
 :tagip	| ip
-	blink 1? ( drop ; ) drop
 	tagpos
-	$ff00 'ink !
-	"_____" print
-	;
+	$ffffff 'ink !
+	pick2 @ ccw *
+	ccx 1 - ccy 1 - rot pick2 + 2 + over cch + 2 +
+ 	box.dot ;
+
 :tagbp	| breakpoint
-	blink 1? ( drop ; ) drop
+	blink 0? ( drop ; ) drop
 	tagpos
-	"<BP>" $f00000 bprint
-	;
+	pick2 @ ccw *
+	ccx 1 - ccy 1 - rot pick2 + 2 + over cch + 2 +
+	$ff0000 'ink !
+ 	rectbox ;
+
 :taginfo | infoword
-	blink 1? ( drop ; ) drop
+	blink 0? ( drop ; ) drop
 	tagpos
 	"<INFO>" $f0fff bprint
 	;
@@ -629,35 +633,46 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	dup 'pantaini> !
 	dup 'fuente !
 	count + '$fuente !
+	0 'xlinea !
+	0 'ylinea !
 	;
 
-:maketags
-	srcview 3 << 'inc + 4 + @
-
-	;
+|:maketags
+|	srcview 3 << 'inc + 4 + @
+|	;
 
 :srcnow | nro --
 	srcview =? ( drop ; ) dup 'srcview !
 	3 << 'inc +
 	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
 	@ setsource
-	maketags
+|	maketags
 	;
 
 :gotosrc
 	ip2src 0? ( drop ; )
-	0 'xlinea !
-	dup
-    findinclude
-	srcnow
+	dup findinclude srcnow
 	'fuente> !
+
+	| find the x and y of IP...need change this!!
+	0 >a 0 >b
+	ip2src fuente
+	( over <? c@+ 13 =? ( 1 a+ ) drop ) drop
+	( dup c@ 13 <>? 9 =? ( 3 b+ ) drop 1 - 1 b+ ) 2drop
+	b> 4 + 12 << a> or 'taglist !
+	ip2src dup ( c@+ $ff and 32 >? drop ) drop 1 - swap -
+	'taglist 4 + !
+	;
+
+:setbp
+	fuente> src2code
 	;
 
 |-------- view screen
 :waitf6
-	update 
-	key 
-	<f6> =? ( exit ) 
+	update
+	key
+	<f6> =? ( exit )
 	drop ;
 
 :viewscreen
@@ -678,6 +693,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	"STEP" "F7" btnf
 	"STEPN" "F8" btnf
 
+	taglist " %h" print
+
 	key
 	<up> =? ( karriba ) <dn> =? ( kabajo )
 	<ri> =? ( kder ) <le> =? ( kizq )
@@ -686,7 +703,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	>esc< =? ( exit )
 
 |	<f2> =? ( fuente> src2code  )
-
+	<f5> =? ( setbp )
 	<f6> =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
@@ -804,10 +821,11 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	mode!src
 
 |----------- TEST
-	$1 $507f taglist> !+ !+ 'taglist> !
-	$1 $1006081 taglist> !+ !+ 'taglist> !
-	$1 $2006083 taglist> !+ !+ 'taglist> !
-	$1 $300a083 taglist> !+ !+ 'taglist> !
+	$1 $507f taglist> !+ !+ 'taglist> !  | IP
+
+|	$1 $1006081 taglist> !+ !+ 'taglist> !
+|	$1 $2006083 taglist> !+ !+ 'taglist> !
+|	$1 $300a083 taglist> !+ !+ 'taglist> !
 
 	cntdef 1 - 'actword !
 	resetvm
