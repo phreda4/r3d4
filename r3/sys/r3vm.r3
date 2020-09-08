@@ -17,13 +17,13 @@
 
 #memsrc		| mem token>src ; code to src
 #memixy		| code to inc x y
-##sortinc
+
+#sortinc
 #memvars	| mem vars		; real mem vars
 #freemem	| free mem
 #memaux
 
 #srcnow
-#incnow
 #sopx #sopy #sink
 
 :**emu
@@ -247,7 +247,43 @@
 .PLINE .PCURVE .PCURVE3 .POLI
 0
 
+|------ for locate include from src
+:sortincludes
+	here 'sortinc !
+	'inc >a
+	0 ( cntinc <?
+		4 a+ a@+ ,
+		dup ,
+		1 + ) drop
+	cntinc 1 + sortinc shellsort ;
+
+::findinclude | adr -- nro
+	sortinc >a
+	0 ( cntinc <?
+		over a@+ <? ( 3drop a> 8 - @ ; ) drop
+		4 a+
+		1 + ) 2drop
+	a> 4 - @ ;
+
 |---------- generate include/position in src from tokens
+
+#posnow
+
+:getsrcxyinc | adr -- adr ; incremental
+	posnow
+	( over <? c@+
+		1 'sopx +!
+		9 =? ( 3 'sopx +! )
+		13 =? ( 1 'sopy +! 0 'sopx ! )
+		drop ) drop
+	dup 'posnow ! ;
+
+:getsrcxy | adr -- adr
+	0 'sopx ! 0 'sopy !
+	sink 3 << 'inc + 4 + @ | start of include
+	'posnow !
+	getsrcxyinc ;
+
 :>>next
 	dup c@
 	34 =? ( drop 1 + >>" trim ; )
@@ -257,30 +293,6 @@
 	$7c =? ( drop >>cr trim ; )
 	drop
 	;
-
-:token2ixy | adr -- adr
-	srcnow over code - memsrc + !
-	srcnow >>next 'srcnow !
-	@+ drop
-	;
-
-:code2ixy | adr -- adr
-
-|		'incnow !
-|	'sopx !
-|	'sopy !
-
-	dup adr>toklenreal
-	dup @ >>next 'srcnow !
-	( 1? 1 - swap
-		token2ixy
-		swap ) 2drop ;
-	;
-
-:generateixy
-	dicc ( dicc> <?
-		code2ixy
-		16 + ) drop ;
 
 |---------- PREPARE CODE FOR RUN
 :tokvalue | 'adr tok -- 'adr tok value
@@ -310,7 +322,6 @@
 :transfcond | adr' tok -- adr' tok | ; 22..34
 	blend pick2 - 4 + 8 << patch! ;
 
-
 :trwor
 	over @ $ff and
 	16 <>? ( drop ; ) drop
@@ -333,7 +344,11 @@
 |---  transform 1 use Block and release
 
 :transform1 | adr' -- adr'
-	srcnow over code - memsrc + !
+	srcnow
+	getsrcxyinc
+	sopy sopx 12 << or sink 24 << or
+	pick2 code - memixy + !
+	over code - memsrc + !
 	srcnow >>next 'srcnow !
 	@+ $ff and
 |	12 =? ( trwor ) | call
@@ -346,7 +361,24 @@
 
 :code2mem1 | adr -- adr
 	dup 8 + @ 1 and? ( drop ; ) drop	| code only
-	dup @ >>next 'srcnow !
+	dup @ findinclude 'sink ! | include
+	dup @ >>next getsrcxy 'srcnow !
+	dup adr>toklenreal
+	( 1? 1 - swap
+		transform1
+		swap ) 2drop ;
+
+:sameinc | adr -- adr
+	dup @
+	dup findinclude
+	sink =? ( drop >>next 'srcnow ! ; )
+	'sink !
+	>>next getsrcxy 'srcnow !
+	;
+
+:code2mem1 | adr -- adr
+	dup 8 + @ 1 and? ( drop ; ) drop	| code only
+	sameinc
 	dup adr>toklenreal
 	( 1? 1 - swap
 		transform1
@@ -385,7 +417,6 @@
 
 :code2mem2 | adr -- adr
 	dup 8 + @ 1 and? ( drop ; ) drop	| code only
-	dup @ >>next 'srcnow !
 	dup adr>toklenreal
 	( 1? 1 - swap
 		transform2
@@ -393,6 +424,7 @@
 
 |--------
 ::code2run
+	-1 'sink ! | include nr
 	dicc ( dicc> <?
 		code2mem1
 		16 + ) drop
@@ -416,8 +448,6 @@
 
 ::immcode2run | adr --
 	0 'nbloques !	| reuse blocks
-|	here 'memaux ! |??
-
 	( code> <?
 		transformimm
 	 	) drop ;
@@ -465,48 +495,26 @@
 		var2mem
 		16 + ) drop ;
 
-|------ for locate code
-:sortincludes
-	here 'sortinc !
-	'inc >a
-	0 ( cntinc <?
-		4 a+ a@+ ,
-		dup ,
-		1 + ) drop
-	cntinc 1 + sortinc shellsort ;
-
-::findinclude | adr -- nro
-	sortinc >a
-	0 ( cntinc <?
-		over a@+ <? ( 3drop a> 8 - @ ; ) drop
-		4 a+
-		1 + ) 2drop
-	a> 4 - @ ;
 
 |------ PREPARE 2 RUN
 ::vm2run
 	iniXFB
 	sortincludes
-	here 'memsrc !
-	here code> code - + 'memixy !
-	code2run
+	here dup 'memsrc !			| array code to source
+	code> code - + 'memixy !	| array code to include/X/Y
 	code> code - 1 << 'here +!
+	code2run
 	here 'memvars !
 	data2mem
 	here 'freemem !
 	;
 
-::ip2src | -- adr
-	<<ip 0? ( ; )
-	code - memsrc + @ ;
-
 ::code2src | code -- src
 	code - memsrc + @ ;
 
-::code2inc
-	;
-::code2xy
-	;
+::code2ixy | code -- ixy
+	code - memixy + @ ;
+
 ::src2code | src -- code
 	memsrc
 	( @+ ( 0? drop @+ )
@@ -516,7 +524,7 @@
 	memsrc - code + ;
 
 ::breakpoint | cursor --
-	src2code '<<bp  !
+	src2code '<<bp !
 	;
 
 ::dumpmm

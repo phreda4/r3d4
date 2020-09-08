@@ -649,23 +649,25 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 |	maketags
 	;
 
-:gotosrc
-	ip2src 0? ( drop ; )
-	dup findinclude srcnow
-	'fuente> !
+:getsrclen | adr -- len
+	dup ( c@+ $ff and 32 >? drop ) drop 1 - swap - ;
 
-	| find the x and y of IP...need change this!!
-	0 >a 0 >b
-	ip2src fuente
-	( over <? c@+ 13 =? ( 1 a+ ) drop ) drop
-	( dup c@ 13 <>? 9 =? ( 3 b+ ) drop 1 - 1 b+ ) 2drop
-	b> 4 + 12 << a> or 'taglist !
-	ip2src dup ( c@+ $ff and 32 >? drop ) drop 1 - swap -
-	'taglist 4 + !
-	;
+:gotosrc
+	<<ip 0? ( drop ; )
+	dup code2ixy
+	dup 24 >> $ff and srcnow
+	$ffffff and $5000 + 'taglist !
+	code2src dup 'fuente> !
+	getsrclen 'taglist 4 + ! ;
 
 :setbp
+|	<<ip 4 +
+
 	fuente> src2code
+	code2ixy
+	$ffffff and $5000 +
+	$1000000 or
+	'taglist 8 + !
 	;
 
 |-------- view screen
@@ -693,7 +695,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	"STEP" "F7" btnf
 	"STEPN" "F8" btnf
 
-	taglist " %h" print
+|	taglist " %h" print
+	<<bp 1? ( dup code2ixy " %h" print ) drop
 
 	key
 	<up> =? ( karriba ) <dn> =? ( kabajo )
@@ -823,7 +826,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 |----------- TEST
 	$1 $507f taglist> !+ !+ 'taglist> !  | IP
 
-|	$1 $1006081 taglist> !+ !+ 'taglist> !
+	$1 $1006081 taglist> !+ !+ 'taglist> !
 |	$1 $2006083 taglist> !+ !+ 'taglist> !
 |	$1 $300a083 taglist> !+ !+ 'taglist> !
 
