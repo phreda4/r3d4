@@ -661,9 +661,9 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	getsrclen 'taglist 4 + ! ;
 
 :setbp
-|	<<ip 4 +
+	<<ip 4 +
 
-	fuente> src2code
+|	fuente> src2code
 	code2ixy
 	$ffffff and $5000 +
 	$1000000 or
@@ -674,7 +674,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 :waitf6
 	update
 	key
-	<f6> =? ( exit )
+	>f6< =? ( exit )
 	drop ;
 
 :viewscreen
@@ -698,6 +698,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 |	taglist " %h" print
 	<<bp 1? ( dup code2ixy " %h" print ) drop
 
+	showvstack
+
 	key
 	<up> =? ( karriba ) <dn> =? ( kabajo )
 	<ri> =? ( kder ) <le> =? ( kizq )
@@ -707,7 +709,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 
 |	<f2> =? ( fuente> src2code  )
 	<f5> =? ( setbp )
-	<f6> =? ( viewscreen )
+	>f6< =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
 

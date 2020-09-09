@@ -516,6 +516,9 @@
 	code - memixy + @ ;
 
 ::src2code | src -- code
+||	<<ip  | src IP srcIP
+|	( dup code2src pick2 <? drop
+
 	memsrc
 	( @+ ( 0? drop @+ )
 		pick2 <? drop ) drop
@@ -594,3 +597,25 @@
 		q@+ "%h " print
 		) drop 	;
 
+:printpila
+	q@ " %h " sprint $f0fff bprint ;
+
+::showvstack
+	NOS 16 +
+	NOS TOS over 8 + ! 'PSP - 3 >>
+	14 min
+	( 1? swap 8 -
+		cols 36 - rows 1 - pick3 - gotoxy
+		dup printpila
+		swap 1 - ) 2drop
+
+	RTOS 8 +
+	RTOS 'RSP - 3 >>
+	14 min
+	( 1? swap 8 -
+		cols 18 - rows 1 - pick3 - gotoxy
+		dup printpila
+		swap 1 - ) 2drop
+	cols 36 - rows 1 - gotoxy rega "A: %h " $0f0fff bprint
+	cols 18 - gotox regb "B: %h " $0f0fff bprint
+	;
