@@ -98,6 +98,7 @@
 		30 over 1 + gotoxy
 		dup "%d " print
 		dup 3 << 'inc + @+ swap @ "%h %l" print
+
 		incnow =? ( " <" print )
 		1 + ) drop
 	;
@@ -169,7 +170,8 @@
 :modeview
 	0 1 gotoxy
 	dicmap
-|	incmap
+
+	incmap
 	wordmap
 
 
@@ -627,7 +629,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	;
 
 |------ search code in includes
-#srcview 0
+#incnow 0
 
 :setsource | src --
 	dup 'pantaini> !
@@ -638,11 +640,11 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	;
 
 |:maketags
-|	srcview 3 << 'inc + 4 + @
+|	incnow 3 << 'inc + 4 + @
 |	;
 
 :srcnow | nro --
-	srcview =? ( drop ; ) dup 'srcview !
+	incnow =? ( drop ; ) dup 'incnow !
 	3 << 'inc +
 	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
 	@ setsource
@@ -661,14 +663,24 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	getsrclen 'taglist 4 + ! ;
 
 :setbp
-	<<ip 4 +
-
-|	fuente> src2code
+	fuente> incnow src2code
+	dup '<<bp !
 	code2ixy
 	$ffffff and $5000 +
 	$1000000 or
 	'taglist 8 + !
+	<<bp code2src getsrclen 'taglist 12 + ! ;
 	;
+:play2cursor
+	fuente> incnow src2code
+	dup '<<bp !
+	code2ixy
+	$ffffff and $5000 +
+	$1000000 or
+	'taglist 8 + !
+	<<bp code2src getsrclen 'taglist 12 + ! ;
+	;
+
 
 |-------- view screen
 :waitf6
@@ -696,7 +708,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	"STEPN" "F8" btnf
 
 |	taglist " %h" print
-	<<bp 1? ( dup code2ixy " %h" print ) drop
+|	<<bp 1? ( dup code2ixy " %h" print ) drop
 
 	showvstack
 
@@ -707,14 +719,17 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	<pgup> =? ( kpgup ) <pgdn> =? ( kpgdn )
 	>esc< =? ( exit )
 
-|	<f2> =? ( fuente> src2code  )
+	<f1> =? ( play2cursor playvm gotosrc )
+
 	<f5> =? ( setbp )
 	>f6< =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
 
 	<tab> =? ( mode!imm )
-|	<f10> =? ( mode!view 0 +word )
+
+	<f10> =? ( mode!view 0 +word )
+
 	drop
 	;
 
@@ -742,7 +757,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	<tab> =? ( mode!src )
 
 	<f1> =? ( fuente> breakpoint playvm gotosrc )
-|	<f2> =? ( fuente> src2code  )
+|	<f2> =? ( fuente> incnow src2code drop )
 
 	<f6> =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
@@ -813,8 +828,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 
 	vm2run
 
-	'fontdroidsans13 fontm
-|	fonti
+|	'fontdroidsans13 fontm
+	fonti
 
 |	mode!view 0 +word
 
@@ -829,7 +844,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	$1 $507f taglist> !+ !+ 'taglist> !  | IP
 
 	$1 $1006081 taglist> !+ !+ 'taglist> !
-|	$1 $2006083 taglist> !+ !+ 'taglist> !
+	$1 $2006083 taglist> !+ !+ 'taglist> !
 |	$1 $300a083 taglist> !+ !+ 'taglist> !
 
 	cntdef 1 - 'actword !

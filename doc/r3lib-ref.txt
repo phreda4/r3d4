@@ -275,7 +275,7 @@ print.r3
 ::backprint | "" -- ""		; fill backgroud pixel for a string
 ::backline | --				; fill backgroud pixel for a line
 ::backlines | cnt --		; fill backgroud pixel for cnt lines
-
+::bprint | "" 2color --		; print with fill background
 gui.r3
 ^^^^^^
 ##xr1
@@ -439,7 +439,7 @@ zbuffer.r3
 ::zdraw | x y --
 ::zdrawz | x y --
 
-^trace.r3
+trace.r3
 ^^^^^^^^^
 ::trace | --
 ::dumpc | adr --

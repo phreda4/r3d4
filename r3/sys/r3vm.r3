@@ -372,6 +372,8 @@
 	dup @
 	dup findinclude
 	sink =? ( drop >>next 'srcnow ! ; )
+	|---first word in include
+
 	'sink !
 	>>next getsrcxy 'srcnow !
 	;
@@ -515,16 +517,18 @@
 ::code2ixy | code -- ixy
 	code - memixy + @ ;
 
-::src2code | src -- code
-||	<<ip  | src IP srcIP
-|	( dup code2src pick2 <? drop
-
-	memsrc
+::src2code | src incnow -- code
+	memixy
+	( @+ 24 >> pick2 <>?
+		drop ) drop nip
+	4 - memixy - memsrc + |	first code from include
 	( @+ ( 0? drop @+ )
-		pick2 <? drop ) drop
+		pick2 <=? drop ) drop	| search src
 	nip
-	4 - ( dup @ 0? drop 4 - ) drop
-	memsrc - code + ;
+	4 - ( dup @ 0? drop 4 - ) drop			| back 1
+	4 - ( dup @ 0? drop 4 - ) drop			| back 1
+	memsrc - code +
+	;
 
 ::breakpoint | cursor --
 	src2code '<<bp !
@@ -605,7 +609,7 @@
 	NOS TOS over 8 + ! 'PSP - 3 >>
 	14 min
 	( 1? swap 8 -
-		cols 36 - rows 1 - pick3 - gotoxy
+		cols 20 - rows 1 - pick3 - gotoxy
 		dup printpila
 		swap 1 - ) 2drop
 
@@ -613,9 +617,10 @@
 	RTOS 'RSP - 3 >>
 	14 min
 	( 1? swap 8 -
-		cols 18 - rows 1 - pick3 - gotoxy
-		dup printpila
+		cols 1 - rows 1 - pick3 - gotoxy
+		"r" $0f0f0 bprint
+|		dup printpila
 		swap 1 - ) 2drop
-	cols 36 - rows 1 - gotoxy rega "A: %h " $0f0fff bprint
-	cols 18 - gotox regb "B: %h " $0f0fff bprint
+	cols 34 - rows 1 - gotoxy
+	regb rega " A:%h B:%h" $0f0fff bprint
 	;
