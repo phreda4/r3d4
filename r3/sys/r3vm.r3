@@ -602,7 +602,7 @@
 		) drop 	;
 
 :printpila
-	q@ " %h " sprint $f0fff bprint ;
+	q@ " %h " sprint $3f6fAf bprint ;
 
 ::showvstack
 	NOS 16 +
@@ -618,9 +618,10 @@
 	14 min
 	( 1? swap 8 -
 		cols 1 - rows 1 - pick3 - gotoxy
-		"r" $0f0f0 bprint
+		"r" $3f6fAf bprint
 |		dup printpila
 		swap 1 - ) 2drop
 	cols 34 - rows 1 - gotoxy
-	regb rega " A:%h B:%h" $0f0fff bprint
+	regb rega " A:%h B:%h" $3f6fAf bprint
+
 	;

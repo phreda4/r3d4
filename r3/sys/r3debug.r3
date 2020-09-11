@@ -469,10 +469,40 @@
 	$ff0000 'ink !
  	rectbox ;
 
+
+#infostr * 256
+#infocol
+
+:,ncar | n car -- car
+	( swap 1? 1 - swap dup ,c 1 + ) drop ;
+
+:,mov | mov --
+	97 >r	| 'a'
+	dup $f and " " ,s
+	dup r> ,ncar >r "--" ,s
+	swap 55 << 59 >> + | deltaD
+	-? ( ,d r> drop ; ) | error en analisis!!
+	r> ,ncar drop " " ,s ;
+
+:buildinfo | infmov -- str
+	mark
+	'infostr 'here !
+	$f000 'infocol !
+	@+
+|	%10000 and? ( "R" ,s )		| recurse
+|	%1000000 and? ( "."  ,s	)	| no ;
+	12 >> $fff and 0? ( $f00000 'infocol ! ) | calls?
+	drop @ ,mov
+	,eol
+	empty
+	'infostr
+	;
+
 :taginfo | infoword
-	blink 0? ( drop ; ) drop
 	tagpos
-	"<INFO>" $f0fff bprint
+	pick2 @ buildinfo
+	count cols swap - 1 - gotox
+	infocol bprint
 	;
 
 :tagnull
@@ -491,13 +521,20 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 		ylinea dup hcode + bt? ( drawtag )
 		2drop 4 + ) drop ;
 
-:maketags |
-	'taglist >a
-	dicc ( dicc> <?
-		dup 8 + @ 1 and? ( over dicc - 4 >> a!+ ) drop
 
-		16 + ) drop
-	a> 'taglist> ! ;
+:addtag
+	code2ixy 0? ( drop ; )
+	dup 24 >> incnow <>? ( 2drop ; ) drop
+	$ffffff and $5000 + $2000000 or
+	taglist> !+
+	over swap !+ 'taglist> ! | save >info,mov
+	;
+
+:maketags
+	'taglist 16 + 'taglist> !	| only ip+bp
+|	incnow 3 << 'inc + 4 + @	| firs src
+	dicc ( dicc> <?
+		4 + @+ addtag 8 + ) drop ;
 
 |---------------------------------
 :barratop
@@ -512,6 +549,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 
 	'namenow printr
 	;
+
 
 |----- scratchpad
 #outpad * 1024
@@ -629,7 +667,6 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	;
 
 |------ search code in includes
-#incnow 0
 
 :setsource | src --
 	dup 'pantaini> !
@@ -639,16 +676,13 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	0 'ylinea !
 	;
 
-|:maketags
-|	incnow 3 << 'inc + 4 + @
-|	;
 
 :srcnow | nro --
 	incnow =? ( drop ; ) dup 'incnow !
 	3 << 'inc +
 	@+ "%l" sprint 'namenow strcpy | warning ! is IN the source code
 	@ setsource
-|	maketags
+	maketags
 	;
 
 :getsrclen | adr -- len
@@ -671,6 +705,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	'taglist 8 + !
 	<<bp code2src getsrclen 'taglist 12 + ! ;
 	;
+
 :play2cursor
 	fuente> incnow src2code
 	dup '<<bp !
@@ -700,15 +735,12 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	drawtags
 
 	0 rows 1 - gotoxy
-	$989898 'ink ! backline
+	$3465A4 'ink ! backline
 	"IMM" "TAB" btnf
 	"PLAY2C" "F1" btnf
 	"VIEW" "F6" btnf
 	"STEP" "F7" btnf
 	"STEPN" "F8" btnf
-
-|	taglist " %h" print
-|	<<bp 1? ( dup code2ixy " %h" print ) drop
 
 	showvstack
 
@@ -828,8 +860,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 
 	vm2run
 
-|	'fontdroidsans13 fontm
-	fonti
+	'fontdroidsans13 fontm
+|	fonti
 
 |	mode!view 0 +word
 
@@ -840,12 +872,9 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 |	mode!imm
 	mode!src
 
-|----------- TEST
-	$1 $507f taglist> !+ !+ 'taglist> !  | IP
-
-	$1 $1006081 taglist> !+ !+ 'taglist> !
-	$1 $2006083 taglist> !+ !+ 'taglist> !
-|	$1 $300a083 taglist> !+ !+ 'taglist> !
+| tags
+	$0 $0 taglist> !+ !+ 'taglist> !  | IP
+	$1 $0 taglist> !+ !+ 'taglist> !  | BP
 
 	cntdef 1 - 'actword !
 	resetvm
