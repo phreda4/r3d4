@@ -170,10 +170,8 @@
 :modeview
 	0 1 gotoxy
 	dicmap
-
-	incmap
+|	incmap
 	wordmap
-
 
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
@@ -415,6 +413,11 @@
 
 |..............................
 :drawcode
+	fuente>
+	( pantafin> >? scrolldw )
+	( pantaini> <? scrollup )
+	drop
+
 	pantaini>
 	0 ( hcode <?
 		0 ycode pick2 + gotoxy
@@ -423,10 +426,7 @@
 		swap drawline
 		swap 1 + ) drop
 	$fuente <? ( 1 - ) 'pantafin> !
-	fuente>
-	( pantafin> >? scrolldw )
-	( pantaini> <? scrollup )
-	drop ;
+	;
 
 |------- TAG VIEWS
 | tipo/y/x/ info
@@ -522,19 +522,30 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 		2drop 4 + ) drop ;
 
 
+#cntcr	| cnt cr from src to first token
+
 :addtag
 	code2ixy 0? ( drop ; )
 	dup 24 >> incnow <>? ( 2drop ; ) drop
-	$ffffff and $5000 + $2000000 or
+	$ffffff and $5000 + cntcr - $2000000 or
 	taglist> !+
 	over swap !+ 'taglist> ! | save >info,mov
 	;
 
+:calccrs | adr src -- adr
+	over @ code2src
+	0 'cntcr !
+	swap ( over <? c@+
+		13 =? ( 1 'cntcr +! )
+		drop ) 2drop ;
+
 :maketags
-	'taglist 16 + 'taglist> !	| only ip+bp
+	'taglist 8 + >a
+	$f000000 a!+ 0 a!+ 		| only ip+bp clear bp
+	a> 'taglist> !
 |	incnow 3 << 'inc + 4 + @	| firs src
 	dicc ( dicc> <?
-		4 + @+ addtag 8 + ) drop ;
+		@+ calccrs @+ addtag 8 + ) drop ;
 
 |---------------------------------
 :barratop
@@ -667,6 +678,12 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	;
 
 |------ search code in includes
+:setpantafin
+	pantaini>
+	0 ( hcode <?
+		swap >>cr 1 + swap
+		1 + ) drop
+	$fuente <? ( 1 - ) 'pantafin> ! ;
 
 :setsource | src --
 	dup 'pantaini> !
@@ -674,8 +691,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	count + '$fuente !
 	0 'xlinea !
 	0 'ylinea !
+	setpantafin
 	;
-
 
 :srcnow | nro --
 	incnow =? ( drop ; ) dup 'incnow !
@@ -873,8 +890,10 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	mode!src
 
 | tags
-	$0 $0 taglist> !+ !+ 'taglist> !  | IP
-	$1 $0 taglist> !+ !+ 'taglist> !  | BP
+	'taglist >a
+	$f000000 a!+ 0 a!+ | IP
+	$f000000 a!+ 0 a!+ | BP
+	a> 'taglist> !
 
 	cntdef 1 - 'actword !
 	resetvm
