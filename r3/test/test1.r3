@@ -11,7 +11,9 @@
     a> ink pick3 fill
 	sw 2 << a+
     ) 2drop ;
-
+:tt
+	1? ( drop ; )
+	2 + tt ;
 :test1
 	$ff00ff00ff00ff 10 x +  'x ! 3 ;
 
@@ -23,6 +25,7 @@
 :main
 	cls home
 	$ff00 'ink !
+
 	$7fffffffffffffff "%d" print
 	key >esc< =? ( exit ) drop
 	;

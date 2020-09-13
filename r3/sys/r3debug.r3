@@ -489,8 +489,8 @@
 	'infostr 'here !
 	$f000 'infocol !
 	@+
-|	%10000 and? ( "R" ,s )		| recurse
-|	%1000000 and? ( "."  ,s	)	| no ;
+	$20 and? ( "R" ,s )		| recurse
+	$80 nand? ( "."  ,s	)	| no ;
 	12 >> $fff and 0? ( $f00000 'infocol ! ) | calls?
 	drop @ ,mov
 	,eol

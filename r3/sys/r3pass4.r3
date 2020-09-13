@@ -232,8 +232,8 @@
 
 | adr adrt t tabla
 :esPal | palabra
-	dup 4 - @ 8 >>	| obtener palabra
-	pick2 =? ( drop $20 flags or 'flags ! ; ) | es recursiva?
+	dup 4 - @ 8 >>>	| obtener palabra
+	pick3 =? ( drop flags $20 or 'flags ! ; ) | es recursiva?
     dup dic>inf @
 
 	$100 and? ( flags $400 or 'flags ! )
@@ -351,7 +351,7 @@
 	$b =? ( 1 'cnts +! )				| string
 	$c =? ( 1 'cntdc +! copydeltaS )
 	$e =? ( 1 'cntdc +! copydeltaS )	| word y dir word
-	$d =? ( 1 'cntdv +! ) 
+	$d =? ( 1 'cntdv +! )
 	$f =? ( 1 'cntdv +! )				| var y dir var
 	$3c =? (  1 'flags ! )				| *
 	drop ;
