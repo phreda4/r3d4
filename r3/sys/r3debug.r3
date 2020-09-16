@@ -213,7 +213,7 @@
 :showvars
 	0 ( hcode <?
 		varlistc >=? ( drop ; )
-		wcode 6 + over 1 + gotoxy
+		cols 1 >> over 1 + gotoxy
 		dup 2 << 'varlist + @
 		dup dic>adr @ "%w " col_var print
 		dic>tok @ @ "%d" $ffffff 'ink ! print
@@ -745,11 +745,14 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	xfb> redraw
 	'waitf6 onshow ;
 
+#statevars
+
 |-------------------------------
 :modesrc
 	drawcode
 	drawcursor
 	drawtags
+	statevars 1? ( showvars ) drop
 
 	0 rows 1 - gotoxy
 	$3465A4 'ink ! backline
@@ -774,7 +777,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	>f6< =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
-
+	<f9> =? ( 1 statevars xor 'statevars ! )
 	<tab> =? ( mode!imm )
 
 	<f10> =? ( mode!view 0 +word )
