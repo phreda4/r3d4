@@ -272,13 +272,16 @@
 	2 'mcolor !
 	;
 
+#xlineat
+
 :iniline
 	0 'mcolor !
+	0 'xlineat !
 	xlinea wcolor
 	( 1? 1 - swap
 		c@+ 0? ( drop nip 1 - ; )
 		13 =? ( drop nip 1 - ; )
-		9 =? ( wcolor )
+		9 =? ( wcolor 3 'xlineat +! )
 		32 =? ( wcolor )
 		$22 =? ( strcol )
 		drop swap ) drop ;
@@ -390,7 +393,7 @@
 :drawcursor
 	cursorpos
 	blink 1? ( drop ; ) drop
-	xcode xlinea - xcursor +
+	xcode xlinea - xcursor + xlineat -
 	ycode ylinea - ycursor + gotoxy
 	ccx ccy xy>v >a
 	cch ( 1? 1 -
@@ -402,7 +405,7 @@
 
 :drawcursorfix
 	cursorpos
-	xcode xlinea - xcursor +
+	xcode xlinea - xcursor + xlineat -
 	ycode ylinea - ycursor + gotoxy
 	ccx 1 - ccy 1 - over
 	fuente> ( c@+ $ff and 32 >? drop swap ccw + swap ) 2drop	| to end of the word
@@ -438,7 +441,7 @@
 
 
 :tagpos
-	over 12 >> $fff and xlinea - | 5 +
+	over 12 >> $fff and xcode + xlinea - xlineat -
 	over ycode + ylinea - gotoxy ;
 
 :tagdec
@@ -527,7 +530,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 :addtag
 	code2ixy 0? ( drop ; )
 	dup 24 >> incnow <>? ( 2drop ; ) drop
-	$ffffff and $5000 + cntcr - $2000000 or
+	$ffffff and cntcr - $2000000 or
 	taglist> !+
 	over swap !+ 'taglist> ! | save >info,mov
 	;
@@ -707,9 +710,10 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 
 :gotosrc
 	<<ip 0? ( drop ; )
+	0 'xlinea !
 	dup code2ixy
 	dup 24 >> $ff and srcnow
-	$ffffff and $5000 + 'taglist !
+	$ffffff and 'taglist !
 	code2src dup 'fuente> !
 	getsrclen 'taglist 4 + ! ;
 
@@ -717,8 +721,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	fuente> incnow src2code
 	dup '<<bp !
 	code2ixy
-	$ffffff and $5000 +
-	$1000000 or
+	$ffffff and $1000000 or
 	'taglist 8 + !
 	<<bp code2src getsrclen 'taglist 12 + ! ;
 	;
@@ -727,8 +730,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	fuente> incnow src2code
 	dup '<<bp !
 	code2ixy
-	$ffffff and $5000 +
-	$1000000 or
+	$ffffff and $1000000 or
 	'taglist 8 + !
 	<<bp code2src getsrclen 'taglist 12 + ! ;
 	;
