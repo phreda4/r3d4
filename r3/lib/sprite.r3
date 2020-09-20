@@ -3,6 +3,11 @@
 |------------------------
 | pal/type-w-h
 | 8-12-12
+|
+| 00 - 32bit opaque
+| 01 - 32bit alpha
+| 10 - 8bit opaque
+| 11 - 8bit alpha
 
 ^r3/lib/gr.r3
 ^r3/lib/math.r3
