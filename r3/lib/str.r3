@@ -116,10 +116,10 @@
 	2drop ;
 
 |---- convert to number
-#mbuff * 64
+#mbuff * 65
 
 :mbuffi | -- adr
-	'mbuff 63 + 0 over c! 1 - ;
+	'mbuff 64 + 0 over c! 1 - ;
 
 :sign | adr sign -- adr'
 	-? ( drop $2d over c! ; ) drop 1 + ;

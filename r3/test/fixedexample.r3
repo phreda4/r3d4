@@ -6,17 +6,21 @@
 #vs 5
 
 :test
+	key
+	>esc< =? ( exit )
+	drop
+
 	cls home
 	$ffffff 'ink !
-
+	"test" print cr
 	'v1 q@
-	dup "%d " print
+	dup "%d " print cr
 	dup "%h " print cr
 	dup "%b " print cr
 	vm
 	dup "* %d " print cr
-	*
-	vs
+	* 
+	vs 
 	dup ">> %d" print cr
 	>>
 	dup "%d " print
@@ -37,9 +41,6 @@
 	dup "%b " print cr
 	drop
 
-	key
-	>esc< =? ( exit )
-	drop
 	;
 
 :

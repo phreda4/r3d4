@@ -8,7 +8,7 @@
 ^r3/lib/trace.r3
 
 #ficha $2010010 | 16x16 paleta 8bits opaque, 4 colores
-$FFFF00 $00 0 0
+$FFFF00 $00 0 0  | color0 color1 color2 color3 
 (
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -158,7 +158,7 @@ $FFFF00 $00 0 0
 	drop "rojo" ;
 
 :fintablero
-	cls
+	cls home
 	$ffffff 'ink !
 	" Gano " print
 	gano? print
