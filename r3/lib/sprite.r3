@@ -385,7 +385,7 @@
 	dup $fff and 'wb !
 	dup 12 >> $fff and 'hb !
 	2swap clip | adr h x y
-	wi hi or -? ( drop 4drop ; ) drop
+	wi hi or -? ( 2drop 4drop ; ) drop
 	xy>v >a
 	$2000000 and? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )
 	mem2spr
@@ -397,7 +397,7 @@
 	0? ( 4drop ; ) 'hr !
 	0? ( 3drop ; ) 'wr !
 	b> clipsc | adr x y
-	wi hi or -? ( 4drop ; ) drop
+	wi hi or -? ( drop 4drop ; ) drop
 	xy>v >a
 	4 - @+
 	$2000000 and? ( over 'paleta ! swap over 24 >> $3 or $ff and 1 + 2 << + swap )

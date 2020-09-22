@@ -1,5 +1,15 @@
 | demo program for forth2020
-|
+| graphics and sound from the game DELTA made by MC
+|--
+|Ship sprites from Jacob Zinman-Jeanes:
+|  http://gamedev.tutsplus.com/articles/news/enjoy-these-totally-free-space-based-shoot-em-up-sprites/
+|--
+|Explosion sprite from:
+|  http://www.nordenfelt-thegame.com/blog/category/dev-log/page/3/
+|--
+|mp3 files from:
+|  https://github.com/jakesgordon/javascript-delta
+|--
 |MEM 2048
 
 ^r3/lib/gui.r3
@@ -23,9 +33,7 @@
 #xss #yss #nss
 
 :player
-
 	yp vyp + 10.0 max sh 40 - 16 << min 'yp !
-
 	msec 7 >> $3 and
 	xp 16 >> yp 16 >>
 	spr_ship ssprite ;
@@ -125,6 +133,7 @@
 :game
 	cls home
 
+	snd_shoot "%h " print
 	drawback
 	player
 	shoot
@@ -141,6 +150,6 @@
 	drop
 	;
 
-: 	ini
+:	ini
 	fillback
- 	'game onshow ;
+	'game onshow ;

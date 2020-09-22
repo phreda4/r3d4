@@ -37,7 +37,7 @@
 #lastbullet 0
 
 #nen 32     | up to a hundred
-#enx * 400  | (4 * nen) 
+#enx * 400  | (4 * nen)
 #eny * 400  | 
 #envx * 400 | 
 #envy * 400 | 
@@ -238,4 +238,3 @@
 
 : ini
   'game onshow ;
- 

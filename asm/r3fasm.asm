@@ -18,8 +18,8 @@ section '' code readable executable
 start:
   sub rsp,40
   invoke SDL_Init,SDL_INIT_AUDIO+SDL_INIT_VIDEO ;****
+  invoke Mix_OpenAudio,44100,AUDIO_S16SYS,2,1024
   invoke Mix_Init,8 ; mp3
-  invoke Mix_OpenAudio,AUDIO_S16SYS,2,4096
   invoke SDL_CreateWindow,_title,\
     SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,\
     XRES,YRES,0
@@ -281,8 +281,8 @@ SYSYSTEM:
 ;	TOS=(int64_t)Mix_LoadWAV((char *)TOS);
 ; #define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
 SYSSLOAD:
-	invoke SDL_RWFromFile,rax,"rb"
-	invoke Mix_LoadWAV_RW,rax,1
+;	invoke SDL_RWFromFile,rax,"rb"
+;	invoke Mix_LoadWAV_RW,rax,1
 	ret
 
 ;===============================================
@@ -299,13 +299,13 @@ SYSMLOAD:
 SYSSPLAY:
 	or rax,rax
 	jz .halt
-	invoke Mix_PlayChannelTimed,-1,rax,0,-1
+;	invoke Mix_PlayChannelTimed,-1,rax,0,-1
 	jmp .end
 .halt:
 	mov rcx,8
 .lc:
 	sub rcx,1
-	invoke Mix_HaltChannel,rcx
+;	invoke Mix_HaltChannel,rcx
 	or rcx,rcx
 	jnz .lc
 .end:
