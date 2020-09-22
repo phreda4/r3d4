@@ -32,7 +32,8 @@
 #spr_ship #shipi 0 #shipn 4
 #spr_enemy #enemyi 0 #enemyn 6
 #spr_explosion #explosioni 0 #explosionn 16
-#snd_shoot #snd_explosion
+#snd_shoot 0 0
+#snd_explosion 0 0
 #curframe 0
 #lastbullet 0
 
@@ -111,7 +112,7 @@
        abullets 1 + nbullets =? ( drop ; ) drop
        curframe lastbullet - 5 <? ( drop ; ) drop
        newbullet
-       snd_shoot splay ;
+       'snd_shoot q@ splay ;
 
 :drawship | ( x y -- )
 	   shipi rot- spr_ship ssprite
@@ -130,7 +131,7 @@
 
 :drawexplosion | ( x y -- )
 	       'stars 4 + @ unpackstar
-	       explosioni 0? ( snd_explosion splay ) drop
+	       explosioni 0? ( 'snd_explosion q@ splay ) drop
 	       explosioni rot- spr_explosion ssprite
 	       drop                                         | drop speed
 	       explosioni 1 + explosionn mod 'explosioni ! ;
@@ -220,8 +221,8 @@
      64 29 "media/img/Spritesheet_64x29.png" loadimg tileSheet 'spr_ship !
      40 30 "media/img/eSpritesheet_40x30.png" loadimg tileSheet 'spr_enemy !
      64 64 "media/img/explosion.png" loadimg tileSheet 'spr_explosion !
-     "media/snd/shoot.mp3" sload 'snd_shoot !
-     "media/snd/explode.mp3" sload 'snd_explosion ! ;
+     "media/snd/shoot.mp3" sload 'snd_shoot q!
+     "media/snd/explode.mp3" sload 'snd_explosion q! ;
 
 :game cls
       keyboard
