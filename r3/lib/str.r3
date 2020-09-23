@@ -184,3 +184,6 @@
 		10 =? ( drop c@+ 13 <>? ( drop 1 - 13 ) )
 		rot c!+ swap ) nip
 	swap c! ;
+
+::>>sp | adr -- adr'	; proximo espacio
+	( c@+ $ff and 32 >? drop ) drop 1 - ;

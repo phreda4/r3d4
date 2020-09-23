@@ -133,7 +133,6 @@
 :game
 	cls home
 
-	snd_shoot "%h " print
 	drawback
 	player
 	shoot

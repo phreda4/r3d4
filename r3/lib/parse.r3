@@ -176,3 +176,39 @@
 	33 <? ( 2drop 1 ; )
 	2drop 0 ;
 
+
+|------------- parseo
+::scanp | adr "str" -- adr'/0
+	( c@+ 1?  | d1 d2 c
+		rot c@+ | d2 c d1 c
+		rot <>? ( 3drop 0 ; )
+		drop | d2 d1
+		swap )
+	2drop ;
+
+::scanstr | adr 'str -- adr'
+	swap 0? ( nip ; )
+	( c@+ $ff and 31 >?
+		rot c!+ swap ) drop
+	1 - nip ;
+
+::scannro | adr 'nro -- adr'
+	over trim ?numero 0? ( 2drop ; ) drop
+	rot ! nip ;
+
+::scanc | c adr -- adr'/0
+	0? ( nip ; )
+	( c@+ 1?
+		pick2 =? ( drop nip 1 - ; )
+		drop )
+	nip nip ;
+
+::scann | adr "str" -- adr'
+ 	c@+ rot scanc
+	0? ( nip ; )
+	1 + swap | adr' "tr"
+	( c@+ 1?      | adr r t
+		rot c@+      | r t adr a
+		rot <>? ( 3drop 0 ; ) | r adr a
+		drop swap )
+	2drop ;

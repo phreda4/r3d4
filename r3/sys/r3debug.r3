@@ -759,7 +759,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	0 rows 1 - gotoxy
 	$3465A4 'ink ! backline
 	"IMM" "TAB" btnf
-	"PLAY2C" "F1" btnf
+	"PLAY" "F1" btnf
+	"PLAY2C" "F2" btnf
 	"VIEW" "F6" btnf
 	"STEP" "F7" btnf
 	"STEPN" "F8" btnf
@@ -773,7 +774,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	<pgup> =? ( kpgup ) <pgdn> =? ( kpgdn )
 	>esc< =? ( exit )
 
-	<f1> =? ( play2cursor playvm gotosrc )
+	<f1> =? ( playvm gotosrc )
+	<f2> =? ( play2cursor playvm gotosrc )
 
 	<f5> =? ( setbp )
 	>f6< =? ( viewscreen )
