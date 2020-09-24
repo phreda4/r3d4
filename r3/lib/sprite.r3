@@ -346,6 +346,9 @@
 ::spr.wh | 'spr -- w h
 	@ dup $fff and swap 12 >> $fff and ;
 
+::spr.cntmem | 'spr -- cnt mem
+	dup spr.wh * swap 4 + ;
+
 |--------------------------
 :gettile | n --
 	2 << sx + @ >b

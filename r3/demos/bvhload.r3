@@ -27,7 +27,7 @@
 
 #framenow
 
-#xcam 0 #ycam 0 #zcam 300.0
+#xcam 0 #ycam 0 #zcam 400.0
 #xr 0 #yr 0
 
 :,off+cha
@@ -236,8 +236,8 @@
 	mroty ;
 
 :people
-	-300.0 ( 300.0 <? 50.0 +
-		-300.0 ( 300.0 <? 50.0 +
+	-200.0 ( 200.0 <? 100.0 +
+		-200.0 ( 200.0 <? 100.0 +
 			mpush
 			2dup 0.0 swap mtransi
 			model drawbones
@@ -250,8 +250,8 @@
 	freelook
 	xcam ycam zcam mtrans
 
-	model drawbones
-|	people
+|	model drawbones
+	people
 |	model drawbones0
 
 	framenow 1 + frames >=? ( 0 nip ) 'framenow !
@@ -262,11 +262,12 @@
 :reload | "" --
 	smem swap
 	load dup '$bvhfile ! dup 'model ! 'here !
-	parsebvh      	
+	parsebvh
 	;
 
 :loadbvh
-	"media/bvh" dlgfileload 0? ( drop ; )
+	"media/bvh" dlgSetPath
+	dlgfileload 0? ( drop ; )
 	reload
 	;
 
@@ -279,13 +280,14 @@
 	frametime " frame time:%f " print
 	here model - "%d bytes" print cr
 	framenow "%d " print cr
-	model dumpmod cr
+|	model dumpmod cr
 	3dscreen
 	key
 	<f1> =? ( loadbvh )
 	>esc< =? ( exit )
 	drop
 	;
+
 :ini
 	mark
 	here dup 'bvhfile !
@@ -293,7 +295,6 @@
 |	"media/bvh/Example1.bvh"
 	"media/bvh/0008_ChaCha001.bvh"
 |	"media/bvh/10_01.bvh"
-|	"media\bvh\megaPAK1\MECombat014B.bvh"
 	reload
 	0 'framenow !
 	fonti

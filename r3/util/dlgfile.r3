@@ -224,7 +224,7 @@
 	;
 
 
-::dlgSetPath
+::dlgSetPath | "path" --
 	'path strcpy ;
 
 |------------------------------

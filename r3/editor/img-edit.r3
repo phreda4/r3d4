@@ -148,9 +148,27 @@
 	drop
 	;
 
+:canvassize | w h --
+	2dup 'imagenh ! 'imagenw !
+	2dup vsize
+	imagen >a
+	2dup $fff and 12 << swap $fff and or a!+
+	*
+	( 1? 1 - $ffffff a!+ ) drop
+|	a> $ffffff pick2 fill | ??? align
+
+	a> 'here !
+	"new" 'nombre strcpy
+	;
+
 :loadfile
 	dlgFileLoad 0? ( drop ; )
+	dup 'nombre strcpy
 	loadImg 0? ( drop ; )
+	dup spr.wh
+	2dup 'imagenh ! 'imagenw !
+	vsize
+	imagen swap spr.cntmem 4 - swap 1 + move
 	;
 
 |-----------------------------
@@ -188,18 +206,6 @@
 	teclado
 	acursor ;
 
-:canvassize | w h --
-	2dup 'imagenh ! 'imagenw !
-	2dup vsize
-	imagen >a
-	2dup $fff and 12 << swap $fff and or a!+
-	*
-	( 1? 1 - $ffffff a!+ ) drop
-|	a> $ffffff pick2 fill | ??? align
-
-	a> 'here !
-	"new" 'nombre strcpy
-	;
 
 :inimem
 	'imagenset vset!
@@ -210,7 +216,7 @@
 	mark
 	here 'imagen !
 	320 240 canvassize
-	"media/" dlgSetPath
+	"media/img" dlgSetPath
 	;
 
 :   inimem
