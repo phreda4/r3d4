@@ -47,17 +47,27 @@ SYSEND:
   invoke SDL_Quit
   add rsp,40
   ret
-
+ 
 ;----- CODE -----
 include 'code.asm'
 ;----- CODE -----
   ret
 
+; from LocoDelAssembly in fasm forum
+macro cinvoke64 name, [args]{
+common
+   PUSH RSP             ;save current RSP position on the stack
+   PUSH qword [RSP]     ;keep another copy of that on the stack
+   ADD RSP,8
+   AND SPL,0F0h         ;adjust RSP to align the stack if not already there
+   cinvoke name, args
+   POP RSP              ;restore RSP to its original value
+}
 ;===============================================
 align 16
 SYSREDRAW:
   push rax rbp   ; c d r8 r9
-  invoke SDL_UpdateWindowSurface,[window]
+  cinvoke64 SDL_UpdateWindowSurface,[window]
   pop rbp rax
   ret
 
@@ -68,9 +78,9 @@ SYSUPDATE:
   xor eax,eax
   mov [SYSKEY],eax
   mov [SYSCHAR],eax
-  invoke SDL_Delay,10
+  cinvoke64 SDL_Delay,10
 loopev:
-  invoke SDL_PollEvent,evt
+  cinvoke64 SDL_PollEvent,evt
   test eax,eax
   jnz n1
   pop rbp rax
