@@ -80,6 +80,8 @@ str.r3
 ::trim" | adr -- adr'
 ::>>cr | adr -- adr'
 ::>>0 | adr -- adr' ; pasa 0
+::only13 | adr -- 	; remove 10..reeplace with 13
+::>>sp | adr -- adr'	; next space
 
 mem.r3
 ^^^^^^
@@ -189,6 +191,11 @@ parse.r3
 ::isHex |adr -- 1/0	; is Hex number?
 ::isBin | adr -- 1/0 ; is Bin number?
 ::isNro | adr - 1/0 ; is Number?
+::scanp | adr "str" -- adr'/0
+::scanstr | adr 'str -- adr'
+::scannro | adr 'nro -- adr'
+::scanc | c adr -- adr'/0
+::scann | adr "str" -- adr'
 
 sys.r3
 ^^^^^^

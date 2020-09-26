@@ -177,7 +177,7 @@
 ::>>0 | adr -- adr' ; pasa 0
 	( c@+ 1? drop ) drop ;
 
-::only13 | adr -- ; remove 10..reeplace winth 13
+::only13 | adr -- ; remove 10..reeplace with 13
 	dup
 	( c@+ 1?
 		13 =? ( over c@	10 =? ( rot 1 + rot rot ) drop )
@@ -185,5 +185,5 @@
 		rot c!+ swap ) nip
 	swap c! ;
 
-::>>sp | adr -- adr'	; proximo espacio
+::>>sp | adr -- adr'	; next space
 	( c@+ $ff and 32 >? drop ) drop 1 - ;
