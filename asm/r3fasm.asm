@@ -47,7 +47,7 @@ SYSEND:
   invoke SDL_Quit
   add rsp,40
   ret
- 
+
 ;----- CODE -----
 include 'code.asm'
 ;----- CODE -----
@@ -143,7 +143,7 @@ uptext: ;keychar=*(int*)evt.text.text;break;
 SYSMSEC: ;  ( -- msec )
   add rbp,8
   mov [rbp],rax
-  invoke GetTickCount
+  cinvoke64 GetTickCount
 ;  cinvoke64 SDL_GetTicks
   ret
 
@@ -291,14 +291,14 @@ SYSYSTEM:
 ;	TOS=(int64_t)Mix_LoadWAV((char *)TOS);
 ; #define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
 SYSSLOAD:
-;	invoke SDL_RWFromFile,rax,"rb"
-;	invoke Mix_LoadWAV_RW,rax,1
+	cinvoke64 SDL_RWFromFile,rax,"rb"
+	cinvoke64 Mix_LoadWAV_RW,rax,1
 	ret
 
 ;===============================================
 ;	TOS=(int64_t)Mix_LoadMUS((char *)TOS);
 SYSMLOAD:
-	invoke Mix_LoadMUS,rax
+	cinvoke64 Mix_LoadMUS,rax
     ret
 
 ;===============================================
@@ -309,13 +309,13 @@ SYSMLOAD:
 SYSSPLAY:
 	or rax,rax
 	jz .halt
-;	invoke Mix_PlayChannelTimed,-1,rax,0,-1
+	cinvoke64 Mix_PlayChannelTimed,-1,rax,0,-1
 	jmp .end
 .halt:
 	mov rcx,8
 .lc:
 	sub rcx,1
-;	invoke Mix_HaltChannel,rcx
+	cinvoke64 Mix_HaltChannel,rcx
 	or rcx,rcx
 	jnz .lc
 .end:
@@ -331,10 +331,10 @@ SYSSPLAY:
 SYSMPLAY:
 	or rax,rax
 	jz .halt
-	invoke Mix_PlayMusic,rax,0
+	cinvoke64 Mix_PlayMusic,rax,0
 	jmp .end
 .halt:
-	invoke Mix_HaltMusic
+	cinvoke64 Mix_HaltMusic
 .end:
 	mov rax,[rbp-8]
 	sub rbp,8
@@ -343,7 +343,7 @@ SYSMPLAY:
 ;===============================================
 ;    	Mix_FreeChunk((Mix_Chunk *)TOS);
 SYSSFREE:
-	invoke Mix_FreeChunk,rax
+	cinvoke64 Mix_FreeChunk,rax
 	mov rax,[rbp-8]
 	sub rbp,8
 	ret
@@ -351,7 +351,7 @@ SYSSFREE:
 ;===============================================
 ;    	Mix_FreeMusic((Mix_Music *)TOS);
 SYSMFREE:
-	invoke Mix_FreeMusic,rax
+	cinvoke64 Mix_FreeMusic,rax
 	mov rax,[rbp-8]
 	sub rbp,8
 	ret
