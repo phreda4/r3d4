@@ -1,4 +1,4 @@
-|DELTA - MC 2020
+ |DELTA - MC 2020
 |--
 |Ship sprites from Jacob Zinman-Jeanes:
 |  http://gamedev.tutsplus.com/articles/news/enjoy-these-totally-free-space-based-shoot-em-up-sprites/
@@ -37,11 +37,14 @@
 #curframe 0
 #lastbullet 0
 
-#nen 32     | up to a hundred
+#nen 8      | up to a hundred
 #enx * 400  | (4 * nen)
 #eny * 400  | 
+#senx #seny | sum(enx), sum(eny)
 #envx * 400 | 
-#envy * 400 | 
+#envy * 400 |
+#senvx #senvy | sum(envx), sum(envy)
+
 #v1x * 400  | Boids rule 1
 #v1y * 400  | 
 #v2x * 400  | Boids rule 2
@@ -153,7 +156,80 @@
 	     enemyi rot- spr_enemy ssprite
 	     1 + ) drop ;
 
-:moveenemies | ( -- )       x' = x + vx          y' = y + vy          BUG BUG
+:boidprep | ( -- )
+	  0 'senx !
+	  0 'seny !
+	  0 'senvx !
+	  0 'senvy !
+	  0 ( nen <? dup 2 << 'enx + @ 'senx +! 1 + ) drop
+	  0 ( nen <? dup 2 << 'eny + @ 'seny +! 1 + ) drop
+	  0 ( nen <? dup 2 << 'envx + @ 'senvx +! 1 + ) drop
+	  0 ( nen <? dup 2 << 'envy + @ 'senvy +! 1 + ) drop ;
+
+:rule1x | ( i -- )
+       2 << dup                             | i i
+       'enx + @                             | i bx
+       nen 16 << *. senx swap -             | i (senx - N*bx)
+       nen 1 - 100 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
+       swap 'v1x + ! ;
+
+:rule1y | ( i -- )
+       2 << dup                             | i i
+       'eny + @                             | i bx
+       nen 16 << *. seny swap -             | i (senx - N*bx)
+       nen 1 - 100 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
+       swap 'v1y + ! ;
+
+| put values in (v1x, v1y)
+:rule1 | ( -- )
+       0 ( nen <? dup
+       dup rule1x rule1y
+       1 + ) drop ;
+
+:rule2 ;
+
+:rule3x | ( i -- )
+       2 << dup                      | i i
+       'envx + @                     | i bvx
+       nen 16 << *. senvx swap -     | i (senvx - N*bvx)
+       nen 1 - 100 * 16 << /.        | i ((senvx - N*bvx)/((N-1)*100))
+       swap 'v2x + ! ;
+
+:rule3y | ( i -- )
+       2 << dup                      | i i
+       'envy + @                     | i bvy
+       nen 16 << *. senvy swap -     | i (senvy - N*bvy)
+       nen 1 - 8 * 16 << /.          | i ((senvy - N*bvy)/((N-1)*8))
+       swap 'v2y + ! ;
+
+:rule3 | ( -- )
+       0 ( nen <? dup
+       dup rule3x rule3y
+       1 + ) drop ;
+
+:sumrulex | ( -- )
+	  2 << dup dup dup   | i i i i
+	  'v1x + @           | i i i v1
+	  swap 'v2x + @      | i i v1 v2
+	  rot 'v3x + @ + +   | 
+	  swap 'envx + ! ;
+
+:sumruley | ( -- )
+	  2 << dup dup dup   | i i i i
+	  'v1y + @           | i i i v1
+	  swap 'v2y + @      | i i v1 v2
+	  rot 'v3y + @ + +   | 
+	  swap 'envy + ! ;
+
+:sumrule | ( -- ) add up rules
+	 0 ( nen <? dup
+	 dup sumrulex sumruley
+	 1 + ) drop ;
+	 
+:moveenemies | ( -- )       x' = x + vx          y' = y + vy
+	     boidprep
+	     rule1 rule2 rule3
+	     sumrule
 	     0 ( nen <? dup
 	       dup
 	       2 << dup 'enx + dup @ rot 'envx + @ + swap !
