@@ -10,13 +10,14 @@
 |  https://github.com/jakesgordon/javascript-delta
 |--
 |MEM 2048
-|SCR 800 450
+|SCR 1600 900
 
 ^r3/lib/gui.r3
 ^r3/lib/sys.r3
 ^r3/lib/mem.r3
 ^r3/lib/print.r3
 ^r3/lib/sprite.r3
+^r3/lib/math.r3
 ^r3/util/loadimg.r3
 
 | bullet format: 12 bits for x, 12 bits for y
@@ -37,7 +38,7 @@
 #curframe 0
 #lastbullet 0
 
-#nen 8      | up to a hundred
+#nen 32      | up to a hundred
 #enx * 400  | (4 * nen)
 #eny * 400  | 
 #senx #seny | sum(enx), sum(eny)
@@ -186,7 +187,32 @@
        dup rule1x rule1y
        1 + ) drop ;
 
-:rule2 ;
+:sq dup *. ;
+
+:getdxdy | ( i j -- dx*dx dy*dy )
+	 2dup             | i j i j
+	 2 << 'enx + @    | i j i enxj
+	 swap             | i j enxj i
+	 2 << 'enx + @    | i j enxj enxi
+	 - sq             | i j dx
+	 rot
+	 2 << 'eny + @    | j dx enyi
+	 rot
+	 2 << 'eny + @    | dx enyi enyj
+	 - sq             | dx dy
+	 ;
+
+:rule2helper | ( i j -- )
+	     2dup =? ( 3drop ; ) drop | stop if i==j
+	     2dup getdxdy + 100.0 >? ( 3drop ; ) drop
+	     "(%d, %d)" print ;
+
+:rule2 0 ( nen <?
+              0 ( nen <?
+	      	2dup rule2helper
+       	      1 + ) drop
+	      cr
+       1 + ) drop ;
 
 :rule3x | ( i -- )
        2 << dup                      | i i
@@ -267,11 +293,11 @@
 	    1 + ) drop ;
 
 :ranenex sw 3 /
-	 rand abs sw 6 / mod +
+	 rand abs sw 3 / mod +
 	 16 << ;
 
 :raneney sh 3 /
-	 rand abs sh 6 / mod +
+	 rand abs sh 3 / mod +
 	 16 << ;
 
 :ranenevx 1.25 ;
