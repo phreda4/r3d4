@@ -1,4 +1,4 @@
- |DELTA - MC 2020
+|DELTA - MC 2020
 |--
 |Ship sprites from Jacob Zinman-Jeanes:
 |  http://gamedev.tutsplus.com/articles/news/enjoy-these-totally-free-space-based-shoot-em-up-sprites/
@@ -38,12 +38,15 @@
 #curframe 0
 #lastbullet 0
 
-#nen 32      | up to a hundred
+#nen 32     | up to a hundred
+
 #enx * 400  | (4 * nen)
 #eny * 400  | 
-#senx #seny | sum(enx), sum(eny)
+
 #envx * 400 | 
 #envy * 400 |
+
+#senx #seny   | sum(enx), sum(eny)
 #senvx #senvy | sum(envx), sum(envy)
 
 #v1x * 400  | Boids rule 1
@@ -99,9 +102,8 @@
 :printbullets home
 	      abullets "Active %d" print cr 
 	      nbullets "Total  %d" print cr
-	      3.4 7.8 + dup "%f" print cr
-	      16 >> "%d" print cr
-	      3.4 7.8 *. "%f" print cr ;
+	      senvx senvy "Sum speed: %f %f" print cr
+	      envx envy "Sum position: %f %f" print cr ;
 
 :packbullet 12 << or ;
 
@@ -165,7 +167,14 @@
 	  0 ( nen <? dup 2 << 'enx + @ 'senx +! 1 + ) drop
 	  0 ( nen <? dup 2 << 'eny + @ 'seny +! 1 + ) drop
 	  0 ( nen <? dup 2 << 'envx + @ 'senvx +! 1 + ) drop
-	  0 ( nen <? dup 2 << 'envy + @ 'senvy +! 1 + ) drop ;
+	  0 ( nen <? dup 2 << 'envy + @ 'senvy +! 1 + ) drop
+	  
+	  0 ( nen <? dup 2 << 'v1x + 0.0 swap ! 1 + ) drop
+	  0 ( nen <? dup 2 << 'v1y + 0.0 swap ! 1 + ) drop
+	  0 ( nen <? dup 2 << 'v2x + 0.0 swap ! 1 + ) drop
+	  0 ( nen <? dup 2 << 'v2y + 0.0 swap ! 1 + ) drop
+	  0 ( nen <? dup 2 << 'v3x + 0.0 swap ! 1 + ) drop
+	  0 ( nen <? dup 2 << 'v3y + 0.0 swap ! 1 + ) drop ;
 
 :rule1x | ( i -- )
        2 << dup                             | i i
@@ -189,24 +198,31 @@
 
 :sq dup *. ;
 
-:getdxdy | ( i j -- dx*dx dy*dy )
+:neg -1.0 *. ;
+
+:getdxdy | ( i j -- dx dy )
 	 2dup             | i j i j
 	 2 << 'enx + @    | i j i enxj
 	 swap             | i j enxj i
 	 2 << 'enx + @    | i j enxj enxi
-	 - sq             | i j dx
+	 -                | i j dx
 	 rot
 	 2 << 'eny + @    | j dx enyi
 	 rot
 	 2 << 'eny + @    | dx enyi enyj
-	 - sq             | dx dy
+	 -                | dx
 	 ;
 
 :rule2helper | ( i j -- )
-	     2dup =? ( 3drop ; ) drop | stop if i==j
-	     2dup getdxdy + 100.0 >? ( 3drop ; ) drop
+	     2dup =? ( 3drop ; ) drop                                        | stop if i==j
+	     2dup getdxdy 2dup sq swap sq + 1600.0 >? ( 2drop 3drop ; ) drop | stop if too far away
+	     pick3 2 << dup
+	     rot
+	     swap 'v2y + dup @ rot - swap !
+	     'v2x + dup @ rot - swap !
 	     "(%d, %d)" print ;
-
+	     2drop ;
+	     
 :rule2 0 ( nen <?
               0 ( nen <?
 	      	2dup rule2helper
@@ -215,22 +231,22 @@
        1 + ) drop ;
 
 :rule3x | ( i -- )
-       2 << dup                      | i i
-       'envx + @                     | i bvx
-       nen 16 << *. senvx swap -     | i (senvx - N*bvx)
-       nen 1 - 100 * 16 << /.        | i ((senvx - N*bvx)/((N-1)*100))
-       swap 'v2x + ! ;
+       2 << dup                      | 4*i 4*i
+       'envx + @                     | 4*i bvx
+       nen 16 << *. senvx swap -     | 4*i (senvx - N*bvx)
+       nen 1 - 8 * 16 << /.          | 4*i ((senvx - N*bvx)/((N-1)*8))
+       swap 'v3x + ! ;
 
 :rule3y | ( i -- )
        2 << dup                      | i i
        'envy + @                     | i bvy
        nen 16 << *. senvy swap -     | i (senvy - N*bvy)
        nen 1 - 8 * 16 << /.          | i ((senvy - N*bvy)/((N-1)*8))
-       swap 'v2y + ! ;
+       swap 'v3y + ! ;
 
 :rule3 | ( -- )
        0 ( nen <? dup
-       dup rule3x rule3y
+       	 dup rule3x rule3y
        1 + ) drop ;
 
 :sumrulex | ( -- )
@@ -306,8 +322,7 @@
 
 :iniene | ( -- ) Initialize enemy coordinates
 	0 ( nen <? dup
-	2 <<
-	dup
+	2 << dup
 	'enx + ranenex swap !
 	dup
 	'eny + raneney swap !
@@ -329,10 +344,10 @@
 :game cls
       keyboard
       bpen 1? ( shootbullet ) drop
-      printbullets
       drawstars
       drawenemy
       drawenemies moveenemies
+      printbullets
       drawexplosion
       xypen drawship
       drawbullets movebullets fixbullets
