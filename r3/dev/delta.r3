@@ -38,7 +38,7 @@
 #curframe 0
 #lastbullet 0
 
-#nen 32     | up to a hundred
+#nen 16     | up to a hundred
 
 #enx * 400  | (4 * nen)
 #eny * 400  | 
@@ -215,7 +215,7 @@
 
 :rule2helper | ( i j -- )
 	     2dup =? ( 3drop ; ) drop                                        | stop if i==j
-	     2dup getdxdy 2dup sq swap sq + 1600.0 >? ( 2drop 3drop ; ) drop | stop if too far away
+	     2dup getdxdy 2dup sq swap sq + 200.0 >? ( 2drop 3drop ; ) drop | stop if too far away
 	     pick3 2 << dup
 	     rot
 	     swap 'v2y + dup @ rot - swap !
@@ -234,14 +234,14 @@
        2 << dup                      | 4*i 4*i
        'envx + @                     | 4*i bvx
        nen 16 << *. senvx swap -     | 4*i (senvx - N*bvx)
-       nen 1 - 8 * 16 << /.          | 4*i ((senvx - N*bvx)/((N-1)*8))
+       nen 1 - 16 * 16 << /.          | 4*i ((senvx - N*bvx)/((N-1)*16))
        swap 'v3x + ! ;
 
 :rule3y | ( i -- )
        2 << dup                      | i i
        'envy + @                     | i bvy
        nen 16 << *. senvy swap -     | i (senvy - N*bvy)
-       nen 1 - 8 * 16 << /.          | i ((senvy - N*bvy)/((N-1)*8))
+       nen 1 - 16 * 16 << /.          | i ((senvy - N*bvy)/((N-1)*16))
        swap 'v3y + ! ;
 
 :rule3 | ( -- )
@@ -254,14 +254,14 @@
 	  'v1x + @           | i i i v1
 	  swap 'v2x + @      | i i v1 v2
 	  rot 'v3x + @ + +   | 
-	  swap 'envx + ! ;
+	  swap 'envx + dup @ rot + swap ! ;
 
 :sumruley | ( -- )
 	  2 << dup dup dup   | i i i i
 	  'v1y + @           | i i i v1
 	  swap 'v2y + @      | i i v1 v2
 	  rot 'v3y + @ + +   | 
-	  swap 'envy + ! ;
+	  swap 'envy + dup @ rot + swap ! ;
 
 :sumrule | ( -- ) add up rules
 	 0 ( nen <? dup
