@@ -26,11 +26,10 @@
 	cls home
 	$ff00 'ink !
 
-	$7fffffffffffffff "%d" print
+	"hola" emits
 	key >esc< =? ( exit ) drop
 	;
 :
-
 	'main onshow
 ;
 
