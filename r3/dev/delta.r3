@@ -9,6 +9,9 @@
 |mp3 files from:
 |  https://github.com/jakesgordon/javascript-delta
 |--
+| boids info from:
+|  http://www.kfish.org/boids/pseudocode.html
+|--
 |MEM 2048
 |SCR 1600 900
 
@@ -38,23 +41,25 @@
 #curframe 0
 #lastbullet 0
 
-#nen 16     | up to a hundred
+#nen 16     | 
 
-#enx * 400  | (4 * nen)
-#eny * 400  | 
+#enx * 64  | (4 * nen)
+#eny * 64  | 
 
-#envx * 400 | 
-#envy * 400 |
+#envx * 64 | 
+#envy * 64 |
 
 #senx #seny   | sum(enx), sum(eny)
 #senvx #senvy | sum(envx), sum(envy)
 
-#v1x * 400  | Boids rule 1
-#v1y * 400  | 
-#v2x * 400  | Boids rule 2
-#v2y * 400  | 
-#v3x * 400  | Boids rule 3
-#v3y * 400  | 
+#v1x * 64  | Boids rule 1
+#v1y * 64  | 
+#v2x * 64  | Boids rule 2
+#v2y * 64  | 
+#v3x * 64  | Boids rule 3
+#v3y * 64  | 
+#v4x * 64  | Boids rule 4
+#v4y * 64  | 
 
 :rot- rot rot ; | ( a b c -- c a b )
 
@@ -174,23 +179,25 @@
 	  0 ( nen <? dup 2 << 'v2x + 0.0 swap ! 1 + ) drop
 	  0 ( nen <? dup 2 << 'v2y + 0.0 swap ! 1 + ) drop
 	  0 ( nen <? dup 2 << 'v3x + 0.0 swap ! 1 + ) drop
-	  0 ( nen <? dup 2 << 'v3y + 0.0 swap ! 1 + ) drop ;
+	  0 ( nen <? dup 2 << 'v3y + 0.0 swap ! 1 + ) drop
+	  0 ( nen <? dup 2 << 'v4x + 0.0 swap ! 1 + ) drop
+	  0 ( nen <? dup 2 << 'v4y + 0.0 swap ! 1 + ) drop ;
 
 :rule1x | ( i -- )
        2 << dup                             | i i
        'enx + @                             | i bx
        nen 16 << *. senx swap -             | i (senx - N*bx)
-       nen 1 - 100 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
+       nen 1 - 200 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
        swap 'v1x + ! ;
 
 :rule1y | ( i -- )
        2 << dup                             | i i
        'eny + @                             | i bx
        nen 16 << *. seny swap -             | i (senx - N*bx)
-       nen 1 - 100 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
+       nen 1 - 200 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
        swap 'v1y + ! ;
 
-| put values in (v1x, v1y)
+| boids try to fly towards the centre of mass of neighbouring boids
 :rule1 | ( -- )
        0 ( nen <? dup
        dup rule1x rule1y
@@ -214,15 +221,15 @@
 	 ;
 
 :rule2helper | ( i j -- )
-	     2dup =? ( 3drop ; ) drop                                        | stop if i==j
-	     2dup getdxdy 2dup sq swap sq + 200.0 >? ( 2drop 3drop ; ) drop | stop if too far away
+	     2dup =? ( 3drop ; ) drop                                       | stop if i==j
+	     2dup getdxdy 2dup sq swap sq + 1600.0 >? ( 2drop 3drop ; ) drop | stop if too far away
 	     pick3 2 << dup
 	     rot
 	     swap 'v2y + dup @ rot - swap !
 	     'v2x + dup @ rot - swap !
 	     "(%d, %d)" print ;
-	     2drop ;
-	     
+
+| Boids try to keep a small distance away from other boids
 :rule2 0 ( nen <?
               0 ( nen <?
 	      	2dup rule2helper
@@ -244,23 +251,47 @@
        nen 1 - 16 * 16 << /.          | i ((senvy - N*bvy)/((N-1)*16))
        swap 'v3y + ! ;
 
+| boids try to match velocity with near boids
 :rule3 | ( -- )
        0 ( nen <? dup
        	 dup rule3x rule3y
        1 + ) drop ;
 
+:rule4x | ( i -- )
+       2 << dup                 | 4*i 4*i
+       'enx + @                 | 4*i bx
+       sw 2 / 16 << swap -  | 4*i (xmouse-bx)
+       100.0 /.
+       swap 'v4x + ! ;
+
+:rule4y | ( i -- )
+       2 << dup                     | i i
+       'eny + @                     | i bvy
+       sh 2 / 16 << swap -  | 4*i (ymouse-by)
+       100.0 /.
+       swap 'v4y + ! ;
+
+| movement around center of the screen
+:rule4 0 ( nen <? dup
+       	 dup rule4x rule4y
+       1 + ) drop ;
+
 :sumrulex | ( -- )
-	  2 << dup dup dup   | i i i i
-	  'v1x + @           | i i i v1
-	  swap 'v2x + @      | i i v1 v2
-	  rot 'v3x + @ + +   | 
+	  2 << dup dup dup dup   | i i i i i
+	  'v1x + @               | i i i i v1
+	  swap 'v2x + @ +        | i i i (v1+v2)
+	  swap 'v3x + @ +        | i i (v1+v2+v3)
+	  swap 'v4x + @ +        | i (v1+v2+v3+v4)
+	  64.0 /.                | slow it down!
 	  swap 'envx + dup @ rot + swap ! ;
 
 :sumruley | ( -- )
-	  2 << dup dup dup   | i i i i
-	  'v1y + @           | i i i v1
-	  swap 'v2y + @      | i i v1 v2
-	  rot 'v3y + @ + +   | 
+	  2 << dup dup dup dup   | i i i i i
+	  'v1y + @               | i i i i v1
+	  swap 'v2y + @ +        | i i i (v1+v2)
+	  swap 'v3y + @ +        | i i (v1+v2+v3)
+	  swap 'v4y + @ +        | i (v1+v2+v3+v4)
+	  64.0 /.                | slow it down!
 	  swap 'envy + dup @ rot + swap ! ;
 
 :sumrule | ( -- ) add up rules
@@ -270,7 +301,7 @@
 	 
 :moveenemies | ( -- )       x' = x + vx          y' = y + vy
 	     boidprep
-	     rule1 rule2 rule3
+	     rule1 rule2 rule3 rule4
 	     sumrule
 	     0 ( nen <? dup
 	       dup
@@ -308,17 +339,17 @@
 	    dup 'bullets nth @ unpackbullet drop sw >? ( drop shiftbullets drop ; ) 2drop
 	    1 + ) drop ;
 
-:ranenex sw 3 /
-	 rand abs sw 3 / mod +
+:ranenex sw 2 /
+	 rand abs sw 2 / mod +
 	 16 << ;
 
-:raneney sh 3 /
-	 rand abs sh 3 / mod +
+:raneney sh 4 /
+	 rand abs sh 4 / mod +
 	 16 << ;
 
-:ranenevx 1.25 ;
+:ranenevx 0.1 ;
 
-:ranenevy 1.25 ;
+:ranenevy 0.1 ;
 
 :iniene | ( -- ) Initialize enemy coordinates
 	0 ( nen <? dup
