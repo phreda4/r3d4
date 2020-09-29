@@ -106,10 +106,8 @@
 
 :printbullets home
 	      abullets "Active %d" print cr 
-	      nbullets "Total  %d" print cr
-	      senvx senvy "Sum speed: %f %f" print cr
-	      envx envy "Sum position: %f %f" print cr ;
-
+	      nbullets "Total  %d" print cr ;
+	      
 :packbullet 12 << or ;
 
 :newbullet | ( -- )
@@ -133,12 +131,6 @@
 	    dup %1111 and
 	    swap dup 16 >>
 	    swap 4 >> %111111111111 and ;
-
-:drawenemy | ( x y -- )
-	    'stars @ unpackstar
-	    enemyi rot- spr_enemy ssprite
-	    drop                             | drop speed
-	    enemyi 1 + enemyn mod 'enemyi ! ;
 
 :drawexplosion | ( x y -- )
 	       'stars 4 + @ unpackstar
@@ -165,15 +157,12 @@
 	     1 + ) drop ;
 
 :boidprep | ( -- )
-	  0 'senx !
-	  0 'seny !
-	  0 'senvx !
-	  0 'senvy !
+	  0 'senx ! 0 'seny !
+	  0 'senvx ! 0 'senvy !
 	  0 ( nen <? dup 2 << 'enx + @ 'senx +! 1 + ) drop
 	  0 ( nen <? dup 2 << 'eny + @ 'seny +! 1 + ) drop
 	  0 ( nen <? dup 2 << 'envx + @ 'senvx +! 1 + ) drop
 	  0 ( nen <? dup 2 << 'envy + @ 'senvy +! 1 + ) drop
-	  
 	  0 ( nen <? dup 2 << 'v1x + 0.0 swap ! 1 + ) drop
 	  0 ( nen <? dup 2 << 'v1y + 0.0 swap ! 1 + ) drop
 	  0 ( nen <? dup 2 << 'v2x + 0.0 swap ! 1 + ) drop
@@ -187,14 +176,14 @@
        2 << dup                             | i i
        'enx + @                             | i bx
        nen 16 << *. senx swap -             | i (senx - N*bx)
-       nen 1 - 200 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
+       nen 1 - 100 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
        swap 'v1x + ! ;
 
 :rule1y | ( i -- )
        2 << dup                             | i i
        'eny + @                             | i bx
        nen 16 << *. seny swap -             | i (senx - N*bx)
-       nen 1 - 200 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
+       nen 1 - 100 * 16 << /.               | i ((senx - N*bx)/((N-1)*100))
        swap 'v1y + ! ;
 
 | boids try to fly towards the centre of mass of neighbouring boids
@@ -214,15 +203,15 @@
 	 2 << 'enx + @    | i j enxj enxi
 	 -                | i j dx
 	 rot
-	 2 << 'eny + @    | j dx enyi
+	 2 << 'eny + @
 	 rot
-	 2 << 'eny + @    | dx enyi enyj
-	 -                | dx
+	 2 << 'eny + @
+	 -
 	 ;
 
 :rule2helper | ( i j -- )
-	     2dup =? ( 3drop ; ) drop                                       | stop if i==j
-	     2dup getdxdy 2dup sq swap sq + 1600.0 >? ( 2drop 3drop ; ) drop | stop if too far away
+	     2dup =? ( 3drop ; ) drop                                        | stop if i==j
+	     2dup getdxdy 2dup sq swap sq + 6400.0 >? ( 2drop 3drop ; ) drop | stop if too far away
 	     pick3 2 << dup
 	     rot
 	     swap 'v2y + dup @ rot - swap !
@@ -241,14 +230,14 @@
        2 << dup                      | 4*i 4*i
        'envx + @                     | 4*i bvx
        nen 16 << *. senvx swap -     | 4*i (senvx - N*bvx)
-       nen 1 - 16 * 16 << /.          | 4*i ((senvx - N*bvx)/((N-1)*16))
+       nen 1 - 16 * 16 << /.         | 4*i ((senvx - N*bvx)/((N-1)*16))
        swap 'v3x + ! ;
 
 :rule3y | ( i -- )
        2 << dup                      | i i
        'envy + @                     | i bvy
        nen 16 << *. senvy swap -     | i (senvy - N*bvy)
-       nen 1 - 16 * 16 << /.          | i ((senvy - N*bvy)/((N-1)*16))
+       nen 1 - 16 * 16 << /.         | i ((senvy - N*bvy)/((N-1)*16))
        swap 'v3y + ! ;
 
 | boids try to match velocity with near boids
@@ -258,16 +247,16 @@
        1 + ) drop ;
 
 :rule4x | ( i -- )
-       2 << dup                 | 4*i 4*i
-       'enx + @                 | 4*i bx
-       sw 2 / 16 << swap -  | 4*i (xmouse-bx)
+       2 << dup             | 4*i 4*i
+       'enx + @             | 4*i bx
+       sw 2 / 16 << swap -  | 4*i (sw/2-bx)
        100.0 /.
        swap 'v4x + ! ;
 
 :rule4y | ( i -- )
-       2 << dup                     | i i
-       'eny + @                     | i bvy
-       sh 2 / 16 << swap -  | 4*i (ymouse-by)
+       2 << dup             | i i
+       'eny + @             | i by
+       sh 2 / 16 << swap -  | 4*i (sh/2-by)
        100.0 /.
        swap 'v4y + ! ;
 
@@ -282,7 +271,7 @@
 	  swap 'v2x + @ +        | i i i (v1+v2)
 	  swap 'v3x + @ +        | i i (v1+v2+v3)
 	  swap 'v4x + @ +        | i (v1+v2+v3+v4)
-	  64.0 /.                | slow it down!
+	  1024.0 /.              | slow it down!
 	  swap 'envx + dup @ rot + swap ! ;
 
 :sumruley | ( -- )
@@ -291,7 +280,7 @@
 	  swap 'v2y + @ +        | i i i (v1+v2)
 	  swap 'v3y + @ +        | i i (v1+v2+v3)
 	  swap 'v4y + @ +        | i (v1+v2+v3+v4)
-	  64.0 /.                | slow it down!
+	  1024.0 /.              | slow it down!
 	  swap 'envy + dup @ rot + swap ! ;
 
 :sumrule | ( -- ) add up rules
@@ -339,8 +328,8 @@
 	    dup 'bullets nth @ unpackbullet drop sw >? ( drop shiftbullets drop ; ) 2drop
 	    1 + ) drop ;
 
-:ranenex sw 2 /
-	 rand abs sw 2 / mod +
+:ranenex sw 4 /
+	 rand abs sw 4 / mod +
 	 16 << ;
 
 :raneney sh 4 /
@@ -376,7 +365,6 @@
       keyboard
       bpen 1? ( shootbullet ) drop
       drawstars
-      drawenemy
       drawenemies moveenemies
       printbullets
       drawexplosion
