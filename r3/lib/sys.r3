@@ -22,6 +22,13 @@
 ::waitesc
 	'wk onshow ;
 
+#mwait
+
+::framelimit | fps --
+	( msec mwait <? drop )
+	1000 rot / + 'mwait !
+	;
+
 ##path * 1024
 
 | extrat path from string, keep in path var
