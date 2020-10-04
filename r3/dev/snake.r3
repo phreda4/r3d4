@@ -2,7 +2,6 @@
 | PHREDA 2020
 
 ^r3/lib/gui.r3
-^r3/lib/trace.r3
 
 #gs 20	| box size
 #tc 20	| arena size

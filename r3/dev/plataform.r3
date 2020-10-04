@@ -1,4 +1,4 @@
-| test plataform game
+ | test plataform game
 | PHREDA 2020
 |
 ^r3/lib/gui.r3
@@ -92,13 +92,11 @@
 
 :goleft
 	$10 wall? 0? ( drop ; ) drop
-	0 'ddx !
 	xp $fff00000 and 'xp !
 	drop 0 ;
 
 :gorigth
 	-$8 wall? 0? ( drop ; ) drop
-	0 'ddx !
 	xp $fff00000 and 'xp !
 	drop 0 ;
 

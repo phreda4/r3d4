@@ -81,8 +81,8 @@
 
 ::r3-stage-1 | filename str -- err/0
 	0 'switchfull !
-	640 'switchresx	!
-	480 'switchresy !
+	800 'switchresx	!
+	600 'switchresy !
 	$fff 'switchmem !
 	includes
 	inc> 'inc - 3 >> 'cntinc !

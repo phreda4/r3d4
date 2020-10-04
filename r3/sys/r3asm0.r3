@@ -591,12 +591,12 @@
 
 :gQ!
 	"mov rcx,[rbp]" ,ln
-	"mov [rax],rcx" ,ln ,2DROP ;
+	"mov qword[rax],rcx" ,ln ,2DROP ;
 :oQ!
-	"mov [" ,s ,TOS "],rax" ,ln ,DROP ;
+	"mov qword[" ,s ,TOS "],rax" ,ln ,DROP ;
 :oQ!v
 	varget
-	"mov [" ,s ,TOS "],rax" ,ln ,DROP ;
+	"mov qword[" ,s ,TOS "],rax" ,ln ,DROP ;
 
 :g!+
 	"mov rcx,[rbp]" ,ln

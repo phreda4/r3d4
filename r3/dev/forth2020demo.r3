@@ -20,8 +20,8 @@
 #spr_enemy
 #spr_explosion
 
-#snd_shoot
-#snd_explosion
+#snd_shoot 0 0
+#snd_explosion 0 0
 
 #xp 40.0 #yp 100.0
 #vxp #vyp
@@ -53,7 +53,7 @@
 	xa 16 >> 10 - 'xss !
 	ya 16 >> 10 - 'yss !
 	0 'nss !
-	snd_explosion splay
+	'snd_explosion q@ splay
 	;
 
 :newovni
@@ -73,17 +73,17 @@
 	xs 0? ( drop ; ) drop
 	7 'xs +!
 	xs sw >? ( 0 'xs ! drop ; ) drop
-	hit??
 	$ffffff 'ink !
 	xs ys op
 	xs 10 + ys line
+	hit??
 	;
 
 :+shoot
 	xs 1? ( drop ; ) drop
 	yp 16 >> 14 + 'ys !
 	xp 16 >> 30 + 'xs !
-	snd_shoot splay
+	'snd_shoot q@ splay
 	;
 
 :ovni | --
@@ -100,8 +100,8 @@
 	64 29 "media/img/Spritesheet_64x29.png" loadimg tileSheet 'spr_ship !
 	40 30 "media/img/eSpritesheet_40x30.png" loadimg tileSheet 'spr_enemy !
 	64 64 "media/img/explosion.png" loadimg tileSheet 'spr_explosion !
-	"media/snd/shoot.mp3" sload 'snd_shoot !
-	"media/snd/explode.mp3" sload 'snd_explosion !
+	"media/snd/shoot.mp3" sload 'snd_shoot q!
+	"media/snd/explode.mp3" sload 'snd_explosion q!
 	;
 
 #ss * 4096 |

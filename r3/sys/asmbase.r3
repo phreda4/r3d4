@@ -23,7 +23,7 @@
 #ma #mb
 #mex #mey
 
-##ink $ff00
+##ink $ffffff
 
 ##opx ##opy
 #pxBPP #pyBPP
@@ -168,9 +168,10 @@
 	pick2 - swap pick3 -		| y1 x1 dx dy
 	0? ( 4drop ; )
 	2swap					| dx dy y1 x1
+	a> >r
 	swap setxy ink a! 		| dx dy
 	swap sign rot rot abs	| sx dy dx
-	over <? ( nline21 ; )
+	over <? ( nline21 r> >a ; )
 	swap 16 << over / 		| sx dx ea
 	0 rot 					| sx ea ec dx
 	( 1? 1 - >r	| sx ea ec
@@ -179,7 +180,8 @@
 		dup 8 >> 		| sx ea ec ci
 		dup pxa sw 1 - 2 << a+
 		$ff xor pxa sw 1 + neg 2 << a+
-		r> ) 4drop ;
+		r> ) 4drop 
+	r> >a ;
 
 |*******************************
 ::OP | xy --
@@ -553,10 +555,10 @@
 |*******************************
 ::POLI
 	ymax -? ( drop endpoli ; )
+	a> b> rot
 	sh BPP << >? ( sh BPP << 'ymax ! ) drop
 	-activos
 	heapseg 16 >> dup | newy ymin
-	b> >r
 	0 over BPP >> setxy
 	( ymax <?
         clearscan
@@ -571,7 +573,7 @@
 			r> ) drop
 		runlencover ex
 		) 2drop
-	r> >b
+	>b >a
 	endpoli	;
 
 

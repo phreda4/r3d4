@@ -98,24 +98,21 @@
 :d2 8 >>> push.str ;
 :d3 8 >>> push.wrd ;
 
-#tcte d1 d1 d1 d1 d2 d3 d3 d3
-
-:emptycte
-	0 7 bt? ( 2 << 'tcte + @ ex code!+ ; )
-	2drop	|
-	0 push.nro
-	0 cte!+
-	"inline 0" slog trace
-	;
+#tcte d1 d1 d1 d1 d2 d3 d3 d3 d3
 
 :icte | adr word -- adr
 |	"; INLINE CTE" ,ln
-	dic>tok @ |*************   #v1 #v2 ..if v1 is cte then crash!!
+	dic>tok @
 	@ dup dup $ff and 7 -
-	emptycte ;
-|	-? ( "inline 0" slog trace ) 7 >? ( "inline 0" slog trace ) | stop!
-|	2 << 'tcte + @ ex
-|	code!+ ;
+	0 8 bt? ( 2 << 'tcte + @ ex code!+ ; )
+
+|*************   #v1 #v2 ..if v1 is cte then crash!!
+|	"inline 0" slog
+
+	3drop
+	0 push.nro
+	0 cte!+
+	;
 
 :ivar
 	getval
