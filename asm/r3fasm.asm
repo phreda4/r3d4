@@ -17,9 +17,9 @@ section '' code readable executable
 ;===============================================
 start:
   sub rsp,40
-  invoke SDL_Init,SDL_INIT_AUDIO+SDL_INIT_VIDEO ;****
   invoke Mix_OpenAudio,44100,AUDIO_S16SYS,2,1024
   invoke Mix_Init,8 ; mp3
+  invoke SDL_Init,SDL_INIT_AUDIO+SDL_INIT_VIDEO ;****
   invoke SDL_CreateWindow,_title,\
     SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,\
     XRES,YRES,0

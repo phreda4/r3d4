@@ -338,7 +338,7 @@
 :gQ!
 	'TOS cellI
 	NOS cellI
-	"mov [#0],#1" ,asm .2DROP ;
+	"mov qword[#0],#1" ,asm .2DROP ;
 
 :g!+
 	'TOS cellR
@@ -353,7 +353,7 @@
 :gQ!+
 	'TOS cellR
 	NOS cellA
-	"mov [#0],#1;add #0,8" ,asm .NIP ;
+	"mov qword[#0],#1;add #0,8" ,asm .NIP ;
 
 :g+!
 	'TOS cellR
