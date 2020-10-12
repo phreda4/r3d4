@@ -5,7 +5,7 @@
 ^r3/lib/sprite.r3
 
 
-#ship $2010010 | 16x16 paleta 8bits opaque, 4 colores
+#ship $3010010 | 16x16 paleta 8bits alpa, 4 colores
 $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 (
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -26,6 +26,19 @@ $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 0 1 1 0 0 0 0 0 0 0 0 0 0 1 1 0
 )
 
+#fire $3008008 | 8x8 paleta 8bits alpha, 4 colores
+$0 $ffffffff $ffffff00 $ffff0000
+(
+3 3 2 1 2 1 2 3
+3 3 2 1 3 2 3 3
+0 3 3 2 3 2 3 0
+0 0 3 3 3 3 0 0
+0 0 3 3 3 3 0 0
+0 0 3 0 3 3 0 0
+0 0 0 0 3 0 0 0
+0 0 0 0 0 0 0 0
+)
+
 #grd * 1024
 #fuel
 #px #py
@@ -35,8 +48,7 @@ $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 
 #adx #ady
 
-:makePlayer
-	;
+#astars * 1024
 
 :makeGround
 	'grd >a
@@ -44,8 +56,19 @@ $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 	sh 1 >>
 	256 ( 1? 1 - swap
 		rand sh 4 >> mod +
+		60 max
 		dup a!+
-		swap ) 2drop ;
+		swap ) 3drop ;
+
+:makeStars
+	'astars >a
+	256 ( 1? 1 -
+		rand sw mod abs
+		rand
+		over 256 sw */ 2 << 'grd + @
+		mod abs
+		16 << or a!+
+		) drop ;
 
 :reset
 	sw 1 >> 16 << 'px ! 10.0 'py !
@@ -53,12 +76,18 @@ $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 	1000 'fuel !
 	0.075 'pthrust !
 	0.025 'g !
-	makePlayer
 	makeGround
+	makeStars
 	;
 
 :stars
-	;
+	$ffffff 'ink !
+	'astars >b
+	100 ( 1? 1 -
+		b@+
+		dup $ffff and swap 16 >>
+		pset
+		) drop ;
 
 :keyboard
 	key
@@ -68,17 +97,12 @@ $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 	>up< =? ( 0 'ady ! )
 	>le< =? ( 0 'adx ! )
 	>ri< =? ( 0 'adx ! )
-	<f1> =? ( makeGround )
 	>esc< =? ( exit )
 	drop ;
 
 :player
 	fuel 0? (
 		0 'adx ! 0 'ady !
-		) drop
-
-	adx ady or 1? (
-		-1 'fuel +!
 		) drop
 
 	ady g + 'pdy +!
@@ -93,7 +117,15 @@ $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 	-3 <? ( -3 'py ! 0 'pdy ! )
 	drop
 
-	px 16 >> py 16 >> 'ship sprite
+	px 16 >> py 16 >>
+	'ship sprite
+
+	adx ady or 0? ( drop ; ) drop
+
+	-1 'fuel +!
+	px 16 >> 4 + py 16 >> 10 +
+	msec $7 and +
+	'fire sprite
 	;
 
 
@@ -105,18 +137,24 @@ $0 $ff00ff00 $ff0000ff 0  | color0 color1 color2 color3
 		dup sw 255 */ a@+ line
 		) drop ;
 
+:hitground? | -- +/-
+	px sw / 8 >>
+	2 << 'grd + @
+	py 16 >> -
+	;
+
 :main
 	cls home
 	$ffffff 'ink !
-	fuel "%d" print
+	fuel "%d" print cr
 	stars
 	ground
 	player
-
+	hitground? -? ( reset ) drop
 	keyboard
 	;
 
 
-: reset 'main onshow ;
+: rerand reset 'main onshow ;
 
 
