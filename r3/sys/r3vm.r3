@@ -602,7 +602,7 @@
 		) drop 	;
 
 :printpila
-	q@ " %h " sprint $3f6fAf bprint ;
+	q@ " %d " sprint $3f6fAf bprint ;
 
 ::showvstack
 	NOS 16 +
@@ -617,8 +617,8 @@
 	RTOS 'RSP - 3 >>
 	14 min
 	( 1? swap 8 -
-		cols 1 - rows 1 - pick3 - gotoxy
-		"r" $3f6fAf bprint
+		cols 3 - rows 1 - pick3 - gotoxy
+		" r " $3f6fAf bprint
 |		dup printpila
 		swap 1 - ) 2drop
 	cols 34 - rows 1 - gotoxy
