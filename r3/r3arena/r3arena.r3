@@ -1,4 +1,5 @@
 | r3 arena
+| CPU1
 | PHREDA 2020
 |---------------------
 | multi machine simulator
@@ -18,11 +19,11 @@
 | MACHINE R3
 
 #r3mac
-"JMP"   | 16 bits
+"JMP"   	| 16 bits
 "CALL"
 "LIT16"
-"LIT32"	| 32 bits
-"JZ"	| 2 bytes
+"LIT16u"
+"JZ"		| 2 bytes
 "JNZ"
 "JP"
 "JN"
@@ -127,8 +128,10 @@
 	8 << 16 >> DPUSH
 	2 + ;
 
-:iLIT24	| 32 bits
-	8 >> DPUSH
+:iLIT16u	| 32 bits
+	8 << $ffff0000 and
+	DPOP $ffff and or
+	DPUSH
 	3 + ;
 :iJZ	| 2 bytes
 	TOS 1? ( JMPC ) ;
