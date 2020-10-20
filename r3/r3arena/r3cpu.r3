@@ -6,16 +6,10 @@
 |
 | Memory Map for every CPU
 |--------------------
-| 00-OP
-	 vvvvvv viiiiiii
-| 01-LIT
-|	 vvvvvv vvvvvvvv
-| 10-JMP
-|    xxxx cond
-|        aa aaaaaaaa
-| 11-CALL
-|    xxxx cond
-|        aa aaaaaaaa
+| OP	vvvvvv  viiiiiii 00
+| LIT	vvvvvv  vvvvvvvv 01
+| JMP	xxxx aa aaaaaaaa 10
+| CALL	xxxx aa aaaaaaaa 11
 
 | 10 bit adress	- 1kb
 | 14 bit literal load -
@@ -44,57 +38,110 @@
 "RET" "EX" "DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4"
 "SWAP" "NIP" "ROT" "-ROT" "2DUP" "2DROP" "3DROP" "4DROP"
 "2OVER" "2SWAP"
-"@" "C@"
-"@+" "C@+"
-"!" "C!"
-"!+" "C!+"
-"+!" "C+!"
+"@" "C@" "@+" "C@+" "!" "C!" "!+" "C!+" "+!" "C+!"
 ">A" "A>" "A@" "A!" "A+" "A@+" "A!+"
 ">B" "B>" "B@" "B!" "B+" "B@+" "B!+"
 "NOT" "NEG" "ABS" "SQRT" "CLZ"
-
 "AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
 "<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
 
+:DPUSH
+:DPOP
+:DTOS
+:DNIP
+:RPUSH
+:RPOP
+	;
 
-| 'mac ip V
-:iJMP   | 16 bits
-	8 >> $1ff and
-	nip over ! ;
+:iRET
+:iEX
+:iDUP
+:iDROP
+:iOVER
+:iPICK2
+:iPICK3
+:iPICK4
+:iSWAP
+:iNIP
+:iROT
+:i-ROT
+:i2DUP
+:i2DROP
+:i3DROP
+:i4DROP
+:i2OVER
+:i2SWAP
+:i@
+:iC@
+:i@+
+:iC@+
+:i!
+:iC!
+:i!+
+:iC!+
+:i+!
+:iC+!
+:i>A
+:iA>
+:iA@
+:iA!
+:iA+
+:iA@+
+:iA!+
+:i>B
+:iB>
+:iB@
+:iB!
+:iB+
+:iB@+
+:iB!+
+:iNOT
+:iNEG
+:iABS
+:iSQRT
+:iCLZ
+:iAND
+:iOR
+:iXOR
+:i+
+:i-
+:i*
+:i/
+:iMOD
+:i<<
+:i>>
+:i>>>
+:i/MOD
+:i*/
+:i*>>
+:i<</
+	;
 
-:iCALL
+#op1 iRET iEX iDUP iDROP iOVER iPICK2 iPICK3 iPICK4
+iSWAP iNIP iROT i-ROT i2DUP i2DROP i3DROP i4DROP
+i2OVER i2SWAP
+i@ iC@ i@+ iC@+ i! iC! i!+ iC!+ i+! iC+!
+i>A iA> iA@ iA! iA+ iA@+ iA!+
+i>B iB> iB@ iB! iB+ iB@+ iB!+
+iNOT iNEG iABS iSQRT iCLZ
+iAND iOR iXOR i+ i- i* i/ iMOD i<< i>> i>>>
+i/MOD i*/ i*>> i<</
 
-:iLIT16
-	8 << 16 >> DPUSH
-	2 + ;
+:iop | OP	vvvvvv  viiiiiii 00
+	$1fc and 'op1 + @ ex ;
+	;
+:ilit | LIT	vvvvvv  vvvvvvvv 01
+	16 << 18 >> DPUSH ;
 
-:iLIT16u	| 32 bits
-	8 << $ffff0000 and
-	DPOP $ffff and or
-	DPUSH
-	3 + ;
+:ijmp | JMP	xxxx aaaa aaaaaa 10
+	nip $ffc and 1 >> ;
+	;
+:ical | CALL	xxxx aaaa aaaaaa 11
+	swap RPUSH $ffc and 1 >> ;
 
-#nowr3cpu
+#op0 'iop 'ilit 'ijmp 'ical
 
-:r3ip | 'machine -- 'machine ip
-	dup @ $1ff and | 512 bytes of code
-	over 144 + + ;
-
-:r3DatS | 'machine -- 'machine 'datS
-	dup 4 + @ $f and	| deep 16
-	over 16 + :
-
-:r3RetS | 'machine -- 'machine 'retS
-	dup 4 + @ 16 >> $f and | deep 16
-	over 80 + :
-
-:stepvm | 'machine --
-	r3ip
-	dup @ | get32byte
-	dup $7f and 2 <<
-	'r3maci + @	| 'mac ip V iex
-	ex ;
-
-
+:stepvm | 'ip -- ip'
+	dup 2 + swap @ 2 << $c and 'op0 + @ ex ;
 
 
