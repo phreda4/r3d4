@@ -23,94 +23,39 @@
 "CALL"
 "LIT16"
 "LIT16u"
-"JZ"		| 2 bytes
-"JNZ"
-"JP"
-"JN"
-"JE"
-"JNE"
-"JA"
-"JNA"
-"JL"
-"JLE"
-"JG"
-"JGE"
-"AND8"	| 2bytes
-"OR8"
-"XOR8"
-"+8"
-"-8"
-"*8"
-"/8"
-"MOD8"
-"<<8"
-">>8"
-">>>8"
-"/MOD8"
-"*/8"
-"*>>8"
-"<</8"
+"JZ" "JNZ" "JP" "JN" "JE" "JNE" "JA" "JNA"
+"JL" "JLE" "JG" "JGE"
+"AND8" "OR8" "XOR8" "+8" "-8" "*8" "/8" "MOD8"
+"<<8" ">>8" ">>>8" "/MOD8" "*/8" "*>>8" "<</8"
 "RET"	| only byte
 "EX"
-"DUP"
-"DROP"
-"OVER"
-"PICK2"
-"PICK3"
-"PICK4"
-"SWAP"
-"NIP"
-"ROT"
-"2DUP"
-"2DROP"
-"3DROP"
-"4DROP"
-"2OVER"
-"2SWAP"
-"@"
-"C@"
-"@+"
-"C@+"
-"!"
-"C!"
-"!+"
-"C!+"
-"+!"
-"C+!"
-">A"
-"A>"
-"A@"
-"A!"
-"A+"
-"A@+"
-"A!+"
-">B"
-"B>"
-"B@"
-"B!"
-"B+"
-"B@+"
-"B!+"
-"NOT"
-"NEG"
-"ABS"
-"SQRT"
-"CLZ"
-"AND"
-"OR"
-"XOR"
-"+"
-"-"
-"*"
-"/"
-"MOD"
-"<<"
-">>"
-">>>"
-"/MOD"
-"*/"
-"*>>"
-"<</"
+"DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4" "SWAP" "NIP"
+"ROT" "2DUP" "2DROP" "3DROP" "4DROP" "2OVER" "2SWAP"
+"@" "C@" "@+" "C@+" "!" "C!" "!+" "C!+" "+!" "C+!"
+">A" "A>" "A@" "A!" "A+" "A@+" "A!+"
+">B" "B>" "B@" "B!" "B+" "B@+" "B!+"
+"NOT" "NEG" "ABS" "SQRT" "CLZ"
+"AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
+"<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
+
+:DTOS | -- TOS
+	dup
+	;
+:DNOSTOS | -- NOS TOS ; dec DSTACK
+	dup dup
+	;
+:DNOSTOS2 | -- NOS TOS ;
+	dup dup
+	;
+:DPNT | -- PK2 NOS TOS ; dec dec DSTACK
+	dup dup dup
+	;
+:DTOS!	| val --
+	drop
+	;
+:DTOSNOS!	| val val --
+	drop drop
+	;
 
 :DPUSH
 :DPOP
@@ -146,7 +91,7 @@
 :iJLE
 :iJG
 :iJGE
-:iAND8	| 2bytes
+:iAND8	7 >> DTOS AND DTOS! ; | 2bytes
 :iOR8
 :iXOR8
 :i+8
@@ -202,121 +147,45 @@
 :iB+
 :iB@+
 :iB!+
-:iNOT
-:iNEG
-:iABS
-:iSQRT
-:iCLZ
-:iAND
-:iOR
-:iXOR
-:i+
-:i-
-:i*
-:i/
-:iMOD
-:i<<
-:i>>
-:i>>>
-:i/MOD
-:i*/
-:i*>>
-:i<</
-	;
+:iNOT	drop DTOS not DTOS! ;
+:iNEG	drop DTOS neg DTOS! ;
+:iABS	drop DTOS abs DTOS! ;
+:iSQRT	drop DTOS sqrt DTOS! ;
+:iCLZ	drop DTOS clz DTOS! ;
+:iAND	drop DNOSTOS AND DTOS! ;
+:iOR	drop DNOSTOS OR DTOS! ;
+:iXOR	drop DNOSTOS XOR DTOS! ;
+:i+		drop DNOSTOS + DTOS! ;
+:i-		drop DNOSTOS - DTOS! ;
+:i*		drop DNOSTOS * DTOS! ;
+:i/		drop DNOSTOS / DTOS! ;
+:iMOD	drop DNOSTOS MOD DTOS! ;
+:i<<	drop DNOSTOS << DTOS! ;
+:i>>	drop DNOSTOS >> DTOS! ;
+:i>>>	drop DNOSTOS >>> DTOS! ;
+:i/MOD	drop DNOSTOS2 /MOD DTOSNOS! ;
+:i*/	drop DPNT */ DTOS! ;
+:i*>>	drop DPNT */ DTOS! ;
+:i<</	drop DPNT */ DTOS! ;
 
 #r3maci
 iJMP   | 16 bits
 iCALL
 iLIT16
 iLIT32	| 32 bits
-iJZ	| 2 bytes
-iJNZ
-iJP
-iJN
-iJE
-iJNE
-iJA
-iJNA
-iJL
-iJLE
-iJG
-iJGE
-iAND8	| 2bytes
-iOR8
-iXOR8
-i+8
-i-8
-i*8
-i/8
-iMOD8
-i<<8
-i>>8
-i>>>8
-i/MOD8
-i*/8
-i*>>8
-i<</8
-iRET	| only byte
-iEX
-iDUP
-iDROP
-iOVER
-iPICK2
-iPICK3
-iPICK4
-iSWAP
-iNIP
-iROT
-i2DUP
-i2DROP
-i3DROP
-i4DROP
-i2OVER
-i2SWAP
-i@
-iC@
-i@+
-iC@+
-i!
-iC!
-i!+
-iC!+
-i+!
-iC+!
-i>A
-iA>
-iA@
-iA!
-iA+
-iA@+
-iA!+
-i>B
-iB>
-iB@
-iB!
-iB+
-iB@+
-iB!+
-iNOT
-iNEG
-iABS
-iSQRT
-iCLZ
-iAND
-iOR
-iXOR
-i+
-i-
-i*
-i/
-iMOD
-i<<
-i>>
-i>>>
-i/MOD
-i*/
-i*>>
-i<</
+iJZ	iJNZ iJP iJN iJE iJNE iJA iJNA
+iJL iJLE iJG iJGE
+iAND8 iOR8 iXOR8 i+8 i-8 i*8 i/8 iMOD8
+i<<8 i>>8 i>>>8 i/MOD8 i*/8 i*>>8 i<</8
+iRET iEX 
+iDUP iDROP iOVER iPICK2 iPICK3 iPICK4 iSWAP iNIP
+iROT i2DUP i2DROP i3DROP i4DROP i2OVER i2SWAP 
+i@ iC@ i@+ iC@+ i! iC! i!+ iC!+ i+! iC+!
+i>A iA> iA@ iA! iA+ iA@+ iA!+
+i>B iB> iB@ iB! iB+ iB@+ iB!+
+iNOT iNEG iABS iSQRT iCLZ
+iAND iOR iXOR i+ i- i* i/ iMOD
+i<< i>> i>>> i/MOD i*/ i*>> i<</
 
 #nowr3cpu
 
@@ -338,7 +207,3 @@ i<</
 	dup $7f and 2 <<
 	'r3maci + @	| 'mac ip V iex
 	ex ;
-
-
-
-
