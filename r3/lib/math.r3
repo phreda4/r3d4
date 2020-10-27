@@ -23,10 +23,10 @@
 
 :sinp
 	$7fff and $4000 -
-   	dup dup *.u
-	dup 4876210 *.u
-	2699161 - *.u
-	411769 + *.u ;
+   	dup dup 16 *>>
+	dup 4876210 16 *>>
+	2699161 - 16 *>>
+	411769 + 16 *>> ;
 
 ::cos | v -- r
 	$8000 + $8000 nand? ( sinp ; ) sinp neg ;
@@ -36,10 +36,10 @@
 ::tan | v -- f
 	$4000 +
 	$7fff and $4000 -
-	dup dup *.u
-	dup 130457939 *.u
-	5161701 + *.u
-	411769 + *.u ;
+	dup dup 16 *>>
+	dup 130457939 16 *>>
+	5161701 + 16 *>>
+	411769 + 16 *>> ;
 
 ::sincos | bangle -- sin cos
 	dup sin swap cos ;
@@ -80,7 +80,7 @@
 	over - dup 63 >> and + ;
 
 ::max	| a b -- m
-	over swap - dup 63 >> and -  ;
+	over swap - dup 63 >> and - ;
 
 ::clampmax | v max -- v
 	swap over - dup 63 >> and + ;

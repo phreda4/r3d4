@@ -12,14 +12,13 @@
 | 3 - B             	+12
 | 0..15 | DATA STACK 	+16
 | 0..15 | RETURN STACK	+80
-| 0..512 | CODE-DATA	+144
-| 0..512 | DATA
+| 0..1024 | CODE-DATA	+144
 |--------------------
 | MACHINE R3
+^r3/lib/trace.r3
 
 :r3ip | 'machine -- ip
-	@ $1ff and | 512 bytes of code
-	over 144 + + ;
+	dup @ $3ff and 144 + + ;
 
 :r3DatS | 'machine -- 'datS
 	4 + @ $f and	| deep 16
@@ -66,8 +65,10 @@
 :DPOP
 :RPUSH
 :RPOP
+:JMPC
+	;
 
-| 'mac ip V
+| 'mac ip
 :iJMP   | 16 bits
 	dup @ $1ff and
 	nip over ! ;
@@ -75,19 +76,23 @@
 :iCALL
 
 :iLIT16
-	8 << 16 >> DPUSH
+	"lit16" slog
+	dup @ 16 << 16 >> DPUSH
 	2 + ;
 
-:iLIT16u	| 32 bits
-	8 << $ffff0000 and
+:iLIT32	| 32 bits
+	dup 8 << $ffff0000 and
 	DPOP $ffff and or
 	DPUSH
 	3 + ;
 :iJZ	| 2 bytes
-	TOS 1? ( JMPC ) ;
+	DTOS 1? ( drop JMPC ) drop ;
 :iJNZ
+	DTOS 0? ( drop JMPC ) drop ;
 :iJP
+	DTOS -? ( drop JMPC ) drop ;
 :iJN
+	DTOS +? ( drop JMPC ) drop ;
 :iJE
 :iJNE
 :iJA
@@ -176,8 +181,11 @@ i<< i>> i>>> i/MOD i*/ i*>> i<</
 
 
 ::vmstep | 'machine --
-	r3ip c@+ $7f and 2 << 'r3maci + @ | 'mac ip iex
-	ex ;
+	dup r3ip c@+ $7f and 2 << 'r3maci + @ | 'mac ip iex
+	2dup "%d %d" slog
+	ex
+	144 - over - $1ff and
+	swap ! ;
 
 ::vmcompile | "" 'machine --
 	;
@@ -187,3 +195,4 @@ i<< i>> i>>> i/MOD i*/ i*>> i<</
 
 ::vmdatamem | 'machine -- 'adr
 	144 + 512 + ;
+

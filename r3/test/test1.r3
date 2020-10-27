@@ -27,6 +27,13 @@
 	$ff00 'ink !
 
 	"hola" emits
+	cr
+	0 'seed !
+	16 ( 1? 1 -
+		rand dup "%d " print
+		sh 4 >> mod
+		"%d " print cr
+		) drop
 	key >esc< =? ( exit ) drop
 	;
 :
