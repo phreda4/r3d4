@@ -85,7 +85,9 @@
 	-? ( 3drop ; ) sh 1 - clampmax
 	rot sh >=? ( 3drop ; ) clamp0 | x y2 y1
 	swap over - swap rot swap
-	setxy 1 + ( 1? 1 - ink a! sw 2 << a+ ) drop ;
+	a> >r
+	setxy 1 + ( 1? 1 - ink a! sw 2 << a+ ) drop 
+	r> >a ;
 
 :whline | x y --
 	-? ( drop 'opx ! ; ) sh >=? ( drop 'opx ! ; )
@@ -94,7 +96,9 @@
 	-? ( 3drop ; ) sw clampmax
 	rot sw >=? ( 3drop ; ) clamp0	| y x2 x1
 	swap over - swap rot
-	setxy 1 + ( 1? 1 - ink a!+ ) drop ;
+	a> >r
+	setxy 1 + ( 1? 1 - ink a!+ ) drop 
+	r> >a ;
 
 |------- clipline
 :li

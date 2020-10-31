@@ -42,9 +42,34 @@
 "AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
 "<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
 
-:DTOS | -- TOS
-	dup
-	;
+:DPUSH | mac ip v -- mac ip
+	pick2 4 + dup | stack stack
+	@ 1 + $f000f and dup rot ! | tos+1
+	$f and 2 << 16 + pick3 + ! ;
+
+:DPOP | mac ip v -- mac ip v D
+	pick2 4 + dup
+	@ $f001f and 1 - $f000f and dup rot !
+	$f and 2 << 16 + pick3 + @ ;
+
+:RPUSH
+	pick2 4 + dup | stack stack
+	@ $10000 + $f000f and dup rot ! | tos+1
+	16 >> $f and 2 << 80 + pick3 + ! ;
+
+:RPOP
+	pick2 4 + dup
+	@ $1f000f and $10000 - $f000f and dup rot !
+	16 >> $f and 2 << 80 + pick3 + @ ;
+
+:toMEM $1ff and 144 + ;
+
+:DTOSa | 'mac 'ip -- 'mac 'ip ATOS
+	over 4 + @ $f and 2 << 16 + pick2 + ;
+
+:DTOS | 'mac 'ip -- 'mac 'ip TOS
+	DTOSa @ ;
+
 :DNOSTOS | -- NOS TOS ; dec DSTACK
 	dup dup
 	;
@@ -55,93 +80,72 @@
 	dup dup dup
 	;
 :DTOS!	| val --
-	drop
-	;
+	pick2 4 + @ $f and 2 << 16 + pick3 + ! ;
+
 :DTOSNOS!	| val val --
 	drop drop
 	;
 
-:DPUSH
-:DPOP
-:RPUSH
-:RPOP
-:JMPC
-	;
+| 'mac ip -- 'mac ip
+|-------------------
 
-| 'mac ip
-:iJMP   | 16 bits
-	dup @ $1ff and
-	nip over ! ;
-
-:iCALL
-
-:iLIT16
-	"lit16" slog
-	dup @ 16 << 16 >> DPUSH
-	2 + ;
-
-:iLIT32	| 32 bits
-	dup 8 << $ffff0000 and
-	DPOP $ffff and or
-	DPUSH
-	3 + ;
-:iJZ	| 2 bytes
-	DTOS 1? ( drop JMPC ) drop ;
-:iJNZ
-	DTOS 0? ( drop JMPC ) drop ;
-:iJP
-	DTOS -? ( drop JMPC ) drop ;
-:iJN
-	DTOS +? ( drop JMPC ) drop ;
-:iJE
-:iJNE
-:iJA
-:iJNA
-:iJL
-:iJLE
-:iJG
-:iJGE
-:iRET	| only byte
-:iEX
-:iDUP
-:iDROP
-:iOVER
-:iPICK2
-:iPICK3
-:iPICK4
+:iRET	drop RPOP ;
+:iEX	RPUSH DPOP $1ff and ;
+:iJMP   @ toMEM over + ;
+:iCALL	dup RPUSH iJMP ;
+:iLIT16	dup @ 48 << 48 >> DPUSH 2 + ;
+:iLIT32	dup @ 48 << 32 >> DPOP $ffff and or DPUSH 2 + ;
+:iJZ	DTOS 1? ( drop iJMP ; ) drop 2 + ;
+:iJNZ   DTOS 0? ( drop iJMP ; ) drop 2 + ;
+:iJP    DTOS -? ( drop iJMP ; ) drop 2 + ;
+:iJN    DTOS +? ( drop iJMP ; ) drop 2 + ;
+:iJA    DTOS nand? ( drop iJMP ; ) drop 2 + ;
+:iJNA   DTOS and? ( drop iJMP ; ) drop 2 + ;
+:iJE    DTOS <>? ( drop iJMP ; ) drop 2 + ;
+:iJNE   DTOS =? ( drop iJMP ; ) drop 2 + ;
+:iJL    DTOS >=? ( drop iJMP ; ) drop 2 + ;
+:iJLE   DTOS >? ( drop iJMP ; ) drop 2 + ;
+:iJG    DTOS <=? ( drop iJMP ; ) drop 2 + ;
+:iJGE   DTOS <? ( drop iJMP ; ) drop 2 + ;
+:iDUP	DTOS DPUSH ;
+:iDROP	over 4 + dup @ $f001f and 1 - $f000f and swap ! ;
+:iOVER	over 4 + @ 1 - $f and 2 << 16 + pick2 + @ DPUSH ;
+:iPICK2	over 4 + @ 2 - $f and 2 << 16 + pick2 + @ DPUSH ;
+:iPICK3	over 4 + @ 3 - $f and 2 << 16 + pick2 + @ DPUSH ;
+:iPICK4	over 4 + @ 4 - $f and 2 << 16 + pick2 + @ DPUSH ;
 :iSWAP
-:iNIP
+:iNIP	iSWAP iDROP ;
 :iROT
-:i2DUP
-:i2DROP
-:i3DROP
-:i4DROP
-:i2OVER
+:i2DUP  iOVER iOVER ;
+:i2DROP	over 4 + dup @ $f001f and 2 - $f000f and swap ! ;
+:i3DROP	over 4 + dup @ $f001f and 3 - $f000f and swap ! ;
+:i4DROP	over 4 + dup @ $f001f and 4 - $f000f and swap ! ;
+:i2OVER iPICK2 iPICK2 ;
 :i2SWAP
-:i@
-:iC@
-:i@+
-:iC@+
-:i!
-:iC!
+:i@		DTOSa dup toMEM pick3 + @ swap ! ;
+:iC@	DTOSa dup toMEM pick3 + c@ swap ! ;
+:i@+	DTOSa dup @ 4 rot +! toMEM pick3 + @ DPUSH ;
+:iC@+	DTOSa dup @ 4 rot +! toMEM pick3 + c@ DPUSH ;
+:i!		DPOP DPOP swap toMEM pick3 + ! ; |**
+:iC!	DPOP DPOP swap toMEM pick3 + c! ; |**
 :i!+
 :iC!+
 :i+!
 :iC+!
-:i>A
-:iA>
-:iA@
-:iA!
-:iA+
-:iA@+
-:iA!+
-:i>B
-:iB>
-:iB@
-:iB!
-:iB+
-:iB@+
-:iB!+
+:i>A	DPOP pick2 8 + ! ;
+:iA>	over 8 + @ DPUSH ;
+:iA@	over 8 + @ toMEM pick2 + @ DPUSH ;
+:iA!    DPOP pick2 8 + @ toMEM pick3 + ! ;
+:iA+	DPOP pick2 8 + +! ;
+:iA@+	over 8 + 4 over +! @ toMEM pick2 + @ DPUSH ;
+:iA!+	DPOP pick2 8 + 4 over +! @ toMEM pick3 + ! ;
+:i>B    DPOP pick2 12 + ! ;
+:iB>    over 12 + @ DPUSH ;
+:iB@	over 12 + @ toMEM pick2 + @ DPUSH ;
+:iB!	DPOP pick2 12 + @ toMEM pick3 + ! ;
+:iB+    DPOP pick2 12 + +! ;
+:iB@+	over 12 + 4 over +! @ toMEM pick2 + @ DPUSH ;
+:iB!+	DPOP pick2 12 + 4 over +! @ toMEM pick3 + ! ;
 :iNOT	DTOS not DTOS! ;
 :iNEG	DTOS neg DTOS! ;
 :iABS	DTOS abs DTOS! ;
@@ -178,14 +182,11 @@ iAND iOR iXOR i+ i- i* i/ iMOD
 i<< i>> i>>> i/MOD i*/ i*>> i<</
 
 
-
-
 ::vmstep | 'machine --
-	dup r3ip c@+ $7f and 2 << 'r3maci + @ | 'mac ip iex
-	2dup "%d %d" slog
-	ex
-	144 - over - $1ff and
-	swap ! ;
+	dup r3ip c@+ $7f and			| 'mac ip e
+	2 << 'r3maci + @ ex 			| 'mac ip
+	144 - over - $1ff and swap !	|
+	;
 
 ::vmcompile | "" 'machine --
 	;

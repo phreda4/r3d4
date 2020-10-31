@@ -21,7 +21,6 @@
 		) drop ;
 
 :.hex
-	ink $ff0000 xor 'ink !
 	$f <=? ( "0" emits )
 	"%h" print ;
 
@@ -43,14 +42,15 @@
 	$ffffff 'ink !
 	"r3arena" print cr cr
 	$ff00 'ink ! "cpu" print cr
-	$ff 'ink !
+	$ffffff 'ink !
 	cpu1 @ $1ff and "ip:%h" print cr
 	$ff00 'ink ! "data" print cr
-	$ff 'ink !
-	cpu1 vmdatamem dump16
+	$ffffff 'ink !
+|	cpu1 vmdatamem dump16
+	cpu1 dump16
 	cr
 	$ff00 'ink ! "code" print cr
-	$ff 'ink !
+	$ffffff 'ink !
 	cpu1 vmcodemem dump16
 
 |	'cpu1 vmstep
@@ -69,12 +69,14 @@
 | 0..15 | RETURN STACK	+80
 | 0..512 | CODE-DATA	+144
 | 0..512 | DATA
+:,w16
+	dup $ff and ,c 8 >> $ff and ,c ;
 :testbuild | adr
 	mark
 	dup 144 + 'here !
-	4 ,c 10 ,c 0 ,c
-	4 ,c 5 ,c 0 ,c
-
+	4 ,c 10 ,w16	| lit 10 - 0 1 2
+	4 ,c 5 ,w16		| lit 5 - 3 4 5
+	2 ,c 0 ,w16		| jmp 0 - 6 7 8
 	empty
 	;
 
