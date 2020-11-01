@@ -89,6 +89,7 @@
 #initok
 #cnttok
 #nowtok
+#pagtok
 
 #incnow
 
@@ -108,26 +109,27 @@
 	'cnttok !
 	'initok !
 	0 'nowtok !
+	0 'pagtok !
 	;
 
 :token | n
 	cnttok >=? ( drop ; )
 	2 << initok +
 	$ffffff 'ink !
-	@
-	dup tokenprintc
+	@ | dup
+	tokenprintc
+	;
+:tokencode
 	35 gotox
 	dup $ff and "%h " print
-	8 >> 0? ( drop ; )
-	"%d" print ;
+	8 >> 0? ( drop ; ) "%d" print ;
 
 :wordmap
 	0 ( hcode <?
 		cnttok <?
-		25 over 1 + gotoxy
+		3 over 2 + gotoxy
 		dup token
-		1 +
-		) drop ;
+		1 + ) drop ;
 
 |---------
 :printcode
@@ -161,16 +163,27 @@
 	iniword hcode + >=? ( dup hcode - 1 + 'iniword ! )
 	'actword !
 	wordanalysis
-
 	actword dic>adr @ findinclude 'incnow !
-
 	;
 
+:setword | w --
+	cntdef 1 - clamp0max
+
+|	iniword <? ( dup 'iniword ! )
+|	iniword hcode + >=? ( dup hcode - 1 + 'iniword ! )
+
+	'actword !
+	wordanalysis
+	actword dic>adr @ findinclude 'incnow !
+	;
 
 :modeview
 	0 1 gotoxy
-	dicmap
+|	dicmap
 |	incmap
+	$ff0000 'ink !
+	mark actword ,wordinfo empty
+	here emits
 	wordmap
 
 	0 hcode 1 + gotoxy
@@ -180,17 +193,15 @@
 	"CODE" "F10" btnf
 
 	key
-	>esc< =? ( mode!imm )
-	<f10> =? ( mode!imm )
+	>esc< =? ( mode!src )
+	<f10> =? ( mode!src )
 
-	<up> =? ( -1 +word )
-	<dn> =? ( 1 +word )
-	<home> =? ( cntdef neg +word )
-	<end> =? ( cntdef +word )
-	<pgup> =? ( hcode neg +word )
-	<pgdn> =? ( hcode +word )
-
-|	<tab> =? ( mode!imm )
+|	<up> =? ( -1 +word )
+|	<dn> =? ( 1 +word )
+|	<home> =? ( cntdef neg +word )
+|	<end> =? ( cntdef +word )
+|	<pgup> =? ( hcode neg +word )
+|	<pgdn> =? ( hcode +word )
 
 	drop
 	;
@@ -736,6 +747,9 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	;
 
 
+:codetoword
+	fuente> incnow src2word setword ;
+
 |-------- view screen
 :waitf6
 	update
@@ -761,6 +775,8 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	"IMM" "TAB" btnf
 	"PLAY" "F1" btnf
 	"PLAY2C" "F2" btnf
+	"ANALYSIS" "F3" btnf
+
 	"VIEW" "F6" btnf
 	"STEP" "F7" btnf
 	"STEPN" "F8" btnf
@@ -777,6 +793,9 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	<f1> =? ( playvm gotosrc )
 	<f2> =? ( play2cursor playvm gotosrc )
 
+	<f3> =? ( mode!view codetoword ) | word analisys
+|	<f10> =? ( mode!view 0 +word )
+
 	<f5> =? ( setbp )
 	>f6< =? ( viewscreen )
 	<f7> =? ( stepvm gotosrc )
@@ -784,7 +803,6 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	<f9> =? ( 1 statevars xor 'statevars ! )
 	<tab> =? ( mode!imm )
 
-	<f10> =? ( mode!view 0 +word )
 
 	drop
 	;
@@ -819,7 +837,7 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 	<f7> =? ( stepvm gotosrc )
 	<f8> =? ( stepvmn gotosrc )
 
-	<f10> =? ( mode!view 0 +word )
+|	<f10> =? ( mode!view 0 +word )
 
 	drop
 	;

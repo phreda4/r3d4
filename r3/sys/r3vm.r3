@@ -530,6 +530,14 @@
 	memsrc - code +
 	;
 
+::src2word | src incnow -- word
+	src2code
+	dicc>
+	( 16 - dicc >=?
+		dup 4 + @ pick2 <? (  drop nip dicc - 4 >> ; )
+		drop ) 2drop
+	0 ;
+
 ::breakpoint | cursor --
 	src2code '<<bp !
 	;
