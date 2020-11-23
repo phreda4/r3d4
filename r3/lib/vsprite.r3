@@ -26,14 +26,13 @@
 ::xy>gc | x y -- v
 	vsy - vsh 14 <</ $3fff and 4 << swap vsx - vsw 14 <</ $3fff and 18 << or ;
 
-:endp xp $80000000 <>? ( yp pline ; ) drop ;
-:finpoli xp yp pline $80000000 'xp ! poli ;
+:finpoli xp yp pline poli ;
 
 |--------??????
 :a0 drop ; 						| el valor no puede ser 0
 :a1 8 >> 'ink ! ; 					| color0
 |-------- poligono
-:a4 endp gc>xy 2dup 'yp !+ ! op ;  | punto
+:a4 gc>xy 2dup 'yp ! 'xp ! op ;  | punto
 :a5 gc>xy pline ; | linea
 :a6 swap >b gc>xy b@+ gc>xy pcurve b> ;  | curva
 :a7 swap >b gc>xy b@+ gc>xy b@+ gc>xy pcurve3 b> ; | curva3
@@ -48,7 +47,6 @@
 #jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
 ::vsprite | 'rf --
-	$80000000 'xp !
 	( @+ 1? dup $f and 2 << 'jves + @ ex ) 2drop ;
 
 |--------- R vsprite
@@ -58,7 +56,7 @@
 	swap cosa * swap sina * - 16 >> vsw * 14 >> vsx + r> ;
 
 |-------- poligono
-:a4 endp r>xy 2dup 'yp !+ ! op ;  | punto
+:a4 r>xy 2dup 'yp ! 'xp ! op ;  | punto
 :a5 r>xy pline ; | linea
 :a6 swap >b r>xy b@+ r>xy pcurve b> ;  | curva
 :a7 swap >b r>xy b@+ r>xy b@+ r>xy pcurve3 b> ; | curva3
@@ -72,7 +70,6 @@
 
 ::rvsprite | adr ang --
 	dup cos 'cosa ! sin 'sina !
-	$80000000 'xp !
 	( @+ 1? dup $f and 2 << 'jves + @ ex ) 2drop ;
 
 |--------- 3d vsprite
@@ -81,7 +78,7 @@
 	dup 18 >> 3 << swap 46 << 50 >> 3 << 0 project3d ;
 
 |-------- poligono
-:a4 endp 3d>xy 2dup 'yp !+ ! op ;  | punto
+:a4 3d>xy 2dup 'yp ! 'xp ! op ;  | punto
 :a5 3d>xy pline ; | linea
 :a6 swap >b 3d>xy b@+ 3d>xy pcurve b> ;  | curva
 :a7 swap >b 3d>xy b@+ 3d>xy b@+ 3d>xy pcurve3 b> ; | curva3
@@ -94,12 +91,10 @@
 #jves a0 a1 a0 a0 a4 a5 a6 a7 a8 a9 aa ab ac ac ac ac
 
 ::3dvsprite | adr --
-	$80000000 'xp !
 	( @+ 1? dup $f and 2 << 'jves + @ ex ) 2drop ;
 
 |--------------------------------------------------------------
 :dumprf | 'rf
-	$80000000 'xp !
 	( @+ 1? "%h " print ) 2drop
 	cr
 	;

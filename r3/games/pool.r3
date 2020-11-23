@@ -8,8 +8,9 @@
 ^r3/lib/trace.r3
 ^r3/util/arr16.r3
 
-#sball $16ECE64 $4DDBFE26 $489AE730 $16D2DD6 $498D1CA0 $B507FE26 $BBB51310 $16ECE66 $B956E730
-#cball $FF0C 0
+#sball $7A1324 $7D2001E6 $7D221320 $79F0B6 $7D21F0B0 $83D401E6 $83D5F0B0 $7A1326 $83D61320
+#cball $C
+ $D2A6E364 $EA874A96 $EA86E360 $D2A7B1B6 $EA87B1B0 $BAC34A96 $BAC3B1B0 $D2A6E366 $BAC2E360 $FFFFFF0C 0
 
 #FRICTION	0.982
 
@@ -34,11 +35,11 @@
 
 :drawmesa
 	$ffffff 'ink !
-	15.0 20.0 0 3dop
-	-15.0 20.0 0 3dline
-	-15.0 -20.0 0 3dline
-	15.0 -20.0 0 3dline
-	15.0 20.0 0 3dline
+	16.0 21.0 0 3dop
+	-16.0 21.0 0 3dline
+	-16.0 -21.0 0 3dline
+	16.0 -21.0 0 3dline
+	16.0 21.0 0 3dline
 	;
 
 :drawboxz | z --
@@ -67,11 +68,11 @@
 	mpush
 	>b
 	b@+	| X
-	15.0 >? ( 15.0 b> 4 - ! b> 4 + hitwall )
-	-15.0 <? ( -15.0 b> 4 - ! b> 4 + hitwall )
+	15.0 >? ( drop 15.0 dup b> 4 - ! b> 4 + hitwall )
+	-15.0 <? ( drop -15.0 dup b> 4 - ! b> 4 + hitwall )
 	b@+	| Y
-	20.0 >? ( 20.0 b> 4 - ! b> 4 + hitwall )
-	-20.0 <? ( -20.0 b> 4 - ! b> 4 + hitwall )
+	20.0 >? ( drop 20.0 dup b> 4 - ! b> 4 + hitwall )
+	-20.0 <? ( drop -20.0 dup b> 4 - ! b> 4 + hitwall )
 	0 mtransi
 	b@+ b> 12 - +!	| VX
 	b> 4 - dup @ FRICTION *. swap !
@@ -80,10 +81,10 @@
 	b@+ drop		| MASS
 	b> @
 
-|	8 << $c or 'cball !  | COLOR
-|	'sball 3dvsprite
+	8 << $c or 'cball !  | COLOR
+	'sball 3dvsprite
 
-	'ink ! drawcube
+|	'ink ! drawcube
 
 	mpop ;
 
@@ -136,7 +137,7 @@
 
 :resetgame
 	'balllist p.clear
-	 $f0f0f0 -9.0 0.0 +pball
+	 $dddddd -9.0 0.0 +pball
 	5 ( 1?
 		1 ( over <?
 				rand
