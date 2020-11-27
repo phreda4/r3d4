@@ -7,6 +7,7 @@
 ^r3/lib/vsprite.r3
 
 ^r3/util/dlgcolor.r3
+^media/ico/tool16.ico
 
 #modo
 #xv #yv #sv
@@ -1041,10 +1042,10 @@
 |------------------------------------
 
 :toodraw
-	[ 'drawpoint 'mdraw ! ; ] "p" btnt
 |	'i.paint_brush [ 'drawhand 'mdraw ! ; ] btnric
-	[ 'drawbox  'mdraw ! ; ] "d" btnt
-	[ 'drawcir  'mdraw ! ; ] "c" btnt
+	[ 'drawpoint 'mdraw ! ; ] 'i_pencil ibtn sp
+	[ 'drawbox  'mdraw ! ; ] 'i_box ibtn sp
+	[ 'drawcir  'mdraw ! ; ] 'i_circ ibtn sp
 	;
 
 :toovista
@@ -1122,14 +1123,15 @@
 	blanco ":r3 Vsprite Edit " print
 
 	rojo
-	'exit "x" btnt sp
-	'resetves "t" btnt sp
+	'exit 'i_exit ibtn sp
+	'resetves 'i_del ibtn  sp
+	$6600 'ink !
 	1 3 gotoxy
-	[ 0 setmodo ; ] "p" btnt
-	[ 1 setmodo ; ] "l" btnt
-	[ 2 setmodo ; ] "s" btnt
-	[ 3 setmodo ; ] "e" btnt
-	[ 4 setmodo ; ] "c" btnt
+	[ 0 setmodo ; ] 'i_draw ibtn sp
+	[ 1 setmodo ; ] 'i_eye ibtn sp
+	[ 2 setmodo ; ] 'i_star ibtn sp
+	[ 3 setmodo ; ] 'i_pencil ibtn sp
+	[ 4 setmodo ; ] 'i_tool ibtn sp
 
 |	'i.magic 4 botonmodo
 |	verde oscuro
@@ -1140,7 +1142,7 @@
 	1 5 gotoxy
     modotoo ex
 	naranja
-	[ colorfondo not 'colorfondo ! ; ] "i" btnt
+	[ colorfondo not 'colorfondo ! ; ] 'i_wb ibtn
 
 	dlgColor
 	;

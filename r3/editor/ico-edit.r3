@@ -549,6 +549,6 @@
 :	0 'paper !
 	mark
 	main
-|	'nombre writefile
+	'nombre writefile
 	;
 
