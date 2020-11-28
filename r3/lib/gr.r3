@@ -169,6 +169,15 @@
 	pick2 swap op
 	pline poli ;
 
+::fellipse | xc yc rx ry --
+	2swap
+	2dup pick4 - op
+	over pick4 + over pick4 - over pick3 2swap pcurve
+	over pick4 + over pick4 + pick3 over 2swap pcurve
+	over pick4 - over pick4 + over pick3 2swap pcurve
+	pick2 - over pick4 - over pcurve
+	2drop poli ;
+
 ::rectbox | x1 y1 x2 y2 --
 	2dup op
 	over pick3 line

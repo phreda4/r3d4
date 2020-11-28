@@ -22,13 +22,19 @@
 :test2
 	"hola" ( c@+ 1? swap ) x 1 'x +! x + v ex ;
 
+#xp 100 #yp 300
 :main
 	cls home
 	$ff00 'ink !
 
-	"hola" emits
+	"hola " emits
+	xp yp 2dup "%d %d" print 
+	200 - swap 200 - swap
+	over 200 + over 200 + fillbox
 	cr
-	key >esc< =? ( exit ) drop
+	key
+	<le> =? ( -10 'xp +! )	 
+	>esc< =? ( exit ) drop
 	;
 :
 	'main onshow

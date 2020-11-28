@@ -143,9 +143,10 @@
 		) 3drop ;
 
 :vesfill
-	vsx vsw 1 >> - vsy vsh 1 >> -
-	over vsw + over vsh +
-	fillbox ;
+|	vsx vsw 1 >> - vsy vsh 1 >> -
+|	over vsw + over vsh +
+|	fillbox
+	;
 
 |**********************
 
@@ -542,14 +543,15 @@
 
 :drawbox
 	'inicl 'movcl 'updc guiMap
-	color 'ink ! xmin ymin xmax ymax fillbox ;
+	color 'ink ! 
+	xmin ymin xmax ymax fillbox ;
 
 :drawcir
 	'inicl 'movcl 'updel guiMap
 	color 'ink !
 	xmin xmax 2dup + 1 >> rot rot - abs 1 >>
 	ymin ymax 2dup + 1 >> rot rot - abs 1 >>
-	rot swap bellipse ;
+	rot swap fellipse ;
 
 #mdraw 'drawpoint
 
@@ -566,8 +568,8 @@
 :rebox
 	picktra -? ( drop ; ) rebuild1tra
 :reboxl
-	picktra 4 << tra + 4 +
 	xv yv vspos sv dup vsize
+	picktra 4 << tra + 4 +
 	@+ gc>xy 'ymin ! 'xmin !
 	@ gc>xy 'ymax ! 'xmax !
 	;
@@ -714,7 +716,7 @@
 
 :rotapoly
 	picktra 4 << tra + @ >b
-	lin ( lin> <? 
+	lin ( lin> <?
 		@+ dup $f and
 		$c <? ( rotanodo )
 	 	or b!+ ) drop ;
@@ -1044,20 +1046,20 @@
 :toodraw
 |	'i.paint_brush [ 'drawhand 'mdraw ! ; ] btnric
 	[ 'drawpoint 'mdraw ! ; ] 'i_pencil ibtn sp
-	[ 'drawbox  'mdraw ! ; ] 'i_box ibtn sp
-	[ 'drawcir  'mdraw ! ; ] 'i_circ ibtn sp
+	[ 'drawbox 'mdraw ! ; ] 'i_box ibtn sp
+	[ 'drawcir 'mdraw ! ; ] 'i_circ ibtn sp
 	;
 
 :toovista
-	[ sv 1 << 'sv ! ; ] "+" btnt
-	[ sv 1 >> 'sv ! ; ] "-" btnt
-	'vistall "[]" btnt
+	[ sv 1 << 'sv ! ; ] 'i_zoomi ibtn sp
+	[ sv 1 >> 'sv ! ; ] 'i_zoomo ibtn sp
+	'vistall 'i_box ibtn sp
 	;
 
 :tooeditn
 	picktra -? ( drop ; ) drop
-	'delnodo "-" btnt
-	'insnodo "+" btnt
+	'delnodo 'i_del ibtn sp
+	'insnodo 'i_ins ibtn sp
 	;
 
 :colpoly
@@ -1112,15 +1114,15 @@
 
 :drawves
 	xv yv vspos sv dup vsize
-
 	colorfondo 'ink ! vesfill
 	gris egrilla 1 << rgrilla
-	ves vsprite ;
+	ves vsprite
+	;
 
 :botonera
 	home
 	azul 2 backlines
-	blanco ":r3 Vsprite Edit " print
+	blanco over ":r%d Vsprite Edit " print
 
 	rojo
 	'exit 'i_exit ibtn sp
@@ -1233,6 +1235,8 @@
 	ves "mem/notepad.vsp" load 0 swap !
 	ves ( @+ 1? drop ) swap 4 - 'ves> !
 	buildtra
+	3
 	'main onshow
+	drop
 	ves ves> over - "mem/notepad.vsp" save
 	;
