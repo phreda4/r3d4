@@ -20,6 +20,9 @@
 ::savemem | "" --
 	memmap> 4 - @ here over - rot save ;
 
+::sizemem | -- size
+	here memmap> 4 - @ - ;
+
 #inc 0
 ::savememinc | "" --
 	inc 0? ( memmap> 4 - @ nip )

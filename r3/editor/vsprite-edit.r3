@@ -143,9 +143,9 @@
 		) 3drop ;
 
 :vesfill
-|	vsx vsw 1 >> - vsy vsh 1 >> -
-|	over vsw + over vsh +
-|	fillbox
+	vsx vsw 1 >> - vsy vsh 1 >> -
+	over vsw + over vsh +
+	fillbox
 	;
 
 |**********************

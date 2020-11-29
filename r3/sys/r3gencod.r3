@@ -620,7 +620,8 @@ iMLOAD iMFREE iMPLAY
 
 	dicc ( dicc> <?
 		dup gencode
-|		"asm/code.asm" savemem |inc
+|		sizemem 10 >> "; %d kb" ,print ,cr
+|		"asm/code.asm" savememinc
 		16 + ) drop
 
 	0 ,c
