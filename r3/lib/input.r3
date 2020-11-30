@@ -98,7 +98,7 @@
 |************************************
 ::input | 'var max --
 	'proinputa 'iniinput w/foco
-|	'clickfoco onClick
+	'clickfoco onClick
 	drop emits ;
 
 

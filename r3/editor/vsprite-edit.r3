@@ -4,6 +4,7 @@
 |MEM $8000
 ^r3/lib/gui.r3
 ^r3/lib/xfb.r3
+^r3/lib/fontj.r3
 ^r3/lib/vsprite.r3
 
 ^r3/util/dlgcolor.r3
@@ -1119,21 +1120,25 @@
 	ves vsprite
 	;
 
+#icbotonera 'i_draw 'i_eye 'i_star 'i_pencil 'i_tool 0
+#icmode
+
 :botonera
 	home
 	azul 2 backlines
 	blanco over ":r%d Vsprite Edit " print
 
-	rojo
-	'exit 'i_exit ibtn sp
-	'resetves 'i_del ibtn  sp
-	$6600 'ink !
-	1 3 gotoxy
-	[ 0 setmodo ; ] 'i_draw ibtn sp
-	[ 1 setmodo ; ] 'i_eye ibtn sp
-	[ 2 setmodo ; ] 'i_star ibtn sp
-	[ 3 setmodo ; ] 'i_pencil ibtn sp
-	[ 4 setmodo ; ] 'i_tool ibtn sp
+|	cols 20 - 0 gotoxy
+	sw 320 - 4 atxy
+	$ffffff 'ink !
+	icmode
+	'icmode 'icbotonera ibtnmode
+	icmode <>? ( icmode setmodo )
+	drop
+	$66ffff 'ink !
+	'resetves 'i_trash ibtnf sp
+	$ff6666 'ink !
+	'exit 'i_exit ibtnf sp
 
 |	'i.magic 4 botonmodo
 |	verde oscuro
@@ -1141,7 +1146,7 @@
 |	'i.repeat 0 btnric gcdn gcdn
 |	gcdn
 	$9090 'ink !
-	1 5 gotoxy
+	1 3 gotoxy
     modotoo ex
 	naranja
 	[ colorfondo not 'colorfondo ! ; ] 'i_wb ibtn
@@ -1223,6 +1228,7 @@
 
 :inimem
 	mark
+	fontj2
 	$454545 'paper !
 	dlgColorIni
 	iniXFB

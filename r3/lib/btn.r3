@@ -33,6 +33,12 @@
 	fillbox
 	;
 
+:drawbtnflat
+	xr1 yr1 xr2 yr2 fillbox ;
+
+:drawbtnrect
+	xr1 yr1 xr2 yr2 rectbox ;
+
 :btnsimple
 	ink dup coldn over colup
 	[ swap ; ] guiI
@@ -71,6 +77,7 @@
 	r> 'ink !
 	;
 
+|-------------------- icons
 
 ::ibtn | 'event 'ico --
 	ccx ccy pick2 @
@@ -85,6 +92,32 @@
 	2 'ccx +!
 	;
 
+::ibtnf | 'event 'ico --
+	ccx ccy pick2 @
+	dup $ff and 6 +
+	swap 8 >> $ff and 6 +
+	guiBox
+	[ ink $888888 'ink ! drawbtnflat 'ink ! ; ] guiI
+	3 xy+! ink drawcico  | negro
+	-3 xy+!
+	onClick
+	2 'ccx +!
+	;
+
+|--- btns mode
+| #modosd 'icofi 'icopr 'icopl 'icofi 0
+
+:colormodo | nro -- nro color
+	pick2 @ =? ( $ffffff ; ) $0 ;
+
+::ibtnmode | 'mode 'list --
+	0 ( colormodo 'ink !
+		swap @+ 1?			 	| 'mode act 'list ico
+		[ over pick3 ! ; ] swap | 'mode act 'list [] ico
+		ibtnf 4 'ccx +!			| 'mode act 'list
+		swap 1 + ) 4drop ;
+
+|------------------------
 ::btnfpx | 'event px py --
 	ccx ccy 2swap guiBox
 	btnsimple

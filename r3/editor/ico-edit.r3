@@ -344,10 +344,6 @@
 |----------------------------
 #namedraw 0
 
-:editname
-	namedraw 0? ( drop ; ) 31 input
-	[ 0 'namedraw ! ; ] lostfoco
-	;
 
 :rendib
 	actual 5 << 'indexn + 'namedraw ! ;
@@ -433,7 +429,7 @@
 	'import 'i_img sp ibtn |"f4-IMG" link
 	'uplist 'i_sup sp ibtn |" U " btnt sp
 	'dnlist 'i_sdn sp ibtn |" D " btnt sp
-	'deldib 'i_del sp ibtn |"Del" link
+	'deldib 'i_trash sp ibtn |"Del" link
 
 	$7f7f 'ink ! cr cr cr sp
 	[ icohw dup $ff and 1 - 0 max swap $ff00 and or 'icohw ! ; ] "-" btnt sp
@@ -459,16 +455,19 @@
 	10 48 xy>v >a
 	'icohw drawzico
 
-	key
-	<f1> =? ( newdib )
-	<f2> =? ( copydib )
-	<f3> =? ( rendib )
-	<f4> =? ( import )
-	<del> =? ( deldib )
-	drop
 	;
 
 |----------------------------
+:editname
+
+:dibname
+	actual <>? ( 5 << 'indexn + "%s" print ; )
+	namedraw 0? ( drop 5 << 'indexn + "%s" print ; )
+	31 input
+	drop
+	[ 0 'namedraw ! ; ] lostfoco
+	;
+
 :cadadib | n n -- n n
 	dup inilist + cntvar >=? ( drop ; )
 
@@ -477,8 +476,9 @@
 	[ dup actual! ; ]
 	200 32 btnfpx
 	$ffffff 'ink !
-	dup 8 << 'index + sp drawico
-	5 << 'indexn + " %s" print
+	dup 8 << 'index + sp drawico sp
+
+    dibname
 	cr cr cr ;
 
 :tabladib
@@ -493,10 +493,12 @@
 		1 + ) drop ;
 
 :kdn
+	0 'namedraw !
 	actual cntvar 1 - >=? ( drop ; )
 	1 + actual! ;
 
 :kup
+	0 'namedraw !
 	actual 0? ( drop ; )
 	1 - actual! ;
 
@@ -519,18 +521,32 @@
 
 	'nombre "%s " sprint printr
 
-	sp editname
-	cr cr
-
 	editico
 	tabladib
 	viewall
 
 	key
+	<f1> =? ( newdib )
+	<f2> =? ( copydib )
+	<f3> =? ( rendib )
+	<f4> =? ( import )
+	<del> =? ( deldib )
+	<ret> =? ( 	0 'namedraw ! )
+
 	>esc< =? ( exit )
 	<dn> =? ( kdn )
 	<up> =? ( kup )
 	drop
+
+
+	0 rows 2 - gotoxy
+	$7f00 'ink !
+	2 backlines
+	$666666 'ink !
+	'newdib "f1-New" link sp
+	'copydib "f2-Copy" link sp
+	'rendib "f3-Rename" link sp
+	'import "f4-IMG" link sp
 
 	acursor ;
 
