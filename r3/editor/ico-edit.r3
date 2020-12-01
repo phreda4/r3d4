@@ -227,11 +227,14 @@
 	refreshfoco ;
 
 |--- write
+#maskw
+
 :,codigo | adr --
-	@+ dup " $%h" ,print
+	@+ dup $ffffffff and " $%h" ,print
+	$1 over $ff and << 1 - 'maskw !
 	8 >> $ff and
 	( 1? 1 - swap
-	   @+ " $%h" ,print swap ) 2drop
+	   @+ maskw and " $%h" ,print swap ) 2drop
 	,nl ;
 
 :writefile | "" --

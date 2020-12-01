@@ -1043,24 +1043,27 @@
 
 
 |------------------------------------
+#ddmodo 0
+#ddbotonera 'i_pencil 'i_box 'i_circ 0
+#ddbotonerax 'drawpoint 'drawbox 'drawcir 0
 
 :toodraw
-|	'i.paint_brush [ 'drawhand 'mdraw ! ; ] btnric
-	[ 'drawpoint 'mdraw ! ; ] 'i_pencil ibtn sp
-	[ 'drawbox 'mdraw ! ; ] 'i_box ibtn sp
-	[ 'drawcir 'mdraw ! ; ] 'i_circ ibtn sp
+	ddmodo
+	'ddmodo 'ddbotonera ibtnmode
+	ddmodo <>? ( ddmodo 2 << 'ddbotonerax + @ 'mdraw ! )
+	drop
 	;
 
 :toovista
-	[ sv 1 << 'sv ! ; ] 'i_zoomi ibtn sp
-	[ sv 1 >> 'sv ! ; ] 'i_zoomo ibtn sp
-	'vistall 'i_box ibtn sp
+	[ sv 1 << 'sv ! ; ] 'i_zoomi ibtnf 4 'ccx +!
+	[ sv 1 >> 'sv ! ; ] 'i_zoomo ibtnf 4 'ccx +!
+	'vistall 'i_box ibtnf 4 'ccx +!
 	;
 
 :tooeditn
 	picktra -? ( drop ; ) drop
-	'delnodo 'i_del ibtn sp
-	'insnodo 'i_ins ibtn sp
+	'delnodo 'i_del ibtnf 4 'ccx +!
+	'insnodo 'i_ins ibtnf 4 'ccx +!
 	;
 
 :colpoly
@@ -1075,14 +1078,13 @@
 
 :tooeditp
 	picktra -? ( drop ; ) drop
-	'cpypoly "c" btnt
-	'uppoly "^" btnt
-	'dnpoly "v" btnt
-	'polycol "t" btnt
-	'colpoly "e" btnt
-	'delpoly "x" btnt
+	'cpypoly 'i_copy ibtnf 4 'ccx +!
+	'uppoly 'i_back ibtnf 4 'ccx +!
+	'dnpoly 'i_front ibtnf 4 'ccx +!
+	'polycol 'i_tint ibtnf 4 'ccx +!
+	'colpoly 'i_pick ibtnf 4 'ccx +!
+	'delpoly 'i_trash ibtnf 4 'ccx +!
 	;
-
 
 :toolsel
 |	'i.object_group 0 btnric gcdn | group
@@ -1090,7 +1092,7 @@
 | move
 | rota
 | escale
-	'delsel "x" btnt	| del
+	'delsel 'i_trash ibtnf	| del
 	;
 
 |------- modos
@@ -1120,36 +1122,36 @@
 	ves vsprite
 	;
 
-#icbotonera 'i_draw 'i_eye 'i_star 'i_pencil 'i_tool 0
+#icbotonera 'i_draw 'i_eye 'i_star 'i_staro 'i_ray 0
 #icmode
 
 :botonera
 	home
-	azul 2 backlines
-	blanco over ":r%d Vsprite Edit " print
+	$777777 'ink !
+	2 backlines
 
-|	cols 20 - 0 gotoxy
-	sw 320 - 4 atxy
-	$ffffff 'ink !
+	blanco
+	0 6 atxy
+	" R3 Vsprite" print
+
+	sw 200 - 4 atxy
 	icmode
 	'icmode 'icbotonera ibtnmode
 	icmode <>? ( icmode setmodo )
 	drop
-	$66ffff 'ink !
-	'resetves 'i_trash ibtnf sp
-	$ff6666 'ink !
-	'exit 'i_exit ibtnf sp
+	[ colorfondo not 'colorfondo ! ; ] 'i_wb ibtnf 4 'ccx +!
+	'resetves 'i_trash ibtnf 4 'ccx +!
+	$ff0000 'ink !
+	'exit 'i_exit ibtnf
 
 |	'i.magic 4 botonmodo
 |	verde oscuro
-|	'i.undo 0 btnric gcdn
-|	'i.repeat 0 btnric gcdn gcdn
-|	gcdn
-	$9090 'ink !
-	1 3 gotoxy
+|	'i.undo 0 btnf
+|	'i.repeat 0 btnf
+
+	$0 'ink !
+	260 4 atxy | 1 3 gotoxy
     modotoo ex
-	naranja
-	[ colorfondo not 'colorfondo ! ; ] 'i_wb ibtn
 
 	dlgColor
 	;
@@ -1241,8 +1243,6 @@
 	ves "mem/notepad.vsp" load 0 swap !
 	ves ( @+ 1? drop ) swap 4 - 'ves> !
 	buildtra
-	3
 	'main onshow
-	drop
 	ves ves> over - "mem/notepad.vsp" save
 	;
