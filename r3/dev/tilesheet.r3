@@ -54,23 +54,20 @@
 #wtilemap 31
 #htilemap 33
 
-#wcam 20
-#hcam 16
+#wcam 10
+#hcam 14
 
-#xini
-#yini
-
-#xlim
-#ylim
+#xini #yini
+#xlim #ylim
+#xi #yi
 
 :drawt | dib --
-	0? ( drop ; )
-	xini yini sprTile ssprite
-	;
+	0? ( drop ; ) 
+	xi yi sprTile ssprite ;
 
-:drawm
-	xcam 11 >> $1f and neg 'xini !
-	ycam 11 >> $1f and neg 'yini !
+:drawtilemap
+	xcam 11 >> $1f and neg xini + 'xi !
+	ycam 11 >> $1f and neg yini + 'yi !
 	'testmap
 	ycam 16 >> wtilemap * xcam 16 >> + +
 
@@ -78,21 +75,47 @@
 		wcam ( 1? 1 -
 			rot c@+ drawt
 			rot rot
-			32 'xini +!
+			32 'xi +!
 			) drop
 		swap wtilemap wcam - + swap
 
-		xcam 11 >> $1f and neg 'xini !
-		32 'yini +!
+		xcam 11 >> $1f and neg xini + 'xi !
+		32 'yi +!
 		) 2drop ;
 
-
-#tileini
-:drawpaleta
-	'testmap
-
+:wintilemap | x1 y1 x2 y2 --
+	'hcam !
+	'wcam !
+	dup 'yini ! hcam swap - 32 / 'hcam !
+	dup 'xini ! wcam swap - 32 / 'wcam !
+	wtilemap wcam - 16 << 'xlim !
+	htilemap hcam - 16 << 'ylim !
 	;
 
+|-------------------
+#tileini 0
+#tilenow 0
+
+:tilecur
+	xi yi over 31 + over 31 +
+	$ffffff 'ink ! rectbox
+	;
+
+:drawpaleta
+	32 'yi !
+	sw 1 >> 32 + 'xi !
+	tileini
+	10 ( 1? 1 -
+		10 ( 1? 1 -
+			rot dup	xi yi
+			sprTile ssprite
+			tilenow =? ( tilecur )
+			1 + rot rot
+			32 'xi +!
+			) drop
+		32 'yi +!
+		sw 1 >> 32 + 'xi !
+		) 2drop ;
 
 
 #imodes 'i_draw 'i_eye 'i_star 'i_pencil 'i_tool 0
@@ -100,22 +123,35 @@
 
 :main
 	cls
-	drawm
+
+	drawtilemap
 
 	home gui
-	"print " print cr
+	cols dup 1 >> swap 2 >> + 0 gotoxy
 	sp 'nmode 'imodes ibtnmode
+	$ff0000 'ink !
+	'exit 'i_exit ibtnf
+
+	drawpaleta
 	key
 	>esc< =? ( exit )
-	<up> =? ( -0.2 ycam + 0.0 max 'ycam ! )
-	<dn> =? ( 0.2 ycam + ylim min 'ycam ! )
-	<le> =? ( -0.2 xcam + 0.0 max 'xcam ! )
-	<ri> =? ( 0.2 xcam + xlim min 'xcam ! )
+|	<up> =? ( -1.0 ycam + 0.0 max 'ycam ! )
+|	<dn> =? ( 1.0 ycam + ylim min 'ycam ! )
+|	<le> =? ( -1.0 xcam + 0.0 max 'xcam ! )
+|	<ri> =? ( 1.0 xcam + xlim min 'xcam ! )
+
+	<le> =? ( tilenow 1 - 0 max 'tilenow ! )
+	<ri> =? ( 1 'tilenow +! )
+	<up> =? ( tilenow 10 - 0 max 'tilenow ! )
+	<dn> =? ( 10 'tilenow +! )
+
 	drop
 	acursor
 	;
 
+|-------------------
 :inimem
+	$696969 'paper !
 	mark
 	cls home "cargando..." print redraw
 
@@ -123,11 +159,7 @@
 	"media/img/open_tileset.old.png"
 	loadimg tileSheet 'sprtile !
 
-
-	sw 32 / 1 + 'wcam !
-	sh 32 / 2 + 'hcam !
-	wtilemap wcam - 16 << 'xlim !
-	htilemap hcam - 16 << 'ylim !
+	0 0 sw 1 >> sh wintilemap
 	;
 
 : inimem 'main onShow ;

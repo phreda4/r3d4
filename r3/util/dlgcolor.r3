@@ -63,7 +63,7 @@
 	c1x 2 - c1y 2 - over 4 + over 4 + rectbox
 	cwx 138 + cwy c1w + 1 - over 14 + over 2 + rectbox
  	cwx 70 + cwy 138 + atxy
-	color "$%h" print
+	color $ffffffff and "$%h" print
 	color 'ink !
 	cwx 10 + cwy 134 + over 50 + over 20 + fillbox
 	;
@@ -110,3 +110,8 @@
 		1 + ) drop
 	$0 'color !
 	;
+
+::xydlgColor! | x y --
+	over 60 + 'cwx !
+	dup 'cwy !
+	'ypal ! 'xpal ! ;

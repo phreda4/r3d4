@@ -149,6 +149,9 @@
 	fillbox
 	;
 
+:vesgui
+	vsx vsw 1 >> - vsy vsh 1 >> - vsw vsh guiBox ;
+
 |**********************
 
 :p1 2dup 3 fbox ink >r gris 3 box r> 'ink ! ;
@@ -182,12 +185,13 @@
 	rot dup rot entre |	n3 a n2
 	rot dup 'pa ! entre ;
 
-#ppo t0 t0 t1 t1 t4 t5 t6 t7 t4 t5 t6 t7
+#ppo t0 t0 t1 t1 t4 t5 t6 t7 t4 t5 t6 t7 t0 t0 t0 t0 t0
 
 :train? | adr -- 1/0
 	0 'inside !
 	-1 'po !
 	( @+ dup $f and $c <?
+|	( @+ 1? dup $f and
 		2 << 'ppo + @ ex
 		) 3drop
 	inside 1 and ;
@@ -527,12 +531,14 @@
 
 |----
 :drawhand
+	vesGui
 	'inid 'movd 'updd guiMap	| lineas
 	drawlines
 |	'remlastline <del>
 	;
 
 :drawpoint
+	vesGui
 	'inip 'movp 'uppp guiMap
 	drawdraw
 	key
@@ -543,11 +549,13 @@
 	;
 
 :drawbox
+	vesgui
 	'inicl 'movcl 'updc guiMap
 	color 'ink ! 
 	xmin ymin xmax ymax fillbox ;
 
 :drawcir
+	vesgui
 	'inicl 'movcl 'updel guiMap
 	color 'ink !
 	xmin xmax 2dup + 1 >> rot rot - abs 1 >>
@@ -624,6 +632,7 @@
 	xypen xy>gc over @ $f and or swap ! ;
 
 :modoeditne
+	vesgui
 	'setpicktra onClick ;
 
 :cursor! | nodo --
@@ -653,6 +662,7 @@
 |---
 :modoeditn
 	picktra -? ( drop modoeditne ; )
+	vesgui
 	[ tocanodo 0? ( -1 'picktra ! ) cursor! ; ]
 	[ cursor 1? ( muevenodo ; ) drop ; ]
 	'rebox
@@ -788,7 +798,8 @@
 	xypen
 	ymin ymax between -? ( 2drop 0 ; ) drop
 	xmin xmax between -? ( drop 0 ; ) drop
-	picktra 4 << tra + @ train? ;
+	1 ;
+|	picktra 4 << tra + @ train? ;
 
 
 :polyini
@@ -848,6 +859,7 @@
 #emove
 
 :dnp
+	inpoly 0? ( drop -1 'picktra ! ; ) drop
 	xmin xmax + 1 >> ymax | punto de x escala
 	inmouse 1? ( drop polyini 'mvscalay 'emove ! ; ) drop
 	xmax ymin ymax + 1 >> | punto de y escala
@@ -856,10 +868,7 @@
 	inmouse 1? ( drop polyini 'mvscala 'emove ! ; ) drop
 	xmin ymin | punto de rotar
 	inmouse 1? ( drop polyinir 'rotapolya 'emove ! ; ) drop
-
-	inpoly 0? ( 1 - 'picktra ! ; ) drop
 	xypen dotf
-
 	'movepoly 'emove ! | mover
 	;
 
@@ -868,6 +877,7 @@
 	;
 
 :modoeditp
+	vesgui
 	picktra -? ( drop 'setpicktra onClick ; ) drop
 	xmin ymin xmax ymax	box.dot
 	negro
@@ -1034,6 +1044,7 @@
 
 :modosel
 	lin lin> <? ( drop selecttr ; ) drop
+	vesgui
 	'dnsel 'movsel 'upsel guiMap
 	xmin ymin xmax ymax
 	pick3 1 + pick3 1 + pick3 1 + pick3 1 +
@@ -1079,8 +1090,8 @@
 :tooeditp
 	picktra -? ( drop ; ) drop
 	'cpypoly 'i_copy ibtnf 4 'ccx +!
-	'uppoly 'i_back ibtnf 4 'ccx +!
-	'dnpoly 'i_front ibtnf 4 'ccx +!
+	'uppoly 'i_front ibtnf 4 'ccx +!
+	'dnpoly 'i_back ibtnf 4 'ccx +!
 	'polycol 'i_tint ibtnf 4 'ccx +!
 	'colpoly 'i_pick ibtnf 4 'ccx +!
 	'delpoly 'i_trash ibtnf 4 'ccx +!
@@ -1122,7 +1133,10 @@
 	ves vsprite
 	;
 
+
 #icbotonera 'i_draw 'i_eye 'i_star 'i_staro 'i_ray 0
+|'i.magic 4 botonmodo
+
 #icmode
 
 :botonera
@@ -1134,23 +1148,20 @@
 	0 6 atxy
 	" R3 Vsprite" print
 
-	sw 200 - 4 atxy
+	sw 200 - 0 atxy
 	icmode
 	'icmode 'icbotonera ibtnmode
 	icmode <>? ( icmode setmodo )
 	drop
 	[ colorfondo not 'colorfondo ! ; ] 'i_wb ibtnf 4 'ccx +!
 	'resetves 'i_trash ibtnf 4 'ccx +!
+|	'i.undo 0 btnf
+|	'i.repeat 0 btnf
 	$ff0000 'ink !
 	'exit 'i_exit ibtnf
 
-|	'i.magic 4 botonmodo
-|	verde oscuro
-|	'i.undo 0 btnf
-|	'i.repeat 0 btnf
-
 	$0 'ink !
-	260 4 atxy | 1 3 gotoxy
+	260 0 atxy
     modotoo ex
 
 	dlgColor
@@ -1230,13 +1241,13 @@
 
 :inimem
 	mark
-	fontj2
 	$454545 'paper !
 	dlgColorIni
 	iniXFB
 	here dup 'ves ! dup 'ves> ! 0 swap !
 	resetves
 	vistall
+	0 24 xydlgColor!
 	;
 
 :	inimem
