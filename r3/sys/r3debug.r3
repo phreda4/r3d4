@@ -50,7 +50,7 @@
 |-----------------------------
 #emode
 
-#xcode 5
+#xcode 6
 #ycode 1
 #wcode 40
 #hcode 25
@@ -73,13 +73,13 @@
 :mode!view
 	1 'emode !
 	rows 2 - 'hcode !
-	cols 6 - 'wcode !
+	cols 7 - 'wcode !
 	calcselect ;
 
 :mode!src
 	2 'emode !
 	rows 2 - 'hcode !
-	cols 6 - 'wcode !
+	cols 7 - 'wcode !
 	calcselect ;
 
 |------ MEMORY VIEW
@@ -752,14 +752,10 @@ tagnull tagnull tagnull tagnull tagnull tagnull tagnull
 
 |-------- view screen
 :waitf6
-	update
-	key
-	>f6< =? ( exit )
-	drop ;
+	key >f6< =? ( exit ) drop ;
 
 :viewscreen
-	xfb> redraw
-	'waitf6 onshow ;
+	xfb> 'waitf6 onshow ;
 
 #statevars
 
