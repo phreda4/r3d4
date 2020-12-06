@@ -50,6 +50,9 @@
     'vec 'pad3 16 inputex cr
 	cv "%d" print cr
 
+	"cv:" print
+	'cv inputint
+
 	200 300 100 100 guibox
 
 	$ff 'ink !

@@ -4,6 +4,7 @@
 
 ^r3/lib/gui.r3
 ^r3/lib/btn.r3
+^r3/lib/input.r3
 ^r3/lib/sprite.r3
 ^r3/util/loadimg.r3
 
@@ -44,6 +45,10 @@
 1 2 2 3 3 3 3 4 4 4 4 5 5 5 6 0 8 8 8 0 0 0 0 0 0 1 2 3 0 0 1
 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 4 0 0 0 0 0 0 0 1
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 )
+
+#resxmap 32
+#resymap 32
+#adrmap
 
 #tileink
 #sprtile
@@ -102,7 +107,7 @@
 	;
 
 :drawpaleta
-	32 'yi !
+	64 'yi !
 	sw 1 >> 32 + 'xi !
 	tileini
 	10 ( 1? 1 -
@@ -122,16 +127,18 @@
 #nmode
 
 :main
-	cls
-
-	drawtilemap
-
-	home gui
+	cls home gui
 	cols dup 1 >> swap 2 >> + 0 gotoxy
 	sp 'nmode 'imodes ibtnmode
 	$ff0000 'ink !
 	'exit 'i_exit ibtnf
+	$ff00 'ink !
+	50 2 gotoxy
+	"X:" print 'resxmap inputint
+	"  Y:" print 'resymap inputint
 
+
+	drawtilemap
 	drawpaleta
 	key
 	>esc< =? ( exit )

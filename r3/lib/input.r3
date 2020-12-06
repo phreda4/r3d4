@@ -156,3 +156,31 @@
 	cmax "cmax:%d" print cr
 	padi> pad> padf> "%h %h %h" print cr
 	;
+
+|----- ENTERO
+:iniinputi
+	pick2 'cmax ! ;
+
+:knro
+	char 0? ( drop ; ) $30 <? ( drop ; ) $39 >? ( drop ; )
+	$30 -
+	cmax @ 10 * + cmax ! ;
+
+:proinputi
+	knro
+	key
+	<back> =? ( cmax @ 10 / cmax ! )
+	<del> =? ( cmax @ 10 / cmax ! )
+	<tab> =? ( ktab )
+	<ret> =? ( ktab )
+	drop
+	blink 1? ( cursor ) drop ;
+
+|************************************
+::inputint | 'var --
+	'proinputi 'iniinputi w/foco
+	'clickfoco onClick
+	@ "%d" print
+	;
+
+

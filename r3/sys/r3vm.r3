@@ -614,7 +614,7 @@
 
 ::showvstack
 	NOS 16 +
-	NOS TOS over 8 + ! 'PSP - 3 >>
+	NOS 'TOS q@ over 8 + q! 'PSP - 3 >>
 	14 min
 	( 1? swap 8 -
 		cols 20 - rows 1 - pick3 - gotoxy
@@ -629,7 +629,7 @@
 		" r " $3f6fAf bprint
 |		dup printpila
 		swap 1 - ) 2drop
-	cols 34 - rows 1 - gotoxy
-	regb rega " A:%h B:%h" $3f6fAf bprint
+|	cols 34 - rows 1 - gotoxy
+|	regb rega " A:%h B:%h" $3f6fAf bprint
 
 	;
