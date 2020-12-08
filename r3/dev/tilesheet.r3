@@ -65,14 +65,33 @@
 #xini #yini
 #xlim #ylim
 #xi #yi
+#xii #yii
+
+
+#tileini 0
+#tilenow 0
+#xipal
+#yipal
+
 
 :drawt | dib --
-	0? ( drop ; ) 
+	0? ( drop ; )
 	xi yi sprTile ssprite ;
 
+
+:clickmap
+	xypen
+	yii - 32 / wtilemap * swap
+	xii - 32 / +
+	'testmap
+	ycam 16 >> wtilemap * xcam 16 >> + +
+	+
+	tilenow swap c!
+	;
+
 :drawtilemap
-	xcam 11 >> $1f and neg xini + 'xi !
-	ycam 11 >> $1f and neg yini + 'yi !
+	xcam 11 >> $1f and neg xini + dup 'xii ! 'xi !
+	ycam 11 >> $1f and neg yini + dup 'yii ! 'yi !
 	'testmap
 	ycam 16 >> wtilemap * xcam 16 >> + +
 
@@ -83,10 +102,15 @@
 			32 'xi +!
 			) drop
 		swap wtilemap wcam - + swap
-
-		xcam 11 >> $1f and neg xini + 'xi !
+		xii 'xi !
 		32 'yi +!
-		) 2drop ;
+		) 2drop
+
+	xii yii
+	32 wcam * 32 hcam *
+	guiBox
+	'clickmap onMove
+	;
 
 :wintilemap | x1 y1 x2 y2 --
 	'hcam !
@@ -98,17 +122,22 @@
 	;
 
 |-------------------
-#tileini 0
-#tilenow 0
 
 :tilecur
 	xi yi over 31 + over 31 +
 	$ffffff 'ink ! rectbox
 	;
 
+:clicktile
+	xypen 
+	yipal - 32 / 10 * swap
+	xipal - 32 / +
+	tileini + 'tilenow !
+	;
+
 :drawpaleta
-	64 'yi !
-	sw 1 >> 32 + 'xi !
+	yipal 'yi !
+	xipal 'xi !
 	tileini
 	10 ( 1? 1 -
 		10 ( 1? 1 -
@@ -119,8 +148,14 @@
 			32 'xi +!
 			) drop
 		32 'yi +!
-		sw 1 >> 32 + 'xi !
-		) 2drop ;
+		xipal 'xi !
+		) 2drop
+	xipal yipal
+	32 10 * 32 10 *
+	guiBox
+	'clicktile onClick
+
+	;
 
 
 #imodes 'i_draw 'i_eye 'i_star 'i_pencil 'i_tool 0
@@ -167,6 +202,10 @@
 	loadimg tileSheet 'sprtile !
 
 	0 0 sw 1 >> sh wintilemap
+
+	sw 1 >> 32 + 'xipal !
+	64 'yipal !
+
 	;
 
 : inimem 'main onShow ;
