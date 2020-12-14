@@ -43,6 +43,9 @@
 ::guiBorde
 	xr1 1 - yr1 1 - xr2 yr2 rectbox ;
 
+::guizone
+	xr1 yr1 xr2 yr2 rectbox ;
+
 |---------
 ::gui
 	idf 'idl ! hot 'hotnow !
