@@ -4,6 +4,9 @@
 
 ^r3/lib/gui.r3
 ^r3/lib/parse.r3
+
+^r3/sys/r3base.r3
+
 ^r3/lib/fontr.r3
 
 ^media/rft/robotobold.rft
@@ -66,9 +69,20 @@
 	$00f00f a!+
 	a> 'zonas> ! ;
 
+:clearzone
+	'zonas 'zonas> ! ;
+
 |--------------
 #vcode
 #vcode>
+
+:,tk | nro --
+	vcode> !+ 'vcode> ! :
+
+:rebuild
+	clearzone
+
+	;
 
 |---------------------------
 :teclado
