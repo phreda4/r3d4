@@ -79,10 +79,10 @@ SYSUPDATE:
   mov [SYSKEY],eax
   mov [SYSCHAR],eax
   cinvoke64 SDL_Delay,10
-loopev:
   cinvoke64 SDL_PollEvent,evt
   test eax,eax
   jnz n1
+loopev:
   pop rbp rax
   ret
 n1:
@@ -399,9 +399,11 @@ section '.idata' import readable
 
   library kernel32,'KERNEL32',\
           user32,'USER32',\
-          sdl2,'SDL2',\
-          sdl2mixer,'SDL2_mixer'
+          sdl2,'SDL2',\	
+		  sdl2mixer,'SDL2_mixer',\
+ 		  sdl2net,'SDL2_net'
   include 'include\api\kernel32.inc'
   include 'include\api\user32.inc'
   include 'sdl2_api.inc'
   include 'sdl2_mixer_api.inc'
+  include 'sdl2_net_api.inc'

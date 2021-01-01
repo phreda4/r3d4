@@ -1,6 +1,5 @@
-| Server test UDP
+| Client test UDP
 | PHREDA 2021
-|scr 640 240
 
 ^r3/lib/gui.r3
 ^r3/util/console.r3
@@ -10,40 +9,11 @@
 #serversock 0
 #packet
 
-| active,socket,peer,n,a,m,e,e
-#players * 1024
-#players> 'players
 
-:+player | "name" peer socket active --
-	players> >a
-	a!+ a!+ a!+
-	5 ( 1? 1 -
-		swap @+ a!+ swap
-		) 2drop
-	0 a> 1 - c!
-	a> 'players> ! ;
-
-
-:printplay
-	@+ "a:%d " c.print
-	@+ "s:%h " c.print
-	@+ "d:%h " c.print
-	4 5 * +
-	c.cr
-	;
-
-:serverop
-	"severop" c.print c.cr
-	serversock TCPACCEPT | newsock
-	socketset over TCPADD
-	"jugador n" over TCPADR rot 1 +player
-	'players ( players> <? printplay ) drop
-	;
 
 #data * 1024
 
 :clientop | adr -- adr+8*4
-	dup 'players - 5 << "client %d" c.print c.cr
 	dup 4 + @ netcheck 0? ( drop 8 4 * + ; ) drop
 	dup 4 + @ 'data 512 TCPRECV
 |	-? ( finconeccion )
@@ -52,15 +22,6 @@
 	8 4 * +
 	;
 
-:net2
-	socketset 0 NETSETCHECK
-	0? ( drop ; ) drop
-	"." c.print
-	serversock netcheck 1? ( serverop ) drop
-	socketset 0 NETSETCHECK
-	0? ( drop ; ) drop
-	'players ( players> <? clientop ) drop
-	;
 
 |typedef struct {
 |    int channel;        /* The src/dst channel of the packet */
@@ -95,6 +56,14 @@
 
 	;
 
+:sendpack
+	packet
+	"hola" over 4 + @ strcpy
+	5 over 8 + !
+	'serverip q@ swap 20 + q!
+	serversock -1 packet UDPSend
+	;
+
 :main
 	c.draw
 |	c.keys
@@ -102,6 +71,7 @@
 
 	key
 	>esc< =? ( exit )
+	<f1> =? ( sendpack )
 	drop
 	;
 
@@ -116,12 +86,12 @@
 	$ffffff c.ink " server demo" c.print c.cr
 
 	1 netset 'socketset !
-	7777 UDPOPEN 'serversock !
-	'serverip 0 7777 nethost
+	0 UDPOPEN 'serversock !
+	'serverip "localhost" 7777 nethost
 	512 UDPALLOC 'packet !
+
 |	socketset serversock tcpadd
 
-	'players 'players> !
 	;
 
 :netend

@@ -5,34 +5,16 @@
 ^r3/util/console.r3
 
 #socketset
+
 #ip 0 0
 #sock 0
-
-| active,socket,peer,n,a,m,e,e
-#players * 1024
-#players> 'players
-
-:+player | "name" peer socket active --
-	players> >a
-	a!+ a!+ a!+
-	5 ( 1? 1 -
-		swap @+ a!+ swap
-		) 2drop
-	0 a> 1 - c!
-	a> 'players> ! ;
-
-#newsock
-
-:serverop
-	"severop" c.print c.cr
-	sock TCPACCEPT 'newsock !
-	"jugador n"
-	newsock TCPADR
-	newsock 1 +player
-	;
-
 #data * 1024
 
+:serverop
+	sock 'data 1024	tcprecv
+	0? ( drop ; ) drop
+	'data 3 + c.print c.cr
+	;
 
 :recibe
 	socketset 0 NETSETCHECK
@@ -42,14 +24,13 @@
 	;
 
 :sendmsg
-	"hola" c.print c.cr
-	sock "hola" count tcpsend
+	sock "mariadb" count tcpsend
 	drop ;
 
 :main
 	c.draw
 |	c.keys
-|	recibe
+	recibe
 
 	key
 	>esc< =? ( exit )
@@ -62,6 +43,7 @@
 	swap 8 >> dup $ff and
 	swap 8 >> dup $ff and
 	swap 8 >> $ff and
+	swap 2swap swap
 	"Server IP Address : %d.%d.%d.%d" c.print c.cr
 	'ip 4 + @
 	"port: %d" c.print c.cr
@@ -77,12 +59,12 @@
 	$ffffff c.ink " client demo" c.print c.cr
 
 
-	'ip "localhost" 7777 nethost | 0=server 7777 port
+	'ip "localhost" 3306 nethost | 0=server 7777 port
 	printserver
 	'ip tcpopen 'sock !
 	sock "server:%d" c.print c.cr
 
-	2 netset 'socketset !
+	1 netset 'socketset !
 	socketset sock tcpadd
 
 	;
