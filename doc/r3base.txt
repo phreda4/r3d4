@@ -16,7 +16,7 @@ EX	| v --	; Run a word through your address
 <>?	| a b -- a 	; is a<>b? remove TOS
 AND?	| a b -- c 	; is a AND b? remove TOS
 NAND?	| a b -- c 	; is a NAND b? remove TOS
-BT?	| a b c -- a	; is a<=b<=c? remove TOS
+BT?	| a b c -- a	; is b<=a<=c? remove TOS NOS
 DUP	| a -- a a
 DROP	| a --
 OVER	| a b -- a b a

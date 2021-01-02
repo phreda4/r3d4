@@ -75,12 +75,13 @@
 
 |------------------------------
 :readbit | adr -- adr bit
-	bitl 0? ( drop c@+
-		-1 =? ( swap 1 + swap )
+	bitl 0? ( drop c@+ $ff and
+		$ff =? ( swap 1 + swap )
 		'bbit ! 8 )
 	1 - 'bitl !
 	bbit dup 1 << 'bbit !
 	7 >> 1 and ;
+
 
 | index(16)-code(8)-length(8)
 :decodeHuf | a list -- a nro
@@ -98,8 +99,7 @@
 
 :recbits | a n -- a v
 	0 rot pick2 | n 0 a n
-	( 1? 1 - rot 1 << rot readbit rot or swap rot )
-	drop | n nro a
+	( 1? 1 - rot 1 << rot readbit rot or swap rot ) drop | n nro a
 	rot 1 swap << | nro a cat
 	pick2 1 << <=? ( drop swap ; )
 	1 - neg rot + ;
