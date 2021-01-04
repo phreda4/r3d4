@@ -74,18 +74,17 @@
 	dup $1f and 6 << swap 8 >> $3f and or ;
 
 |---------------------------------------------
+#paleta
+$000000 $05fec1 $32af87 $387261 $1c332a $2a5219 $2d8430 $00b716
+$50fe34 $a2d18e $84926c $aabab3 $cdfff1 $05dcdd $499faa $2f6d82
+$3894d7 $78cef8 $bbc6ec $8e8cfd $1f64f4 $25477e $72629f $a48db5
+$f5b8f4 $df6ff1 $a831ee $3610e3 $241267 $7f2387 $471a3a $93274e
+$976877 $e57ea3 $d5309d $dd385a $f28071 $ee2911 $9e281f $4e211a
+$5b5058 $5e4d28 $7e751a $a2af22 $e0f53f $fffbc6 $dfb9ba $ab8c76
+$eec191 $c19029 $f8cb1a $ea7924 $a15e30 $1A1C2C $5D275D $B13E53
+$EF7D57 $FFCD75 $A7F070 $38B764 $257179 $29366F $3B5DC9 $ffffff
 
-| better with #paleta var
-| :get6paleta 2 << 'paleta + @ ;
-:get6paleta | n -- col32
-	0 swap
-	$1 and? ( swap $f or swap )
-	$2 and? ( swap $f0 or swap )
-	$4 and? ( swap $f00 or swap )
-	$8 and? ( swap $f000 or swap )
-	$10 and? ( swap $f0000 or swap )
-	$20 and? ( swap $f00000 or swap )
-	drop ;
+:get6paleta 2 << 'paleta + @ ;
 
 :pix | v mask -- v
 	and? ( c1 a!+ ; )
