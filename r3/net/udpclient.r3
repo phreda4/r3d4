@@ -4,6 +4,7 @@
 ^r3/lib/gui.r3
 ^r3/util/console.r3
 
+#sd
 #socketset
 #serverip 0 0
 #serversock 0
@@ -56,12 +57,14 @@
 
 	;
 
+#ipad
+
 :sendpack
 	packet
 	"hola" over 4 + @ strcpy
 	5 over 8 + !
-	'serverip q@ swap 20 + q!
-	serversock -1 packet UDPSend
+	ipad q@ swap 20 + q!
+	sd -1 packet UDPSend
 	;
 
 :main
@@ -76,6 +79,8 @@
 	;
 
 
+
+
 :netini
 	mark
 	sw sh c.full
@@ -83,14 +88,17 @@
 	c.cls
 	$ff0000 c.ink "r" c.print
 	$ff00 c.ink "3" c.print
-	$ffffff c.ink " server demo" c.print c.cr
+	$ffffff c.ink " Client demo" c.print c.cr
 
 	1 netset 'socketset !
+	0 UDPOPEN 'sd !
+	sd -1 UDPPEER 'ipad !
+	ipad 4 + @ $ffff and |"%d" c.print c.cr
 	0 UDPOPEN 'serversock !
-	'serverip "localhost" 7777 nethost
-	512 UDPALLOC 'packet !
+	ipad "localhost" 6666 nethost
+	32 UDPALLOC 'packet !
 
-|	socketset serversock tcpadd
+	socketset serversock udpadd
 
 	;
 

@@ -116,16 +116,16 @@
 	$ffffff c.ink " server demo" c.print c.cr
 
 	1 netset 'socketset !
-	7777 UDPOPEN 'serversock !
-	'serverip 0 7777 nethost
-	512 UDPALLOC 'packet !
-|	socketset serversock tcpadd
+	6666 UDPOPEN 'serversock !
+	32 UDPALLOC 'packet !
+
+	socketset serversock udpadd
 
 	'players 'players> !
 	;
 
 :netend
-    serversock 1? ( dup tcpclose ) drop
+    serversock 1? ( dup udpclose ) drop
 	packet 1? ( dup UDPFREE ) drop
 	;
 
