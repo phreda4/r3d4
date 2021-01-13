@@ -39,7 +39,7 @@
 
 	10 10 wop
 	100 100 
-	100 10 
+	xypen
 	wcurve
 
 	acursor

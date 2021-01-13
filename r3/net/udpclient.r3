@@ -4,7 +4,6 @@
 ^r3/lib/gui.r3
 ^r3/util/console.r3
 
-#sd
 #socketset
 #serverip 0 0
 #serversock 0
@@ -57,14 +56,13 @@
 
 	;
 
-#ipad
 
 :sendpack
 	packet
 	"hola" over 4 + @ strcpy
 	5 over 8 + !
-	ipad q@ swap 20 + q!
-	sd -1 packet UDPSend
+	'serverip q@ swap 20 + q!
+	serversock -1 packet UDPSend
 	;
 
 :main
@@ -90,12 +88,13 @@
 	$ff00 c.ink "3" c.print
 	$ffffff c.ink " Client demo" c.print c.cr
 
-	1 netset 'socketset !
-	0 UDPOPEN 'sd !
-	sd -1 UDPPEER 'ipad !
-	ipad 4 + @ $ffff and |"%d" c.print c.cr
+	2 netset 'socketset !
 	0 UDPOPEN 'serversock !
-	ipad "localhost" 6666 nethost
+
+|	sd -1 UDPPEER 'ipad !
+|	ipad 4 + @ $ffff and |"%d" c.print c.cr
+|	0 UDPOPEN 'serversock !
+	'serverip "localhost" 6666 nethost
 	32 UDPALLOC 'packet !
 
 	socketset serversock udpadd
@@ -103,7 +102,7 @@
 	;
 
 :netend
-    serversock 1? ( dup tcpclose ) drop
+    serversock 1? ( dup udpclose ) drop
 	packet 1? ( dup UDPFREE ) drop
 	;
 
