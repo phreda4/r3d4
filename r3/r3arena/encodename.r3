@@ -174,6 +174,8 @@ $EF7D57 $FFCD75 $A7F070 $38B764 $257179 $29366F $3B5DC9 $ffffff
 	modo 'lins =? ( drop 'lover 'modo ! ; )
 	drop 'lins 'modo ! ;
 
+|----------------------
+
 :refresh
 	x y c.at 'spad c.semit 32 c.emit
 	pad> padi> - x + y c.at
@@ -200,12 +202,34 @@ $EF7D57 $FFCD75 $A7F070 $38B764 $257179 $29366F $3B5DC9 $ffffff
 	( c@+ 1? drop ) drop 1 -
 	dup 'pad> ! 'padf> !
 	'lins 'modo !
-
 	;
+
+:char6bit | char -- 6bitchar
+	$1f - dup $40 and 1 >> or $3f and ;
+
+:name2code | "" -- 32
+	0 over 10 + c! | cut 10=64bits 5=32bits
+	0 ( swap c@+ 1? char6bit rot 6 << or ) 2drop ;
+
+#buffer * 16
+
+:6bitchar | 6bc -- char
+	$3f and $1f + ;
+
+:code2name | nn -- buf
+	'buffer 15 + 0 over c! 1 -
+	( swap 1? dup 6bitchar pick2 c! 6 >>>
+		swap 1 - ) drop 1 + ;
 
 :enterline
 	3 c.paper
 	x y c.at 'spad c.semit c.cr
+	4 c.paper
+	'spad name2code
+	5 c.paper
+	dup "%h" c.print c.cr
+	7 c.paper
+	code2name c.semit c.cr
 	0 c.paper
 	0 'spad !
 	newpad
