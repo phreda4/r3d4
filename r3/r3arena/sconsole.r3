@@ -137,7 +137,7 @@ $00 $14 $28 $00 $00 $00 $00 $00 ) | ~
 #c1 $ff00
 #c2 $0
 #vblink
-#c.x #c.y
+##c.x ##c.y
 #c.cursor
 #c.atrib $ff000000
 
@@ -147,10 +147,11 @@ $00 $14 $28 $00 $00 $00 $00 $00 ) | ~
 ::c.paper | color --
 	18 << c.atrib $ff000000 and or 'c.atrib ! ;
 
-:c.in
-	c.x c.y
 ::c.at | x y --
-	80 * + 2 <<
+	'c.y ! 'c.x !
+
+:c.in
+	c.x c.y 80 * + 2 <<
 	'screen + 'c.cursor ! ;
 
 :c.uscroll

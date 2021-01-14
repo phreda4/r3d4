@@ -10,7 +10,7 @@
 #c2 $0
 #vblink
 
-#c.x #c.y
+##c.x ##c.y
 #c.cursor
 #c.atrib $ff000000
 
@@ -20,10 +20,11 @@
 ::c.paper | color --
 	18 << c.atrib $ff000000 and or 'c.atrib ! ;
 
-:c.in
-	c.x c.y
 ::c.at | x y --
-	80 * + 2 <<
+	'c.y ! 'c.x !
+
+:c.in
+	c.x c.y 80 * + 2 <<
 	'screen + 'c.cursor ! ;
 
 :c.uscroll
@@ -44,7 +45,9 @@
 	c.uscroll c.in ;
 
 ::c.print | "" --
-	sprint ( c@+ 1? c.emit ) 2drop ;
+	sprint
+::c.semit | "" --
+	( c@+ 1? c.emit ) 2drop ;
 
 ::c.cls
 	'screen 'c.cursor ! 0 'c.x ! 0 'c.y !
@@ -118,7 +121,7 @@ $EF7D57 $FFCD75 $A7F070 $38B764 $257179 $29366F $3B5DC9 $ffffff
 
 #c.prevc
 
-:drawcon
+::drawcon
 	c.cursor dup @ dup 'c.prevc !
 	$20000 or swap !
 	0 blink 1? ( $ffffff or swap ) drop 'vblink !
