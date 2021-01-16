@@ -69,7 +69,7 @@
 :.3DROP		NOS 16 - q@ 'TOS q! -24 'NOS +! ;
 :.4DROP		NOS 24 - q@ 'TOS q! -32 'NOS +! ;
 :.6DROP		NOS 40 - q@ 'TOS q! -48 'NOS +! ;
-:.SWAP		NOS q@ 'TOS @ NOS q! 'TOS q! ;
+:.SWAP		NOS q@ 'TOS q@ NOS q! 'TOS q! ;
 :.ROT		'TOS q@ NOS 8 - q@ 'TOS q! NOS q@ NOS 8 - q!+ q! ;
 :.2SWAP		'TOS q@ NOS q@ NOS 8 - dup 8 - q@ NOS q! q@ 'TOS q! NOS 16 - q!+ q! ;
 
@@ -97,7 +97,7 @@
 	dup 4 - @ 8 >> + ;
 
 :.( 	;
-:.)		dup 4 - @ 8 >> 0? ( drop ; ) + ;
+:.)		dup 4 - @ 8 >> + ;  | 0=no effect
 :.[		jmpr ;
 :.]		dup 4 - @ 8 >> PUSH.NRO ;
 
@@ -517,6 +517,9 @@
 ::code2ixy | code -- ixy
 	code - memixy + @ ;
 
+:backsrc | adr -- adr
+	4 - ( dup @ 0? drop 4 - ) drop ;
+
 ::src2code | src incnow -- code
 	memixy
 	( @+ 24 >> pick2 <>?
@@ -525,8 +528,7 @@
 	( @+ ( 0? drop @+ )
 		pick2 <=? drop ) drop	| search src
 	nip
-	4 - ( dup @ 0? drop 4 - ) drop			| back 1
-	4 - ( dup @ 0? drop 4 - ) drop			| back 1
+	backsrc backsrc	| back 2
 	memsrc - code +
 	;
 

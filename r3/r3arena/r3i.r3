@@ -3,6 +3,8 @@
 | PHREDA 2021
 
 ^./sconsolepc.r3
+^./r3ivm.r3
+
 ^r3/lib/parse.r3
 ^r3/lib/gui.r3
 
@@ -10,8 +12,13 @@
 #sysdic | system diccionary
 #basdic | base diccionary
 #spad	| scratchpad
-#memory
-#memory>
+#code
+#code>
+#icode>
+
+#state	| imm/compiling
+#tlevel	| tokenizer level
+#defnow 0
 
 |--- memory new definition
 | tt(2bit)-codename(30bits) (5chars)
@@ -89,7 +96,6 @@
 
 |----------------------
 
-
 :char6bit | char -- 6bitchar
 	$1f - dup $40 and 1 >> or $3f and ;
 
@@ -116,13 +122,15 @@
 	'buffer 15 + 0 over c! 1 -
 	( swap 1? dup 6bitchar pick2 c! 6 >>>
 		swap 1 - ) drop 1 + ;
-|--------------------------------------------
-#wsys
-"bye" "words" "see" "edit" "forget"
-""
 
-#wbase
-";" "(" ")" "[" "]"
+
+:word2adr | adr -- realadr
+	;
+|-------------------------------
+
+#wsys "BYE" "WORDS" "SEE" "EDIT" "DUMP" "RESET" "REBOOT" "FORGET" ""
+
+#wbase ";" "(" ")" "[" "]"
 "EX" "0?" "1?" "+?" "-?"
 "<?" ">?" "=?" ">=?" "<=?" "<>?" "AND?" "NAND?" "BT?"
 "DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4" "SWAP" "NIP"
@@ -133,20 +141,78 @@
 "NOT" "NEG" "ABS" "SQRT" "CLZ"
 "AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
 "<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
-"MOVE" "MOVE>" "FILL"
-"CMOVE" "CMOVE>" "CFILL"
+"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 ""
 
-:xbye 
-:xword 
-:xsee 
-:xedit 
-:xforget
-	;
+#wint "LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL" ""
 
-#xsys 'xbye 'xword 'xsee 'xedit 'xforget
+|--------- TOKEN PRINT
+:tokenl | t list --
+	swap ( 1? 1 - swap >>0 swap ) drop c.semit ;
 
+:b16 | adr t
+	swap @+ 48 << 48 >> swap 2 -	| t v adr
+	rot 'wbase tokenl swap " %d" c.print ;
 
+:b32
+	swap @+				| t adr v
+	rot 'wbase tokenl " %d" c.print ;
+
+:b | adr t --
+	'wbase tokenl ;
+
+:i8 | adr t --
+	swap c@+ | t adr v
+	swap over + swap | t adr' v
+	rot 84 - 'wint tokenl " %d" c.print ;
+
+:i16 | adr t --
+	swap @+ 48 << 48 >> swap 2 -	| t v adr
+	rot 84 - 'wint tokenl swap " %d" c.print ;
+
+:i32 | adr t --
+	swap @+				| t adr v
+	rot 84 - 'wint tokenl " %d" c.print ;
+
+#tokenp
+b b b16 b16 b16		|";" "(" ")" "[" "]"
+b b16 b16 b16 b16	|"EX" "0?" "1?" "+?" "-?"
+b16 b16 b16 b16 b16 b16 b16 b16 b16	|"<?" ">?" "=?" ">=?" "<=?" "<>?" "AND?" "NAND?" "BT?"
+b b b b b b b b	|"DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4" "SWAP" "NIP"
+b b b b b b b   |"ROT" "2DUP" "2DROP" "3DROP" "4DROP" "2OVER" "2SWAP"
+b b b b b b b b b b	|"@" "C@" "@+" "C@+" "!" "C!" "!+" "C!+" "+!" "C+!"
+b b b b b b b	|">A" "A>" "A@" "A!" "A+" "A@+" "A!+"
+b b b b b b b	|">B" "B>" "B@" "B!" "B+" "B@+" "B!+"
+b b b b b		|"NOT" "NEG" "ABS" "SQRT" "CLZ"
+b b b b b b b b |"AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
+b b b b b b b   |"<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
+b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
+i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
+
+:minilit | t --
+	57 << 57 >> "mL(%d)" c.print ;
+
+:tokenprint | adr -- adr'
+	c@+
+	$80 and? ( minilit ; )
+	dup 2 << 'tokenp + @ ex ;
+
+|-------------------------------
+:xbye	exit ;
+:xwords ;
+:xsee   ;
+:xedit	;
+:xdump	;
+:xreset	;
+:xreboot	;
+:xforget	;
+
+#xsys 'xbye 'xwords 'xsee 'xedit 'xdump 'xreset 'xreboot 'xforget
+
+:.sys | nro --
+	"sis %d" c.print ;
+
+|-------------------------------
 :makedicc | adr list -- adr'
 	swap >a
 	( dup c@ 1? drop
@@ -154,13 +220,11 @@
 		>>0 ) 2drop
 	0 a!+ a> ;
 
-
 #error
 #lerror
 
 :?dicc | adr dicc -- nro+1/0
-	swap word2code
-	over
+	swap word2code over
 	( @+ 1?
 		pick2 =? ( drop pick2 - 2 >> nip nip ; )
 		drop ) 4drop 0 ;
@@ -170,31 +234,61 @@
 
 :?word | adr -- adr/0
 	word2code
+	drop 0
 	;
 
-:.def	| :
-	;
-:.var	| #
+|--------------------------
+:,i		icode> c!+ 'icode> ! ;
+:,iw	icode> !+ 2 - 'icode> ! ;
+:,id	icode> !+ 'icode> ! ;
+
+:endef
+	state 0? ( drop ; )
+|	1 =? (
+	drop
 	;
 
-:.sys | nro --
-	"sis %d" c.print ;
+:.def | adr -- adr' | :
+	endef
+	1 'state !
+	;
+
+:.var | adr -- adr' | #
+	endef
+	2 'state !
+	;
+
 :.base	| nro --
-	"base %d" c.print ;
-:.str | adr --
-	"str " c.print ;
+	1 - ,i >>sp ;
+
 :.lit | adr -- adr
-	"lit " c.print ;
+	str>nro
+	dup 57 << 57 >> =? ( $7f and $80 or ,i ; )
+	dup 48 << 48 >> =? ( 84 ,i ,iw ; )
+	85 ,i ,id ;
+
+:>>" | adr -- adr'
+	( c@+ 1? 34 =? ( drop
+			c@+ 34 <>? ( drop 1 - ; ) ) drop ) drop 1 - ;
+
+:.str | adr --
+	86 ,i
+	dup ,id
+	>>" ;
+
 :.word | nro --
-	"word %h" c.print ;
+	| var/word
+	89 ,i word2adr ,id >>sp ;
+
 :.adr | nro --
-	"'word %h" c.print ;
+	90 ,i word2adr ,id >>sp ;
+
+|	$5e =? ( drop >>cr ; )	| $5e ^  Include
+|	$7c =? ( drop .com ; )	| $7c |	 Comentario
 
 :wrd2token | str -- str'
 	( dup c@ $ff and 33 <?
 		0? ( nip ; ) drop 1 + )	| trim0
-|	$5e =? ( drop >>cr ; )	| $5e ^  Include
-|	$7c =? ( drop .com ; )	| $7c |	 Comentario
 	$3A =? ( drop .def ; )	| $3a :  Definicion
 	$23 =? ( drop .var ; )	| $23 #  Variable
 	$22 =? ( drop .str ; )	| $22 "	 Cadena
@@ -207,15 +301,15 @@
 	dup isNro 1? ( drop .lit ; ) drop	| number
 	dup ?sys 1? ( .sys ; ) drop
 	dup ?base 1? ( .base ; ) drop	| base
-	?word 1? ( .word ; ) drop		| word
+	dup ?word 1? ( .word ; ) drop		| word
  	"Word not found" 'error !
-	dup 'lerror !
-	drop 0 ;
+	'lerror !
+	0 ;
 
 :parse | str --
 	0 'error !
-	( wrd2token 1? >>sp ) drop
-	error 1? ( "%s %d" c.print c.cr ; ) drop
+	( wrd2token 1? ) drop
+	error 1? ( c.semit c.cr ; ) drop
 	;
 
 :parse&run
@@ -223,6 +317,11 @@
 
 	'spad parse
 
+	c.cr
+	code> (	icode> <? c@+ $ff and "%h " c.print ) drop
+	c.cr
+	code> (	icode> <? tokenprint 32 c.emit ) drop
+	c.cr
 	0 'spad !
 	newpad
 	;
@@ -248,8 +347,10 @@
 	'wbase makedicc
 	dup 'spad !
 	1024 +
-	dup 'memory !
-	dup 'memory> !
+	dup 'code !
+	dup 'code> !
+	'icode> !
+	0 'state !
 	;
 
 :
