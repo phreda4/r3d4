@@ -47,13 +47,13 @@
 		@+ pick2 =s 1? ( drop ; ) drop
 		4 + ) drop 0 ;
 
+:realfilename | str -- str
+	"." =pre 0? ( drop "%l" sprint ; ) drop
+	2 + 'r3path "%s/%l" sprint ;
+
 :load.inc | str -- str new ; incluye codigo
     here over		| str here str
-
-|	"." =pre 1? ( drop 2 + 'path "%s%w" sprint )( drop "%w" sprint )
-|	'r3path "%s/%l" sprint
-
-	"%l" sprint
+	realfilename
 	load here =? ( drop
 		over 'lerror !
 		"File not found" 'error !

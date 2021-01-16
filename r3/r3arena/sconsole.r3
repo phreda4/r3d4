@@ -172,7 +172,9 @@ $00 $14 $28 $00 $00 $00 $00 $00 ) | ~
 	c.uscroll c.in ;
 
 ::c.print | "" --
-	sprint ( c@+ 1? c.emit ) 2drop ;
+	sprint
+::c.semit | "" --
+	( c@+ 1? c.emit ) 2drop ;
 
 ::c.cls
 	'screen 'c.cursor ! 0 'c.x ! 0 'c.y !
@@ -287,7 +289,7 @@ $EF7D57 $FFCD75 $A7F070 $38B764 $257179 $29366F $3B5DC9 $ffffff
 
 #c.prevc
 
-:drawcon
+::drawcon
 	c.cursor dup @ dup 'c.prevc !
 	$20000 or swap !
 	0 blink 1? ( $ffffff or swap ) drop 'vblink !
