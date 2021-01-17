@@ -91,30 +91,34 @@
 :iCMOV	NOS dup 4 - @ swap @ TOS  cmove NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
 :iCMOV>	NOS dup 4 - @ swap @ TOS  cmove> NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
 :iCFILL NOS dup 4 - @ swap @ TOS  cfill NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
+
 :iLIT1	4 'NOS +! TOS NOS ! @+ 48 << 48 >> 'TOS ! ; | 16 bits
 :iLIT2	4 'NOS +! TOS NOS ! @+ 'TOS ! ;	| 32 bits
-:iLITs	4 'NOS +! TOS NOS ! c@+ over 'TOS ! + ;	| 8+s bits
-:iJMP   @ ;	| 32 bits
+:iLITs	4 'NOS +! TOS NOS ! c@+ over 'TOS ! $ff and + ;	| 8+s bits
+:iCOM   c@+ $ff and + ;
 :iJMPR  @ 48 << 48 >> + ; 				| 16 bits
+:iJMP   @ ;								| 32 bits
 :iCALL	@+ swap -4 'RTOS ! RTOS ! ; 	| 32 bits
 :iADR	4 'NOS +! TOS NOS ! @+ 'TOS ! ;	| 32 bits (iLIT)
 :iVAR	4 'NOS +! TOS NOS ! @+ @ 'TOS ! ;	| 32 bits
 
+
 #r3maci
-i; i( i) i[ i] iEX i0? i1? i+? i-? 				|0-9
-i<? i>? i=? i>=? i<=? i<>? iAND? iNAND? iBT? 	|10-18
-iDUP iDROP iOVER iPICK2 iPICK3 iPICK4 iSWAP iNIP 	|19-26
-iROT i2DUP i2DROP i3DROP i4DROP i2OVER i2SWAP 	|27-33
-i@ iC@ i@+ iC@+ i! iC! i!+ iC!+ i+! iC+! 		|34-43
-i>A iA> iA@ iA! iA+ iA@+ iA!+ 					|44-50
-i>B iB> iB@ iB! iB+ iB@+ iB!+ 					|51-57
-iNOT iNEG iABS iSQRT iCLZ						|58-62
-iAND iOR iXOR i+ i- i* i/ iMOD					|63-70
-i<< i>> i>>> i/MOD i*/ i*>> i<</				|71-77
-iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|78-83
-iLIT1 iLIT2 iLITs iJMP iJMPR iCALL				|84-89
-iADR iVAR										|90-91
-			|90-127
+iLIT1 iLIT2 iLITs iCOM iJMPR iJMP iCALL iADR iVAR	|0-8
+
+i; i( i) i[ i] iEX i0? i1? i+? i-? 				|9-18
+i<? i>? i=? i>=? i<=? i<>? iAND? iNAND? iBT? 	|19-27
+iDUP iDROP iOVER iPICK2 iPICK3 iPICK4 iSWAP iNIP 	|28-35
+iROT i2DUP i2DROP i3DROP i4DROP i2OVER i2SWAP 	|36-42
+i@ iC@ i@+ iC@+ i! iC! i!+ iC!+ i+! iC+! 		|43-52
+i>A iA> iA@ iA! iA+ iA@+ iA!+ 					|53-59
+i>B iB> iB@ iB! iB+ iB@+ iB!+ 					|60-66
+iNOT iNEG iABS iSQRT iCLZ						|67-71
+iAND iOR iXOR i+ i- i* i/ iMOD					|72-79
+i<< i>> i>>> i/MOD i*/ i*>> i<</				|80-86
+iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
+
+			|92-127
 
 :exlit | 7 bit number
 	4 'NOS +! TOS NOS !

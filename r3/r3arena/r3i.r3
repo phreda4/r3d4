@@ -2,19 +2,19 @@
 | experiment for make a r3computer like jupiter ace
 | PHREDA 2021
 
-^./sconsolepc.r3
-^./r3ivm.r3
-
 ^r3/lib/parse.r3
 ^r3/lib/gui.r3
 
+^./r3ivm.r3
+^./editline.r3
+
 |--- Memory map
-#sysdic | system diccionary
-#basdic | base diccionary
 #spad	| scratchpad
 #code
 #code>
 #icode>
+
+#lastdicc>
 
 #state	| imm/compiling
 #tlevel	| tokenizer level
@@ -31,69 +31,6 @@
 |
 | 34 cua 'var !
 |
-
-#x #y
-
-|--- Edita linea
-#cmax
-#padi>	| inicio
-#pad>	| cursor
-#padf>	| fin
-
-:lins  | c --
-	padf> padi> - cmax >=? ( 2drop ; ) drop
-	pad> dup 1 - padf> over - 1 + cmove> 1 'padf> +!
-:lover | c --
-	pad> c!+ dup 'pad> !
-	padf> >? (
-		dup padi> - cmax >=? ( swap 1 - swap -1 'pad> +! ) drop
-		dup 'padf> ! ) drop
-:0lin | --
-	0 padf> c! ;
-:kdel
-	pad> padf> >=? ( drop ; ) drop
-	1 'pad> +!
-:kback
-	pad> padi> <=? ( drop ; )
-	dup 1 - swap padf> over - 1 + cmove -1 'padf> +! -1 'pad> +! ;
-:kder
-	pad> padf> <? ( 1 + ) 'pad> ! ;
-:kizq
-	pad> padi> >? ( 1 - ) 'pad> ! ;
-
-#modo 'lins
-
-:chmode
-	modo 'lins =? ( drop 'lover 'modo ! ; )
-	drop 'lins 'modo ! ;
-
-|----------------------
-:refresh
-	x y c.at 'spad c.semit 32 c.emit
-	pad> padi> - x + y c.at
-	;
-
-:keyinput
-	char 1? ( modo ex refresh ; ) drop
-	key 0? ( drop ; )
-	<ins> =? ( chmode )
-	<le> =? ( kizq ) <ri> =? ( kder )
-	<back> =? ( kback ) <del> =? ( kdel )
-	<home> =? ( padi> 'pad> ! ) <end> =? ( padf> 'pad> ! )
-	<tab> =? ( ktab )
-	drop
-	refresh
-	;
-
-:newpad
-	c.x 'x ! c.y 'y !
-	1023 'cmax !
-	'spad dup 'padi> !
-	( c@+ 1? drop ) drop 1 -
-	dup 'pad> ! 'padf> !
-	'lins 'modo !
-	;
-
 |----------------------
 
 :char6bit | char -- 6bitchar
@@ -104,7 +41,7 @@
 	0 ( swap c@+ 1? char6bit rot 6 << or ) 2drop ;
 
 :word2code | "" -- code
-	6 0 rot				| cnt acc adr
+	5 0 rot				| cnt acc adr     | 5 32bits 10 64bits
 	( c@+ $ff and
 		32 >?
 		char6bit
@@ -127,54 +64,57 @@
 :word2adr | adr -- realadr
 	;
 |-------------------------------
+| tables
 
-#wsys "BYE" "WORDS" "SEE" "EDIT" "DUMP" "RESET" "REBOOT" "FORGET" ""
+#wsysdic $23EA6 $38C33974 $349A6 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26 0
 
-#wbase ";" "(" ")" "[" "]"
-"EX" "0?" "1?" "+?" "-?"
-"<?" ">?" "=?" ">=?" "<=?" "<>?" "AND?" "NAND?" "BT?"
-"DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4" "SWAP" "NIP"
-"ROT" "2DUP" "2DROP" "3DROP" "4DROP" "2OVER" "2SWAP"
-"@" "C@" "@+" "C@+" "!" "C!" "!+" "C!+" "+!" "C+!"
-">A" "A>" "A@" "A!" "A+" "A@+" "A!+"
-">B" "B>" "B@" "B!" "B+" "B@+" "B!+"
-"NOT" "NEG" "ABS" "SQRT" "CLZ"
-"AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
-"<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
-"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
-""
+#wbasdic $1C $9 $A $3C $3E $9B9 $460 $4A0 $320 $3A0 $760 $7E0 $7A0 $1F7A0 $1D7A0
+$1D7E0 $8AF960 $2F8AF960 $23D60 $25DB1 $973C31 $C379B3 $31AA4B13 $31AA4B14
+$31AA4B15 $D388B1 $2FAB1 $33C35 $4E5DB1 $13973C31 $14973C31 $15973C31
+$13C379B3 $13D388B1 $21 $921 $84C $2484C $2 $902 $8C $2408C $302 $24302
+$7E2 $89F $8A1 $882 $88C $2284C $2208C $7E3 $8DF $8E1 $8C2 $8CC $2384C
+$2308C $2FC35 $2F9A8 $228F4 $D32CF5 $24B7B $22BE5 $C33 $39C33 $C $E $B
+$10 $2EC25 $75D $7DF $1F7DF $42EC25 $2D0 $B7DF $1D750 $BB0DE6 $2EC3799F
+$9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 
-#wint "LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL" ""
+#wintdic $B6AD52 $B6AD53 $B6AD74 $24C2E $AEEC73 $2BBB1 $922B6D $22973 $378B3 0
 
 |--------- TOKEN PRINT
-:tokenl | t list --
-	swap ( 1? 1 - swap >>0 swap ) drop c.semit ;
+:tokenl | nro dic -- str
+	swap 2 << + @ code2name c.semit ;
 
 :b16 | adr t
 	swap @+ 48 << 48 >> swap 2 -	| t v adr
-	rot 'wbase tokenl swap " %d" c.print ;
+	rot 9 - 'wbasdic tokenl swap " %d" c.print ;
 
 :b32
 	swap @+				| t adr v
-	rot 'wbase tokenl " %d" c.print ;
+	rot 9 - 'wbasdic tokenl " %d" c.print ;
 
 :b | adr t --
-	'wbase tokenl ;
+	9 - 'wbasdic tokenl ;
 
 :i8 | adr t --
 	swap c@+ | t adr v
 	swap over + swap | t adr' v
-	rot 84 - 'wint tokenl " %d" c.print ;
+	rot 'wintdic tokenl " %d" c.print ;
 
 :i16 | adr t --
 	swap @+ 48 << 48 >> swap 2 -	| t v adr
-	rot 84 - 'wint tokenl swap " %d" c.print ;
+	rot 'wintdic tokenl swap " %d" c.print ;
 
 :i32 | adr t --
 	swap @+				| t adr v
-	rot 84 - 'wint tokenl " %d" c.print ;
+	rot 'wintdic tokenl " %d" c.print ;
+
+:iCALL
+	drop @+ 8 - @ code2name c.semit ;
+
+:iADR
+	drop @+ 8 - @ code2name "'" c.semit c.semit ;
 
 #tokenp
+i16 i32 i8 i8 i16 i32 iCALL iADR iCALL
 b b b16 b16 b16		|";" "(" ")" "[" "]"
 b b16 b16 b16 b16	|"EX" "0?" "1?" "+?" "-?"
 b16 b16 b16 b16 b16 b16 b16 b16 b16	|"<?" ">?" "=?" ">=?" "<=?" "<>?" "AND?" "NAND?" "BT?"
@@ -187,15 +127,34 @@ b b b b b		|"NOT" "NEG" "ABS" "SQRT" "CLZ"
 b b b b b b b b |"AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
 b b b b b b b   |"<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
 b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
-i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
 
 :minilit | t --
-	57 << 57 >> "mL(%d)" c.print ;
+	57 << 57 >> "%d" c.print ;
 
 :tokenprint | adr -- adr'
 	c@+
 	$80 and? ( minilit ; )
 	dup 2 << 'tokenp + @ ex ;
+
+#tsum (
+2 4 -1 4 2 4 4 4	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL" iADR iVAR
+0 0 2 2 2	|";" "(" ")" "[" "]"
+0 2 2 2 2	|"EX" "0?" "1?" "+?" "-?"
+2 2 2 2 2 2 2 2 2	|"<?" ">?" "=?" ">=?" "<=?" "<>?" "AND?" "NAND?" "0T?"
+0 0 0 0 0 0 0 0	|"DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4" "SWAP" "NIP"
+0 0 0 0 0 0 0   |"ROT" "2DUP" "2DROP" "3DROP" "4DROP" "2OVER" "2SWAP"
+0 0 0 0 0 0 0 0 0 0	|"@" "C@" "@+" "C@+" "!" "C!" "!+" "C!+" "+!" "C+!"
+0 0 0 0 0 0 0	|">A" "A>" "A@" "A!" "A+" "A@+" "A!+"
+0 0 0 0 0 0 0	|">0" "0>" "0@" "0!" "0+" "0@+" "0!+"
+0 0 0 0 0		|"NOT" "NEG" "A0S" "SQRT" "CLZ"
+0 0 0 0 0 0 0 0 |"AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
+0 0 0 0 0 0 0   |"<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
+0 0 0 0 0 0     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
+)
+
+:tokenext | adr -- adr'
+	c@+ $80 and? ( drop ; )
+	'tsum + c@ -? ( drop c@+ ) + ;
 
 |-------------------------------
 :xbye	exit ;
@@ -213,13 +172,6 @@ i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
 	"sis %d" c.print ;
 
 |-------------------------------
-:makedicc | adr list -- adr'
-	swap >a
-	( dup c@ 1? drop
-		dup name2code a!+
-		>>0 ) 2drop
-	0 a!+ a> ;
-
 #error
 #lerror
 
@@ -229,20 +181,32 @@ i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
 		pick2 =? ( drop pick2 - 2 >> nip nip ; )
 		drop ) 4drop 0 ;
 
-:?base	basdic ?dicc ;
-:?sys	sysdic ?dicc ;
+:?base	'wbasdic ?dicc ;
+:?sys	'wsysdic ?dicc ;
 
 :?word | adr -- adr/0
-	word2code
-	drop 0
-	;
+	word2code lastdicc>	| code dicc
+	( dup @ $3fffffff and
+		pick2 =? ( drop nip ; )
+		drop code >?
+		dup 4 + @ 16 >>> 8 + - ) 2drop 0 ;
 
 |--------------------------
+#blk * 128
+#blk> 'blk
+:pushbl blk> !+ 'blk> ! ;
+:popbl -4 'blk> +! blk> @ ;
+
 :,i		icode> c!+ 'icode> ! ;
 :,iw	icode> !+ 2 - 'icode> ! ;
 :,id	icode> !+ 'icode> ! ;
 
+:16! 	| nro adr --
+	over 8 >> rot rot c!+ c! ;
+
 :endef
+	'blk 'blk>  !
+	1 'tlevel !
 	state 0? ( drop ; )
 |	1 =? (
 	drop
@@ -250,38 +214,114 @@ i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
 
 :.def | adr -- adr' | :
 	endef
+	icode> lastdicc> - 8 - 16 <<
+	icode> 'lastdicc> !
+	over 1 + word2code ,id
+	,id
 	1 'state !
-	;
+	>>sp ;
 
 :.var | adr -- adr' | #
 	endef
+	icode> lastdicc> - 8 - 16 <<
+	icode> 'lastdicc> !
+	dup 1 + word2code ,id
+	,id
 	2 'state !
-	;
-
-:.base	| nro --
-	1 - ,i >>sp ;
+	>>sp ;
 
 :.lit | adr -- adr
 	str>nro
-	dup 57 << 57 >> =? ( $7f and $80 or ,i ; )
-	dup 48 << 48 >> =? ( 84 ,i ,iw ; )
-	85 ,i ,id ;
+	dup 57 << 57 >> =? ( $7f and $80 or ,i ; )  | 7 bits
+	dup 48 << 48 >> =? ( 0 ,i ,iw ; )			| 16 bits
+	1 ,i ,id ;		| 32 bits
 
-:>>" | adr -- adr'
+:," | adr -- adr'
 	( c@+ 1? 34 =? ( drop
-			c@+ 34 <>? ( drop 1 - ; ) ) drop ) drop 1 - ;
+			c@+ 34 <>? ( drop 1 - ; ) ) ,i ) drop 1 - ;
 
 :.str | adr --
-	86 ,i
-	dup ,id
-	>>" ;
+	2 ,i
+	icode> pushbl
+	0 ,i ," 0 ,i
+	popbl icode> over - swap c! ;
 
-:.word | nro --
-	| var/word
-	89 ,i word2adr ,id >>sp ;
+:.word | adr --
+	| data
+	dup @ $80000000 and? ( drop 8 ,i 8 + ,id >>sp ; ) drop
+	| code
+	6 ,i 8 + ,id >>sp ;
 
 :.adr | nro --
-	90 ,i word2adr ,id >>sp ;
+	7 ,i 8 + ,id >>sp ;
+
+|---------------------------------
+:base;
+	9 + ,i
+	-1 'tlevel +!
+	tlevel 1? ( drop ; ) drop
+	| end word, +! is really or
+	lastdicc> icode> over - 8 - swap 4 + +!
+	;
+
+#iswhile
+
+:base(
+	drop
+	1 'tlevel +!
+	icode> pushbl
+	10 ,i ;
+
+:tokenext | adr -- adr'
+	c@+ $80 and? ( drop ; )
+	'tsum + c@ -? ( drop c@+ ) + ;
+
+:search?? | adr -- adr'
+	c@+
+	tokenext
+
+	dup $ff and
+	$16 <? ( 2drop ; )
+	$22 >? ( 2drop ; )
+	swap 8 >> 1? ( 2drop ; ) drop
+	pick4 8 << or over 4 - ! | ?? set block
+	1 'iswhile !
+	;
+
+:base) | tok -- tok
+	drop
+	-1 'tlevel +!
+	0 'iswhile !
+	popbl
+	( icode> <?
+		search??
+		) drop
+	iswhile 0? ( 2 ,i 0 ,iw ; ) drop nip
+	11 ,i ,iw ;
+
+
+:base[
+	drop
+	1 'tlevel +!
+	icode> pushbl
+	12 ,i 0 ,iw ;
+
+:base]
+	drop
+	-1 'tlevel +!
+	popbl
+	icode> over - 3 +
+	13 ,i dup ,iw
+	swap 1 + 16! ;
+
+:.base	| nro --
+	1 -
+	0? ( base; >>sp ; )
+	1 =? ( base( >>sp ; )
+	2 =? ( base) >>sp ; )
+	3 =? ( base[ >>sp ; )
+	4 =? ( base] >>sp ; )
+	9 + ,i >>sp ;
 
 |	$5e =? ( drop >>cr ; )	| $5e ^  Include
 |	$7c =? ( drop .com ; )	| $7c |	 Comentario
@@ -309,23 +349,62 @@ i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
 :parse | str --
 	0 'error !
 	( wrd2token 1? ) drop
-	error 1? ( c.semit c.cr ; ) drop
+	error 1? ( c.semit c.cr lerror name2code "%h " c.print c.cr ; ) drop
 	;
 
+|-------------------------------------------------
+:dumptokens | last now --
+	( over <? tokenprint 32 c.emit ) 2drop ;
+
+:dumpbytes | last now --
+	( over <? c@+ $ff and "%h " c.print ) 2drop ;
+
+:dumpmem
+	c.cr
+	icode> code dumpbytes
+	c.cr
+	;
+
+|------------------------
 :parse&run
-	x y c.at 'spad c.semit c.cr
+	inputprint c.cr
+	spad parse
+	c.cr
 
-	'spad parse
+|	icode> code> dumpbytes c.cr
+|	icode> code> dumptokens c.cr
 
-	c.cr
-	code> (	icode> <? c@+ $ff and "%h " c.print ) drop
-	c.cr
-	code> (	icode> <? tokenprint 32 c.emit ) drop
-	c.cr
-	0 'spad !
-	newpad
+	0 spad !
+	spad newpad
 	;
 
+:defvar
+	$3fffffff and
+	code2name "#%s " c.print
+	@+ $ffff and	| dir cant
+	over +
+	swap ( over <?
+		c@+ "$%h " c.print
+		 ) 2drop ;
+
+:defwrd | adr --
+	@+
+	$80000000 and? ( defvar ; )
+	code2name ":%s " c.print
+	@+ $ffff and	| dir cant
+	over +
+	swap ( over <?
+		tokenprint 32 c.emit
+		) 2drop ;
+
+
+:wordlist
+	lastdicc>
+	( dup defwrd c.cr code >?
+		dup 4 + @ 16 >>> 8 + - ) drop
+	c.cr
+	spad newpad
+	;
 
 :main
 	drawcon
@@ -334,23 +413,41 @@ i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
 	key
 	>esc< =? ( exit )
 	<ret> =? ( parse&run )
-|	<f1> =? ( wordlist )
+	<f1> =? ( wordlist )
+	<f2> =? ( dumpmem )
 	drop
 	;
+
+|-------------------------------
+:addtest
+	$9368a5 ,id
+	$3 ,id
+	$13 ,i
+	$44 ,i
+	0 ,i
+	icode> 'lastdicc> !
+	$9368a6 ,id
+	$00030004 ,id | -3
+	$13 ,i
+	$44 ,i
+	$87 ,i
+	0 ,i
+
+	icode> 'code> !
+	;
+|-------------------------------
 
 :mm
 	mark
 	here
-	dup 'sysdic !
-	'wsys makedicc
-	dup 'basdic !
-	'wbase makedicc
 	dup 'spad !
 	1024 +
 	dup 'code !
-	dup 'code> !
-	'icode> !
+	dup 'code> ! dup 'icode> !
+	'lastdicc> !
 	0 'state !
+
+|	addtest
 	;
 
 :
@@ -358,6 +455,6 @@ i16 i32 i8 i32 i16 i32	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL"
 	c.cls
 	63 c.ink
 	"r3 console" c.print c.cr
-	0 'spad ! newpad
+	0 spad ! spad newpad
 
 	'main onshow ;
