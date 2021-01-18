@@ -8,6 +8,8 @@
 ^./r3ivm.r3
 ^./editline.r3
 
+#INTWORDS 9
+
 |--- Memory map
 #spad	| scratchpad
 #code
@@ -85,14 +87,14 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 
 :b16 | adr t
 	swap @+ 48 << 48 >> swap 2 -	| t v adr
-	rot 9 - 'wbasdic tokenl swap " %d" c.print ;
+	rot INTWORDS - 'wbasdic tokenl swap " %d" c.print ;
 
 :b32
 	swap @+				| t adr v
-	rot 9 - 'wbasdic tokenl " %d" c.print ;
+	rot INTWORDS - 'wbasdic tokenl " %d" c.print ;
 
 :b | adr t --
-	9 - 'wbasdic tokenl ;
+	INTWORDS - 'wbasdic tokenl ;
 
 :i8 | adr t --
 	swap c@+ | t adr v
@@ -137,19 +139,18 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	dup 2 << 'tokenp + @ ex ;
 
 #tsum (
-2 4 -1 4 2 4 4 4	|"LIT1" "LIT2" "LITs" "JMP" "JMPR" "CALL" iADR iVAR
-0 0 2 2 2	|";" "(" ")" "[" "]"
-0 2 2 2 2	|"EX" "0?" "1?" "+?" "-?"
-2 2 2 2 2 2 2 2 2	|"<?" ">?" "=?" ">=?" "<=?" "<>?" "AND?" "NAND?" "0T?"
-0 0 0 0 0 0 0 0	|"DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4" "SWAP" "NIP"
-0 0 0 0 0 0 0   |"ROT" "2DUP" "2DROP" "3DROP" "4DROP" "2OVER" "2SWAP"
-0 0 0 0 0 0 0 0 0 0	|"@" "C@" "@+" "C@+" "!" "C!" "!+" "C!+" "+!" "C+!"
-0 0 0 0 0 0 0	|">A" "A>" "A@" "A!" "A+" "A@+" "A!+"
-0 0 0 0 0 0 0	|">0" "0>" "0@" "0!" "0+" "0@+" "0!+"
-0 0 0 0 0		|"NOT" "NEG" "A0S" "SQRT" "CLZ"
-0 0 0 0 0 0 0 0 |"AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
-0 0 0 0 0 0 0   |"<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
-0 0 0 0 0 0     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
+2 4 -1 -1 4 2 4 4 4 |L1 L2 Ls Com JMP JMPR CALL iADR iVAR
+0 0 2 2 2 0 2 2 2 2	|; ( ) [ ] EX 0? 1? +? -?
+2 2 2 2 2 2 2 2 2	|<? >? =? >=? <=? <>? AND? NAND? 0T?
+0 0 0 0 0 0 0 0	|DUP DROP OVER PICK2 PICK3 PICK4 SWAP NIP
+0 0 0 0 0 0 0   |ROT 2DUP 2DROP 3DROP 4DROP 2OVER 2SWAP
+0 0 0 0 0 0 0 0 0 0	|@ C@ @+ C@+ ! C! !+ C!+ +! C+!
+0 0 0 0 0 0 0	|>A A> A@ A! A+ A@+ A!+
+0 0 0 0 0 0 0	|>0 0> 0@ 0! 0+ 0@+ 0!+
+0 0 0 0 0		|NOT NEG A0S SQRT CLZ
+0 0 0 0 0 0 0 0 |AND OR XOR + - * / MOD
+0 0 0 0 0 0 0   |<< >> >>> /MOD */ *>> <</
+0 0 0 0 0 0     |MOVE MOVE> FILL CMOVE CMOVE> CFILL
 )
 
 :tokenext | adr -- adr'
@@ -201,8 +202,8 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 :,iw	icode> !+ 2 - 'icode> ! ;
 :,id	icode> !+ 'icode> ! ;
 
-:16! 	| nro adr --
-	over 8 >> rot rot c!+ c! ;
+:16!	over 8 >> rot rot c!+ c! ; | nro adr --
+:16@	@ 48 << 48 >> ; | adr -- val
 
 :endef
 	'blk 'blk>  !
@@ -234,7 +235,7 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	str>nro
 	dup 57 << 57 >> =? ( $7f and $80 or ,i ; )  | 7 bits
 	dup 48 << 48 >> =? ( 0 ,i ,iw ; )			| 16 bits
-	1 ,i ,id ;		| 32 bits
+ 	1 ,i ,id ;		| 32 bits
 
 :," | adr -- adr'
 	( c@+ 1? 34 =? ( drop
@@ -257,7 +258,7 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 
 |---------------------------------
 :base;
-	9 + ,i
+	INTWORDS + ,i
 	-1 'tlevel +!
 	tlevel 1? ( drop ; ) drop
 	| end word, +! is really or
@@ -267,44 +268,35 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 #iswhile
 
 :base(
-	drop
+	INTWORDS + ,i
 	1 'tlevel +!
-	icode> pushbl
-	10 ,i ;
+	icode> pushbl ;
 
-:tokenext | adr -- adr'
-	c@+ $80 and? ( drop ; )
-	'tsum + c@ -? ( drop c@+ ) + ;
-
-:search?? | adr -- adr'
-	c@+
-	tokenext
-
-	dup $ff and
-	$16 <? ( 2drop ; )
-	$22 >? ( 2drop ; )
-	swap 8 >> 1? ( 2drop ; ) drop
-	pick4 8 << or over 4 - ! | ?? set block
+:cond?? | adr -- adr'
+	c@+ $ff and
+	15 <? ( drop ; ) 27 >? ( drop ; )
+	drop
+	dup 16@ 1? ( drop ; ) drop
+	icode> over - 2 - over 16!
 	1 'iswhile !
 	;
 
 :base) | tok -- tok
-	drop
+	INTWORDS + ,i
 	-1 'tlevel +!
 	0 'iswhile !
-	popbl
-	( icode> <?
-		search??
-		) drop
-	iswhile 0? ( 2 ,i 0 ,iw ; ) drop nip
-	11 ,i ,iw ;
-
+	popbl dup
+	( icode> <? cond?? tokenext ) drop
+	iswhile 1? ( drop icode> - ,iw ; ) drop
+	0 ,iw
+	3 - icode> over - 3 - 
+	swap 16! | path IF
+	;
 
 :base[
-	drop
 	1 'tlevel +!
 	icode> pushbl
-	12 ,i 0 ,iw ;
+	INTWORDS + ,i 0 ,iw ;
 
 :base]
 	drop
@@ -321,7 +313,9 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	2 =? ( base) >>sp ; )
 	3 =? ( base[ >>sp ; )
 	4 =? ( base] >>sp ; )
-	9 + ,i >>sp ;
+	INTWORDS + dup ,i
+	'tsum + c@ 1? ( 0 ,iw ) drop
+	>>sp ;
 
 |	$5e =? ( drop >>cr ; )	| $5e ^  Include
 |	$7c =? ( drop .com ; )	| $7c |	 Comentario
@@ -360,27 +354,16 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	( over <? c@+ $ff and "%h " c.print ) 2drop ;
 
 :dumpmem
-	c.cr
-	icode> code dumpbytes
-	c.cr
-	;
+	c.cr icode> code dumpbytes c.cr ;
+
+
 
 |------------------------
-:parse&run
-	inputprint c.cr
-	spad parse
-	c.cr
-
-|	icode> code> dumpbytes c.cr
-|	icode> code> dumptokens c.cr
-
-	0 spad !
-	spad newpad
-	;
-
 :defvar
 	$3fffffff and
+	37 c.ink
 	code2name "#%s " c.print
+	1 c.ink
 	@+ $ffff and	| dir cant
 	over +
 	swap ( over <?
@@ -390,7 +373,9 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 :defwrd | adr --
 	@+
 	$80000000 and? ( defvar ; )
+	37 c.ink
 	code2name ":%s " c.print
+	1 c.ink
 	@+ $ffff and	| dir cant
 	over +
 	swap ( over <?
@@ -399,13 +384,26 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 
 
 :wordlist
+	c.cls
 	lastdicc>
 	( dup defwrd c.cr code >?
-		dup 4 + @ 16 >>> 8 + - ) drop
-	c.cr
-	spad newpad
+		dup 4 + @ 16 >>> 8 + - ) drop ;
+
+|------------------------
+:parse&run
+	|inputprint c.cr
+	spad parse
+|	c.cr
+
+|	icode> code> dumpbytes c.cr
+|	icode> code> dumptokens c.cr
+
+	wordlist
+	dumpmem
+	0 spad ! spad newpad
 	;
 
+|------------------------
 :main
 	drawcon
 	keyinput
@@ -419,24 +417,6 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	;
 
 |-------------------------------
-:addtest
-	$9368a5 ,id
-	$3 ,id
-	$13 ,i
-	$44 ,i
-	0 ,i
-	icode> 'lastdicc> !
-	$9368a6 ,id
-	$00030004 ,id | -3
-	$13 ,i
-	$44 ,i
-	$87 ,i
-	0 ,i
-
-	icode> 'code> !
-	;
-|-------------------------------
-
 :mm
 	mark
 	here
@@ -446,8 +426,6 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	dup 'code> ! dup 'icode> !
 	'lastdicc> !
 	0 'state !
-
-|	addtest
 	;
 
 :
@@ -455,6 +433,11 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	c.cls
 	63 c.ink
 	"r3 console" c.print c.cr
+	0 ( 64 <? 1 +
+		dup c.ink
+		dup "%d " c.print ) drop
+    63 c.ink
+	1 28 c.at atpad
 	0 spad ! spad newpad
 
 	'main onshow ;

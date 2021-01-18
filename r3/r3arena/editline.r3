@@ -55,8 +55,10 @@
 	inputline
 	;
 
+::atpad | --
+	c.x 'x ! c.y 'y ! ;
+
 ::newpad | str --
-	c.x 'x ! c.y 'y !
 	1023 'cmax !
 	dup 'padi> !
 	( c@+ 1? drop ) drop 1 -

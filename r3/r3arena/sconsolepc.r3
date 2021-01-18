@@ -50,8 +50,9 @@
 	( c@+ 1? c.emit ) 2drop ;
 
 ::c.cls
-	'screen 'c.cursor ! 0 'c.x ! 0 'c.y !
-	'screen c.atrib 80 30 * fill ;
+	'screen c.atrib 80 30 * fill
+::c.home
+	'screen 'c.cursor ! 0 'c.x ! 0 'c.y ! ;
 
 :c.le
 	c.x 0 >? ( 1 - 'c.x ! c.in ; ) drop
