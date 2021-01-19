@@ -63,12 +63,8 @@
 		swap 1 - ) drop 1 + ;
 
 
-:word2adr | adr -- realadr
-	;
 |-------------------------------
 | tables
-
-#wsysdic $23EA6 $38C33974 $349A6 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26 0
 
 #wbasdic $1C $9 $A $3C $3E $9B9 $460 $4A0 $320 $3A0 $760 $7E0 $7A0 $1F7A0 $1D7A0
 $1D7E0 $8AF960 $2F8AF960 $23D60 $25DB1 $973C31 $C379B3 $31AA4B13 $31AA4B14
@@ -79,56 +75,26 @@ $2308C $2FC35 $2F9A8 $228F4 $D32CF5 $24B7B $22BE5 $C33 $39C33 $C $E $B
 $10 $2EC25 $75D $7DF $1F7DF $42EC25 $2D0 $B7DF $1D750 $BB0DE6 $2EC3799F
 $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 
-#wintdic $B6AD52 $B6AD53 $B6AD74 $24C2E $AEEC73 $2BBB1 $922B6D $22973 $378B3 0
-
 |--------- TOKEN PRINT
 :tokenl | nro dic -- str
 	swap 2 << + @ code2name c.semit ;
 
-:b16 | adr t
-	swap @+ 48 << 48 >> swap 2 -	| t v adr
-	rot INTWORDS - 'wbasdic tokenl swap " %d" c.print ;
-
-:b32
-	swap @+				| t adr v
-	rot INTWORDS - 'wbasdic tokenl " %d" c.print ;
-
-:b | adr t --
-	INTWORDS - 'wbasdic tokenl ;
-
-:i8 | adr t --
-	swap c@+ | t adr v
-	swap over + swap | t adr' v
-	rot 'wintdic tokenl " %d" c.print ;
-
-:i16 | adr t --
-	swap @+ 48 << 48 >> swap 2 -	| t v adr
-	rot 'wintdic tokenl swap " %d" c.print ;
-
-:i32 | adr t --
-	swap @+				| t adr v
-	rot 'wintdic tokenl " %d" c.print ;
-
-:iCALL
-	drop @+ 8 - @ code2name c.semit ;
-
-:iADR
-	drop @+ 8 - @ code2name "'" c.semit c.semit ;
+:i16	drop @+ 48 << 48 >> "%d" c.print 2 - ;
+:i32	drop @+ "%d" c.print ;
+:b		INTWORDS - 'wbasdic tokenl ;
+:b16	INTWORDS - 'wbasdic tokenl 2 + ;
+:iCOM	drop c@+ swap over + swap "|%d" c.print c.cr ;
+:iSTR	drop c@+ over 34 c.emit c.semit 34 c.emit + ;
+:iCALL	drop @+ 8 - @ code2name c.semit ;
+:iADR	drop @+ 8 - @ code2name "'" c.semit c.semit ;
 
 #tokenp
-i16 i32 i8 i8 i16 i32 iCALL iADR iCALL
+i16 i32 iSTR iCOM
+i16 i32 iCALL iADR iCALL
 b b b16 b16 b16		|";" "(" ")" "[" "]"
 b b16 b16 b16 b16	|"EX" "0?" "1?" "+?" "-?"
-b16 b16 b16 b16 b16 b16 b16 b16 b16	|"<?" ">?" "=?" ">=?" "<=?" "<>?" "AND?" "NAND?" "BT?"
-b b b b b b b b	|"DUP" "DROP" "OVER" "PICK2" "PICK3" "PICK4" "SWAP" "NIP"
-b b b b b b b   |"ROT" "2DUP" "2DROP" "3DROP" "4DROP" "2OVER" "2SWAP"
-b b b b b b b b b b	|"@" "C@" "@+" "C@+" "!" "C!" "!+" "C!+" "+!" "C+!"
-b b b b b b b	|">A" "A>" "A@" "A!" "A+" "A@+" "A!+"
-b b b b b b b	|">B" "B>" "B@" "B!" "B+" "B@+" "B!+"
-b b b b b		|"NOT" "NEG" "ABS" "SQRT" "CLZ"
-b b b b b b b b |"AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
-b b b b b b b   |"<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
-b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
+b16 b16 b16 b16		|"<?" ">?" "=?" ">=?"
+b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :minilit | t --
 	57 << 57 >> "%d" c.print ;
@@ -136,25 +102,20 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 :tokenprint | adr -- adr'
 	c@+
 	$80 and? ( minilit ; )
+	27 >? ( b ; )
 	dup 2 << 'tokenp + @ ex ;
 
 #tsum (
-2 4 -1 -1 4 2 4 4 4 |L1 L2 Ls Com JMP JMPR CALL iADR iVAR
+2 4 -1 -1	|L1 L2 Ls Com
+4 2 4 4 4	|JMP JMPR CALL iADR iVAR
 0 0 2 2 2 0 2 2 2 2	|; ( ) [ ] EX 0? 1? +? -?
 2 2 2 2 2 2 2 2 2	|<? >? =? >=? <=? <>? AND? NAND? 0T?
-0 0 0 0 0 0 0 0	|DUP DROP OVER PICK2 PICK3 PICK4 SWAP NIP
-0 0 0 0 0 0 0   |ROT 2DUP 2DROP 3DROP 4DROP 2OVER 2SWAP
-0 0 0 0 0 0 0 0 0 0	|@ C@ @+ C@+ ! C! !+ C!+ +! C+!
-0 0 0 0 0 0 0	|>A A> A@ A! A+ A@+ A!+
-0 0 0 0 0 0 0	|>0 0> 0@ 0! 0+ 0@+ 0!+
-0 0 0 0 0		|NOT NEG A0S SQRT CLZ
-0 0 0 0 0 0 0 0 |AND OR XOR + - * / MOD
-0 0 0 0 0 0 0   |<< >> >>> /MOD */ *>> <</
-0 0 0 0 0 0     |MOVE MOVE> FILL CMOVE CMOVE> CFILL
 )
 
 :tokenext | adr -- adr'
-	c@+ $80 and? ( drop ; )
+	c@+
+	$80 and? ( drop ; )
+	27 >? ( drop ; )
 	'tsum + c@ -? ( drop c@+ ) + ;
 
 |-------------------------------
@@ -168,6 +129,8 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 :xforget	;
 
 #xsys 'xbye 'xwords 'xsee 'xedit 'xdump 'xreset 'xreboot 'xforget
+
+#wsysdic $23EA6 $38C33974 $349A6 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26 0
 
 :.sys | nro --
 	"sis %d" c.print ;
@@ -207,7 +170,7 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 
 :endef
 	'blk 'blk>  !
-	1 'tlevel !
+	0 'tlevel !
 	state 0? ( drop ; )
 |	1 =? (
 	drop
@@ -237,15 +200,16 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	dup 48 << 48 >> =? ( 0 ,i ,iw ; )			| 16 bits
  	1 ,i ,id ;		| 32 bits
 
-:," | adr -- adr'
-	( c@+ 1? 34 =? ( drop
+:,cpystr | adr -- adr'
+	1 + ( c@+ 1? 34 =? ( drop
 			c@+ 34 <>? ( drop 1 - ; ) ) ,i ) drop 1 - ;
 
 :.str | adr --
 	2 ,i
-	icode> pushbl
-	0 ,i ," 0 ,i
-	popbl icode> over - swap c! ;
+	icode> swap
+	0 ,i ,cpystr 0 ,i
+	swap icode>
+	over - swap c! ;
 
 :.word | adr --
 	| data
@@ -253,13 +217,11 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	| code
 	6 ,i 8 + ,id >>sp ;
 
-:.adr | nro --
+:.adr | adr --
 	7 ,i 8 + ,id >>sp ;
 
 |---------------------------------
 :base;
-	INTWORDS + ,i
-	-1 'tlevel +!
 	tlevel 1? ( drop ; ) drop
 	| end word, +! is really or
 	lastdicc> icode> over - 8 - swap 4 + +!
@@ -268,7 +230,6 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 #iswhile
 
 :base(
-	INTWORDS + ,i
 	1 'tlevel +!
 	icode> pushbl ;
 
@@ -282,38 +243,37 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	;
 
 :base) | tok -- tok
-	INTWORDS + ,i
 	-1 'tlevel +!
 	0 'iswhile !
 	popbl dup
-	( icode> <? cond?? tokenext ) drop
+	( icode> <? cond?? tokenext ) drop	| search ??
 	iswhile 1? ( drop icode> - ,iw ; ) drop
 	0 ,iw
-	3 - icode> over - 3 - 
-	swap 16! | path IF
+	3 - icode> over - 3 -
+	swap 16! 					| patch IF
 	;
 
 :base[
+	0 ,iw
 	1 'tlevel +!
 	icode> pushbl
-	INTWORDS + ,i 0 ,iw ;
+	;
 
 :base]
-	drop
 	-1 'tlevel +!
-	popbl
-	icode> over - 3 +
-	13 ,i dup ,iw
-	swap 1 + 16! ;
+	popbl icode> over -
+	dup ,iw
+	swap 2 - 16! ;
 
 :.base	| nro --
 	1 -
-	0? ( base; >>sp ; )
-	1 =? ( base( >>sp ; )
-	2 =? ( base) >>sp ; )
-	3 =? ( base[ >>sp ; )
-	4 =? ( base] >>sp ; )
-	INTWORDS + dup ,i
+	dup INTWORDS + ,i
+	0? ( drop base; >>sp ; )
+	1 =? ( drop base( >>sp ; )
+	2 =? ( drop base) >>sp ; )
+	3 =? ( drop base[ >>sp ; )
+	4 =? ( drop base] >>sp ; )
+	18 >? ( drop >>sp ; )
 	'tsum + c@ 1? ( 0 ,iw ) drop
 	>>sp ;
 
@@ -327,10 +287,10 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 	$23 =? ( drop .var ; )	| $23 #  Variable
 	$22 =? ( drop .str ; )	| $22 "	 Cadena
 	$27 =? ( drop 			| $27 ' Direccion
-		1 + ?word 1? ( .adr ; ) drop
+		dup 1 + ?word 1? ( .adr ; ) drop
 		"Addr not exist" 'error !
-		dup 1 - 'lerror !
-		drop 0 ; )
+		1 - 'lerror !
+		0 ; )
 	drop
 	dup isNro 1? ( drop .lit ; ) drop	| number
 	dup ?sys 1? ( .sys ; ) drop
@@ -355,8 +315,6 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 
 :dumpmem
 	c.cr icode> code dumpbytes c.cr ;
-
-
 
 |------------------------
 :defvar
@@ -393,10 +351,8 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 :parse&run
 	|inputprint c.cr
 	spad parse
-|	c.cr
 
-|	icode> code> dumpbytes c.cr
-|	icode> code> dumptokens c.cr
+|	c.cr
 
 	wordlist
 	dumpmem
@@ -420,10 +376,10 @@ b b b b b b     |"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 :mm
 	mark
 	here
-	dup 'spad !
-	1024 +
+	dup 'spad ! 1024 +
 	dup 'code !
-	dup 'code> ! dup 'icode> !
+	dup 'code> ! 
+	dup 'icode> !
 	'lastdicc> !
 	0 'state !
 	;
