@@ -2,36 +2,38 @@
 | simplest encoding  - 1 byte token
 | PHREDA 2021
 
+^./sconsolepc.r3
+
 #TOS #NOS #RTOS
 #RA #RB
-#STACK * 1024
+#STACK * 256 | 64 cells
 
-:i;		RTOS @ 4 'RTOS +! ;
-|		RTOS @ 4 'RTOS +! 0? ( r> drop ) ; | *** REPEAT
+:i;		drop RTOS @ 4 'RTOS +! ;
+|		drop RTOS @ 4 'RTOS +! 0? ( r> drop ) ; | *** REPEAT
 :i(		;
-:i)		@+ 48 << 48 >> + 2 - ;
-:i[		@+ 48 << 48 >> + 2 - ;
-:i]		4 'NOS +! TOS NOS ! @+ 48 << 48 >> + 2 - 'TOS ! ;
+:i)		@+ 48 << 48 >> + ;
+:i[		@+ 48 << 48 >> + ;
+:i]		4 'NOS +! TOS NOS ! @+ 48 << 48 >> +  'TOS ! ;
 :iEX	-4 'RTOS +! RTOS ! TOS 4 'NOS +! NOS @ 'TOS ! ;
 :i0?	TOS 1? ( drop @+ 48 << 48 >> + ; ) drop 2 + ; | +4 (16bit)+
 :i1?    TOS 0? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
 :i+?    TOS -? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
 :i-?	TOS +? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
-:i<?    NOS @ TOS >=? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:i>?	NOS @ TOS <=? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:i=?    NOS @ TOS <>? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:i>=?	NOS @ TOS <? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:i<=?	NOS @ TOS >? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:i<>?	NOS @ TOS =? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:iAND?	NOS @ TOS NAND? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:iNAND?	NOS @ TOS AND? ( 'TOS ! -4 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS ! 2 + ;
-:iBT?	NOS dup 4 - @ swap @ TOS BT? ( 'TOS ! -8 'NOS ! @+ 48 << 48 >> + ; ) 'TOS ! -8 'NOS ! 2 + ;
+:i<?    NOS @ TOS >=? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i>?	NOS @ TOS <=? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i=?    NOS @ TOS <>? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i>=?	NOS @ TOS <? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i<=?	NOS @ TOS >? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i<>?	NOS @ TOS =? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:iAND?	NOS @ TOS NAND? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:iNAND?	NOS @ TOS AND? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
+:iBT?	NOS dup 4 - @ swap @ TOS BT? ( 'TOS ! -8 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -8 'NOS +! 2 + ;
 :iDUP	4 'NOS +! TOS NOS ! ;
 :iDROP	NOS dup @ 'TOS ! 4 - 'NOS ! ;
-:iOVER	4 'NOS +! TOS NOS ! NOS 8 - 'TOS ! ;
-:iPICK2	4 'NOS +! TOS NOS ! NOS 12 - 'TOS ! ;
-:iPICK3	4 'NOS +! TOS NOS ! NOS 16 - 'TOS ! ;
-:iPICK4	4 'NOS +! TOS NOS ! NOS 20 - 'TOS ! ;
+:iOVER	4 'NOS +! TOS NOS ! NOS 8 - @ 'TOS ! ;
+:iPICK2	4 'NOS +! TOS NOS ! NOS 12 - @ 'TOS ! ;
+:iPICK3	4 'NOS +! TOS NOS ! NOS 16 - @ 'TOS ! ;
+:iPICK4	4 'NOS +! TOS NOS ! NOS 20 - @ 'TOS ! ;
 :iSWAP  NOS @ TOS NOS ! 'TOS ! ;
 :iNIP	-4 'NOS +! ;
 :iROT	TOS NOS 4 - @ 'TOS ! NOS @ NOS 4 - !+ ! ;
@@ -105,7 +107,6 @@
 
 #r3maci
 iLIT1 iLIT2 iLITs iCOM iJMPR iJMP iCALL iADR iVAR	|0-8
-
 i; i( i) i[ i] iEX i0? i1? i+? i-? 				|9-18
 i<? i>? i=? i>=? i<=? i<>? iAND? iNAND? iBT? 	|19-27
 iDUP iDROP iOVER iPICK2 iPICK3 iPICK4 iSWAP iNIP 	|28-35
@@ -117,7 +118,6 @@ iNOT iNEG iABS iSQRT iCLZ						|67-71
 iAND iOR iXOR i+ i- i* i/ iMOD					|72-79
 i<< i>> i>>> i/MOD i*/ i*>> i<</				|80-86
 iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
-
 			|92-127
 
 :exlit | 7 bit number
@@ -130,11 +130,16 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 
 ::vmrun | ip -- ip'
 	( 1? | *** avoid with REPEAT
-		c@+ $80 and? ( exlit ; )
-		2 << 'r3maci + @ ex ) ;
+		vmstep ) ;
 
 ::vmreset
 	'stack 'NOS ! 0 'TOS !
-	'stack 255 2 << +
-	0 over ! 'RTOS !
+::vmresetr
+	'stack 252 + 0 over ! 'RTOS !
+	;
+
+::vmstackprint
+	'stack 8 + ( NOS <=? @+ " %d" c.print ) drop
+	'stack NOS <? ( TOS " %d " c.print ) drop
+	"           " c.semit
 	;

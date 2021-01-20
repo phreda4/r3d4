@@ -27,7 +27,7 @@
 	c.x c.y 80 * + 2 <<
 	'screen + 'c.cursor ! ;
 
-:c.uscroll
+::c.uscroll
 	'screen 80 2 << over + 80 29 * move
 	'screen 80 29 * 2 << + $3f000000 80 fill
 	;
@@ -53,6 +53,8 @@
 	'screen c.atrib 80 30 * fill
 ::c.home
 	'screen 'c.cursor ! 0 'c.x ! 0 'c.y ! ;
+::c.cll | y --
+	80 * 2 << 'screen + c.atrib 80 fill ;
 
 :c.le
 	c.x 0 >? ( 1 - 'c.x ! c.in ; ) drop

@@ -1,3 +1,6 @@
+| edit line in console
+| PHREDA 2021
+
 ^./sconsolepc.r3
 
 |--- Edita linea
@@ -36,12 +39,9 @@
 
 |----------------------
 ::inputline | --
-	x y c.at padi> c.semit 32 c.emit
-	pad> padi> - x + y c.at
+	x y c.at padi> c.semit 32 c.emit	| line
+	pad> padi> - x + y c.at				| cursor
 	;
-
-::inputprint
-	x y c.at padi> c.semit 32 c.emit ;
 
 ::keyinput
 	char 1? ( modo ex inputline ; ) drop
@@ -52,8 +52,7 @@
 	<home> =? ( padi> 'pad> ! ) <end> =? ( padf> 'pad> ! )
 	<tab> =? ( ktab )
 	drop
-	inputline
-	;
+	inputline ;
 
 ::atpad | --
 	c.x 'x ! c.y 'y ! ;

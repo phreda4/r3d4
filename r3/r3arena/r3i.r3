@@ -112,12 +112,6 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 2 2 2 2 2 2 2 2 2	|<? >? =? >=? <=? <>? AND? NAND? 0T?
 )
 
-:tokenext | adr -- adr'
-	c@+
-	$80 and? ( drop ; )
-	27 >? ( drop ; )
-	'tsum + c@ -? ( drop c@+ ) + ;
-
 |-------------------------------
 :xbye	exit ;
 :xwords ;
@@ -174,6 +168,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	state 0? ( drop ; )
 |	1 =? (
 	drop
+	tlevel 1? ( "bloque mal cerrado" 'error ! ) drop
 	;
 
 :.def | adr -- adr' | :
@@ -233,12 +228,15 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	1 'tlevel +!
 	icode> pushbl ;
 
-:cond?? | adr -- adr'
-	c@+ $ff and
-	15 <? ( drop ; ) 27 >? ( drop ; )
-	drop
-	dup 16@ 1? ( drop ; ) drop
-	icode> over - 2 - over 16!
+:tokenext | adr t -- adr'
+	$80 and? ( drop ; )
+	27 >? ( drop ; )
+	'tsum + c@ -? ( drop c@+ ) + ;
+
+:cond?? | adr t -- adr t
+	15 <? ( ; ) 27 >? ( ; )
+	over 16@ 1? ( drop ; ) drop
+	icode> pick2 - 2 - pick2 16!
 	1 'iswhile !
 	;
 
@@ -246,8 +244,8 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	-1 'tlevel +!
 	0 'iswhile !
 	popbl dup
-	( icode> <? cond?? tokenext ) drop	| search ??
-	iswhile 1? ( drop icode> - ,iw ; ) drop
+	( icode> <? c@+ cond?? tokenext ) drop	| search ??
+	iswhile 1? ( drop icode> - 4 - ,iw ; ) drop
 	0 ,iw
 	3 - icode> over - 3 -
 	swap 16! 					| patch IF
@@ -263,7 +261,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	-1 'tlevel +!
 	popbl icode> over -
 	dup ,iw
-	swap 2 - 16! ;
+	swap 4 - 16! ;
 
 :.base	| nro --
 	1 -
@@ -274,7 +272,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	3 =? ( drop base[ >>sp ; )
 	4 =? ( drop base] >>sp ; )
 	18 >? ( drop >>sp ; )
-	'tsum + c@ 1? ( 0 ,iw ) drop
+	INTWORDS + 'tsum + c@ 1? ( 0 ,iw ) drop
 	>>sp ;
 
 |	$5e =? ( drop >>cr ; )	| $5e ^  Include
@@ -342,21 +340,43 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 
 :wordlist
-	c.cls
 	lastdicc>
 	( dup defwrd c.cr code >?
 		dup 4 + @ 16 >>> 8 + - ) drop ;
 
 |------------------------
+:refreshscreen
+
+|	c.cls
+|	wordlist
+|	dumpmem
+	c.y ( 26 >? 28 c.cll c.uscroll 1 - ) 'c.y !
+	c.cr atpad
+
+	0 28 c.at
+	16 c.ink
+	"D:" c.print
+	vmstackprint
+	63 c.ink
+	inputline
+	;
+
+:immediate
+	9 ,i
+
+	c.cr icode> code> dumpbytes c.cr
+
+	vmresetr
+	code> vmrun drop
+
+	code> 'icode> !
+	;
+
 :parse&run
-	|inputprint c.cr
 	spad parse
-
-|	c.cr
-
-	wordlist
-	dumpmem
+	state 0? ( immediate ) drop
 	0 spad ! spad newpad
+	refreshscreen
 	;
 
 |------------------------
@@ -378,22 +398,26 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	here
 	dup 'spad ! 1024 +
 	dup 'code !
-	dup 'code> ! 
+	dup 'code> !
 	dup 'icode> !
 	'lastdicc> !
 	0 'state !
+	vmreset
 	;
 
 :
 	mm
 	c.cls
-	63 c.ink
-	"r3 console" c.print c.cr
+	37 c.ink "r3" c.print
+	8 c.ink "i " c.print
+	63 c.ink "Color Computer" c.print
+	c.cr
 	0 ( 64 <? 1 +
 		dup c.ink
 		dup "%d " c.print ) drop
     63 c.ink
-	1 28 c.at atpad
+	c.cr atpad
+
 	0 spad ! spad newpad
 
 	'main onshow ;
