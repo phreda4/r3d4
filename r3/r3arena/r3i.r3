@@ -163,19 +163,19 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 :16@	@ 48 << 48 >> ; | adr -- val
 
 :endef
+	tlevel 1? ( "bloque mal cerrado" 'error ! ) drop
 	'blk 'blk>  !
 	0 'tlevel !
 	state 0? ( drop ; )
-|	1 =? (
 	drop
-	tlevel 1? ( "bloque mal cerrado" 'error ! ) drop
 	;
 
 :.def | adr -- adr' | :
 	endef
 	icode> lastdicc> - 8 - 16 <<
 	icode> 'lastdicc> !
-	over 1 + word2code ,id
+	over 1 + word2code
+	,id
 	,id
 	1 'state !
 	>>sp ;
@@ -184,12 +184,17 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	endef
 	icode> lastdicc> - 8 - 16 <<
 	icode> 'lastdicc> !
-	dup 1 + word2code ,id
+	over 1 + word2code
+	$80000000 or | var flag
+	,id
 	,id
 	2 'state !
 	>>sp ;
 
 :.lit | adr -- adr
+	state
+	2 =? ( drop str>nro ,id ; )
+	drop
 	str>nro
 	dup 57 << 57 >> =? ( $7f and $80 or ,i ; )  | 7 bits
 	dup 48 << 48 >> =? ( 0 ,i ,iw ; )			| 16 bits
@@ -200,6 +205,9 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 			c@+ 34 <>? ( drop 1 - ; ) ) ,i ) drop 1 - ;
 
 :.str | adr --
+	state
+	2 =? ( drop ,cpystr 0 ,i ,id ; )
+	drop
 	2 ,i
 	icode> swap
 	0 ,i ,cpystr 0 ,i
@@ -207,12 +215,18 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	over - swap c! ;
 
 :.word | adr --
+	state
+	2 =? ( drop 8 + ,id ; )
+	drop
 	| data
 	dup @ $80000000 and? ( drop 8 ,i 8 + ,id >>sp ; ) drop
 	| code
 	6 ,i 8 + ,id >>sp ;
 
 :.adr | adr --
+	state
+	2 =? ( drop 8 + ,id ; )
+	drop
 	7 ,i 8 + ,id >>sp ;
 
 |---------------------------------
@@ -220,6 +234,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	tlevel 1? ( drop ; ) drop
 	| end word, +! is really or
 	lastdicc> icode> over - 8 - swap 4 + +!
+	icode> 'code> !
 	;
 
 #iswhile
@@ -264,6 +279,9 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	swap 4 - 16! ;
 
 :.base	| nro --
+	state
+	2 =? ( drop "base word not have adress" 'error ! ; )
+	drop
 	1 -
 	dup INTWORDS + ,i
 	0? ( drop base; >>sp ; )
@@ -276,11 +294,21 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	>>sp ;
 
 |	$5e =? ( drop >>cr ; )	| $5e ^  Include
-|	$7c =? ( drop .com ; )	| $7c |	 Comentario
+
+:,cpycon | adr -- adr'
+	1 + ( c@+ 1? $ff and 13 =? ( drop ; ) ,i ) drop 1 - ;
+
+:.com
+	3 ,i
+	icode> swap
+	0 ,i ,cpycon 0 ,i
+	swap icode>
+	over - swap c! ;
 
 :wrd2token | str -- str'
 	( dup c@ $ff and 33 <?
 		0? ( nip ; ) drop 1 + )	| trim0
+	$7c =? ( drop .com ; )	| $7c |	 Comentario
 	$3A =? ( drop .def ; )	| $3a :  Definicion
 	$23 =? ( drop .var ; )	| $23 #  Variable
 	$22 =? ( drop .str ; )	| $22 "	 Cadena
@@ -302,6 +330,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	0 'error !
 	( wrd2token 1? ) drop
 	error 1? ( c.semit c.cr lerror name2code "%h " c.print c.cr ; ) drop
+	c.cr "Ok" c.print c.cr
 	;
 
 |-------------------------------------------------
@@ -344,19 +373,34 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	( dup defwrd c.cr code >?
 		dup 4 + @ 16 >>> 8 + - ) drop ;
 
+:viewdicc
+	63 c.ink
+	code "%h " c.print c.cr
+	code> "%h " c.print c.cr
+	lastdicc> "%h " c.print c.cr
+    code
+	( lastdicc> <?
+		dup "%h " c.print
+		dup defwrd
+		dup 4 + @ $ffff and +
+		) drop ;
+
 |------------------------
 :refreshscreen
 
 |	c.cls
 |	wordlist
-|	dumpmem
+
+	dumpmem
+
 	c.y ( 26 >? 28 c.cll c.uscroll 1 - ) 'c.y !
-	c.cr atpad
+	atpad
 
 	0 28 c.at
 	16 c.ink
 	"D:" c.print
 	vmstackprint
+
 	63 c.ink
 	inputline
 	;
@@ -380,20 +424,72 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	;
 
 |------------------------
-:main
-	drawcon
-	keyinput
+:viewed
+	c.cls
+	16 c.ink
+	viewdicc
+	16 c.ink
+	dumpmem
+	;
 
+:editor
+	drawcon
 	key
-	>esc< =? ( exit )
 	<ret> =? ( parse&run )
 	<f1> =? ( wordlist )
 	<f2> =? ( dumpmem )
 	drop
 	;
 
+:viewco
+	c.cls
+	37 c.ink "r3" c.print
+	8 c.ink "i " c.print
+	63 c.ink "Color Computer" c.print
+	c.cr
+	0 ( 64 <? 1 +
+		dup c.ink
+		dup "%d " c.print ) drop
+    63 c.ink
+	c.cr atpad
+	0 spad ! spad newpad
+	;
+
+:console
+	drawcon
+	keyinput
+
+	key
+	<ret> =? ( parse&run )
+	<f1> =? ( wordlist )
+	<f2> =? ( dumpmem )
+	drop
+	;
+
+#modo 'console
+
+:changemode
+	modo
+	'console =? ( 'editor 'modo ! viewco )
+	'editor =? ( 'console 'modo ! viewed )
+	drop
+	;
+
+:main
+	modo ex
+	key
+	>esc< =? ( exit )
+	<tab> =? ( changemode )
+	drop
+	;
+
 |-------------------------------
-:mm
+:startconsole
+	viewco
+	'console 'modo !
+	;
+
+:startram
 	mark
 	here
 	dup 'spad ! 1024 +
@@ -406,18 +502,6 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	;
 
 :
-	mm
-	c.cls
-	37 c.ink "r3" c.print
-	8 c.ink "i " c.print
-	63 c.ink "Color Computer" c.print
-	c.cr
-	0 ( 64 <? 1 +
-		dup c.ink
-		dup "%d " c.print ) drop
-    63 c.ink
-	c.cr atpad
-
-	0 spad ! spad newpad
-
+	startram
+	startconsole
 	'main onshow ;
