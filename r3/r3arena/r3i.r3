@@ -375,14 +375,15 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :viewdicc
 	63 c.ink
-	code "%h " c.print c.cr
-	code> "%h " c.print c.cr
-	lastdicc> "%h " c.print c.cr
+|	code "%h " c.print c.cr
+|	code> "%h " c.print c.cr
+|	lastdicc> "%h " c.print c.cr
     code
-	( lastdicc> <?
-		dup "%h " c.print
+	( code> <?
+|		dup "%h " c.print
 		dup defwrd
-		dup 4 + @ $ffff and +
+		dup 4 + @ $ffff and + 8 +
+		c.cr
 		) drop ;
 
 |------------------------
@@ -424,14 +425,9 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	;
 
 |------------------------
-:viewed
-	c.cls
-	16 c.ink
-	viewdicc
-	16 c.ink
-	dumpmem
-	;
+#modo 0
 
+|------- EDITOR
 :editor
 	drawcon
 	key
@@ -441,7 +437,30 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	drop
 	;
 
+:viewed
+	'editor 'modo !
+	c.cls
+	16 c.ink
+	viewdicc
+	16 c.ink
+	dumpmem
+	;
+
+
+|------- CONSOLE
+:console
+	drawcon
+	keyinput
+
+	key
+	<ret> =? ( parse&run )
+	<f1> =? ( wordlist )
+	<f2> =? ( dumpmem )
+	drop
+	;
+
 :viewco
+	'console 'modo !
 	c.cls
 	37 c.ink "r3" c.print
 	8 c.ink "i " c.print
@@ -455,23 +474,11 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	0 spad ! spad newpad
 	;
 
-:console
-	drawcon
-	keyinput
-
-	key
-	<ret> =? ( parse&run )
-	<f1> =? ( wordlist )
-	<f2> =? ( dumpmem )
-	drop
-	;
-
-#modo 'console
-
+|------- MAIN
 :changemode
 	modo
-	'console =? ( 'editor 'modo ! viewco )
-	'editor =? ( 'console 'modo ! viewed )
+	'console =? ( viewed )
+	'editor =? ( viewco )
 	drop
 	;
 
@@ -484,11 +491,6 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	;
 
 |-------------------------------
-:startconsole
-	viewco
-	'console 'modo !
-	;
-
 :startram
 	mark
 	here
@@ -503,5 +505,5 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :
 	startram
-	startconsole
+	viewco
 	'main onshow ;
