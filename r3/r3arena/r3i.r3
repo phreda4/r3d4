@@ -22,6 +22,9 @@
 #tlevel	| tokenizer level
 #defnow 0
 
+#error
+#lerror
+
 |--- memory new definition
 | tt(2bit)-codename(30bits) (5chars)
 | prev(16bits)-next(16bits)
@@ -79,14 +82,14 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :tokenl | nro dic -- str
 	swap 2 << + @ code2name c.semit ;
 
-:i16	drop @+ 48 << 48 >> "%d" c.print 2 - ;
-:i32	drop @+ "%d" c.print ;
-:b		INTWORDS - 'wbasdic tokenl ;
-:b16	INTWORDS - 'wbasdic tokenl 2 + ;
-:iCOM	drop c@+ swap over + swap "|%d" c.print c.cr ;
-:iSTR	drop c@+ over 34 c.emit c.semit 34 c.emit + ;
-:iCALL	drop @+ 8 - @ code2name c.semit ;
-:iADR	drop @+ 8 - @ code2name "'" c.semit c.semit ;
+:i16	8 c.ink drop @+ 48 << 48 >> "%d" c.print 2 - ;
+:i32	8 c.ink drop @+ "%d" c.print ;
+:b		56 c.ink INTWORDS - 'wbasdic tokenl ;
+:b16	56 c.ink INTWORDS - 'wbasdic tokenl 2 + ;
+:iCOM	10 c.ink drop c@+ over "|" c.semit c.semit c.cr + ;
+:iSTR	63 c.ink drop c@+ over 34 c.emit c.semit 34 c.emit + ;
+:iCALL	44 c.ink drop @+ 8 - @ code2name c.semit ;
+:iADR	1 c.ink drop @+ 8 - @ code2name "'" c.semit c.semit ;
 
 #tokenp
 i16 i32 iSTR iCOM
@@ -97,7 +100,7 @@ b16 b16 b16 b16		|"<?" ">?" "=?" ">=?"
 b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :minilit | t --
-	57 << 57 >> "%d" c.print ;
+	8 c.ink 57 << 57 >> "%d" c.print ;
 
 :tokenprint | adr -- adr'
 	c@+
@@ -112,26 +115,124 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 2 2 2 2 2 2 2 2 2	|<? >? =? >=? <=? <>? AND? NAND? 0T?
 )
 
-|-------------------------------
-:xbye	exit ;
-:xwords ;
-:xsee   ;
-:xedit	;
-:xdump	;
-:xreset	;
-:xreboot	;
-:xforget	;
+|-------------------------------------------------
+:dumptokens | last now --
+	( over <? tokenprint 32 c.emit ) 2drop ;
 
-#xsys 'xbye 'xwords 'xsee 'xedit 'xdump 'xreset 'xreboot 'xforget
+:dumpbytes | last now --
+	( over <? c@+ $ff and "%h " c.print ) 2drop ;
+
+:dumpmem
+	c.cr icode> code dumpbytes c.cr ;
+
+|------------------------
+:defw
+	37 c.ink code2name ":%s " c.print
+	@+ $ffff and	| dir cant
+	over +
+	swap ( over <?
+		tokenprint 32 c.emit
+		) 2drop ;
+
+:defv0
+	34 c.ink $3fffffff and code2name "#%s " c.print 8 c.ink
+	@+ $ffff and	| dir cant
+	over +
+	swap ( over <?
+		@+ "$%h " c.print	| dword
+		 ) 2drop ;
+
+:defv1
+	34 c.ink $3fffffff and code2name "#%s " c.print 44 c.ink
+	@+ $ffff and	| dir cant
+	over +
+	swap ( over <?
+		@+ 8 - @ code2name "'%s " c.print | adr
+		 ) 2drop ;
+
+:defv2
+	34 c.ink $3fffffff and code2name "#%s " c.print 44 c.ink
+	@ $ffff and	| dir cant
+	" * $%h" c.print c.cr ;
+
+#deflist 'defw 'defv0 'defv1 'defv2
+
+:printdef | adr --
+	@+ dup 30 >> $3 and 2 << 'deflist + @ ex ;
+
+:wordlist
+	lastdicc>
+	( dup printdef c.cr code >?
+		dup 4 + @ 16 >>> 8 + - ) drop ;
+
+:viewdicc
+	56 c.ink
+	c.cr
+	'wbasdic ( @+ 1?
+		code2name c.semit 32 c.emit ) 2drop
+	44 c.ink
+	code ( code> <?
+		@+ code2name c.semit 32 c.emit
+		@+ $ffff and + 4 + ) drop
+	c.cr
+	;
+
+:viewcode
+    code ( code> <?
+
+|		dup "%h " c.print
+		dup printdef
+		dup 4 + @ $ffff and + 8 +
+		c.cr
+		) drop ;
+
+
+|-------------------------------
+:error! | str --
+	;
+
+:xbye
+	exit ;
+:xwords
+	viewdicc ;
+:xsee
+	vmdeep
+	dup " %d " c.print
+	1 <? ( drop "word?" 'error ! ; ) drop
+    vmpop 8 - printdef ;
+
+:xedit	
+	"edit " 'error ! ;
+
+:xdump	;
+
+
+:xreset
+	;
+
+:xcclear
+	; | code clear
+
+:xcload | "file" --
+	; | code load
+
+:xcsave | "file" -- ;code save
+	;
+
+:xdir
+	;
+
+:xdel
+	;
+
+#xsys 'xbye 'xwords 'xsee 'xedit 'xdump 'xreset
 
 #wsysdic $23EA6 $38C33974 $349A6 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26 0
 
-:.sys | nro --
-	"sis %d" c.print ;
+:execsys | val --
+	2 << 'xsys + @ ex ;
 
 |-------------------------------
-#error
-#lerror
 
 :?dicc | adr dicc -- nro+1/0
 	swap word2code over
@@ -150,6 +251,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 		dup 4 + @ 16 >>> 8 + - ) 2drop 0 ;
 
 |--------------------------
+#flagdata
 #blk * 128
 #blk> 'blk
 :pushbl blk> !+ 'blk> ! ;
@@ -162,34 +264,46 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 :16!	over 8 >> rot rot c!+ c! ; | nro adr --
 :16@	@ 48 << 48 >> ; | adr -- val
 
+:patchend
+	lastdicc>
+	dup @ flagdata or over ! 			| save flag (word,var0,var1,var2)
+	icode> over
+	=? ( 2drop ; ) over
+	- 8 - swap 4 +
+	+! 									| for write one time..
+|	dup @ $ffff0000 and rot or swap !	| for write many..
+	icode> 'code> !
+	;
+
 :endef
 	tlevel 1? ( "bloque mal cerrado" 'error ! ) drop
 	'blk 'blk>  !
 	0 'tlevel !
-	state 0? ( drop ; )
-	drop
-	;
+	state 0? ( drop ; )	drop
+	patchend ;
+
+:newentry | adr -- adr prev codename
+	endef
+	icode> lastdicc> - 8 - 16 <<
+	icode> 'lastdicc> !
+	over 1 + word2code ;
 
 :.def | adr -- adr' | :
-	endef
-	icode> lastdicc> - 8 - 16 <<
-	icode> 'lastdicc> !
-	over 1 + word2code
-	,id
-	,id
+	newentry
+	,id ,id
 	1 'state !
-	>>sp ;
+	>>sp
+	0 'flagdata ! ;
 
 :.var | adr -- adr' | #
-	endef
-	icode> lastdicc> - 8 - 16 <<
-	icode> 'lastdicc> !
-	over 1 + word2code
-	$80000000 or | var flag
-	,id
-	,id
+	newentry
+|	$40000000 or | var flag
+	,id ,id
 	2 'state !
-	>>sp ;
+	>>sp
+	$40000000 'flagdata !
+	trim "* " =pre 1? ( $c0000000 'flagdata ! ) drop
+	;
 
 :.lit | adr -- adr
 	state
@@ -206,7 +320,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :.str | adr --
 	state
-	2 =? ( drop ,cpystr 0 ,i ,id ; )
+	2 =? ( drop ,cpystr 0 ,i ,id ; )	| data
 	drop
 	2 ,i
 	icode> swap
@@ -216,7 +330,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :.word | adr --
 	state
-	2 =? ( drop 8 + ,id ; )
+	2 =? ( drop 8 + ,id ; )		| data
 	drop
 	| data
 	dup @ $80000000 and? ( drop 8 ,i 8 + ,id >>sp ; ) drop
@@ -225,17 +339,15 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :.adr | adr --
 	state
-	2 =? ( drop 8 + ,id ; )
+	2 =? ( drop 8 + ,id ; )	| data
 	drop
 	7 ,i 8 + ,id >>sp ;
 
 |---------------------------------
 :base;
 	tlevel 1? ( drop ; ) drop
-	| end word, +! is really or
-	lastdicc> icode> over - 8 - swap 4 + +!
-	icode> 'code> !
-	;
+	0 'state !
+	patchend ;
 
 #iswhile
 
@@ -305,6 +417,13 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	swap icode>
 	over - swap c! ;
 
+
+:.sys
+	state 1? ( 2drop "system words in definition" 'error ! ; ) drop
+	1 - execsys
+	>>sp
+	;
+
 :wrd2token | str -- str'
 	( dup c@ $ff and 33 <?
 		0? ( nip ; ) drop 1 + )	| trim0
@@ -319,72 +438,25 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 		0 ; )
 	drop
 	dup isNro 1? ( drop .lit ; ) drop	| number
-	dup ?sys 1? ( .sys ; ) drop
-	dup ?base 1? ( .base ; ) drop	| base
+	dup ?base 1? ( .base ; ) drop		| base
 	dup ?word 1? ( .word ; ) drop		| word
+	dup ?sys 1? ( .sys ; ) drop
  	"Word not found" 'error !
 	'lerror !
 	0 ;
 
-:parse | str --
+
+:eval | str --
 	0 'error !
-	( wrd2token 1? ) drop
-	error 1? ( c.semit c.cr lerror name2code "%h " c.print c.cr ; ) drop
+	( wrd2token
+		error 1? ( c.cr c.semit c.cr drop ; ) drop
+		1? ) drop
+	error 1? ( c.semit c.cr ; ) drop
 	c.cr "Ok" c.print c.cr
 	;
 
-|-------------------------------------------------
-:dumptokens | last now --
-	( over <? tokenprint 32 c.emit ) 2drop ;
-
-:dumpbytes | last now --
-	( over <? c@+ $ff and "%h " c.print ) 2drop ;
-
-:dumpmem
-	c.cr icode> code dumpbytes c.cr ;
-
-|------------------------
-:defvar
-	$3fffffff and
-	37 c.ink
-	code2name "#%s " c.print
-	1 c.ink
-	@+ $ffff and	| dir cant
-	over +
-	swap ( over <?
-		c@+ "$%h " c.print
-		 ) 2drop ;
-
-:defwrd | adr --
-	@+
-	$80000000 and? ( defvar ; )
-	37 c.ink
-	code2name ":%s " c.print
-	1 c.ink
-	@+ $ffff and	| dir cant
-	over +
-	swap ( over <?
-		tokenprint 32 c.emit
-		) 2drop ;
 
 
-:wordlist
-	lastdicc>
-	( dup defwrd c.cr code >?
-		dup 4 + @ 16 >>> 8 + - ) drop ;
-
-:viewdicc
-	63 c.ink
-|	code "%h " c.print c.cr
-|	code> "%h " c.print c.cr
-|	lastdicc> "%h " c.print c.cr
-    code
-	( code> <?
-|		dup "%h " c.print
-		dup defwrd
-		dup 4 + @ $ffff and + 8 +
-		c.cr
-		) drop ;
 
 |------------------------
 :refreshscreen
@@ -408,17 +480,14 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :immediate
 	9 ,i
-
-	c.cr icode> code> dumpbytes c.cr
-
+|	c.cr icode> code> dumpbytes c.cr
 	vmresetr
 	code> vmrun drop
-
 	code> 'icode> !
 	;
 
 :parse&run
-	spad parse
+	spad eval
 	state 0? ( immediate ) drop
 	0 spad ! spad newpad
 	refreshscreen

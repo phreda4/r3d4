@@ -133,13 +133,20 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 		vmstep ) ;
 
 ::vmreset
-	'stack 'NOS ! 0 'TOS !
+	'stack 4 - 'NOS ! 0 'TOS !
 ::vmresetr
 	'stack 252 + 0 over ! 'RTOS !
 	;
 
 ::vmstackprint
-	'stack 8 + ( NOS <=? @+ " %d" c.print ) drop
-	'stack NOS <? ( TOS " %d " c.print ) drop
+	'stack 4 + ( NOS <=? @+ " %d" c.print ) drop
+	'stack NOS <=? ( TOS " %d " c.print ) drop
 	"           " c.semit
 	;
+
+::vmdeep | -- stack
+	'NOS 'stack - 2 >> 1 - ;
+
+::vmpop | -- t
+	TOS
+	NOS dup @ 'TOS ! 4 - 'NOS ! ;
