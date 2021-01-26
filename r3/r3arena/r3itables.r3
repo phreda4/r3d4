@@ -4,7 +4,7 @@
 #basdic
 #intdic
 
-#wsys "BYE" "WORDS" "SEE" "EDIT" "DUMP" "RESET" "REBOOT" "FORGET" ""
+#wsys "BYE" "WORDS" "SEE" "LIST" "EDIT" "DUMP" "RESET" "REBOOT" "FORGET" ""
 
 #wbase ";" "(" ")" "[" "]"
 "EX" "0?" "1?" "+?" "-?"

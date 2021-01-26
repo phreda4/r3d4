@@ -100,7 +100,7 @@
 :iCOM   c@+ $ff and + ;
 :iJMPR  @ 48 << 48 >> + ; 				| 16 bits
 :iJMP   @ ;								| 32 bits
-:iCALL	@+ swap -4 'RTOS ! RTOS ! ; 	| 32 bits
+:iCALL	@+ swap -4 'RTOS +! RTOS ! ; 	| 32 bits
 :iADR	4 'NOS +! TOS NOS ! @+ 'TOS ! ;	| 32 bits (iLIT)
 :iVAR	4 'NOS +! TOS NOS ! @+ @ 'TOS ! ;	| 32 bits
 
@@ -145,7 +145,7 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 	;
 
 ::vmdeep | -- stack
-	'NOS 'stack - 2 >> 1 - ;
+	NOS 'stack - 2 >> 1 + ;
 
 ::vmpop | -- t
 	TOS

@@ -4,6 +4,7 @@
 
 ^r3/lib/parse.r3
 ^r3/lib/gui.r3
+^r3/lib/trace.r3
 
 ^./r3ivm.r3
 ^./editline.r3
@@ -66,6 +67,16 @@
 		swap 1 - ) drop 1 + ;
 
 
+#strpr
+" > "	| 0
+":> "   | 1
+"#> "	| 2
+")> "   | 3
+"""> "	| 4
+
+:prompt
+	state 2 << 'strpr + c.semit ;
+
 |-------------------------------
 | tables
 
@@ -86,8 +97,8 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :i32	8 c.ink drop @+ "%d" c.print ;
 :b		56 c.ink INTWORDS - 'wbasdic tokenl ;
 :b16	56 c.ink INTWORDS - 'wbasdic tokenl 2 + ;
-:iCOM	10 c.ink drop c@+ over "|" c.semit c.semit c.cr + ;
-:iSTR	63 c.ink drop c@+ over 34 c.emit c.semit 34 c.emit + ;
+:iCOM	10 c.ink drop c@+ over "|" c.semit c.semit c.cr $ff and + 1 - ;
+:iSTR	63 c.ink drop c@+ over 34 c.emit c.semit 34 c.emit $ff and + 1 - ;
 :iCALL	44 c.ink drop @+ 8 - @ code2name c.semit ;
 :iADR	1 c.ink drop @+ 8 - @ code2name "'" c.semit c.semit ;
 
@@ -123,6 +134,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	( over <? c@+ $ff and "%h " c.print ) 2drop ;
 
 :dumpmem
+	c.cr code "%h:" c.print
 	c.cr icode> code dumpbytes c.cr ;
 
 |------------------------
@@ -130,24 +142,21 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	37 c.ink code2name ":%s " c.print
 	@+ $ffff and	| dir cant
 	over +
-	swap ( over <?
-		tokenprint 32 c.emit
+	swap ( over <? tokenprint 32 c.emit 
 		) 2drop ;
 
 :defv0
 	34 c.ink $3fffffff and code2name "#%s " c.print 8 c.ink
 	@+ $ffff and	| dir cant
 	over +
-	swap ( over <?
-		@+ "$%h " c.print	| dword
+	swap ( over <? @+ "$%h " c.print	| dword
 		 ) 2drop ;
 
 :defv1
 	34 c.ink $3fffffff and code2name "#%s " c.print 44 c.ink
 	@+ $ffff and	| dir cant
 	over +
-	swap ( over <?
-		@+ 8 - @ code2name "'%s " c.print | adr
+	swap ( over <? @+ 8 - @ code2name "'%s " c.print | adr
 		 ) 2drop ;
 
 :defv2
@@ -174,18 +183,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	code ( code> <?
 		@+ code2name c.semit 32 c.emit
 		@+ $ffff and + 4 + ) drop
-	c.cr
-	;
-
-:viewcode
-    code ( code> <?
-
-|		dup "%h " c.print
-		dup printdef
-		dup 4 + @ $ffff and + 8 +
-		c.cr
-		) drop ;
-
+	c.cr ;
 
 |-------------------------------
 :error! | str --
@@ -197,14 +195,24 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	viewdicc ;
 :xsee
 	vmdeep
-	dup " %d " c.print
 	1 <? ( drop "word?" 'error ! ; ) drop
     vmpop 8 - printdef ;
 
-:xedit	
+:xlist
+    code ( code> <?
+		dup printdef
+		dup 4 + @ $ffff and + 8 +
+		c.cr
+		) drop ;
+
+:xedit
 	"edit " 'error ! ;
 
-:xdump	;
+:xdump
+	vmdeep
+	2 <? ( drop "need adr and count" 'error ! ; ) drop
+	vmpop vmpop swap over + dumpbytes c.cr
+	;
 
 
 :xreset
@@ -225,9 +233,10 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 :xdel
 	;
 
-#xsys 'xbye 'xwords 'xsee 'xedit 'xdump 'xreset
+#xsys 'xbye 'xwords 'xsee 'xlist 'xedit 'xdump 'xreset
 
-#wsysdic $23EA6 $38C33974 $349A6 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26 0
+#wsysdic
+$23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 
 :execsys | val --
 	2 << 'xsys + @ ex ;
@@ -420,6 +429,8 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :.sys
 	state 1? ( 2drop "system words in definition" 'error ! ; ) drop
+
+	9 ,i vmresetr code> vmrun drop code> 'icode> !	| run prev words
 	1 - execsys
 	>>sp
 	;
@@ -448,45 +459,34 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :eval | str --
 	0 'error !
+	dup c@ 0? ( 'state ! drop c.cr ; ) drop
 	( wrd2token
 		error 1? ( c.cr c.semit c.cr drop ; ) drop
 		1? ) drop
 	error 1? ( c.semit c.cr ; ) drop
-	c.cr "Ok" c.print c.cr
+	"Ok" c.print c.cr
 	;
-
-
 
 
 |------------------------
 :refreshscreen
-
-|	c.cls
-|	wordlist
-
-	dumpmem
-
 	c.y ( 26 >? 28 c.cll c.uscroll 1 - ) 'c.y !
-	atpad
+	63 c.ink prompt atpad
 
 	0 28 c.at
-	16 c.ink
-	"D:" c.print
-	vmstackprint
+	16 c.ink "D:" c.print vmstackprint
 
-	63 c.ink
-	inputline
-	;
+	63 c.ink inputline ;
 
 :immediate
 	9 ,i
-|	c.cr icode> code> dumpbytes c.cr
 	vmresetr
 	code> vmrun drop
 	code> 'icode> !
 	;
 
 :parse&run
+	32 c.emit
 	spad eval
 	state 0? ( immediate ) drop
 	0 spad ! spad newpad
@@ -518,12 +518,12 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 |------- CONSOLE
 :console
+    63 c.ink
 	drawcon
 	keyinput
-
+	8 c.ink
 	key
 	<ret> =? ( parse&run )
-	<f1> =? ( wordlist )
 	<f2> =? ( dumpmem )
 	drop
 	;
@@ -538,9 +538,9 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	0 ( 64 <? 1 +
 		dup c.ink
 		dup "%d " c.print ) drop
-    63 c.ink
-	c.cr atpad
+	c.cr
 	0 spad ! spad newpad
+	refreshscreen
 	;
 
 |------- MAIN
