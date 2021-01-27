@@ -119,12 +119,47 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	27 >? ( b ; )
 	dup 2 << 'tokenp + @ ex ;
 
+|------------------------
+:,tokenl | nro dic -- str
+	swap 2 << + @ code2name ,s ;
+
+:,i16	drop @+ 48 << 48 >> "%d" ,print 2 - ;
+:,i32	drop @+ "%d" ,print ;
+:,b		INTWORDS - 'wbasdic tokenl ;
+:,b16	INTWORDS - 'wbasdic tokenl 2 + ;
+:,iCOM	drop c@+ over "|" ,s ,s ,cr $ff and + 1 - ;
+:,iSTR	drop c@+ over 34 ,c ,s 34 ,c $ff and + 1 - ;
+:,iCALL	drop @+ 8 - @ code2name ,s ;
+:,iADR	drop @+ 8 - @ code2name "'" ,s ,s ;
+
+#,tokenp
+,i16 ,i32 ,iSTR ,iCOM
+,i16 ,i32 ,iCALL ,iADR ,iCALL
+,b ,b ,b16 ,b16 ,b16		|";" "(" ")" "[" "]"
+,b ,b16 ,b16 ,b16 ,b16	|"EX" "0?" "1?" "+?" "-?"
+,b16 ,b16 ,b16 ,b16		|"<?" ">?" "=?" ">=?"
+,b16 ,b16 ,b16 ,b16 ,b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
+
+:,minilit | t --
+	57 << 57 >> "%d" ,print  ;
+
+:,token | adr -- adr'
+	c@+
+	$80 and? ( ,minilit ; )
+	27 >? ( ,b ; )
+	dup 2 << ',tokenp + @ ex ;
+
 #tsum (
 2 4 -1 -1	|L1 L2 Ls Com
 4 2 4 4 4	|JMP JMPR CALL iADR iVAR
 0 0 2 2 2 0 2 2 2 2	|; ( ) [ ] EX 0? 1? +? -?
 2 2 2 2 2 2 2 2 2	|<? >? =? >=? <=? <>? AND? NAND? 0T?
 )
+
+:tokenext | adr t -- adr'
+	$80 and? ( drop ; )
+	27 >? ( drop ; )
+	'tsum + c@ -? ( drop c@+ ) + ;
 
 |-------------------------------------------------
 :dumptokens | last now --
@@ -142,7 +177,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	37 c.ink code2name ":%s " c.print
 	@+ $ffff and	| dir cant
 	over +
-	swap ( over <? tokenprint 32 c.emit 
+	swap ( over <? tokenprint 32 c.emit
 		) 2drop ;
 
 :defv0
@@ -216,6 +251,10 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 
 :xreset
+	code
+	dup 'code> !
+	dup 'icode> !
+	'lastdicc> !
 	;
 
 :xcclear
@@ -225,12 +264,25 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	; | code load
 
 :xcsave | "file" -- ;code save
-	;
-
-:xdir
+	icode> 'here !
+	mark
+	code> ( icode> <?
+		,token
+		c@+ dup ,c
+		tokenext
+		) drop
+	"r3/r3arena/data/%s" savemem
+	empty
 	;
 
 :xdel
+	;
+
+:xsavecode
+	;
+:xloadcode
+	;
+:xdir
 	;
 
 #xsys 'xbye 'xwords 'xsee 'xlist 'xedit 'xdump 'xreset
@@ -341,10 +393,8 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 	state
 	2 =? ( drop 8 + ,id ; )		| data
 	drop
-	| data
-	dup @ $80000000 and? ( drop 8 ,i 8 + ,id >>sp ; ) drop
-	| code
-	6 ,i 8 + ,id >>sp ;
+	dup @ $80000000 and? ( drop 8 ,i 8 + ,id >>sp ; ) drop 	| var
+	6 ,i 8 + ,id >>sp ; 	| code
 
 :.adr | adr --
 	state
@@ -364,17 +414,12 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 	1 'tlevel +!
 	icode> pushbl ;
 
-:tokenext | adr t -- adr'
-	$80 and? ( drop ; )
-	27 >? ( drop ; )
-	'tsum + c@ -? ( drop c@+ ) + ;
 
 :cond?? | adr t -- adr t
 	15 <? ( ; ) 27 >? ( ; )
 	over 16@ 1? ( drop ; ) drop
 	icode> pick2 - 2 - pick2 16!
-	1 'iswhile !
-	;
+	1 'iswhile ! ;
 
 :base) | tok -- tok
 	-1 'tlevel +!
@@ -426,10 +471,8 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 	swap icode>
 	over - swap c! ;
 
-
 :.sys
 	state 1? ( 2drop "system words in definition" 'error ! ; ) drop
-
 	9 ,i vmresetr code> vmrun drop code> 'icode> !	| run prev words
 	1 - execsys
 	>>sp
@@ -457,25 +500,30 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 	0 ;
 
 
+:c.error
+	37 c.paper
+	c.semit c.cr
+	0 c.paper
+	;
+
 :eval | str --
 	0 'error !
 	dup c@ 0? ( 'state ! drop c.cr ; ) drop
 	( wrd2token
-		error 1? ( c.cr c.semit c.cr drop ; ) drop
+		error 1? ( c.error drop ; ) drop
 		1? ) drop
-	error 1? ( c.semit c.cr ; ) drop
+	error 1? ( c.error ; ) drop
+	8 c.ink
 	"Ok" c.print c.cr
 	;
 
 
 |------------------------
 :refreshscreen
-	c.y ( 26 >? 28 c.cll c.uscroll 1 - ) 'c.y !
+|	c.y ( 26 >? 28 c.cll c.uscroll 1 - ) 'c.y !
 	63 c.ink prompt atpad
-
-	0 28 c.at
-	16 c.ink "D:" c.print vmstackprint
-
+|	0 28 c.at
+|	16 c.ink "D:" c.print vmstackprint
 	63 c.ink inputline ;
 
 :immediate
@@ -501,8 +549,8 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 	drawcon
 	key
 	<ret> =? ( parse&run )
-	<f1> =? ( wordlist )
-	<f2> =? ( dumpmem )
+|	<f1> =? ( wordlist )
+|	<f2> =? ( dumpmem )
 	drop
 	;
 
@@ -521,7 +569,6 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
     63 c.ink
 	drawcon
 	keyinput
-	8 c.ink
 	key
 	<ret> =? ( parse&run )
 	<f2> =? ( dumpmem )
