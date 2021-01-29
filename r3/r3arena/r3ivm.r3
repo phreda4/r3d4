@@ -1,12 +1,12 @@
-| virtual machine for
+| r3i virtual machine
 | simplest encoding  - 1 byte token
 | PHREDA 2021
 
-^./sconsolepc.r3
+##TOS ##NOS ##RTOS
+##RA ##RB
+##STACK * 256 | 64 cells
 
-#TOS #NOS #RTOS
-#RA #RB
-#STACK * 256 | 64 cells
+#exsys 0
 
 :i;		drop RTOS @ 4 'RTOS +! ;
 |		drop RTOS @ 4 'RTOS +! 0? ( r> drop ) ; | *** REPEAT
@@ -97,7 +97,7 @@
 :iLIT1	4 'NOS +! TOS NOS ! @+ 48 << 48 >> 'TOS ! ; | 16 bits
 :iLIT2	4 'NOS +! TOS NOS ! @+ 'TOS ! ;	| 32 bits
 :iLITs	4 'NOS +! TOS NOS ! c@+ over 'TOS ! $ff and + ;	| 8+s bits
-:iCOM   c@+ $ff and + ;
+:iCOM   c@+ -1 =? ( drop c@+ 2 << exsys + @ ex  ; ) $ff and + ;
 :iJMPR  @ 48 << 48 >> + ; 				| 16 bits
 :iJMP   @ ;								| 32 bits
 :iCALL	@+ swap -4 'RTOS +! RTOS ! ; 	| 32 bits
@@ -138,11 +138,7 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 	'stack 252 + 0 over ! 'RTOS !
 	;
 
-::vmstackprint
-	'stack 4 + ( NOS <=? @+ " %d" c.print ) drop
-	'stack NOS <=? ( TOS " %d " c.print ) drop
-	"           " c.semit
-	;
+::vecsys! 'exsys ! ;
 
 ::vmdeep | -- stack
 	NOS 'stack - 2 >> 1 + ;

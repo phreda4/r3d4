@@ -6,6 +6,7 @@
 ^r3/lib/gui.r3
 ^r3/lib/trace.r3
 
+^./sconsolepc.r3
 ^./r3ivm.r3
 ^./editline.r3
 
@@ -130,7 +131,7 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 :,iCOM	drop c@+ over "|" ,s ,s ,cr $ff and + 1 - ;
 :,iSTR	drop c@+ over 34 ,c ,s 34 ,c $ff and + 1 - ;
 :,iCALL	drop @+ 8 - @ code2name ,s ;
-:,iADR	drop @+ 8 - @ code2name "'" ,s ,s ;
+:,iADR	drop @+ 8 - @ $3fffffff and code2name "'" ,s ,s ;
 
 #,tokenp
 ,i16 ,i32 ,iSTR ,iCOM
@@ -209,31 +210,34 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 	( dup printdef c.cr code >?
 		dup 4 + @ 16 >>> 8 + - ) drop ;
 
-:viewdicc
-	56 c.ink
-	c.cr
-	'wbasdic ( @+ 1?
-		code2name c.semit 32 c.emit ) 2drop
-	44 c.ink
-	code ( code> <?
-		@+ code2name c.semit 32 c.emit
-		@+ $ffff and + 4 + ) drop
-	c.cr ;
-
 |-------------------------------
 :error! | str --
 	;
 
 :xbye
 	exit ;
+
+:wv
+	$c0000000 and? ( 34 c.ink $3fffffff and ; ) 37 c.ink ;
+
 :xwords
-	viewdicc ;
+	56 c.ink
+	c.cr
+	'wbasdic ( @+ 1?
+		code2name c.semit 32 c.emit ) 2drop
+	44 c.ink
+	code ( code> <?
+		@+ wv code2name c.semit 32 c.emit
+		@+ $ffff and +  ) drop ;
+
 :xsee
 	vmdeep
 	1 <? ( drop "word?" 'error ! ; ) drop
+	c.cr
     vmpop 8 - printdef ;
 
 :xlist
+	c.cr
     code ( code> <?
 		dup printdef
 		dup 4 + @ $ffff and + 8 +
@@ -246,15 +250,20 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 :xdump
 	vmdeep
 	2 <? ( drop "need adr and count" 'error ! ; ) drop
-	vmpop vmpop swap over + dumpbytes c.cr
+	vmpop vmpop swap over + dumpbytes
 	;
-
 
 :xreset
 	code
 	dup 'code> !
 	dup 'icode> !
 	'lastdicc> !
+	;
+
+:xstack
+	c.cr 16 c.ink
+	'stack 4 + ( NOS <=? @+ " %d" c.print ) drop
+	'stack NOS <=? ( TOS " %d " c.print ) drop
 	;
 
 :xcclear
@@ -280,15 +289,21 @@ b16 b16 b16 b16 b16 |"<=?" "<>?" "AND?" "NAND?" "BT?"
 
 :xsavecode
 	;
+
 :xloadcode
 	;
+
 :xdir
 	;
 
-#xsys 'xbye 'xwords 'xsee 'xlist 'xedit 'xdump 'xreset
+
+
+|#wsys "BYE" "WORDS" "SEE" "LIST" "EDIT" "DUMP" "RESET" "STACK" "DIR" ""
+#xsys 'xbye 'xwords 'xsee 'xlist 'xedit 'xdump 'xreset 'xstack
 
 #wsysdic
-$23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
+$23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $34D6292C $25AB3
+|#wsys "BYE" "WORDS" "SEE" "LIST" "EDIT" "DUMP" "RESET" "STACK" "DIR" ""
 
 :execsys | val --
 	2 << 'xsys + @ ex ;
@@ -331,8 +346,8 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 	icode> over
 	=? ( 2drop ; ) over
 	- 8 - swap 4 +
-	+! 									| for write one time..
-|	dup @ $ffff0000 and rot or swap !	| for write many..
+|	+! 									| for write one time..
+	dup @ $ffff0000 and rot or swap !	| for write many..
 	icode> 'code> !
 	;
 
@@ -473,10 +488,7 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 
 :.sys
 	state 1? ( 2drop "system words in definition" 'error ! ; ) drop
-	9 ,i vmresetr code> vmrun drop code> 'icode> !	| run prev words
-	1 - execsys
-	>>sp
-	;
+	3 ,i -1 ,i 1 - ,i >>sp ;
 
 :wrd2token | str -- str'
 	( dup c@ $ff and 33 <?
@@ -502,29 +514,28 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 
 :c.error
 	37 c.paper
-	c.semit c.cr
+	c.semit
 	0 c.paper
 	;
 
 :eval | str --
 	0 'error !
-	dup c@ 0? ( 'state ! drop c.cr ; ) drop
 	( wrd2token
 		error 1? ( c.error drop ; ) drop
 		1? ) drop
 	error 1? ( c.error ; ) drop
 	8 c.ink
-	"Ok" c.print c.cr
+	"Ok" c.print
 	;
 
 
 |------------------------
-:refreshscreen
-|	c.y ( 26 >? 28 c.cll c.uscroll 1 - ) 'c.y !
-	63 c.ink prompt atpad
-|	0 28 c.at
-|	16 c.ink "D:" c.print vmstackprint
-	63 c.ink inputline ;
+:pinput
+|	c.cr dumpmem
+	c.cr
+	0 spad ! spad newpad
+	63 c.ink
+	prompt atpad inputline ;
 
 :immediate
 	9 ,i
@@ -535,74 +546,37 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 
 :parse&run
 	32 c.emit
-	spad eval
+	spad
+    dup c@ 0? ( 'state ! drop patchend pinput ; ) drop
+	eval
 	state 0? ( immediate ) drop
-	0 spad ! spad newpad
-	refreshscreen
+	pinput
 	;
 
 |------------------------
-#modo 0
-
-|------- EDITOR
-:editor
-	drawcon
-	key
-	<ret> =? ( parse&run )
-|	<f1> =? ( wordlist )
-|	<f2> =? ( dumpmem )
-	drop
-	;
-
-:viewed
-	'editor 'modo !
-	c.cls
-	16 c.ink
-	viewdicc
-	16 c.ink
-	dumpmem
-	;
-
-
-|------- CONSOLE
-:console
-    63 c.ink
-	drawcon
-	keyinput
-	key
-	<ret> =? ( parse&run )
-	<f2> =? ( dumpmem )
-	drop
-	;
-
 :viewco
-	'console 'modo !
 	c.cls
 	37 c.ink "r3" c.print
 	8 c.ink "i " c.print
-	63 c.ink "Color Computer" c.print
+	63 c.ink "Color " c.semit
+	16 c.ink "Computer" c.semit
 	c.cr
 	0 ( 64 <? 1 +
 		dup c.ink
 		dup "%d " c.print ) drop
 	c.cr
-	0 spad ! spad newpad
-	refreshscreen
+	pinput
 	;
 
 |------- MAIN
-:changemode
-	modo
-	'console =? ( viewed )
-	'editor =? ( viewco )
-	drop
-	;
-
 :main
-	modo ex
+    63 c.ink
+	drawcon
+	keyinput
+
 	key
+	<ret> =? ( parse&run )
 	>esc< =? ( exit )
-	<tab> =? ( changemode )
 	drop
 	;
 
@@ -617,6 +591,7 @@ $23EA6 $38C33974 $349A6 $B6AD35 $9A5AB5 $976BB1 $339B49B5 $339A3C30 $27C33A26
 	'lastdicc> !
 	0 'state !
 	vmreset
+	'execsys vecsys!
 	;
 
 :

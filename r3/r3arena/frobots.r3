@@ -1,5 +1,6 @@
-| f#@!robots
+| frobots
 | PHREDA 2021
+
 |MEM $fffff
 
 ^r3/lib/gui.r3
