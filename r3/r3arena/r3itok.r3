@@ -16,7 +16,7 @@
 ##icode>
 ##lastdicc>
 
-#state	| imm/compiling
+##state	| imm/compiling
 #tlevel	| tokenizer level
 
 ##error
@@ -107,7 +107,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :pushbl blk> !+ 'blk> ! ;
 :popbl -4 'blk> +! blk> @ ;
 
-:,i		icode> c!+ 'icode> ! ;
+::,i		icode> c!+ 'icode> ! ;
 :,iw	icode> !+ 2 - 'icode> ! ;
 :,id	icode> !+ 'icode> ! ;
 

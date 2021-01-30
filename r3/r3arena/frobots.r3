@@ -4,9 +4,18 @@
 |MEM $fffff
 
 ^r3/lib/gui.r3
+^r3/lib/input.r3
+^r3/lib/fontj.r3
 ^r3/lib/3d.r3
 ^r3/lib/rand.r3
 ^r3/util/arr16.r3
+
+^./r3ivm.r3
+^./r3itok.r3
+^./r3iprint.r3
+
+#spad * 1024
+#output * 8192
 
 #xcam 0 #ycam 0 #zcam 50.0
 #objetos 0 0	| finarray iniarray
@@ -119,17 +128,17 @@
 
 :IOrobot
 	io
-	$1 and? ( 0.01 turn )
-	$2 and? ( -0.01 turn )
-	$4 and? ( 0.1 motor )
-	$8 and? ( -0.1 motor )
+	$1 and? ( 0.001 turn )
+	$2 and? ( -0.001 turn )
+	$4 and? ( 0.01 motor )
+	$8 and? ( -0.01 motor )
 	$10 and? ( 0.2 b> 24 + @ b> 4 + @+ swap @ +disparo )
 	$f and 'io !
 	;
 
 :robot1 | adr --
 	>b
-	keyiorobot
+|	keyiorobot
 	IOrobot
 	mpush
 	b@+ 'ink !
@@ -143,7 +152,7 @@
 
 :+robot |
 	'robot1 'objetos p!+ >a
-	$ff0000 a!+
+	$ff00 a!+
 	0 0 0 a!+ a!+ a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
 	0 0 0 a!+ a!+ a!+ | vpos
@@ -151,25 +160,93 @@
 	;
 
 |----------------------------------
+:error!
+	drop ;
+
+|-- crobots words
+:xturn | degree --
+	;
+
+:xscan | resolution -- res
+	;
+
+:xcannon | range --
+	;
+:xdrive | speed --
+	;
+:xdamage | -- dam
+	;
+:xspeed | -- spe
+	;
+:xxyloc | -- x y
+	;
+
+|------
+:xbye
+	exit ;
+
+:xshoot
+	$10 io! ;
+:xturn
+	vmdeep 1 <? ( drop "word?" error! ; ) drop
+	vmpop $3 and io! ;
+:xadv
+	vmdeep 1 <? ( drop "word?" error! ; ) drop
+	vmpop $3 and 2 << io! ;
+:xstop
+	$f io-! ;
+
+
+
+|#wsys "BYE" "shoot" "turn" "adv" "stop"
+#wsysdic $23EA6 $34A70C35 $D76CEF $22977 $D35C31 0
+#xsys 'xbye 'xshoot 'xturn 'xadv 'xstop
+
+:immediate
+	9 ,i | ; in the end
+	vmresetr
+	code> vmrun drop
+	code> 'icode> !
+	;
+
+:parse&run
+	'spad
+|    dup c@ 0? ( 'state ! drop patchend pinput ; ) drop
+	r3i2token
+	state 0? ( immediate ) drop
+	0 'spad ! refreshfoco
+	;
+|----------------------------------
 :screen
-	cls home
+	cls home gui
 	$ff00 'ink !
-	'objetos p.cnt "objs %d" print cr
-	io "mask %b " print cr
+	"r3i" print cr
+	$ffffff 'ink !
+	"> " print
+	'spad 1024 input
+
 	omode
 	xcam ycam zcam mtrans
 	'objetos p.draw
+
 	key
+	<ret> =? ( parse&run )
 |	<up> =? ( 0.1 'zcam +! )
 |	<dn> =? ( -0.1 'zcam +! )
 	<f1> =? ( addobj )
 	>esc< =? ( exit )
 	drop
+
 	acursor ;
 
 :main
+	fontj2
 	mark
-	1000 'objetos p.ini
+	$fff r3iram
+	vmreset
+	'wsysdic syswor!
+	'xsys vecsys!
+	100 'objetos p.ini
 	+robot
 	'screen onshow ;
 
