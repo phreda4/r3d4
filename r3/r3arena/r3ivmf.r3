@@ -2,20 +2,9 @@
 | simplest encoding  - 1 byte token
 | PHREDA 2021
 
-| IP on stack
 ##TOS ##NOS ##RTOS
 ##RA ##RB
-##code
-##code>
-
-|##STACK * 256 | 64 cells
-| code
-|  stack (256)
-| tokens
-| code>
-| free
-| io
-
+##STACK * 256 | 64 cells
 
 #exsys 0
 
@@ -144,31 +133,16 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 		vmstep ) ;
 
 ::vmreset
-	code 4 - 'NOS ! 0 'TOS !
+	'stack 4 - 'NOS ! 0 'TOS !
 ::vmresetr
-	code 252 + 0 over ! 'RTOS !
+	'stack 252 + 0 over ! 'RTOS !
 	;
 
 ::vecsys! 'exsys ! ;
 
 ::vmdeep | -- stack
-	NOS code - 2 >> 1 + ;
+	NOS 'stack - 2 >> 1 + ;
 
 ::vmpop | -- t
 	TOS
 	NOS dup @ 'TOS ! 4 - 'NOS ! ;
-
-
-::vmcpu | ram -- 'adr
-	here
-	8 2 << over +	| IP,TOS,NOS,RTOS,RNOS,RA,RB,CODE
-	dup 'code !
-	256 +		| stacks
-	dup 'code> !
-	over + 'here !
-	;
-
-::vm@ | vm --	; get vm current
-	;
-::vm! | vm --	; store vm
-	;

@@ -14,7 +14,7 @@
 ^./r3itok.r3
 ^./r3iprint.r3
 
-#spad * 1024
+#spad * 256
 #output * 8192
 
 #xcam 0 #ycam 0 #zcam 50.0
@@ -150,10 +150,10 @@
 	drawbox
 	mpop ;
 
-:+robot |
+:+robot | x y --
 	'robot1 'objetos p!+ >a
 	$ff00 a!+
-	0 0 0 a!+ a!+ a!+	| position
+	swap a!+ a!+  0 a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
 	0 0 0 a!+ a!+ a!+ | vpos
 	0 0 0 a!+ a!+ a!+ | vrot
@@ -239,15 +239,21 @@
 
 	acursor ;
 
+#vm
+
 :main
 	fontj2
 	mark
-	$fff r3iram
+	$fff vmcpu 'vm !
 	vmreset
 	'wsysdic syswor!
 	'xsys vecsys!
 	100 'objetos p.ini
-	+robot
+	-5.0 -5.0 +robot
+	-5.0 5.0 +robot
+	5.0 5.0 +robot
+	5.0 -5.0 +robot
+	0 0 +robot
 	'screen onshow ;
 
 : main ;

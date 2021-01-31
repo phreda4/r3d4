@@ -11,8 +11,6 @@
 ##INTWORDS 9
 
 |--- Memory map
-##code
-##code>
 ##icode>
 ##lastdicc>
 
@@ -107,7 +105,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :pushbl blk> !+ 'blk> ! ;
 :popbl -4 'blk> +! blk> @ ;
 
-::,i		icode> c!+ 'icode> ! ;
+::,i	icode> c!+ 'icode> ! ;
 :,iw	icode> !+ 2 - 'icode> ! ;
 :,id	icode> !+ 'icode> ! ;
 
@@ -290,11 +288,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 ::r3i2token | str --
 	0 'error ! ( wrd2token 1? ) drop ;
 
-::r3iram | ram --
-	here
-	dup 'code !
-	dup 'code> !
+::r3reset | ram --
 	dup 'icode> !
 	'lastdicc> !
-	'here +!
 	0 'state ! ;

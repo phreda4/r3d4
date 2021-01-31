@@ -7,8 +7,8 @@
 ^r3/lib/trace.r3
 
 ^./sconsolepc.r3
-^./r3ivm.r3
 ^./editline.r3
+^./r3ivmf.r3
 
 #INTWORDS 9
 
