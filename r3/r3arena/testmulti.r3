@@ -42,13 +42,13 @@
 #vm1 #vm2 #vm3
 
 :dumpvm | adr --
-	>a
-	8 ( 1? 1 - a@+ $ffffffff and "%h " print ) drop
+	>b
+	8 ( 1? 1 - b@+ $ffffffff and "%h " print ) drop
 	cr
-	256 a+
+	256 b+
 	4 ( 1? 1 -
 		8 ( 1? 1 -
-			a@+ $ffffffff and "%h " print
+			b@+ $ffffffff and "%h " print
 			) drop cr
 		) drop
 	;
@@ -61,8 +61,9 @@
 	$ffffff 'ink !
 	"> " print
 	'spad 1024 input
-	cr
-	dumpvm
+	cr vm1 dumpvm
+	cr vm2 dumpvm
+	cr vm3 dumpvm
 	key
 	<ret> =? ( parse&run )
 	>esc< =? ( exit )
@@ -74,12 +75,13 @@
 	'wsysdic syswor!
 	'xsys vecsys!
 
-	fontj2
+	fontj
 	mark
 	$fff vmcpu 'vm1 !
 	$fff vmcpu 'vm2 !
 	$fff vmcpu 'vm3 !
 
+	vm1 "r3/r3arena/test1.r3i" vmload
 
 	'screen onshow ;
 

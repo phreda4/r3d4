@@ -2,11 +2,11 @@
 | simplest encoding  - 1 byte token
 | PHREDA 2021
 
-| IP on stack
-##TOS ##NOS ##RTOS
-##RA ##RB
-##code
-##code>
+| IP,BOOT
+| TOS,NOS,RTOS,RA,RB
+| CODE CODE>
+##IP ##TOS ##NOS ##RTOS ##RA ##RB
+##CODE ##CODE>
 
 |##STACK * 256 | 64 cells
 | code
@@ -158,17 +158,19 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 	TOS
 	NOS dup @ 'TOS ! 4 - 'NOS ! ;
 
+::vm@ | 'vm --	; get vm current
+    'IP swap 8 move	;
+::vm! | 'vm --	; store vm
+	'IP 8 move ;
 
 ::vmcpu | ram -- 'adr
 	here
-	8 2 << over +	| IP,TOS,NOS,RTOS,RNOS,RA,RB,CODE
+	8 2 << over +	| IP,TOS,NOS,RTOS,RA,RB,CODE,CODE>
 	dup 'code !
 	256 +		| stacks
 	dup 'code> !
-	over + 'here !
+	rot + 'here !
+	dup vm!
 	;
 
-::vm@ | vm --	; get vm current
-	;
-::vm! | vm --	; store vm
-	;
+

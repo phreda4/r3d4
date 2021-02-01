@@ -289,6 +289,18 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	0 'error ! ( wrd2token 1? ) drop ;
 
 ::r3reset | ram --
-	dup 'icode> !
+	code> dup 'icode> !
 	'lastdicc> !
 	0 'state ! ;
+
+
+::vmload | 'vm "" --
+	over vm@
+	r3reset
+	mark
+	here swap load 0 swap c!
+	here r3i2token
+	vmreset
+	empty
+	vm!
+	;
