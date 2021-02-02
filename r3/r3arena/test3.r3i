@@ -1,0 +1,13 @@
+#io 0
+
+:delay | msec --
+	8 << ( 1? 1 - ) drop ;
+
+:main
+|	1 delay
+	1 'io +!
+	2 'io +!
+	main
+	;
+
+: 1 2 + main ;

@@ -9,10 +9,10 @@
 ##CODE ##CODE>
 
 |##STACK * 256 | 64 cells
-| code
+| 'code
 |  stack (256)
 | tokens
-| code>
+| 'code>
 | free
 | io
 
@@ -25,7 +25,7 @@
 :i)		@+ 48 << 48 >> + ;
 :i[		@+ 48 << 48 >> + ;
 :i]		4 'NOS +! TOS NOS ! @+ 48 << 48 >> +  'TOS ! ;
-:iEX	-4 'RTOS +! RTOS ! TOS 4 'NOS +! NOS @ 'TOS ! ;
+:iEX	-4 'RTOS +! RTOS ! TOS code + 4 'NOS +! NOS @ 'TOS ! ;
 :i0?	TOS 1? ( drop @+ 48 << 48 >> + ; ) drop 2 + ; | +4 (16bit)+
 :i1?    TOS 0? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
 :i+?    TOS -? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
@@ -54,16 +54,20 @@
 :i4DROP	NOS dup 12 - @ 'TOS ! 16 - 'NOS ! ;
 :i2OVER iPICK2 iPICK2 ;
 :i2SWAP	TOS NOS @ NOS 4 - dup 4 - @ NOS ! @ 'TOS ! NOS 8 - !+ ! ;
-:i@		TOS @ 'TOS ! ;
-:iC@	TOS c@ 'TOS ! ;
+:i@		TOS code + @ 'TOS ! ;
+:iC@	TOS code + c@ 'TOS ! ;
+
 :i@+    TOS @+ 'TOS ! 4 'NOS +! NOS ! ;
 :iC@+	TOS c@+ 'TOS ! 4 'NOS +! NOS ! ;
-:i!		NOS @ TOS ! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
-:iC!	NOS @ TOS c! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
+
+:i!		NOS @ TOS code + ! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
+:iC!	NOS @ TOS code + c! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
+
 :i!+	NOS @ TOS !+ 'TOS ! -4 'NOS ! ;
 :iC!+	NOS @ TOS c!+ 'TOS ! -4 'NOS ! ;
-:i+!	NOS @ TOS +! -4 'NOS ! ;
-:iC+!	NOS @ TOS c+! -4 'NOS ! ;
+
+:i+!	NOS @ TOS code + +! -4 'NOS ! ;
+:iC+!	NOS @ TOS code + c+! -4 'NOS ! ;
 :i>A	TOS 'RA ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :iA>	4 'NOS +! TOS NOS ! RA 'TOS ! ;
 :iA@	4 'NOS +! TOS NOS ! RA @ 'TOS ! ;
@@ -110,10 +114,10 @@
 :iLITs	4 'NOS +! TOS NOS ! c@+ over 'TOS ! $ff and + ;	| 8+s bits
 :iCOM   c@+ -1 =? ( drop c@+ 2 << exsys + @ ex  ; ) $ff and + ;
 :iJMPR  @ 48 << 48 >> + ; 				| 16 bits
-:iJMP   @ ;								| 32 bits
-:iCALL	@+ swap -4 'RTOS +! RTOS ! ; 	| 32 bits
+:iJMP   @ code + ;						| 32 bits
+:iCALL	@+ code + swap -4 'RTOS +! RTOS ! ; 	| 32 bits
 :iADR	4 'NOS +! TOS NOS ! @+ 'TOS ! ;	| 32 bits (iLIT)
-:iVAR	4 'NOS +! TOS NOS ! @+ @ 'TOS ! ;	| 32 bits
+:iVAR	4 'NOS +! TOS NOS ! @+ code + @ 'TOS ! ;	| 32 bits
 
 
 #r3maci
@@ -172,5 +176,3 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 	rot + 'here !
 	dup vm!
 	;
-
-

@@ -88,7 +88,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 		pick2 =? ( drop pick2 - 2 >> nip nip ; )
 		drop ) 4drop 0 ;
 
-:?base	'wbasdic ?dicc ;
+:?core	'wbasdic ?dicc ;
 :?sys	systemwords ?dicc ;
 
 :?word | adr -- adr/0
@@ -180,24 +180,24 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	state
 	2 =? ( drop 8 + ,id ; )		| data
 	drop
-	dup @ $80000000 and? ( drop 8 ,i 8 + ,id >>sp ; ) drop 	| var
-	6 ,i 8 + ,id >>sp ; 	| code
+	dup @ $80000000 and? ( drop 8 ,i 8 + code - ,id >>sp ; ) drop 	| var
+	6 ,i 8 + code - ,id >>sp ; 	| code
 
 :.adr | adr --
 	state
-	2 =? ( drop 8 + ,id ; )	| data
+	2 =? ( drop 8 + code - ,id ; )	| data
 	drop
-	7 ,i 8 + ,id >>sp ;
+	7 ,i 8 + code - ,id >>sp ;
 
 |---------------------------------
-:base;
+:core;
 	tlevel 1? ( drop ; ) drop
 	0 'state !
 	patchend ;
 
 #iswhile
 
-:base(
+:core(
 	1 'tlevel +!
 	icode> pushbl ;
 
@@ -208,7 +208,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	icode> pick2 - 2 - pick2 16!
 	1 'iswhile ! ;
 
-:base) | tok -- tok
+:core) | tok -- tok
 	-1 'tlevel +!
 	0 'iswhile !
 	popbl dup
@@ -219,44 +219,44 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	swap 16! 					| patch IF
 	;
 
-:base[
+:core[
 	0 ,iw
 	1 'tlevel +!
 	icode> pushbl
 	;
 
-:base]
+:core]
 	-1 'tlevel +!
 	popbl icode> over -
 	dup ,iw
 	swap 4 - 16! ;
 
-:.base	| nro --
+:.core	| nro --
 	state
-	2 =? ( drop "base word not have adress" 'error ! ; )
+	2 =? ( drop "core word without adress" 'error ! ; )
 	drop
 	1 -
 	dup INTWORDS + ,i
-	0? ( drop base; >>sp ; )
-	1 =? ( drop base( >>sp ; )
-	2 =? ( drop base) >>sp ; )
-	3 =? ( drop base[ >>sp ; )
-	4 =? ( drop base] >>sp ; )
+	0? ( drop core; >>sp ; )
+	1 =? ( drop core( >>sp ; )
+	2 =? ( drop core) >>sp ; )
+	3 =? ( drop core[ >>sp ; )
+	4 =? ( drop core] >>sp ; )
 	18 >? ( drop >>sp ; )
 	INTWORDS + 'tsum + c@ 1? ( 0 ,iw ) drop
 	>>sp ;
 
 |	$5e =? ( drop >>cr ; )	| $5e ^  Include
 
-:,cpycon | adr -- adr'
+:,cpycom | adr -- adr'
 	1 + ( c@+ 1? $ff and 13 =? ( drop ; ) ,i ) drop 1 - ;
 
 :.com
 	3 ,i
 	icode> swap
-	0 ,i ,cpycon 0 ,i
+	0 ,i ,cpycom 0 ,i
 	swap icode>
-	over - swap c! ;
+	over - 1 - swap c! ;
 
 :.sys
 	state 1? ( 2drop "system words in definition" 'error ! ; ) drop
@@ -276,7 +276,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 		0 ; )
 	drop
 	dup isNro 1? ( drop .lit ; ) drop	| number
-	dup ?base 1? ( .base ; ) drop		| base
+	dup ?core 1? ( .core ; ) drop		| core
 	dup ?word 1? ( .word ; ) drop		| word
 	dup ?sys 1? ( .sys ; ) drop
  	"Word not found" 'error !
@@ -301,6 +301,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	here swap load 0 swap c!
 	here r3i2token
 	vmreset
+	lastdicc> code - 8 + 'ip ! | ultima definicion
 	empty
 	vm!
 	;
