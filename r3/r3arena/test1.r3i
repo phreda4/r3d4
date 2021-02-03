@@ -6,11 +6,12 @@
   seed 3141592621 * 1 + dup 'seed ! ;
 
 :main
-	4 +
+	(
 	rand
 	$f0 and
 	0? ( $10 'io ! )
 	drop
+	)
 	;
 
-: 2 1 + main ;
+: main ;

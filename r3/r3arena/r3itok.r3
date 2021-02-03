@@ -115,9 +115,9 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :patchend
 	lastdicc>
 	dup @ flagdata or over ! 			| save flag (word,var0,var1,var2)
-	icode> over
-	=? ( 2drop ; ) over
-	- 8 - swap 4 +
+	icode> over - 8 -
+	0? ( 4 + 0 ,id )					| #x1 #x2 case
+	swap 4 +
 |	+! 									| for write one time..
 	dup @ $ffff0000 and rot or swap !	| for write many..
 	icode> 'code> !
@@ -176,11 +176,12 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	swap icode>
 	over - swap c! ;
 
+
 :.word | adr --
 	state
 	2 =? ( drop 8 + ,id ; )		| data
 	drop
-	dup @ $80000000 and? ( drop 8 ,i 8 + code - ,id >>sp ; ) drop 	| var
+	dup @ $c0000000 and? ( drop 8 ,i 8 + code - ,id >>sp ; ) drop 	| var
 	6 ,i 8 + code - ,id >>sp ; 	| code
 
 :.adr | adr --
@@ -213,10 +214,11 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	0 'iswhile !
 	popbl dup
 	( icode> <? c@+ cond?? tokenext ) drop	| search ??
-	iswhile 1? ( drop icode> - 4 - ,iw ; ) drop
-	0 ,iw
+	iswhile 1? ( drop icode> - 2 - ,iw ; ) drop	| patch WHILE
+	dup 3 - c@	( ) drop                        | patch REPEAT
+	0 ,iw										| patch IF
 	3 - icode> over - 3 -
-	swap 16! 					| patch IF
+	swap 16!
 	;
 
 :core[

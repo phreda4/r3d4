@@ -1,13 +1,11 @@
-#io 0
-
-:delay | msec --
-	8 << ( 1? 1 - ) drop ;
+#io
 
 :main
-|	1 delay
-	1 'io +!
-	2 'io +!
-	main
+	10 ( 1? 1 -
+		dup
+|		$f0 and
+		0? ( $10 'io ! )
+		drop ) drop
 	;
 
-: 1 2 + main ;
+: main ;

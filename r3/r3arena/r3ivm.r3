@@ -22,9 +22,9 @@
 :i;		drop RTOS @ 4 'RTOS +! ;
 |		drop RTOS @ 4 'RTOS +! 0? ( r> drop ) ; | *** REPEAT
 :i(		;
-:i)		@+ 48 << 48 >> + ;
+:i)		@+ 48 << 48 >> + 2 - ;
 :i[		@+ 48 << 48 >> + ;
-:i]		4 'NOS +! TOS NOS ! @+ 48 << 48 >> +  'TOS ! ;
+:i]		4 'NOS +! TOS NOS ! @+ 48 << 48 >> + 'TOS ! ;
 :iEX	-4 'RTOS +! RTOS ! TOS code + 4 'NOS +! NOS @ 'TOS ! ;
 :i0?	TOS 1? ( drop @+ 48 << 48 >> + ; ) drop 2 + ; | +4 (16bit)+
 :i1?    TOS 0? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
@@ -56,32 +56,28 @@
 :i2SWAP	TOS NOS @ NOS 4 - dup 4 - @ NOS ! @ 'TOS ! NOS 8 - !+ ! ;
 :i@		TOS code + @ 'TOS ! ;
 :iC@	TOS code + c@ 'TOS ! ;
-
-:i@+    TOS @+ 'TOS ! 4 'NOS +! NOS ! ;
-:iC@+	TOS c@+ 'TOS ! 4 'NOS +! NOS ! ;
-
+:i@+    TOS code + @+ 'TOS ! code - 4 'NOS +! NOS ! ;
+:iC@+	TOS code + c@+ 'TOS ! code - 4 'NOS +! NOS ! ;
 :i!		NOS @ TOS code + ! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
 :iC!	NOS @ TOS code + c! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
-
-:i!+	NOS @ TOS !+ 'TOS ! -4 'NOS ! ;
-:iC!+	NOS @ TOS c!+ 'TOS ! -4 'NOS ! ;
-
-:i+!	NOS @ TOS code + +! -4 'NOS ! ;
-:iC+!	NOS @ TOS code + c+! -4 'NOS ! ;
+:i!+	NOS @ TOS code + !+ code - 'TOS ! -4 'NOS ! ;
+:iC!+	NOS @ TOS code + c!+ code - 'TOS ! -4 'NOS ! ;
+:i+!	NOS @ TOS code + +! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
+:iC+!	NOS @ TOS code + c+! NOS dup 4 - @ 'TOS ! 8 - 'NOS ! ;
 :i>A	TOS 'RA ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :iA>	4 'NOS +! TOS NOS ! RA 'TOS ! ;
-:iA@	4 'NOS +! TOS NOS ! RA @ 'TOS ! ;
-:iA!	TOS RA ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
+:iA@	4 'NOS +! TOS NOS ! RA code + @ 'TOS ! ;
+:iA!	TOS RA code + ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :iA+	TOS 'RA +! NOS dup @ 'TOS ! 4 - 'NOS ! ;
-:iA@+	4 'NOS +! TOS NOS ! RA @+ 'TOS 'RA ! ;
-:iA!+   TOS RA !+ 'RA ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
+:iA@+	4 'NOS +! TOS NOS ! RA code + @ 'TOS 4 'RA +! ;
+:iA!+   TOS RA code + ! 4 'RA +! NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :i>B    TOS 'RB ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :iB>    4 'NOS +! TOS NOS ! RB 'TOS ! ;
-:iB@	4 'NOS +! TOS NOS ! RB @ 'TOS ! ;
-:iB!	TOS RB ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
+:iB@	4 'NOS +! TOS NOS ! RB code + @ 'TOS ! ;
+:iB!	TOS RB code + ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :iB+	TOS 'RB +! NOS dup @ 'TOS ! 4 - 'NOS ! ;
-:iB@+	4 'NOS +! TOS NOS ! RB @+ 'TOS 'RB ! ;
-:iB!+	TOS RB !+ 'RB ! NOS dup @ 'TOS ! 4 - 'NOS ! ;
+:iB@+	4 'NOS +! TOS NOS ! RB code + @ 'TOS 4 'RB +! ;
+:iB!+	TOS RB code + ! 4 'RB +! NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :iNOT	TOS not 'TOS ! ;
 :iNEG	TOS neg 'TOS ! ;
 :iABS	TOS abs 'TOS ! ;
@@ -102,6 +98,7 @@
 :i*/	NOS dup 4 - @ swap @ TOS */ 'TOS ! -8 'NOS +! ;
 :i*>>	NOS dup 4 - @ swap @ TOS *>> 'TOS ! -8 'NOS +! ;
 :i<</	NOS dup 4 - @ swap @ TOS <</ 'TOS ! -8 'NOS +! ;
+
 :iMOV	NOS dup 4 - @ swap @ TOS  move NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
 :iMOV>	NOS dup 4 - @ swap @ TOS  move> NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
 :iFILL	NOS dup 4 - @ swap @ TOS  fill NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
@@ -109,7 +106,7 @@
 :iCMOV>	NOS dup 4 - @ swap @ TOS  cmove> NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
 :iCFILL NOS dup 4 - @ swap @ TOS  cfill NOS dup 8 - @ 'TOS ! 12 - 'NOS ! ;
 
-:iLIT1	4 'NOS +! TOS NOS ! @+ 48 << 48 >> 'TOS ! ; | 16 bits
+:iLIT1	4 'NOS +! TOS NOS ! @+ 48 << 48 >> 'TOS ! 2 - ; | 16 bits
 :iLIT2	4 'NOS +! TOS NOS ! @+ 'TOS ! ;	| 32 bits
 :iLITs	4 'NOS +! TOS NOS ! c@+ over 'TOS ! $ff and + ;	| 8+s bits
 :iCOM   c@+ -1 =? ( drop c@+ 2 << exsys + @ ex  ; ) $ff and + ;
@@ -140,6 +137,7 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 	57 << 57 >> 'TOS ! ; | 7 to 64 bits // in 32bits 25 <<
 
 ::vmstep | ip -- ip'
+	0? ( ; )
 	c@+ $80 and? ( exlit ; )
 	2 << 'r3maci + @ ex ;
 

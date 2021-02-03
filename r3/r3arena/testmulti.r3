@@ -42,13 +42,14 @@
 #vm1 #vm2 #vm3
 
 :dumpvm | adr --
-	>b
+	dup vm@ >b
 	8 ( 1? 1 - b@+ $ffffffff and "%h " print ) drop
 	cr
 	256 b+
-	4 ( 1? 1 -
+	8 ( 1? 1 -
 		16 ( 1? 1 -
-			b> c@+ $ff and "%h " print
+			b> ip code + =? ( $ff0000 'ink ! "*" print $ffffff 'ink ! )
+			c@+ $ff and "%h " print
 			>b
 			) drop cr
 		) drop
@@ -57,17 +58,17 @@
 :dumpvmcode | adr --
 	vm@
 	ip "ip:%h " print
-	TOS "TOS:%d " print
-	ip code + c@ "(%d) " print
-|	RTOS @ "RTOS:%d " print
+	TOS "TOS:%d " print ip code + c@ "(%d) " print
+	NOS "NOS:%h " print
+	RTOS @ "RTOS:%d " print
 	cr
 	code 256 + ( code> <?
 		@+ $3fffffff and code2name "%s " print
 		@+ $ffff and + ) drop ;
 
 :step
-|	vm1 vm@ ip code + vmstep code - 'ip ! vm1 vm!
-|	vm2 vm@ ip code + vmstep code - 'ip ! vm2 vm!
+	vm1 vm@ ip code + vmstep code - 'ip ! vm1 vm!
+	vm2 vm@ ip code + vmstep code - 'ip ! vm2 vm!
 	vm3 vm@ ip code + vmstep code - 'ip ! vm3 vm!
 	;
 
@@ -79,12 +80,15 @@
 	$ffffff 'ink !
 	"> " print
 	'spad 1024 input
-	|cr vm1 dumpvm
-	cr vm1 dumpvmcode
-	|cr vm2 dumpvm
-	cr vm2 dumpvmcode
+|	cr vm1 dumpvmcode
+	cr vm1 dumpvm
+
+|	cr vm2 dumpvmcode
+	cr vm2 dumpvm
+
+|	cr vm3 dumpvmcode
 	cr vm3 dumpvm
-	cr vm3 dumpvmcode
+
 
 	key
 	<ret> =? ( parse&run )
