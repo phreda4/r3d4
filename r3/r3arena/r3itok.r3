@@ -192,6 +192,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 
 |---------------------------------
 :core;
+	icode> 6 - c@ 6 =? ( 5 icode> 6 - c! ) drop	| change CALL to JMP
 	tlevel 1? ( drop ; ) drop
 	0 'state !
 	patchend ;
@@ -215,7 +216,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	popbl dup
 	( icode> <? c@+ cond?? tokenext ) drop	| search ??
 	iswhile 1? ( drop icode> - 2 - ,iw ; ) drop	| patch WHILE
-	dup 3 - c@	( ) drop                        | patch REPEAT
+|	dup 3 - c@	( ) drop                        | patch REPEAT
 	0 ,iw										| patch IF
 	3 - icode> over - 3 -
 	swap 16!
@@ -267,6 +268,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :wrd2token | str -- str'
 	( dup c@ $ff and 33 <?
 		0? ( nip ; ) drop 1 + )	| trim0
+|	dup "%w " slog
 	$7c =? ( drop .com ; )	| $7c |	 Comentario
 	$3A =? ( drop .def ; )	| $3a :  Definicion
 	$23 =? ( drop .var ; )	| $23 #  Variable

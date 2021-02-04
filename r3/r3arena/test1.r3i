@@ -5,13 +5,14 @@
 :rand | -- r32
   seed 3141592621 * 1 + dup 'seed ! ;
 
+:delay | msec --
+	4 << ( 1? 1 - ) drop ;
+
 :main
-	(
-	rand
-	$f0 and
-	0? ( $10 'io ! )
-	drop
-	)
-	;
+	$1 'io !
+	1 delay $2 'io !
+	2 delay $6 'io !
+	3 delay $10 'io !
+	main ;
 
 : main ;

@@ -26,61 +26,36 @@
 
 :drawboxz | z --
 	-0.5 -0.5 pick2 3dop
-	0.5 -0.5 pick2 3dline
-	0.5 0.5 pick2 3dline
-	-0.5 0.5 pick2 3dline
-	-0.5 -0.5 rot 3dline ;
+	0.5 -0.5 pick2 3dline 0.5 0.5 pick2 3dline
+	-0.5 0.5 pick2 3dline -0.5 -0.5 rot 3dline ;
 
 :drawlinez | x1 x2 --
 	2dup -0.5 3dop 0.5 3dline ;
 
 :drawcube |
-	-0.5 drawboxz
-	0.5 drawboxz
-	-0.5 -0.5 drawlinez
-	0.5 -0.5 drawlinez
-	0.5 0.5 drawlinez
-	-0.5 0.5 drawlinez ;
+	-0.5 drawboxz 0.5 drawboxz
+	-0.5 -0.5 drawlinez 0.5 -0.5 drawlinez
+	0.5 0.5 drawlinez -0.5 0.5 drawlinez ;
 
 :drawbox
 	0 drawboxz ;
 
+:drawtank
+	-0.5 -0.5 0 3dop
+	0.5 -0.5 0 3dline 0.5 0.5 0 3dline
+	-0.5 0.5 0 3dline -0.5 -0.5 0 3dline
+	-0.2 -0.2 0 3dop
+	0.2 -0.2 0 3dline 0.0 0.9 0 3dline
+	-0.2 -0.2 0 3dline ;
+
+:drawshoot
+	-0.1 -0.1 0 3dop
+	0.1 -0.1 0 3dline 0.1 0.1 0 3dline
+	-0.1 0.1 0 3dline -0.1 -0.1 0 3dline ;
+
+
 |-----------------------
-:r1 rand 32 << 32 >> 1.0 mod ;
-:r10 rand 32 << 32 >> 10.0 mod ;
-:r.1 rand 32 << 32 >> 0.1 mod ;
-:r.01 rand 32 << 32 >> 0.01 mod ;
-
 :v+ b@+ b> 28 - +! ;
-
-:boink
-	dup abs 20.0 >? (
-		b> 20 + dup @ neg swap !	| vel
-		b> 32 + dup @ neg swap !	| rot
-		) drop ;
-
-:draw1 | adr --
-	>b
-	mpush
-	b@+ 'ink !
-	b@+ boink b@+ boink b@+ boink
-	mtransi
-	b@+ mrotxi b@+ mrotyi b@+ mrotzi
-	v+
-	0.001 b> +!
-	v+ v+
-	v+ v+ v+
-	drawcube
-	mpop ;
-
-:addobj
-	'draw1 'objetos p!+ >a
-	rand a!+
-	0 0 0 a!+ a!+ a!+	| position
-	0 0 0 a!+ a!+ a!+	| rotation
-	r.1 r.1 r.1 a!+ a!+ a!+ | vpos
-	r.01 r.01 r.01 a!+ a!+ a!+ | vrot
-	;
 
 |----------- Disparo
 :disparo | adr --
@@ -89,19 +64,18 @@
 	-1 b> +!
 	b@+ 0? ( ; ) drop
 	b@+ b@+ b@+ mtransi
-	b@+ mrotxi b@+ mrotyi b@+ mrotzi
+|	b@+ mrotxi b@+ mrotyi b@+ mrotzi | no rota balas
+	12 b+
 	v+ v+ v+
 	$ffffff 'ink !
-	0.2 0.2 0.2 mscalei
-|	drawcube
-	drawbox
+	drawshoot
 	mpop ;
 
 :+disparo | vel ang x y --
 	'disparo 'objetos p!+ >a
 	$ff a!+
 	0 swap rot a!+ a!+ a!+	| position
-	0 0 pick2 a!+ a!+ a!+	| rotation
+	0 0 0 a!+ a!+ a!+	| rotation
 	swap polar
 	0 swap rot a!+ a!+ a!+	| vpos
 	;
@@ -127,33 +101,36 @@
 :turn   b> 24 + +! ;
 
 :IOrobot
-	io
+	|io
+	code 256 + 8 + @
 	$1 and? ( 0.001 turn )
 	$2 and? ( -0.001 turn )
-	$4 and? ( 0.01 motor )
-	$8 and? ( -0.01 motor )
+	$4 and? ( 0.02 motor )
+	$8 and? ( -0.02 motor )
 	$10 and? ( 0.2 b> 24 + @ b> 4 + @+ swap @ +disparo )
-	$f and 'io !
+	$f and code 256 + 8 +  !
 	;
 
-:robot1 | adr --
+:coderobot | adr --
 	>b
-|	keyiorobot
+	b@+ dup vm@ ip code + vmstep code - 'ip ! vm!
 	IOrobot
 	mpush
 	b@+ 'ink !
 	b@+ b@+ b@+ mtransi
-	b@+ mrotxi b@+ mrotyi b@+ mrotzi
-	v+ v+ v+
-|	v+ v+ v+
-|	drawcube
-	drawbox
+	|b@+ mrotxi b@+ mrotyi	| no rotate in x and y
+	8 b+ 
+	b@+ mrotzi
+	drawtank
 	mpop ;
 
-:+robot | x y --
-	'robot1 'objetos p!+ >a
-	$ff00 a!+
-	swap a!+ a!+  0 a!+	| position
+:+robot | x y color "code" --
+	'coderobot 'objetos p!+ >a
+	$fff vmcpu	| create CPU
+	dup a!+		| vm
+	swap vmload | load CODE
+	a!+
+	swap a!+ a!+ 0 a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
 	0 0 0 a!+ a!+ a!+ | vpos
 	0 0 0 a!+ a!+ a!+ | vrot
@@ -231,29 +208,23 @@
 
 	key
 	<ret> =? ( parse&run )
-|	<up> =? ( 0.1 'zcam +! )
-|	<dn> =? ( -0.1 'zcam +! )
-	<f1> =? ( addobj )
 	>esc< =? ( exit )
 	drop
 
 	acursor ;
 
-#vm
-
 :main
 	fontj2
 	mark
-	$fff vmcpu 'vm !
-	vmreset
 	'wsysdic syswor!
 	'xsys vecsys!
 	100 'objetos p.ini
-	-5.0 -5.0 +robot
-	-5.0 5.0 +robot
-	5.0 5.0 +robot
-	5.0 -5.0 +robot
-	0 0 +robot
+	-5.0 -5.0 $ff00 "r3/r3arena/test1.r3i" +robot
+	-5.0 5.0 $ff0000 "r3/r3arena/test2.r3i" +robot
+|	5.0 5.0 $ff "r3/r3arena/test3.r3i" +robot
+	5.0 -5.0 $ff "r3/r3arena/test3.r3i" +robot
+	5.0 5.0 $ff00ff "r3/r3arena/test2.r3i" +robot
+
 	'screen onshow ;
 
 : main ;

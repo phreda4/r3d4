@@ -6,13 +6,12 @@
   seed 3141592621 * 1 + dup 'seed ! ;
 
 :delay | msec --
-	8 << ( 1? 1 - ) drop ;
+	2 << ( 1? 1 - ) drop ;
 
 :main
 	8 delay
 	rand
 	8 >> $1f and 'io !
-	main
-	;
+	main ;
 
 : 13 7 * main ;
