@@ -9,10 +9,13 @@
 	4 << ( 1? 1 - ) drop ;
 
 :main
+	1 delay
 	$1 'io !
-	1 delay $2 'io !
-	2 delay $6 'io !
-	3 delay $10 'io !
+	$2 'io !
+	2 delay
+	$6 'io !
+	3 delay
+	$10 'io !
 	main ;
 
 : main ;

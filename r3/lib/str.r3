@@ -156,7 +156,7 @@
 	swap sign ;
 
 ::.r. | b nro -- b
-	'mbuff 62 + swap -
+	'mbuff 64 + swap -
 	swap ( over >?
 		1 - $20 over c!
 		) drop ;

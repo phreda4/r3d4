@@ -126,6 +126,10 @@
 ::backlines | cnt --
 	sw swap cch * 0 ccy fillrect ;
 
+::backfill | x y x y --
+	cch * swap ccw * swap 2swap
+	cch * swap ccw * swap fillbox ;
+
 |--- print with back, 2color is RrGgBg
 
 ::bprint | "" 2color --

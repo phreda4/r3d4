@@ -46,30 +46,38 @@
 	8 ( 1? 1 - b@+ $ffffffff and "%h " print ) drop
 	cr
 	256 b+
-	8 ( 1? 1 -
+	16 ( 1? 1 -
 		16 ( 1? 1 -
 			b> ip code + =? ( $ff0000 'ink ! "*" print $ffffff 'ink ! )
 			c@+ $ff and "%h " print
 			>b
 			) drop cr
 		) drop
+	cr
+	NOS CODE - "d:%d " print
+	CODE 256 + RTOS - "r:%d " print
+
 	;
+
 
 :dumpvmcode | adr --
 	vm@
 	ip "ip:%h " print
-	TOS "TOS:%d " print ip code + c@ "(%d) " print
-	NOS "NOS:%h " print
-	RTOS @ "RTOS:%d " print
+	TOS "TOS:%d " print 
+	|ip code + c@ "(%d) " print
+|	NOS "NOS:%h " print
+|	RTOS @ "RTOS:%d " print
+	NOS CODE 8 + - "d:%d " print
+	CODE 256 + RTOS - "r:%d " print
 	cr
 	code 256 + ( code> <?
-		@+ $3fffffff and code2name "%s " print
-		@+ $ffff and + ) drop ;
+|		dup printdef cr
+		4 + @+ $ffff and + ) drop ;
 
 :step
 	vm1 vm@ ip code + vmstep code - 'ip ! vm1 vm!
-	vm2 vm@ ip code + vmstep code - 'ip ! vm2 vm!
-	vm3 vm@ ip code + vmstep code - 'ip ! vm3 vm!
+|	vm2 vm@ ip code + vmstep code - 'ip ! vm2 vm!
+|	vm3 vm@ ip code + vmstep code - 'ip ! vm3 vm!
 	;
 
 |----------------------------------
@@ -84,11 +92,10 @@
 	cr vm1 dumpvm
 
 |	cr vm2 dumpvmcode
-	cr vm2 dumpvm
+|	cr vm2 dumpvm
 
 |	cr vm3 dumpvmcode
-	cr vm3 dumpvm
-
+|	cr vm3 dumpvm
 
 	key
 	<ret> =? ( parse&run )
@@ -109,8 +116,8 @@
 	$fff vmcpu 'vm3 !
 
 	vm1 "r3/r3arena/test1.r3i" vmload
-	vm2 "r3/r3arena/test2.r3i" vmload
-	vm3 "r3/r3arena/test3.r3i" vmload
+|	vm2 "r3/r3arena/test2.r3i" vmload
+|	vm3 "r3/r3arena/test3.r3i" vmload
 
 	'screen onshow ;
 

@@ -8,13 +8,12 @@
 ^r3/lib/input.r3
 ^r3/lib/parse.r3
 
-^r3/lib/fontm.r3
-^media/fntm/droidsans13.fnt
+^r3/lib/fontj.r3
 
 ^r3/lib/trace.r3
 
 | ventana de texto
-#xcode 5
+#xcode 1
 #ycode 1
 #wcode 40
 #hcode 20
@@ -178,23 +177,6 @@
 	selecc ;
 
 
-|------------------------------------------------
-:loadtxt | -- cargar texto
-	fuente 'name getpath
-	load 0 swap c!
-
-	fuente only13 	|-- queda solo cr al fin de linea
-	fuente dup 'pantaini> !
-	count + '$fuente !
-	;
-
-:savetxt
-	mark	| guarda texto
-	fuente ( c@+ 1?
-		13 =? ( ,c 10 ) ,c ) 2drop
-	'name savemem
-	empty ;
-
 |----------------------------------
 :calcselect
 	xcode wcode + gotox ccx 'xsele !
@@ -202,76 +184,14 @@
 	;
 
 :mode!edit
-	0 'emode !
-	rows 1 - 'hcode !
-	cols 7 - 'wcode !
-	calcselect ;
+	0 'emode ! ;
 :mode!find
-	2 'emode !
-	rows 3 - 'hcode !
-	cols 7 - 'wcode !
-	calcselect ;
+	2 'emode ! ;
 :mode!error
-	3 'emode !
-	rows 4 - 'hcode !
-	cols 7 - 'wcode !
-	calcselect ;
+	3 'emode ! ;
 
 
 |----------------------------------
-:runfile
-	savetxt
-	mark
-|WIN|	"r3 "
-|LIN|	"./r3lin "
-|RPI|	"./r3rpi "
-	,s 'name ,s ,eol
-	empty here sys
-	;
-
-:linetocursor | -- ines
-	0 fuente ( fuente> <? c@+
-		13 =? ( rot 1 + rot rot ) drop ) drop ;
-
-:debugfile
-	savetxt
-|WIN|	"r3 r3/sys/r3debug.r3"
-|LIN|	"./r3lin r3/sys/r3debug.r3"
-|RPI|	"./r3rpi r3/sys/r3debug.r3"
-	sys
-	mark
-|... load file info.
-	here "mem/debuginfo.db" load 0 swap c!
-	here >>cr trim str>nro 'cerror ! drop
-	empty
-
-	cerror 0? ( drop ; ) drop
-|... enter error mode
-	fuente cerror + 'fuente> !
-	linetocursor 'lerror !
-	here >>cr 0 swap c!
-	fuente> lerror 1 + here
-	" %s in line %d%. %w " sprint 'outpad strcpy
-	mode!error
-	;
-
-:mkplain
-	savetxt
-|WIN| "r3 r3/sys/r3plain.r3"
-|LIN| "./r3lin r3/sys/r3plain.r3"
-|RPI| "./r3rpi r3/sys/r3plain.r3"
-	sys
-	;
-
-:compile
-	savetxt
-|WIN| "r3 r3/sys/r3compiler.r3"
-|LIN| "./r3lin r3/sys/r3compiler.r3"
-|RPI| "./r3rpi r3/sys/r3compiler.r3"
-	sys
-	;
-
-|-------------------------------------------
 :copysel
 	inisel 0? ( drop ; )
 	clipboard swap
@@ -283,7 +203,7 @@
 	fuente>
 	inisel <? ( drop ; )
 	finsel <=? ( drop inisel 'fuente> ! ; )
-	finsel inisel - over swap - 'fuente> !
+	finsel inisel - over swap - 'fuente> ! 
 	drop ;
 
 :borrasel
@@ -314,26 +234,6 @@
     "bmr" =pre 1? ( ; ) drop
     "vsp" =pre 1? ( ; ) drop
     "spr" =pre
-	;
-
-#ncar
-:controle
-	savetxt
-	fuente> ( dup 1 - c@ $ff and 32 >? drop 1 - ) drop | busca comienzo
-	dup c@
-	$5E <>? ( 2drop ; ) | no es ^
-	drop
-	dup fuente - 'ncar !
-	dup 2 + posfijo? 0? ( 2drop ; )
-	editvalid 0? ( 3drop ; ) drop
-	swap 1 + | ext name
-	mark
-	dup c@ 46 =? ( swap 2 + 'path ,s ) drop
-	,w
-|	dup "mem/inc-%w.mem" sprint savemem
-	empty
-|	"r4/system/inc-%w.txt" sprint run
-	drop
 	;
 
 |-------------
@@ -476,7 +376,7 @@
 |..............................
 :linenro | lin -- lin
 	$aaaaaa 'ink !
-	dup ylinea + 1 + .d 4 .r. emits ;
+	dup ylinea + 1 + .d 3 .r. emits ;
 
 |..............................
 :emitsel
@@ -514,12 +414,12 @@
 	| hscroll
 	xcursor
 	xlinea <? ( dup 'xlinea ! )
-	xlinea wcode + >=? ( dup wcode - 1 + 'xlinea ! )
+	xlinea wcode + 4 - >=? ( dup wcode - 5 + 'xlinea ! ) | 4 linenumber
 	drop
 
 	blink 1? ( drop ; ) drop
 
-	xcode xlinea - xcursor +
+	xcode 4 + xlinea - xcursor +
 	ycode ylinea - ycursor + gotoxy
 	ccx ccy xy>v >a
 	cch ( 1? 1 -
@@ -534,11 +434,12 @@
 	drawselect
 	pantaini>
 	0 ( hcode <?
-		0 ycode pick2 + gotoxy
+		xcode ycode pick2 + gotoxy
 		linenro
-		xcode gotox
+		xcode 4 + gotox
 		swap drawline
 		swap 1 + ) drop
+	drawcursor
 	$fuente <? ( 1 - ) 'pantafin> !
 	fuente>
 	( pantafin> >? scrolldw )
@@ -589,7 +490,6 @@
 	0? ( drop ; ) 'fuente> ! ;
 
 :findmodekey
-	drawcursor
 	0 hcode 1 + gotoxy
 	$0000AE 'ink !
 	rows hcode - 1 - backlines
@@ -606,7 +506,6 @@
 	;
 
 :controlkey
-	drawcursor
 	key
 	>ctrl< =? ( controloff )
 	<f> =? ( mode!find )
@@ -630,10 +529,7 @@
 
 :editmodekey
 	panelcontrol 1? ( drop controlkey ; ) drop
-
-	drawcursor
 	'dns 'mos 'ups guiMap |------ mouse
-
 	char
 	1? ( modo ex ; )
 	drop
@@ -655,16 +551,11 @@
 	<ctrl> =? ( controlon ) >ctrl< =? ( controloff )
 	<shift> =? ( 1 'mshift ! ) >shift< =? ( 0 'mshift ! )
 
-	<f1> =? ( runfile )
-	<f2> =? ( debugfile )
-|	<f3> =? ( profiler )
-	<f4> =? ( mkplain )
-	<f5> =? ( compile )
 	drop
 	;
 
 :errmodekey
-	0 hcode 1 + gotoxy
+	xcode hcode 1 + gotoxy
 	$AE0000 'ink !
 	rows hcode - 1 - backlines
 
@@ -677,16 +568,8 @@
 	sp
 	$ff0000 'ink ! backprint
 	$ffffff 'ink ! emits
-	0 'ink ! emits
+	$ff00 'ink ! emits
 	;
-
-
-:barraf | F+
-	"Run" "F1" btnf
-	"Debug" "F2" btnf
-|	"Profile" "F3" btnf
-	"Plain" "F4" btnf
-	"Compile" "F5" btnf ;
 
 :barrac | control+
 	"Cut" "X" btnf
@@ -698,74 +581,92 @@
 	$ffffff 'ink !
 	" [%s]" print ;
 
-:printpanel
-	panelcontrol
-	0? ( drop barraf ; ) drop
-	barrac ;
 
-:barratop
-	home
-	$B2B0B2 'ink ! backline
-	$0 'ink ! sp 'name emits sp
-	$af0000 'ink !
-	printpanel
-
-	cols 8 - gotox
-	$0 'ink ! sp
+:barra
+	xcode ycode 1 - gotoxy
+	$ff00 'ink !
+	":r3 editor" emits
+	xcode wcode + 8 - gotox
+	$ffff 'ink ! sp
 	xcursor 1 + .d emits sp
 	ycursor 1 + .d emits sp
+	xcode ycode hcode + gotoxy
+	panelcontrol 1? ( drop barrac ; ) drop
+    $ff00 'ink !
+	'name emits
 	;
+
+|------------------------------------------------
+::edload | "" --
+	'name strcpy
+	fuente 'name getpath
+	load 0 swap c!
+
+	fuente only13 	|-- queda solo cr al fin de linea
+	fuente dup 'pantaini> !
+	count + '$fuente !
+	;
+
+::edsave | --
+	mark	| guarda texto
+	fuente ( c@+ 1?
+		13 =? ( ,c 10 ) ,c ) 2drop
+	'name savemem
+	empty ;
+
 
 |-------------------------------------
 :editando
 	cls gui
-	barratop
+
+	$101010 'ink !
+	xcode ycode over wcode + over hcode + backfill
+	barra
+
 	drawcode
 	emode
 	0? ( editmodekey )
-|	1 =? ( immmodekey )
 	2 =? ( findmodekey )
 	3 =? ( errmodekey )
 	drop
 	acursor
 	;
 
-:editor
-	0 'paper !
+|----------- principal
+::edrun
 	0 'xlinea !
 	mode!edit
 	'editando onshow
 	;
 
-|---- Mantiene estado del editor
-:ram
+::edram
 	here	| --- RAM
 	dup 'fuente !
 	dup 'fuente> !
 	dup '$fuente !
-	$3ffff +			| 256kb texto
+	dup 'pantaini> !
+	$ffff +			| 64kb texto
 	dup 'clipboard !
 	dup 'clipboard> !
 	$3fff +				| 16KB
 	dup 'undobuffer !
 	dup 'undobuffer> !
-	$ffff +         	| 64kb
-	dup 'linecomm !
-	dup	'linecomm> !
-	$3fff +				| 4096 linecomm
+	$1fff +         	| 16kb
 	'here  ! | -- FREE
 	0 here !
 	mark
 	;
 
-|----------- principal
-:main
-	'name "mem/main.mem" load drop
-	'fontdroidsans13 fontm
-	ram
-	loadtxt
-	editor
-	savetxt
+::edwin | x y w h --
+	'hcode ! 'wcode !
+	'ycode ! 'xcode !
+	calcselect
 	;
 
-: mark 4 main ;
+: mark
+	fontj2
+	1 2 40 25 edwin
+	edram
+	"r3/r3arena/test1.r3i" edload
+
+	edrun ;

@@ -221,9 +221,8 @@
 	100 'objetos p.ini
 	-5.0 -5.0 $ff00 "r3/r3arena/test1.r3i" +robot
 	-5.0 5.0 $ff0000 "r3/r3arena/test2.r3i" +robot
-|	5.0 5.0 $ff "r3/r3arena/test3.r3i" +robot
 	5.0 -5.0 $ff "r3/r3arena/test3.r3i" +robot
-	5.0 5.0 $ff00ff "r3/r3arena/test2.r3i" +robot
+|	5.0 5.0 $ff00ff "r3/r3arena/test2.r3i" +robot
 
 	'screen onshow ;
 

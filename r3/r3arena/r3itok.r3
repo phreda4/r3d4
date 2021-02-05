@@ -18,7 +18,12 @@
 #tlevel	| tokenizer level
 
 ##error
-##lerror
+
+#msgok "Ok"
+#msgnoblk "Block bad close"
+#msgwoa "Core word without adress"
+#msgnoa "Addr not exist"
+#msgnow "Word not found"
 
 |--- memory new definition
 | tt(2bit)-codename(30bits) (5chars)
@@ -124,7 +129,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	;
 
 :endef
-	tlevel 1? ( "bloque mal cerrado" 'error ! ) drop
+	tlevel 1? ( 'msgnoblk 'error ! ) drop
 	'blk 'blk>  !
 	0 'tlevel !
 	state 0? ( drop ; )	drop
@@ -207,7 +212,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :cond?? | adr t -- adr t
 	15 <? ( ; ) 27 >? ( ; )
 	over 16@ 1? ( drop ; ) drop
-	icode> pick2 - 2 - pick2 16!
+	icode> pick2 -  pick2 16!
 	1 'iswhile ! ;
 
 :core) | tok -- tok
@@ -218,7 +223,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	iswhile 1? ( drop icode> - 2 - ,iw ; ) drop	| patch WHILE
 |	dup 3 - c@	( ) drop                        | patch REPEAT
 	0 ,iw										| patch IF
-	3 - icode> over - 3 -
+	3 - icode> over - 2 -
 	swap 16!
 	;
 
@@ -236,7 +241,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 
 :.core	| nro --
 	state
-	2 =? ( drop "core word without adress" 'error ! ; )
+	2 =? ( drop 'msgwoa 'error ! ; )
 	drop
 	1 -
 	dup INTWORDS + ,i
@@ -262,12 +267,12 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	over - 1 - swap c! ;
 
 :.sys
-	state 1? ( 2drop "system words in definition" 'error ! ; ) drop
+|	state 1? ( 2drop "system words in definition" 'msgnosys 'error ! ; ) drop
 	3 ,i -1 ,i 1 - ,i >>sp ;
 
 :wrd2token | str -- str'
 	( dup c@ $ff and 33 <?
-		0? ( nip ; ) drop 1 + )	| trim0
+		0? ( drop 'msgok 'error ! ; ) drop 1 + )	| trim0
 |	dup "%w " slog
 	$7c =? ( drop .com ; )	| $7c |	 Comentario
 	$3A =? ( drop .def ; )	| $3a :  Definicion
@@ -275,22 +280,22 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	$22 =? ( drop .str ; )	| $22 "	 Cadena
 	$27 =? ( drop 			| $27 ' Direccion
 		dup 1 + ?word 1? ( .adr ; ) drop
-		"Addr not exist" 'error !
-		1 - 'lerror !
-		0 ; )
+		'msgnoa 'error ! ; )
 	drop
 	dup isNro 1? ( drop .lit ; ) drop	| number
 	dup ?core 1? ( .core ; ) drop		| core
 	dup ?word 1? ( .word ; ) drop		| word
 	dup ?sys 1? ( .sys ; ) drop
- 	"Word not found" 'error !
-	'lerror !
-	0 ;
+ 	'msgnow 'error ! ;
 
 ::syswor! 'systemwords ! ;
 
-::r3i2token | str --
-	0 'error ! ( wrd2token 1? ) drop ;
+::r3i2token | str -- 'str 0/error
+	0 'error !
+	0 ( drop wrd2token
+		error 0? )
+	'msgok =? ( drop 0 ; )
+	;
 
 ::r3reset | ram --
 	code> dup 'icode> !
@@ -298,12 +303,12 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	0 'state ! ;
 
 
-::vmload | 'vm "" --
+::vmload | 'vm "" -- 0/error
 	over vm@
 	r3reset
 	mark
 	here swap load 0 swap c!
-	here r3i2token
+	here r3i2token 2drop
 	vmreset
 	lastdicc> code - 8 + 'ip ! | ultima definicion
 	empty

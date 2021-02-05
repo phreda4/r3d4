@@ -26,19 +26,19 @@
 :i[		@+ 48 << 48 >> + ;
 :i]		4 'NOS +! TOS NOS ! @+ 48 << 48 >> + 'TOS ! ;
 :iEX	-4 'RTOS +! RTOS ! TOS code + 4 'NOS +! NOS @ 'TOS ! ;
-:i0?	TOS 1? ( drop @+ 48 << 48 >> + ; ) drop 2 + ; | +4 (16bit)+
-:i1?    TOS 0? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
-:i+?    TOS -? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
-:i-?	TOS +? ( drop @+ 48 << 48 >> + ; ) drop 2 + ;
-:i<?    NOS @ TOS >=? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:i>?	NOS @ TOS <=? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:i=?    NOS @ TOS <>? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:i>=?	NOS @ TOS <? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:i<=?	NOS @ TOS >? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:i<>?	NOS @ TOS =? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:iAND?	NOS @ TOS NAND? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:iNAND?	NOS @ TOS AND? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -4 'NOS +! 2 + ;
-:iBT?	NOS dup 4 - @ swap @ TOS BT? ( 'TOS ! -8 'NOS +! @+ 48 << 48 >> + ; ) 'TOS ! -8 'NOS +! 2 + ;
+:i0?	TOS 1? ( drop @+ 48 << 48 >> + 2 - ; ) drop 2 + ; | +4 (16bit)+
+:i1?    TOS 0? ( drop @+ 48 << 48 >> + 2 - ; ) drop 2 + ;
+:i+?    TOS -? ( drop @+ 48 << 48 >> + 2 - ; ) drop 2 + ;
+:i-?	TOS +? ( drop @+ 48 << 48 >> + 2 - ; ) drop 2 + ;
+:i<?    NOS @ TOS >=? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i>?	NOS @ TOS <=? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i=?    NOS @ TOS <>? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i>=?	NOS @ TOS <? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i<=?	NOS @ TOS >? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:i<>?	NOS @ TOS =? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:iAND?	NOS @ TOS NAND? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:iNAND?	NOS @ TOS AND? ( 'TOS ! -4 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -4 'NOS +! 2 + ;
+:iBT?	NOS dup 4 - @ swap @ TOS BT? ( 'TOS ! -8 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -8 'NOS +! 2 + ;
 :iDUP	4 'NOS +! TOS NOS ! ;
 :iDROP	NOS dup @ 'TOS ! 4 - 'NOS ! ;
 :iOVER	4 'NOS +! TOS NOS ! NOS 8 - @ 'TOS ! ;
