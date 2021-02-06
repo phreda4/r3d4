@@ -1,5 +1,8 @@
 | Array 16 vals
 | PHREDA 2018
+| uso
+| #list 0 0 | last first
+| cnt 'list p.ini | create list
 |------
 ^r3/lib/mem.r3
 
@@ -37,9 +40,11 @@
 		64 + ) 3drop ;
 
 ::p.del | adr list --
-	>r r@ @ 64 - 8 qmove
-	-64 r> +! ;
-|dup @ 64 - swap ! ;
+	>r r@ @ 64 - 8 qmove -64 r> +! ; | not mix
+|	dup @ 64 - swap ! ; | mix
+
+::p.nnow | adr list -- adr nro
+	p.cnt pick2 pick2 - 6 >> - ;
 
 ::p.mapv | 'vector list --
 	@+ swap @

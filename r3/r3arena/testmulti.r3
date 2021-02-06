@@ -115,9 +115,9 @@
 	$fff vmcpu 'vm2 !
 	$fff vmcpu 'vm3 !
 
-	vm1 "r3/r3arena/test1.r3i" vmload
-|	vm2 "r3/r3arena/test2.r3i" vmload
-|	vm3 "r3/r3arena/test3.r3i" vmload
+	vm1 "r3/r3arena/code/test1.r3i" vmload
+|	vm2 "r3/r3arena/code/test2.r3i" vmload
+|	vm3 "r3/r3arena/code/test3.r3i" vmload
 
 	'screen onshow ;
 

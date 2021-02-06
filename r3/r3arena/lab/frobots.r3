@@ -10,16 +10,12 @@
 ^r3/lib/rand.r3
 ^r3/util/arr16.r3
 
-^r3/editor/simple-edit.r3
-
 ^./r3ivm.r3
 ^./r3itok.r3
 ^./r3iprint.r3
 
 #spad * 256
-
-#robots 0 0
-
+#output * 8192
 
 #xcam 0 #ycam 0 #zcam 50.0
 #objetos 0 0	| finarray iniarray
@@ -85,12 +81,28 @@
 	;
 
 |----------------------------------
+#io
+
+:io!	io or 'io ! ;
+:io-!	not io and 'io ! ;
+
+:keyiorobot
+|	rand 8 >> $f and 'io !
+	key
+	<le> =? ( 1 io! ) >le< =? ( 1 io-! )
+	<ri> =? ( 2 io! ) >ri< =? ( 2 io-! )
+	<up> =? ( 4 io! ) >up< =? ( 4 io-! )
+	<dn> =? ( 8 io! ) >dn< =? ( 8 io-! )
+	<esp> =? ( $10 io! )
+	drop
+	;
 
 :motor	b> 24 + @ swap polar b> 8 + +! b> 4 + +! ;
 :turn   b> 24 + +! ;
 
 :IOrobot
-	code 256 + 8 + @	| first var in code
+	|io
+	code 256 + 8 + @
 	$1 and? ( 0.001 turn )
 	$2 and? ( -0.001 turn )
 	$4 and? ( 0.02 motor )
@@ -107,7 +119,7 @@
 	b@+ 'ink !
 	b@+ b@+ b@+ mtransi
 	|b@+ mrotxi b@+ mrotyi	| no rotate in x and y
-	8 b+
+	8 b+ 
 	b@+ mrotzi
 	drawtank
 	mpop ;
@@ -150,131 +162,68 @@
 :xbye
 	exit ;
 
-|#wsys "BYE" "shoot" "turn" "adv" "stop"
-#wsysdic $23EA6 |$34A70C35 $D76CEF $22977 $D35C31 0
-0
-#xsys 'xbye |'xshoot 'xturn 'xadv 'xstop
+:xshoot
+	$10 io! ;
+:xturn
+	vmdeep 1 <? ( drop "word?" error! ; ) drop
+	vmpop $3 and io! ;
+:xadv
+	vmdeep 1 <? ( drop "word?" error! ; ) drop
+	vmpop $3 and 2 << io! ;
+:xstop
+	$f io-! ;
 
-|-------------------
-:runscr
+
+
+|#wsys "BYE" "shoot" "turn" "adv" "stop"
+#wsysdic $23EA6 $34A70C35 $D76CEF $22977 $D35C31 0
+#xsys 'xbye 'xshoot 'xturn 'xadv 'xstop
+
+:immediate
+	9 ,i | ; in the end
+	vmresetr
+	code> vmrun drop
+	code> 'icode> !
+	;
+
+:parse&run
+	'spad
+|    dup c@ 0? ( 'state ! drop patchend pinput ; ) drop
+	r3i2token
+	state 0? ( immediate ) drop
+	0 'spad ! refreshfoco
+	;
+|----------------------------------
+:screen
 	cls home gui
 	$ff00 'ink !
-	"frobots" print cr
+	"r3i" print cr
+	$ffffff 'ink !
+	"> " print
+	'spad 1024 input
 
 	omode
 	xcam ycam zcam mtrans
 	'objetos p.draw
 
 	key
+	<ret> =? ( parse&run )
 	>esc< =? ( exit )
 	drop
 
 	acursor ;
 
-:modrun
+:main
+	fontj2
 	mark
 	'wsysdic syswor!
 	'xsys vecsys!
 	100 'objetos p.ini
-	-5.0 -5.0 $ff00 "r3/r3arena/code/test1.r3i" +robot
-	-5.0 5.0 $ff0000 "r3/r3arena/code/test2.r3i" +robot
-	5.0 -5.0 $ff "r3/r3arena/code/test3.r3i" +robot
-|	5.0 5.0 $ff00ff "r3/r3arena/code/test2.r3i" +robot
-	'runscr onshow
-	empty
-	;
+	-5.0 -5.0 $ff00 "r3/r3arena/test1.r3i" +robot
+	-5.0 5.0 $ff0000 "r3/r3arena/test2.r3i" +robot
+	5.0 -5.0 $ff "r3/r3arena/test3.r3i" +robot
+|	5.0 5.0 $ff00ff "r3/r3arena/test2.r3i" +robot
 
-|-------------------
-:modedit
-	"r3/r3arena/code/scratch.r3i" edload
-	edrun
-	edsave
-	;
+	'screen onshow ;
 
-|-------------------
-| robots
-| code/name,color,type,
-#nr>	| cursor
-#nrp	| first
-#nrc	| cnt per page
-
-
-:addr
-	"Tito" 'robots p!+ >a
-	0 a!+ 0 a!+ 0 a!+	| position
-	0 0 0 a!+ a!+ a!+	| rotation
-	;
-
-:delr
- 	nr> 'robots p.nro 'robots p.del
-	nr> 'robots  p.cnt 0? ( 2drop ; )
-	1 - clamp0 min 'nr> !
-	;
-
-:drawinlist | n -- n
-	'robots p.cnt >=? ( ; )
-	nr> =? ( $ffffff 'ink ! )
-|	dup "%d. " print
-	dup 'robots p.nro
-	@+ " %s " print
-	@+ "%h " print
-	@+ "%h " print
-	@ "%h " print
-	nr> =? ( "< " print $ff00 'ink ! )
-	cr
-	;
-
-:upr
-	nr> 1 - 0 max
-	nrp <? ( dup 'nrp ! )
-	'nr> !
-	;
-:dnr
-	nr> 1 + 'robots p.cnt 1 - clamp0 min
-	nrc nrp + 1 - >=? ( dup nrc - 1 + 'nrp ! )
-	'nr> !
-	;
-:menu
-	cls home gui
-	$ffff 'ink !
-	nr> " FRobots - %d robots" print cr
-	cr
-	$202020 'ink ! 0 2 40 over nrc + backfill
-	0 2 gotoxy $ff00 'ink !
-	0 ( nrc <? nrp + drawinlist nrp - 1 + ) drop
-
-	0 rows 1 - gotoxy
-	$ffffff 'ink !
-	"F1-Add " print
-	"F2-Edit " print
-	"F3-Del " print
-|	"F4-Debug" print
-	"F5-Run" print cr
-	key
-	<up> =? ( upr )
-	<dn> =? ( dnr )
-	<f1> =? ( addr )
-	<f2> =? ( modedit )
-	<f3> =? ( delr )
-|	<f4> =? ( debug )
-	<f5> =? ( modrun )
-	>esc< =? ( exit )
-	drop
-	acursor ;
-
-:modmenu
-	0 'nrp !
-	rows 16 - 'nrc !
-	'menu onShow ;
-
-: |<<< BOOT <<<
-	fontj2
-	mark
-| 32 robots
-	32 'robots p.ini
-| editor
-	1 2 40 25 edwin
-	edram
-| menu
-	modmenu
-	;
+: main ;
