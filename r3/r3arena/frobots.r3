@@ -16,13 +16,20 @@
 ^./r3itok.r3
 ^./r3iprint.r3
 
+#codepath "r3/r3arena/code/"
+
 #spad * 256
+
+| robots
+| code/name,color,type,
+#nr>	| cursor
+#nrp	| first
+#nrc	| cnt per page
 
 #robots 0 0
 
-
 #xcam 0 #ycam 0 #zcam 50.0
-#objetos 0 0	| finarray iniarray
+#screen 0 0	| finarray iniarray
 
 |----- draw cube -----
 :3dop project3d op ;
@@ -76,7 +83,7 @@
 	mpop ;
 
 :+disparo | vel ang x y --
-	'disparo 'objetos p!+ >a
+	'disparo 'screen p!+ >a
 	$ff a!+
 	0 swap rot a!+ a!+ a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
@@ -113,15 +120,23 @@
 	mpop ;
 
 :+robot | x y color "code" --
-	'coderobot 'objetos p!+ >a
+	'coderobot 'screen p!+ >a
 	$fff vmcpu	| create CPU
 	dup a!+		| vm
 	swap vmload | load CODE
+
 	a!+
 	swap a!+ a!+ 0 a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
 	0 0 0 a!+ a!+ a!+ | vpos
 	0 0 0 a!+ a!+ a!+ | vrot
+	;
+
+:screenrobot | adr -- adr
+	dup >a
+	a@+ a@+ a@+ a@ 2swap
+	'codepath "%s%w.r3i" sprint
+	+robot
 	;
 
 |----------------------------------
@@ -158,35 +173,32 @@
 |-------------------
 :runscr
 	cls home gui
-	$ff00 'ink !
-	"frobots" print cr
-
+	$ffff 'ink !
+	" FRobots" print cr
 	omode
 	xcam ycam zcam mtrans
-	'objetos p.draw
-
+	'screen p.draw
 	key
 	>esc< =? ( exit )
 	drop
-
 	acursor ;
+
 
 :modrun
 	mark
 	'wsysdic syswor!
 	'xsys vecsys!
-	100 'objetos p.ini
-	-5.0 -5.0 $ff00 "r3/r3arena/code/test1.r3i" +robot
-	-5.0 5.0 $ff0000 "r3/r3arena/code/test2.r3i" +robot
-	5.0 -5.0 $ff "r3/r3arena/code/test3.r3i" +robot
-|	5.0 5.0 $ff00ff "r3/r3arena/code/test2.r3i" +robot
+	100 'screen p.ini
+	'screenrobot 'robots p.mapv
 	'runscr onshow
 	empty
 	;
 
 |-------------------
 :modedit
-	"r3/r3arena/code/scratch.r3i" edload
+	nr> 'robots p.nro
+	4 + @ 'codepath "%s%w.r3i" sprint
+	edload
 	edrun
 	edsave
 	;
@@ -194,15 +206,13 @@
 |-------------------
 | robots
 | code/name,color,type,
-#nr>	| cursor
-#nrp	| first
-#nrc	| cnt per page
 
-
-:addr
-	"Tito" 'robots p!+ >a
-	0 a!+ 0 a!+ 0 a!+	| position
-	0 0 0 a!+ a!+ a!+	| rotation
+:addrobot | x y color "" --
+	'robots p!+ >a
+	a!+ a!+ a!+
+	0 a!+
+	0 a!+
+	0 a!+
 	;
 
 :delr
@@ -216,10 +226,10 @@
 	nr> =? ( $ffffff 'ink ! )
 |	dup "%d. " print
 	dup 'robots p.nro
+	@+ 'ink !
 	@+ " %s " print
-	@+ "%h " print
-	@+ "%h " print
-	@ "%h " print
+	@+ "(%f:" print
+	@ "%f)" print
 	nr> =? ( "< " print $ff00 'ink ! )
 	cr
 	;
@@ -237,7 +247,7 @@
 :menu
 	cls home gui
 	$ffff 'ink !
-	nr> " FRobots - %d robots" print cr
+	" FRobots " print cr
 	cr
 	$202020 'ink ! 0 2 40 over nrc + backfill
 	0 2 gotoxy $ff00 'ink !
@@ -245,7 +255,7 @@
 
 	0 rows 1 - gotoxy
 	$ffffff 'ink !
-	"F1-Add " print
+|	"F1-Add " print
 	"F2-Edit " print
 	"F3-Del " print
 |	"F4-Debug" print
@@ -253,7 +263,7 @@
 	key
 	<up> =? ( upr )
 	<dn> =? ( dnr )
-	<f1> =? ( addr )
+|	<f1> =? ( addr )
 	<f2> =? ( modedit )
 	<f3> =? ( delr )
 |	<f4> =? ( debug )
@@ -272,6 +282,11 @@
 	mark
 | 32 robots
 	32 'robots p.ini
+	-5.0 -5.0 "test1" $ff00 addrobot
+	-5.0 5.0 "test2" $ff0000 addrobot
+	5.0 -5.0 "test3" $ff addrobot
+|	5.0 5.0 "test4" $ff00ff addrobot
+
 | editor
 	1 2 40 25 edwin
 	edram

@@ -9,9 +9,10 @@
 	2 << ( 1? 1 - ) drop ;
 
 :main
+	1 'io !
 	8 delay
 	rand
 	8 >> $1f and 'io !
 	main ;
 
-: 13 7 * main ;
+: main ;
