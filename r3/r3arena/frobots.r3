@@ -223,14 +223,13 @@
 
 :drawinlist | n -- n
 	'robots p.cnt >=? ( ; )
-	nr> =? ( $ffffff 'ink ! )
 |	dup "%d. " print
 	dup 'robots p.nro
 	@+ 'ink !
 	@+ " %s " print
 	@+ "(%f:" print
 	@ "%f)" print
-	nr> =? ( "< " print $ff00 'ink ! )
+	nr> =? ( $ffffff 'ink ! "<<" print )
 	cr
 	;
 
