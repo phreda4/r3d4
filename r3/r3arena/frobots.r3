@@ -68,12 +68,16 @@
 |-----------------------
 :v+ b@+ b> 28 - +! ;
 
+:explosion
+
+	;
+
 |----------- Disparo
 :disparo | adr --
 	>b
 	mpush
 	-1 b> +!
-	b@+ 0? ( ; ) drop
+	b@+ 0? ( explosion ; ) drop
 	b@+ b@+ b@+ mtransi
 |	b@+ mrotxi b@+ mrotyi b@+ mrotzi | no rota balas
 	12 b+
@@ -119,24 +123,26 @@
 	drawtank
 	mpop ;
 
+|----- add robot and code
 :+robot | x y color "code" --
 	'coderobot 'screen p!+ >a
 	$fff vmcpu	| create CPU
 	dup a!+		| vm
 	swap vmload | load CODE
-
-	a!+
-	swap a!+ a!+ 0 a!+	| position
+	a!+ swap a!+ a!+ 0 a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
-	0 0 0 a!+ a!+ a!+ | vpos
-	0 0 0 a!+ a!+ a!+ | vrot
+	0 0 0 a!+ a!+ a!+ 	|
 	;
+
 
 :screenrobot | adr -- adr
 	dup >a
 	a@+ a@+ a@+ a@ 2swap
 	'codepath "%s%w.r3i" sprint
 	+robot
+	dup 16 + >a 
+	error a!+
+	lerror a!
 	;
 
 |----------------------------------
@@ -228,8 +234,9 @@
 	@+ 'ink !
 	@+ " %s " print
 	@+ "(%f:" print
-	@ "%f)" print
-	nr> =? ( $ffffff 'ink ! "<<" print )
+	@+ "%f)" print
+	@ 1? ( dup $ff0000 'ink ! " *%h* " print ) drop
+	nr> =? ( $ffffff 'ink ! "<-" print )
 	cr
 	;
 

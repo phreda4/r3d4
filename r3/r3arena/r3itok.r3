@@ -18,6 +18,7 @@
 #tlevel	| tokenizer level
 
 ##error
+##lerror
 
 #msgok "Ok"
 #msgnoblk "Block bad close"
@@ -308,7 +309,8 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	r3reset
 	mark
 	here swap load 0 swap c!
-	here r3i2token 2drop
+	here r3i2token
+	'error ! 'lerror !
 	vmreset
 	lastdicc> code - 8 + 'ip ! | ultima definicion
 	empty
