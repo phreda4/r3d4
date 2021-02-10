@@ -64,20 +64,60 @@
 	0.1 -0.1 0 3dline 0.1 0.1 0 3dline
 	-0.1 0.1 0 3dline -0.1 -0.1 0 3dline ;
 
+#x1 #y1 #x2 #y2
+
+:updatexy | x y --
+	y1 <? ( dup 'y1 ! ) y2 >? ( dup 'y2 ! ) drop
+	x1 <? ( dup 'x1 ! ) x2 >? ( dup 'x2 ! ) drop
+	;
+
+:tankingui
+	-0.8 -0.8 0 project3d dup 'y1 ! 'y2 ! dup 'x1 ! 'x2 !
+	0.8 -0.8 0 project3d updatexy
+	0.8 0.8 0 project3d updatexy
+	-0.8 0.8 0 project3d updatexy
+	x1 y1 x2 y2 guiRect
+	;
 
 |-----------------------
+#nowrobot
+
 :v+ b@+ b> 28 - +! ;
 
-:explosion
+#radioexp
+
+:checkdamage
+	;
+
+:circle | r --
+	0 over 0 3dop
+	0 ( 1.0 <? 0.1 +
+		dup pick2 polar 0 3dline
+		) 2drop ;
+
+:explo
+	>b
+	mpush
+	-1 b> +!
+	b@+ 0? ( checkdamage ; ) drop
+	b@+ b@+ 0 mtransi
+	0.1 b> +!
+	$ffffff 'ink !
+	b@ circle
+	mpop ;
 
 	;
+
+:+explo | x y exp --
+	'explo 'screen p!+ >a
+	a!+ swap a!+ a!+ 1 a! ;
 
 |----------- Disparo
 :disparo | adr --
 	>b
 	mpush
 	-1 b> +!
-	b@+ 0? ( explosion ; ) drop
+	b@+ 0? ( b@+ b@ 20 +explo ; ) drop
 	b@+ b@+ b@+ mtransi
 |	b@+ mrotxi b@+ mrotyi b@+ mrotzi | no rota balas
 	12 b+
@@ -88,7 +128,7 @@
 
 :+disparo | vel ang x y --
 	'disparo 'screen p!+ >a
-	$ff a!+
+	$3f a!+
 	0 swap rot a!+ a!+ a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
 	swap polar
@@ -121,6 +161,11 @@
 	8 b+
 	b@+ mrotzi
 	drawtank
+
+	tankingui
+|	$ffffff 'ink ! guizone
+	[ dup nowrobot =? ( 0 nip ) 'nowrobot ! ; ] onClick
+
 	mpop ;
 
 |----- add robot and code
@@ -140,7 +185,7 @@
 	a@+ a@+ a@+ a@ 2swap
 	'codepath "%s%w.r3i" sprint
 	+robot
-	dup 16 + >a 
+	dup 16 + >a
 	error a!+
 	lerror a!
 	;
@@ -177,10 +222,42 @@
 #xsys 'xbye |'xshoot 'xturn 'xadv 'xstop
 
 |-------------------
+:parserror
+	;
+
+:parse&run
+
+|	'spad r3i2token
+|	1? ( parserror ) 2drop
+
+|	9 ,i
+|	vmresetr
+|	code> vmrun drop
+
+	0 'spad !
+	refreshfoco
+	;
+
+:printinfo | --
+    nowrobot 0? ( drop ; )
+	$ffffff 'ink !
+|	dup 'screen p.nnow 'robots p.nro @+ 'ink ! @ " %s " print cr
+	4 + @+ vm@
+	@+ 'ink !
+	@+ "x:%f " print @+ "y:%f " print cr
+	@+ "%h " print @+ "%h " print cr
+	drop | @ "%h" print cr
+	"> " print 'spad 64 input
+	key
+	<ret> =? ( parse&run )
+	drop
+	;
+
 :runscr
 	cls home gui
 	$ffff 'ink !
 	" FRobots" print cr
+	printinfo
 	omode
 	xcam ycam zcam mtrans
 	'screen p.draw
@@ -221,7 +298,7 @@
 	0 a!+
 	;
 
-:delr
+:delrobot
  	nr> 'robots p.nro 'robots p.del
 	nr> 'robots  p.cnt 0? ( 2drop ; )
 	1 - clamp0 min 'nr> !
@@ -261,19 +338,21 @@
 
 	0 rows 1 - gotoxy
 	$ffffff 'ink !
-|	"F1-Add " print
+	"F1-Run " print
 	"F2-Edit " print
-	"F3-Del " print
-|	"F4-Debug" print
-	"F5-Run" print cr
+|	"F3-Debug" print
+	"F4-Add " print
+	"F5-Del " print
+	cr
+
 	key
 	<up> =? ( upr )
 	<dn> =? ( dnr )
-|	<f1> =? ( addr )
+	<f1> =? ( modrun )
 	<f2> =? ( modedit )
-	<f3> =? ( delr )
-|	<f4> =? ( debug )
-	<f5> =? ( modrun )
+|	<f3> =? ( debug
+	<f4> =? ( 0 0 $ffffff "" addrobot )
+	<f5> =? ( delrobot )
 	>esc< =? ( exit )
 	drop
 	acursor ;
