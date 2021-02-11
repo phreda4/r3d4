@@ -180,13 +180,16 @@
 	;
 
 
+#anyerror
+
 :screenrobot | adr -- adr
 	dup >a
 	a@+ a@+ a@+ a@ 2swap
 	'codepath "%s%w.r3i" sprint
 	+robot
 	dup 16 + >a
-	error a!+
+	error dup 'anyerror +!
+	a!+
 	lerror a!
 	;
 
@@ -217,9 +220,10 @@
 	exit ;
 
 |#wsys "BYE" "shoot" "turn" "adv" "stop"
-#wsysdic $23EA6 |$34A70C35 $D76CEF $22977 $D35C31 0
-0
+#wsysdic $23EA6 $34A70C35 $D76CEF $22977 $D35C31 0
+
 #xsys 'xbye |'xshoot 'xturn 'xadv 'xstop
+0
 
 |-------------------
 :parserror
@@ -272,7 +276,9 @@
 	'wsysdic syswor!
 	'xsys vecsys!
 	100 'screen p.ini
+	0 'anyerror !
 	'screenrobot 'robots p.mapv
+	anyerror 1? ( drop empty ; ) drop
 	'runscr onshow
 	empty
 	;
@@ -310,9 +316,11 @@
 	dup 'robots p.nro
 	@+ 'ink !
 	@+ " %s " print
-	@+ "(%f:" print
-	@+ "%f)" print
-	@ 1? ( dup $ff0000 'ink ! " *%h* " print ) drop
+
+|	@+ "(%f:" print
+|	@+ "%f)" print
+	8 +
+	@ 1? ( dup $ff0000 'ink ! " %s " print ) drop
 	nr> =? ( $ffffff 'ink ! "<-" print )
 	cr
 	;

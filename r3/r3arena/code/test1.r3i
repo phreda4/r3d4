@@ -5,7 +5,7 @@
 
 :main
 	$1 'io !
-	1 delay 
+	1 delay
 	$2 'io !
 	2 delay
 	$6 'io !

@@ -90,7 +90,9 @@
 
 :newentry | adr -- adr prev codename
 	endef
-	icode> lastdicc> - 8 - 16 <<
+	icode> lastdicc> - 8 -
+	-? ( 0 nip )
+	16 <<
 	icode> 'lastdicc> !
 	over 1 + word2code ;
 
@@ -207,8 +209,6 @@
 	INTWORDS + 'tsum + c@ 1? ( 0 ,iw ) drop
 	>>sp ;
 
-|	$5e =? ( drop >>cr ; )	| $5e ^  Include
-
 :,cpycom | adr -- adr'
 	1 + ( c@+ 1? $ff and 13 =? ( drop ; ) ,i ) drop 1 - ;
 
@@ -262,7 +262,8 @@
 	r3reset
 	mark
 	here swap load 0 swap c!
-	here r3i2token 2drop
+	here r3i2token 
+	1? ( swap 'lerror ! empty ; ) 2drop
 	vmreset
 	lastdicc> code - 8 + 'ip ! | ultima definicion
 	empty

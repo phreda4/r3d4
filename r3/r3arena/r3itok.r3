@@ -138,7 +138,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 
 :newentry | adr -- adr prev codename
 	endef
-	icode> lastdicc> - 8 - 16 <<
+	icode> lastdicc> - 8 - -? ( 0 nip ) 16 <<
 	icode> 'lastdicc> !
 	over 1 + word2code ;
 
