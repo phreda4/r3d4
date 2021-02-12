@@ -64,6 +64,13 @@
 	0.1 -0.1 0 3dline 0.1 0.1 0 3dline
 	-0.1 0.1 0 3dline -0.1 -0.1 0 3dline ;
 
+:drawbackgroud
+	$ffff 'ink !
+	-30.0 -30.0 0 3dop
+	30.0 -30.0 0 3dline 30.0 30.0 0 3dline
+	-30.0 30.0 0 3dline -30.0 -30.0 0 3dline ;
+
+|-----------------------
 #x1 #y1 #x2 #y2
 
 :updatexy | x y --
@@ -257,6 +264,8 @@
 	drop
 	;
 
+
+
 :runscr
 	cls home gui
 	$ffff 'ink !
@@ -264,7 +273,10 @@
 	printinfo
 	omode
 	xcam ycam zcam mtrans
+
+	drawbackgroud
 	'screen p.draw
+
 	key
 	>esc< =? ( exit )
 	drop
