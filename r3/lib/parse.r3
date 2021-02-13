@@ -45,7 +45,7 @@
 
 ::?sint | adr -- adr' nro
 	signo swap
-	0 swap ( c@+ $2f >? $39 <=? 
+	0 swap ( c@+ $2f >? $39 <=?
 		$30 - rot 10* + swap )
 	drop swap
 	rot 0? ( drop ; ) drop neg ;
@@ -120,6 +120,11 @@
 	1 over ( 1 >? 10 / swap 10* swap ) drop
 	*/ $ffff and or
 	;
+
+::str>anro | adr -- adr anro
+	dup str>nro over c@ 
+	33 <? ( drop rot drop ; ) 3drop
+	str>fnro ;
 
 :gete
 	$65 <>? ( ; ) drop

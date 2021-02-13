@@ -20,7 +20,7 @@
 ##error
 ##lerror
 
-#msgok "Ok"
+##msgok "Ok"
 #msgnoblk "Block bad close"
 #msgwoa "Core word without adress"
 #msgnoa "Addr not exist"
@@ -52,6 +52,13 @@
 		rot 1 -			| adr acc cnt
 		0? ( drop nip ; )
 		swap rot ) 2drop nip ;
+
+::makedicc | adr list -- adr'
+	swap >a
+	( dup c@ 1? drop
+		dup word2code a!+
+		>>0 ) 2drop
+	0 a!+ a> ;
 
 #buffer * 16
 
@@ -161,9 +168,9 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 
 :.lit | adr -- adr
 	state
-	2 =? ( drop str>nro ,id ; )
+	2 =? ( drop str>anro ,id ; )
 	drop
-	str>nro
+	str>anro
 	dup 57 << 57 >> =? ( $7f and $80 or ,i ; )  | 7 bits
 	dup 48 << 48 >> =? ( 0 ,i ,iw ; )			| 16 bits
  	1 ,i ,id ;		| 32 bits
@@ -304,13 +311,13 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	0 'state ! ;
 
 
-::vmload | 'vm "" -- 0/error
+::vmload | 'vm "" --
 	over vm@
 	r3reset
 	mark
 	here swap load 0 swap c!
-	here r3i2token
-	'error ! 'lerror !
+	here r3i2token drop
+	'lerror !
 	vmreset
 	lastdicc> code - 8 + 'ip ! | ultima definicion
 	empty

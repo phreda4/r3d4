@@ -22,13 +22,8 @@
 ::getval | a -- a v
 	dup 4 - @ 8 >>> ;
 
-::getsrcnro
-	dup ?numero 1? ( drop nip nip ; ) drop
-	str>fnro nip
-	;
-
 ::getcte | a -- a v
-	dup 4 - @ 8 >>> src + getsrcnro ;
+	dup 4 - @ 8 >>> src + str>anro nip ;
 
 ::getcte2 | a -- a v
 	dup 4 - @ 8 >>> 'ctecode + q@ ;

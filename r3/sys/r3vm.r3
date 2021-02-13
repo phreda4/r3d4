@@ -297,10 +297,6 @@
 :tokvalue | 'adr tok -- 'adr tok value
 	over 4 - @ 8 >> ;
 
-:getsrcnro
-	dup ?numero 1? ( drop nip nip ; ) drop
-	str>fnro nip ;
-
 :valstr
 	( c@+ 1?
 		34 =? ( drop c@+ 34 <>? ( 2drop ; ) )
@@ -397,7 +393,7 @@
 :transflit | adr' tok -- adr' tok | ; 7..10
 	tokvalue src +		| string in src
 	dup isNro 0? ( 1 + ) 6 + | 7-dec,8-bin,9-hex,10-fix ..
-	swap getsrcnro
+	swap str>anro nip
 	dup 40 << 40 >> <>? ( storebig ; )
 	8 << or pick2 4 - ! ;
 
@@ -457,7 +453,7 @@
 #gmem ',
 
 :memlit
-	tokvalue src + getsrcnro gmem ex ;
+	tokvalue src + str>anro nip gmem ex ;
 
 :resbyte | reserve memory
 	'here +! ;

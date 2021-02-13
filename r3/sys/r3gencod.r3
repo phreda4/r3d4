@@ -94,7 +94,7 @@
 	getval push.wrd 2code!+ ;
 
 |----------- inline cte
-:d1 8 >>> src + getsrcnro push.nro ;
+:d1 8 >>> src + str>anro nip push.nro ;
 :d2 8 >>> push.str ;
 :d3 8 >>> push.wrd ;
 
