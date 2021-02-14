@@ -78,44 +78,49 @@
 	vmdeep >? ( "empty stack!" error! )
 	0 nip ;
 
-:xink
-	1 needstack 1? ( drop ; ) drop
-	vmpop 'tcolor ! ;
-
+|-------- WORDS
 :xfoward
 	1 needstack 1? ( drop ; ) drop
-	xfb>
 	tcolor 'ink !
 	camscreen
 	tx ty tz 3dop
 	taz vmpop polar 'ty +! 'tx +!
+	tpen 0? ( drop ; ) drop
+	xfb>
 	tx ty tz 3dline
 	>xfb ;
 
 :xback
 	1 needstack 1? ( drop ; ) drop
-	xfb>
 	tcolor 'ink !
 	camscreen
 	tx ty tz 3dop
 	taz vmpop neg polar 'ty +! 'tx +!
+	tpen 0? ( drop ; ) drop
+	xfb>
 	tx ty tz 3dline
 	>xfb ;
 
-:xleft
-	1 needstack 1? ( drop ; ) drop
-	vmpop 'taz +! ;
-
-:xright
-	1 needstack 1? ( drop ; ) drop
-	vmpop neg 'taz +! ;
-
+:xleft  1 needstack 1? ( drop ; ) drop vmpop 'taz +! ;
+:xright	1 needstack 1? ( drop ; ) drop vmpop neg 'taz +! ;
+:xpu	0 'tpen ! ;
+:xpd	1 'tpen ! ;
+:xps	1 needstack 1? ( drop ; ) drop vmpop 'tpen ! ;
+:xink	1 needstack 1? ( drop ; ) drop vmpop 'tcolor ! ;
+:xpaper	1 needstack 1? ( drop ; ) drop vmpop 'paper ! ;
 :xhome	0 'tx ! 0 'ty ! 0 'tz ! ;
 :xcls	cls >xfb xhome ;
 :xbye	exit ;
 
-#wsys "BYE" "HOME" "CLS" "INK" "FOWARD" "BACK" "LEFT" "RIGHT" 0
-#xsysexe 'xbye 'xhome 'xcls 'xink 'xfoward 'xback 'xleft 'xright
+#wsys "BYE" "HOME" "CLS" "INK" "PAPER"
+"FD" "BK" "LT" "RT" "PU" "PD" "PS 0
+
+| "LABEL" "SETXY"
+|
+
+#xsysexe 'xbye 'xhome 'xcls 'xink 'xpaper
+'xfoward 'xback 'xleft 'xright 'xpu 'xpd 'xps
+
 #wsysdic * 1024 | 256 words
 
 |-------------------
@@ -135,13 +140,9 @@
 
 :printinfo | --
 	0 rows 10 - gotoxy
-	$ffff 'ink !
-	"FLogo " print cr
-	$ffffff 'ink !
-	cr
-	"> " print 'spad 64 input cr
-	$ff00 'ink !
-	error 1? ( dup print ) drop
+	$ffff 'ink !	"FLogo " print cr
+	$ffffff 'ink !  "> " print 'spad 64 input cr
+	$ff00 'ink !    error 1? ( dup print ) drop
 	key
 	<ret> =? ( parse&run )
 	drop
@@ -149,7 +150,7 @@
 
 |-------------------
 :modedit
-	"stratch" filename
+	"scratch" filename
 	edload
 	edrun
 	edsave
