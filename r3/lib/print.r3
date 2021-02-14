@@ -135,3 +135,14 @@
 ::bprint | "" 2color --
 	dup 4 >> $f0f0f and over $f0f0f0 and or 'ink ! swap backprint
 	over 4 << $f0f0f0 and rot $f0f0f and or 'ink ! print ;
+
+::scrollup
+	cch neg 'ccy +!
+	vframe sw cch * 2 << over + sw sh cch - * move
+	vframe sw ccy * 2 << + 0 sw cch * fill
+	;
+
+::emits?cr | str --
+	swprint ccx + sw >? ( cr ccy sh >? ( scrollup ) drop ) drop
+	emits
+	;

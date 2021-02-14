@@ -8,9 +8,8 @@
 ##IP ##TOS ##NOS ##RTOS ##RA ##RB
 ##CODE ##CODE>
 
-|##STACK * 256 | 64 cells
 | 'code
-|  stack (256)
+|  stack (256) |##STACK * 256 | 64 cells
 | tokens
 | 'code>
 | free
@@ -159,6 +158,10 @@ iMOV iMOV> iFILL iCMOV iCMOV> iCFILL			|87-92
 ::vmpop | -- t
 	TOS
 	NOS dup @ 'TOS ! 4 - 'NOS ! ;
+
+::vmpush | v --
+	4 'NOS +! TOS NOS !
+	'TOS ! ;
 
 ::vm@ | 'vm --	; get vm current
     'IP swap 8 move	;

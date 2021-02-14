@@ -108,7 +108,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	word2code lastdicc>	| code dicc
 	( dup @ $3fffffff and
 		pick2 =? ( drop nip ; )
-		drop code >?
+		drop code 256 + >?
 		dup 4 + @ 16 >>> 8 + - ) 2drop 0 ;
 
 |--------------------------
@@ -267,7 +267,9 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 :,cpycom | adr -- adr'
 	1 + ( c@+ 1? $ff and 13 =? ( drop ; ) ,i ) drop 1 - ;
 
-:.com
+:.com	| don't save comment
+	>>cr ;
+:.comsave
 	3 ,i
 	icode> swap
 	0 ,i ,cpycom 0 ,i
@@ -306,7 +308,9 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	;
 
 ::r3reset | ram --
-	code> dup 'icode> !
+	code 256 +
+	dup 'code> !
+	dup 'icode> !
 	'lastdicc> !
 	0 'state ! ;
 

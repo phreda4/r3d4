@@ -1,18 +1,20 @@
-| scratch pad
-
-:cu
-	2.0 fw 0.25 le
-	2.0 fw 0.25 le
-	2.0 fw 0.25 le
-	2.0 fw 0.01 le ;
 
 
+:cuad
+	10.0 fd 0.25 rt
+	10.0 fd 0.25 rt
+	10.0 fd 0.25 rt
+	10.0 fd 0.25 rt
+	;
 
+:ray
+	rand ink
+	rand rt
+	rand $fffff and | 16.16 fixed point
+	fd ;
 
-
-
-
-
-
+:rays
+	400 ( 1? 1 -
+		home ray ) drop ;
 
 

@@ -53,15 +53,9 @@
 		cr 1 - ) 2drop
 	waitesc ;
 
-:scroll
-	cch neg 'ccy +!
-	vframe sw cch * 2 << over + sw sh cch - * move
-	vframe sw ccy * 2 << + 0 sw cch * fill
-	;
-
 ::slog | ... --
 	print cr
-	ccy cch + sh >=? ( scroll ) drop
+	ccy cch + sh >=? ( scrollup ) drop
 	redraw	;
 
 ::waitkey

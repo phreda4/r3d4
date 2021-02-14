@@ -7,6 +7,7 @@
 ^r3/lib/gui.r3
 ^r3/lib/input.r3
 ^r3/lib/3d.r3
+^r3/lib/rand.r3
 ^r3/lib/xfb.r3
 
 ^r3/editor/simple-edit.r3
@@ -38,22 +39,6 @@
 |----- draw cube -----
 :3dop project3d op ;
 :3dline project3d line ;
-
-:drawboxz | z --
-	-0.5 -0.5 pick2 3dop
-	0.5 -0.5 pick2 3dline 0.5 0.5 pick2 3dline
-	-0.5 0.5 pick2 3dline -0.5 -0.5 rot 3dline ;
-
-:drawlinez | x1 x2 --
-	2dup -0.5 3dop 0.5 3dline ;
-
-:drawcube |
-	-0.5 drawboxz 0.5 drawboxz
-	-0.5 -0.5 drawlinez 0.5 -0.5 drawlinez
-	0.5 0.5 drawlinez -0.5 0.5 drawlinez ;
-
-:drawbox
-	0 drawboxz ;
 
 :drawturtle
 	-0.5 0 -0.5 3dop
@@ -108,18 +93,35 @@
 :xps	1 needstack 1? ( drop ; ) drop vmpop 'tpen ! ;
 :xink	1 needstack 1? ( drop ; ) drop vmpop 'tcolor ! ;
 :xpaper	1 needstack 1? ( drop ; ) drop vmpop 'paper ! ;
-:xhome	0 'tx ! 0 'ty ! 0 'tz ! ;
+:xhome	0 'tx ! 0 'ty ! 0 'tz ! 0.5 'taz ! ;
 :xcls	cls >xfb xhome ;
 :xbye	exit ;
 
-#wsys "BYE" "HOME" "CLS" "INK" "PAPER"
-"FD" "BK" "LT" "RT" "PU" "PD" "PS 0
+:xrand	rand vmpush ;
 
+#wsys "WORDS" "BYE" "HOME" "CLS" "INK" "PAPER"
+"FD" "BK" "LT" "RT" "PU" "PD" "PS"
+"RAND" 0
 | "LABEL" "SETXY"
 |
 
-#xsysexe 'xbye 'xhome 'xcls 'xink 'xpaper
+:xwords
+	xfb>
+	home
+	'wbasdic ( @+ 1?		| core
+		code2name emits?cr 32 emit ) 2drop
+    'wsys ( dup c@ 1? drop	| sys
+		dup emits?cr 32 emit >>0 ) 2drop
+	code 256 + | skip stack
+	( code> <?				| user
+		@+ code2name emits?cr 32 emit
+		@+ $ffff and + ) drop
+	>xfb ;
+
+
+#xsysexe 'xwords 'xbye 'xhome 'xcls 'xink 'xpaper
 'xfoward 'xback 'xleft 'xright 'xpu 'xpd 'xps
+'xrand
 
 #wsysdic * 1024 | 256 words
 
@@ -138,11 +140,23 @@
 	refreshfoco
 	;
 
+:printstack
+	"["  print
+	CODE 4 + ( NOS <=? @+ " %d" print ) drop
+	CODE NOS <=? ( TOS " %d " print ) drop
+	"]" print
+	;
+
 :printinfo | --
 	0 rows 10 - gotoxy
-	$ffff 'ink !	"FLogo " print cr
+	$ffff 'ink !	"FLogo " print
+	$ff00 'ink ! printstack
+	cr
 	$ffffff 'ink !  "> " print 'spad 64 input cr
-	$ff00 'ink !    error 1? ( dup print ) drop
+	$ff00 'ink !    error 1? ( dup print cr ) drop
+
+	0 rows 1 - gotoxy
+	"F2-Edit" print
 	key
 	<ret> =? ( parse&run )
 	drop
@@ -188,7 +202,7 @@
 |------------
 :
 	mark
-	fonti
+	fontj2
 	iniXFB cls >xfb
 	$fff vmcpu 'vm !	| create CPU
 
