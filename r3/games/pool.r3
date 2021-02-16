@@ -9,7 +9,7 @@
 ^r3/util/arr16.r3
 
 #sball $7A1324 $7D2001E6 $7D221320 $79F0B6 $7D21F0B0 $83D401E6 $83D5F0B0 $7A1326 $83D61320
-#cball $C
+#cball $C	| ball color
  $D2A6E364 $EA874A96 $EA86E360 $D2A7B1B6 $EA87B1B0 $BAC34A96 $BAC3B1B0 $D2A6E366 $BAC2E360 $FFFFFF0C 0
 
 #FRICTION	0.982
@@ -39,26 +39,7 @@
 	-16.0 21.0 0 3dline
 	-16.0 -21.0 0 3dline
 	16.0 -21.0 0 3dline
-	16.0 21.0 0 3dline
-	;
-
-:drawboxz | z --
-	-0.7 -0.7 pick2 3dop
-	0.7 -0.7 pick2 3dline
-	0.7 0.7 pick2 3dline
-	-0.7 0.7 pick2 3dline
-	-0.7 -0.7 rot 3dline ;
-
-:drawlinez | x1 x2 --
-	2dup -0.7 3dop 0.7 3dline ;
-
-:drawcube |
-	-0.7 drawboxz
-	0.7 drawboxz
-	-0.7 -0.7 drawlinez
-	0.7 -0.7 drawlinez
-	0.7 0.7 drawlinez
-	-0.7 0.7 drawlinez ;
+	16.0 21.0 0 3dline ;
 
 |------------------------------
 :hitwall | adr --
@@ -79,13 +60,8 @@
 	b@+ b> 12 - +!	| VY
 	b> 4 - dup @ FRICTION *. swap !
 	b@+ drop		| MASS
-	b> @
-
-	8 << $c or 'cball !  | COLOR
+	b> @ 8 << $c or 'cball !  | COLOR
 	'sball 3dvsprite
-
-|	'ink ! drawcube
-
 	mpop ;
 
 :+pball | color x y --
@@ -156,7 +132,7 @@
 	[ xypen 'y1 ! 'x1 ! ; ] 'hitmove 'hit  guiMap
 
 	omode
-|	freelook
+	freelook | coment this for halt camera!!!
 	xcam ycam zcam mtrans
 
 	drawmesa

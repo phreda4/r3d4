@@ -190,3 +190,9 @@
 	rot $f0f0f0 and swap >> $7f7f7f and
 	swap $f0f0f0 and 1 >> $7f7f7f and
 	+ ;
+
+|---- 3bytes color
+::b2color | col -- color
+	dup $f and dup 4 << or swap
+	dup $f0 and 4 << dup 4 << or swap
+	$f00 and 8 << dup 4 << or or or ;

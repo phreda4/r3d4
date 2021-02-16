@@ -1167,6 +1167,25 @@
 	dlgColor
 	;
 
+:loadincode
+	;
+
+:saveincode
+	mark
+	ves> $ffff + 'here !
+	mark
+	"#draw " ,print
+	ves ( ves> <?
+		ves> over - 2 >> $7 nand? ( ,cr ) drop
+		@+ $ffffffff and  "$%h " ,print
+		) drop
+	"0" ,print ,cr
+	"mem/vscode.r3" savemem
+	empty
+
+	empty
+	;
+
 :teclado
 	key
 	<up> =? ( sv 5 >> neg 'yv +! )
@@ -1175,6 +1194,10 @@
 	<le> =? ( sv 5 >> neg 'xv +! )
 	<pgup> =? ( sv 1 << 'sv ! )
 	<pgdn> =? ( sv 1 >> 'sv ! )
+
+|	<f1> =? ( loadincode )
+	<f2> =? ( saveincode )
+
 	>esc< =? ( exit )
 	drop
 	;
@@ -1236,11 +1259,13 @@
 
 |		dumptr |-------- DEBUG
 |		dumpe
-
+	0 rows 1 - gotoxy
+	" F2 - CODE " $5f5f5f bprint
 	acursor ;
 
 :inimem
 	mark
+	fonti
 	$454545 'paper !
 	dlgColorIni
 	iniXFB

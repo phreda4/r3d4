@@ -132,10 +132,11 @@
 
 |--- print with back, 2color is RrGgBg
 
-::bprint | "" 2color --
+::bprint | "" 2color --	; "black over white" $f0f0f0 bprint
 	dup 4 >> $f0f0f and over $f0f0f0 and or 'ink ! swap backprint
 	over 4 << $f0f0f0 and rot $f0f0f and or 'ink ! print ;
 
+|--- emit with screen limits, cr and scroll
 ::scrollup
 	cch neg 'ccy +!
 	vframe sw cch * 2 << over + sw sh cch - * move
@@ -143,6 +144,6 @@
 	;
 
 ::emits?cr | str --
-	swprint ccx + sw >? ( cr ccy sh >? ( scrollup ) drop ) drop
+	swprint ccx + sw >? ( cr ccy sh cch - >? ( scrollup ) drop ) drop
 	emits
 	;
