@@ -37,16 +37,14 @@ $207885B5 $235781F5
 	'sumorobot 'robots p!+ >b
 	b!+	| color
 	swap b!+ b!+ | x y
-	b!+	0 b!+	| rotz vel ; motor!!
-
-	0 b!+ 0 b!+  | vx vy ; physics!!
+	b!+	0 b!+	| rotz vel	; motor!!
+	0 b!+ 0 b!+  | vx vy 	; physics!!
 	;
 
 :+rot | ang --
 	0 'robots p.nro 16 + +! ;
 :+vel | vel --
-	0 'robots p.nro 20 +
-	dup @ rot + -0.2 max 0.2 min swap ! ;
+	0 'robots p.nro 20 + ! ;
 
 :motoroff
 	0 'robots p.nro 20 + 0 swap ! ;
@@ -115,14 +113,28 @@ $207885B5 $235781F5
 	poli
 	;
 
+:showvars |
+	dup 4 + >b
+	b@+ 'ink !
+	b@+ "x:%f " print
+	b@+ "y:%f " print
+	b@+ "r:%f " print
+	b@+ "v:%f " print
+	b@+ "vx:%f " print
+	b@+ "vy:%f " print cr
+	;
+
 :main
 	cls gui home
-	" ROBOT SUMO " $ff0f0f bprint
+	" ROBOT SUMO " $ff0f0f bprint cr
+|	$ff00 'ink !
+|	'showvars 'robots p.mapv
+
 	omode
 	xcam ycam zcam mtrans
 
 	steptime
-	drawback
+|	drawback
 	'robots p.draw
 
 	key

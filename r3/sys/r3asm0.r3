@@ -269,7 +269,7 @@
 	"xchg rax,rbx" ,ln
 	"cmp rax,[rbp+8*2]" ,ln
 	?? "jge _o%h" ,print ,cr
-	"cmp rax,rbx"
+	"cmp rax,rbx" ,ln
 	?? "jle _o%h" ,print ,cr
 	;
 
