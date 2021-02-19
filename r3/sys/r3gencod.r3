@@ -572,20 +572,20 @@ iMLOAD iMFREE iMPLAY
 		@+ tocode
 		swap ) 2drop
 
-|    ";---------ANA" ,ln |----- cell analisys
-|		"asm/code.asm" savememinc | debug
+||    ";---------ANA" ,ln |----- cell analisys
+||		"asm/code.asm" savememinc | debug
 
-	dup 12 + @ $f and
-	anaDeepStack
-	'bcode ( bcode> <?
-		@+
+|	dup 12 + @ $f and
+|	anaDeepStack
+|	'bcode ( bcode> <?
+|		@+
 
-|		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
-|		"asm/code.asm" savemem | debug
+||		"; " ,s dup ,tokenprint 9 ,c ,printstka ,cr
+||		"asm/code.asm" savemem | debug
 
-		anastep
-		) drop
-   anaend
+|		anastep
+|		) drop
+|   anaend
 
 |	cellinfo
 

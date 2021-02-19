@@ -56,7 +56,8 @@
 	realfilename
 	load here =? ( drop
 		over 'lerror !
-		"File not found" 'error !
+		"Include not found" 'error !
+		"- includes -" ,s
 		0 ; ) | no existe
 	here
 	dup only13 			| for see in debug
