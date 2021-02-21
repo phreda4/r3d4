@@ -22,7 +22,7 @@
 	trail> !+ 'trail> ! ;
 
 :rshift | --
-	'trail dup 4 + trail> over - 2 >> move> -4 'trail> +! ;
+	'trail dup 4 + trail> over - 2 >> move -4 'trail> +! ;
 
 :drawbox | x y --
 	gs * swap
@@ -47,7 +47,7 @@
 
 :game
 	15 framelimit
-	cls
+	cls home
 
 	px xv + vlimit 'px !
 	py yv + vlimit 'py !

@@ -12,15 +12,43 @@ $207885B5 $235781F5
 #colorobot $FF00000C $EEC86164 $F8D4ADC5 $894ADC5 $13146345 $8888880C 0
 
 #robots 0 0 | dynamic array of robots
+#fx 0 0 | fx
 
 #xcam 0 #ycam 0 #zcam 10.0
 
 #FRICTION	0.8
 
+#robottime
+#robotout
+
 :r.01 rand 0.001 mod ;
 :r.1 rand 1.0 mod ;
 :r.8 rand 8.0 mod ;
 
+:3dop project3d op ;
+:3dline project3d line ;
+
+:star | r --
+	0 over 0 3dop
+	0 ( 1.0 <?
+		0.05 + dup pick2 1 >> polar 0 3dline
+		0.05 + dup pick2 polar 0 3dline
+		) 2drop ;
+
+:explo
+	>b
+	mpush
+	-1 b> +!
+	b@+ 0? ( ; ) drop
+	b@+ b@+ 0 mtransi
+	0.1 b> +!
+	$ff0000 'ink !
+	b@ star
+	mpop ;
+
+:+hit | x y exp --
+	'explo 'fx p!+ >a
+	a!+ swap a!+ a!+ 1 a! ;
 
 | color x y rot vel vx vy
 :sumorobot | adr --
@@ -37,17 +65,15 @@ $207885B5 $235781F5
 	'sumorobot 'robots p!+ >b
 	b!+	| color
 	swap b!+ b!+ | x y
-	b!+	0 b!+	| rotz vel	; motor!!
+	b!+	0 b!+	| rotz vel 	; motor!!
 	0 b!+ 0 b!+  | vx vy 	; physics!!
+	0 b!+		| velrot
 	;
 
-:+rot | ang --
-	0 'robots p.nro 16 + +! ;
-:+vel | vel --
-	0 'robots p.nro 20 + ! ;
-
-:motoroff
-	0 'robots p.nro 20 + 0 swap ! ;
+:+rot | ang nro --
+	'robots p.nro 32 + ! ;
+:+vel | vel nro  --
+	'robots p.nro 20 + ! ;
 
 #prevtime
 #dtime
@@ -69,6 +95,7 @@ $207885B5 $235781F5
 	polar swap
 	b> @ + b!+ | dy
 	b> @ + b!+ | dx
+	b> dup @ dtime 10 */ swap 16 - +! | rotation
 
 	|.... velocity add to position
 	-8 b+
@@ -86,7 +113,7 @@ $207885B5 $235781F5
 	over 8 + @ over 8 + @ - dup *. | (x1-x2)^2
 	pick2 12 + @ pick2 12 + @ - dup *. +
 	1.0 >=? ( drop ; ) sqrt. 1.0 swap -
-	2 >> >a
+	1 >> >a
 	over 8 + @ over 8 + @ -
 	pick2 12 + @ pick2 12 + @ -
 	atan2 sincos swap				| p1 p2 si co
@@ -96,12 +123,29 @@ $207885B5 $235781F5
 	|.... change vel
 	dup a> *. pick4 24 + +! dup a> *. neg pick3 24 + +!
 	over a> *. pick4 28 + +! over a> *. neg pick3 28 + +!
-	2drop ;
+	2drop
+	over 8 + @ over 8 + @ + 1 >>
+	pick2 12 + @ pick2 12 + @ + 1 >>
+	10 +hit
+;
 
 :steptime
 	msec dup prevtime - 'dtime ! 'prevtime !
 	'domove 'robots p.mapv
 	'checkcollision 'robots p.map2
+	;
+
+:testlooser | adr -- adr
+	dup 8 + >b
+	b@+ dup *. b@+ dup *. +
+	4.8 dup *. <? ( drop ; ) drop
+	dup 'robots p.nnow 1 + 'robotout !
+	;
+
+:robotwin? | -- win
+	0 'robotout !
+	'testlooser 'robots p.mapv
+	robotout
 	;
 
 :drawback
@@ -127,39 +171,80 @@ $207885B5 $235781F5
 :main
 	cls gui home
 	" ROBOT SUMO " $ff0f0f bprint cr
-|	$ff00 'ink !
+	$ff00 'ink !
 |	'showvars 'robots p.mapv
 
 	omode
 	xcam ycam zcam mtrans
 
 	steptime
-|	drawback
+	drawback
 	'robots p.draw
+	'fx p.draw
+
+	robotwin? 1? ( exit ) drop
 
 	key
 	<f1> =? ( r.1 r.1 r.1 rand +robot )
 
-	<up> =? ( 0.01 +vel )
-	<dn> =? ( -0.01 +vel )
-	>up< =? ( motoroff ) >dn< =? ( motoroff )
-	<le> =? ( 0.01 +rot )
-	<ri> =? ( -0.01 +rot )
+	<up> =? ( 0.01 0 +vel )
+	<dn> =? ( -0.01 0 +vel )
+	>up< =? ( 0 0 +vel ) >dn< =? ( 0 0 +vel )
+	<le> =? ( 0.01 0 +rot )
+	<ri> =? ( -0.01 0 +rot )
+	>le< =? ( 0 0 +rot ) >ri< =? ( 0 0 +rot )
+
+	<w> =? ( 0.01 1 +vel )
+	<s> =? ( -0.01 1 +vel )
+	>w< =? ( 0 1 +vel ) >s< =? ( 0 1 +vel )
+	<a> =? ( 0.01 1 +rot )
+	<d> =? ( -0.01 1 +rot )
+	>a< =? ( 0 1 +rot ) >d< =? ( 0 1 +rot )
 
 	>esc< =? ( exit )
 	drop
 	acursor ;
 
+#score1 0
+#score2 0
+
 :play
 	msec 'prevtime !
-	'main onshow ;
+	0 'robottime !
+	'robots p.clear
+	-0.25 2.0 0 $ff0000 +robot
+	0.25 -2.0 0 $ff +robot
+	'main onshow
+	robotout
+	1 =? ( 1 'score1 +! )
+	2 =? ( 1 'score2 +! )
+	drop ;
+
+
+:menu
+	cls home
+	cls gui home
+	" ROBOT SUMO " $ff0f0f bprint cr
+	cr
+	cr
+	$ff0000 'ink !
+	score1 "robot 1: %d " print cr
+	$ff 'ink !
+	score2 "robot 2: %d " print cr
+	key
+	<f1> =? ( play )
+	>esc< =? ( exit )
+	drop
+	acursor
+	;
 
 :memory
 	mark
-	10 'robots p.ini
+	32 'robots p.ini
+	1024 'fx p.ini
 	-0.25 2.0 0 $ff0000 +robot
 	0.25 -2.0 0 $ff +robot
 	;
 
 |<<<< BOOT <<<<
-: memory play ;
+: memory 'menu onshow ;

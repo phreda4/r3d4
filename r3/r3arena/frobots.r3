@@ -96,10 +96,11 @@
 :checkdamage
 	;
 
-:circle | r --
+:star | r --
 	0 over 0 3dop
-	0 ( 1.0 <? 0.1 +
-		dup pick2 polar 0 3dline
+	0 ( 1.0 <?
+		0.05 + 	dup pick2 1 >> polar 0 3dline
+		0.05 + dup pick2 polar 0 3dline
 		) 2drop ;
 
 :explo
@@ -110,10 +111,9 @@
 	b@+ b@+ 0 mtransi
 	0.1 b> +!
 	$ffffff 'ink !
-	b@ circle
+	b@ star
 	mpop ;
 
-	;
 
 :+explo | x y exp --
 	'explo 'screen p!+ >a
@@ -183,7 +183,9 @@
 	swap vmload | load CODE
 	a!+ swap a!+ a!+ 0 a!+	| position
 	0 0 0 a!+ a!+ a!+	| rotation
-	0 0 0 a!+ a!+ a!+ 	|
+
+	0 0 0 a!+ a!+ a!+ 	| velocity
+
 	;
 
 
@@ -195,7 +197,7 @@
 	'codepath "%s%w.r3i" sprint
 	+robot
 	dup 16 + >a
-	error dup 'anyerror +!
+	error dup 'msgok =? ( 0 nip ) 'anyerror +!
 	a!+
 	lerror a!
 	;
@@ -274,7 +276,7 @@
 	omode
 	xcam ycam zcam mtrans
 
-	drawbackgroud
+|	drawbackgroud
 	'screen p.draw
 
 	key

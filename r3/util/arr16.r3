@@ -44,7 +44,8 @@
 |	dup @ 64 - swap ! ; | mix
 
 ::p.nnow | adr list -- adr nro
-	p.cnt pick2 pick2 - 6 >> - ;
+	4 + @ | adr first 
+	- 6 >> ;
 
 ::p.mapv | 'vector list --
 	@+ swap @
