@@ -187,8 +187,7 @@ $9EAB6D $92EC37 $24BB0DDF $249EAB6D 0
 	icode> swap
 	0 ,i ,cpystr 0 ,i
 	swap icode>
-	over - swap c! ;
-
+	over - 1 - swap c! ;
 
 :.word | adr --
 	state

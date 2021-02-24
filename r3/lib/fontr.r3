@@ -130,7 +130,11 @@
 :a2 3d>xy pline ; | linea
 :a3 swap >b 3d>xy b@+ 3d>xy pcurve b> ;  | curva
 :a4 swap >b 3d>xy b@+ 3d>xy b@+ 3d>xy pcurve3 b> ; | curva3
-#gfont a0 a1 a2 a3 a4 0 0 0
+|---- accediendo a x e y
+:a5 3d>xy opx swap pline opy pline ;
+:a6 3d>xy opy pline opx swap pline ;
+
+#gfont a0 a1 a2 a3 a4 a5 a6 0
 
 ::remit3d | 'rf --
 	@+ 3d>xy 2dup 'yp !+ ! op

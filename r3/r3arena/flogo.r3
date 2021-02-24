@@ -9,6 +9,9 @@
 ^r3/lib/3d.r3
 ^r3/lib/rand.r3
 ^r3/lib/xfb.r3
+^r3/lib/fontr.r3
+
+^media/rft/robotoregular.rft
 
 ^r3/editor/simple-edit.r3
 
@@ -29,6 +32,7 @@
 #tcolor $ffffff
 #tx #ty #tz
 #tax #tay #taz 0.5
+#xte #yte
 
 #xcam 0 #ycam 0 #zcam 50.0
 
@@ -86,6 +90,7 @@
 	tx ty tz 3dline
 	>xfb ;
 
+
 :xleft  1 needstack 1? ( drop ; ) drop vmpop 'taz +! ;
 :xright	1 needstack 1? ( drop ; ) drop vmpop neg 'taz +! ;
 :xpu	0 'tpen ! ;
@@ -99,11 +104,30 @@
 
 :xrand	rand vmpush ;
 
+
+:xtext
+	1 needstack 1? ( drop ; ) drop
+	xfb>
+	camscreen
+	robotoregular 0.8 fontr!
+	xte 'ccx ! yte 'ccy !
+	vmpop code +
+	( c@+ 1?
+		dup fontradr remit3d
+		fontrw 'ccx +!
+		) 2drop
+	ccx 'xte ! ccy 'yte !
+	>xfb ;
+
+:xsetxy
+	2 needstack 1? ( drop ; ) drop
+	vmpop 'yte !
+	vmpop 'xte !
+	;
+
 #wsys "WORDS" "BYE" "HOME" "CLS" "INK" "PAPER"
 "FD" "BK" "LT" "RT" "PU" "PD" "PS"
-"RAND" 0
-| "LABEL" "SETXY"
-|
+"RAND" "TEXT" "SETXY"
 
 :xwords
 	xfb>
@@ -121,7 +145,7 @@
 
 #xsysexe 'xwords 'xbye 'xhome 'xcls 'xink 'xpaper
 'xfoward 'xback 'xleft 'xright 'xpu 'xpd 'xps
-'xrand
+'xrand 'xtext 'xsetxy
 
 #wsysdic * 1024 | 256 words
 
@@ -177,6 +201,7 @@
 |-------------------
 :runscr
 	xfb>
+	fontj2
 	home gui
 	printinfo
 	camscreen

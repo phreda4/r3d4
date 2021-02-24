@@ -107,7 +107,7 @@
 
 :iLIT1	4 'NOS +! TOS NOS ! @+ 48 << 48 >> 'TOS ! 2 - ; | 16 bits
 :iLIT2	4 'NOS +! TOS NOS ! @+ 'TOS ! ;	| 32 bits
-:iLITs	4 'NOS +! TOS NOS ! c@+ over 'TOS ! $ff and + ;	| 8+s bits
+:iLITs	4 'NOS +! TOS NOS ! c@+ over code - 'TOS ! $ff and + ;	| 8+s bits
 :iCOM   c@+ -1 =? ( drop c@+ 2 << exsys + @ ex  ; ) $ff and + ;
 :iJMPR  @ 48 << 48 >> + ; 				| 16 bits
 :iJMP   @ code + ;						| 32 bits
