@@ -105,11 +105,13 @@
 :xrand	rand vmpush ;
 
 
-:xtext
+:xprint
 	1 needstack 1? ( drop ; ) drop
 	xfb>
 	camscreen
-	robotoregular 0.8 fontr!
+	robotoregular 1.0 fontr!
+	4.0 dup rsize
+	tcolor 'ink !
 	xte 'ccx ! yte 'ccy !
 	vmpop code +
 	( c@+ 1?
@@ -127,7 +129,7 @@
 
 #wsys "WORDS" "BYE" "HOME" "CLS" "INK" "PAPER"
 "FD" "BK" "LT" "RT" "PU" "PD" "PS"
-"RAND" "TEXT" "SETXY"
+"RAND" "PRINT" "SETXY"
 
 :xwords
 	xfb>
@@ -145,7 +147,7 @@
 
 #xsysexe 'xwords 'xbye 'xhome 'xcls 'xink 'xpaper
 'xfoward 'xback 'xleft 'xright 'xpu 'xpd 'xps
-'xrand 'xtext 'xsetxy
+'xrand 'xprint 'xsetxy
 
 #wsysdic * 1024 | 256 words
 
