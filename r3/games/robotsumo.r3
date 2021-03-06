@@ -113,13 +113,13 @@ $207885B5 $235781F5
 	over 8 + @ over 8 + @ - dup *. | (x1-x2)^2
 	pick2 12 + @ pick2 12 + @ - dup *. +
 	1.0 >=? ( drop ; ) sqrt. 1.0 swap -
-	1 >> >a
+	>a
 	over 8 + @ over 8 + @ -
 	pick2 12 + @ pick2 12 + @ -
 	atan2 sincos swap				| p1 p2 si co
 	|..... change pos
-|	dup a> *. pick4 8 + +! dup a> *. neg pick3 8 + +!
-|	over a> *. pick4 12 + +! over a> *. neg pick3 12 + +!
+	dup a> *. pick4 8 + +! dup a> *. neg pick3 8 + +!
+	over a> *. pick4 12 + +! over a> *. neg pick3 12 + +!
 	|.... change vel
 	dup a> *. pick4 24 + +! dup a> *. neg pick3 24 + +!
 	over a> *. pick4 28 + +! over a> *. neg pick3 28 + +!
