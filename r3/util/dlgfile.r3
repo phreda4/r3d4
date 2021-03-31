@@ -195,16 +195,29 @@
 	acursor
 	;
 
+:fullfilename | -- fn
+	'filename dup c@ $2f =? ( swap 1 + swap ) drop
+	'path "%s/%s" sprint
+	;
+
 ::dlgFileLoad | -- fn/0
 	dlgFileIni
-|	"hola" 'filename strcpy
 	'fileload onshow
 	dlgFileEnd
 	'filename c@ 0? ( ; ) drop
-	'filename 'path "%s/%s" sprint
+	fullfilename
 	;
 
 |----------------------
+:teclado
+	key
+	<up> =? ( lineup )
+	<dn> =? ( linedn )
+	<tab> =? ( linenter )
+	<ret> =? ( exit )
+	>esc< =? ( "" 'filename strcpy exit )
+	drop ;
+
 :filesave
 	dlgback
 	"save file" dlgtitle
@@ -216,11 +229,10 @@
 
 ::dlgFileSave | -- fn/0
 	dlgFileIni
-|	"que" 'filename strcpy
 	'filesave onshow
 	dlgFileEnd
 	'filename c@ 0? ( ; ) drop
-	'filename 'path "%s/%s" sprint
+	fullfilename
 	;
 
 

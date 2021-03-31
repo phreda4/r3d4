@@ -4,7 +4,7 @@
 #basdic
 #intdic
 
-#wsys "BYE" "WORDS" "SEE" "LIST" "EDIT" "DUMP" "RESET" "STACK" "DIR" 
+#wsys "BYE" "WORDS" "SEE" "LIST" "EDIT" "DUMP" "RESET" "STACK" "DIR"
 "shoot" "turn" "adv" "stop" ""
 
 #wbase ";" "(" ")" "[" "]"
@@ -18,7 +18,7 @@
 "NOT" "NEG" "ABS" "SQRT" "CLZ"
 "AND" "OR" "XOR" "+" "-" "*" "/" "MOD"
 "<<" ">>" ">>>" "/MOD" "*/" "*>>" "<</"
-"MOVE" "MOVE>" "FILL" "CMOV" "CMOV>" "CFILL"
+"MOVE" "MOVE>" "FILL" "CMOVE" "CMOVE>" "CFILL"
 ""
 
 #wint "LIT1" "LIT2" "LITs" "COM" "JMPR" "JMP" "CALL" "ADR" "VAR" ""
@@ -64,7 +64,7 @@
 :ptable |	sysdic
 	( @+ 1?
 |		dup "$%h |" ,print code2name ,print ,cr
-		"$%h " ,print
+		"0x%h, " ,print
 		) 2drop ;
 
 :savetable

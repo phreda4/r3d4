@@ -9,8 +9,10 @@
 ^r3/lib/3d.r3
 ^r3/lib/rand.r3
 ^r3/lib/xfb.r3
-^r3/lib/fontr.r3
 
+^r3/util/dlgfile.r3
+
+^r3/lib/fontr.r3
 ^media/rft/robotoregular.rft
 
 ^r3/editor/simple-edit.r3
@@ -20,6 +22,8 @@
 ^./r3iprint.r3
 
 #codepath "r3/r3arena/flogo/"
+
+#filenow * 256
 
 :filename
 	'codepath "%s%w.r3i" sprint ;
@@ -200,6 +204,21 @@
 	vmload | load and compile CODE
 	;
 
+:savecode
+	dlgFileSave 0? ( drop ; )
+	home dup dumpc
+	;
+
+:loadcode
+	dlgFileLoad 0? ( drop ; )
+	cls home dup dumpc
+	'filenow strcpy
+	vm 'filenow vmload
+	;
+
+:newcode
+	;
+
 |-------------------
 :runscr
 	xfb>
@@ -211,6 +230,9 @@
 
 	key
 	<f2> =? ( modedit )
+	<f5> =? ( savecode )
+	<f6> =? ( loadcode )
+	<f7> =? ( newcode )
 	>esc< =? ( exit )
 	drop
 	acursor ;
@@ -230,6 +252,8 @@
 :
 	mark
 	fontj2
+	'codepath dlgSetPath
+
 	iniXFB cls >xfb
 	$fff vmcpu 'vm !	| create CPU
 
@@ -237,7 +261,7 @@
 	'wsysdic syswor!
 	'xsysexe vecsys!
 
-	0 1 cols 1 - rows 12 - edwin edram
+	0 1 cols 1 - rows 2 - edwin edram
 
 	modrun
 	;
