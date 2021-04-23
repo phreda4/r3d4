@@ -40,10 +40,10 @@
 :iBT?	NOS dup 4 - @ swap @ TOS BT? ( 'TOS ! -8 'NOS +! @+ 48 << 48 >> + 2 - ; ) 'TOS ! -8 'NOS +! 2 + ;
 :iDUP	4 'NOS +! TOS NOS ! ;
 :iDROP	NOS dup @ 'TOS ! 4 - 'NOS ! ;
-:iOVER	4 'NOS +! TOS NOS ! NOS 8 - @ 'TOS ! ;
-:iPICK2	4 'NOS +! TOS NOS ! NOS 12 - @ 'TOS ! ;
-:iPICK3	4 'NOS +! TOS NOS ! NOS 16 - @ 'TOS ! ;
-:iPICK4	4 'NOS +! TOS NOS ! NOS 20 - @ 'TOS ! ;
+:iOVER	4 'NOS +! TOS NOS ! NOS 4 - @ 'TOS ! ;
+:iPICK2	4 'NOS +! TOS NOS ! NOS 8 - @ 'TOS ! ;
+:iPICK3	4 'NOS +! TOS NOS ! NOS 12 - @ 'TOS ! ;
+:iPICK4	4 'NOS +! TOS NOS ! NOS 16 - @ 'TOS ! ;
 :iSWAP  NOS @ TOS NOS ! 'TOS ! ;
 :iNIP	-4 'NOS +! ;
 :iROT	TOS NOS 4 - @ 'TOS ! NOS @ NOS 4 - !+ ! ;

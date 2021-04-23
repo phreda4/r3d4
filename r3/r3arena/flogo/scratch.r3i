@@ -1,11 +1,12 @@
 
 
-:cuad
+:cua
 	10.0 fd 0.25 rt
 	10.0 fd 0.25 rt
 	10.0 fd 0.25 rt
 	10.0 fd 0.25 rt
 	;
+
 
 :ray
 	rand ink
