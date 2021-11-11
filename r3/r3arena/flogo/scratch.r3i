@@ -19,3 +19,26 @@
 		home ray ) drop ;
 
 
+:arbol | nivel -- 
+	0? ( drop ; )
+	dup 1.0 * 
+	dup fd
+	0.125 lt
+	over 1 - arbol
+	0.25 rt
+	over 1 - arbol
+	0.125 lt	
+	bk
+	drop ;
+
+:arbo | nivel --
+	0? ( drop ; )
+	rand over 1.0 * mod abs 0.1 +
+	dup fd
+	0.125 lt
+	over 1 - arbo
+	0.25 rt
+	over 1 - arbo
+	0.125 lt
+	bk
+	drop ;

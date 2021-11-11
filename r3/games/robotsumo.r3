@@ -222,7 +222,6 @@ $207885B5 $235781F5
 
 
 :menu
-	cls home
 	cls gui home
 	" ROBOT SUMO " $ff0f0f bprint cr
 	cr

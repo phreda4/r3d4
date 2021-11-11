@@ -10,9 +10,9 @@
 ^r3/lib/rand.r3
 ^r3/util/arr16.r3
 
-^./r3ivm.r3
-^./r3itok.r3
-^./r3iprint.r3
+^./../r3ivm.r3
+^./../r3itok.r3
+^./../r3iprint.r3
 
 #spad * 256
 #output * 8192
