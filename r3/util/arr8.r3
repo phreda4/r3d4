@@ -87,3 +87,11 @@
 	( over <?
 		dup delp
 		32 + ) 3drop ;
+
+::p.map2 | 'vec 'list ---
+	@+ swap @
+	( over <?
+		dup 32 + ( pick2 <?
+			pick3 ex
+			32 + ) drop
+		32 + ) 3drop ;
