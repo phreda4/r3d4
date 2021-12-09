@@ -1,5 +1,4 @@
 |MEM $ffff
-| cazapatos
 
 ^r3/lib/gui.r3
 ^r3/util/loadimg.r3
@@ -8,10 +7,8 @@
 #spr_flecha
 #spr_ave
 
-#xf #yf #af 
-#df 0
-#xa #ya
-#vxa #vya
+#xf #yf #af #df 0
+#xa #ya #vxa #vya
 
 :avenueva
 	rand sh 15 << mod abs 'ya !
@@ -30,7 +27,7 @@
 :flechanueva
 	sw 1 >> 16 << 'xf !
 	sh 16 << 100.0 - 'yf !
-	0 'df !
+	0 'df ! 
 	;
 	
 :flecha
@@ -54,8 +51,7 @@
 	3.8 'ya +!
 	xf 16 >> yf 16 >> af spr_flecha rsprite 
 	3.8 'yf +!
-	ya sh 16 << <? ( drop ; ) drop
-	exit
+	ya sh 16 << >? ( exit ) drop
 	;
 
 :blanco
@@ -66,22 +62,19 @@
 	flecha
 	df 0? ( drop apunta ; ) drop
 	af -7.9 polar 'yf +! 'xf +!
-
 	xa 16 >> 60 + xf 16 >> - dup * 
 	ya 16 >> 75 + yf 16 >> - dup * +
 	sqrt
 	30 <? ( blanco ) drop
-	
 	yf -120.0 <? ( flechanueva ) drop
 	;
 	
 :jugando
 	cls home
-	ave
+	ave 
 	disparo
-	key
-	>esc< =? ( exit )
-	drop ;
+	key >esc< =? ( exit ) drop 
+	;
 
 :inicio
 	mark
@@ -90,8 +83,4 @@
 	;
 	
 : 
-	inicio
-	avenueva
-	flechanueva
-	'jugando onshow 
-	;
+	inicio avenueva flechanueva 'jugando onshow ;
